@@ -42,6 +42,9 @@ _arg_parser.add_argument("-j", "--jobs",
                          help="Max number of jobs, default is 1.")
 
 
+_arg_parser.add_argument("-d", "--dry", action='store_true')
+
+
 def run_program(make):
     args = _arg_parser.parse_args()
     make.set_max_jobs(args.jobs)
@@ -53,7 +56,10 @@ def run_program(make):
         exit(1)
 
     try:
-        make.execute()
+        if args.dry:
+            make.visit()
+        else:
+            make.execute()
     except TargetInputNotFound as input_file_err:
         print(str(input_file_err), file=sys.stderr)
         exit(1)

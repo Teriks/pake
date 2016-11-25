@@ -232,11 +232,6 @@ class Make:
         with self._task_dict_lock:
             self._task_dict[target_function] = task
 
-    def _visit_target(self, thread_pool, target_function, visitor):
-        task = thread_pool.submit(visitor, self._target_graph[target_function])
-        with self._task_dict_lock:
-            self._task_dict[target_function] = task
-
     def _check_inputs_exist(self):
         for target_function, target in self._target_graph.items():
             for i in target.inputs:
@@ -261,18 +256,17 @@ class Make:
     def visit(self, visitor=None):
         if not visitor:
             def visitor(target):
-                print("Target: " + target.function.__name__)
+                print("Execute Target: " + target.function.__name__)
 
         self._check_inputs_exist()
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=self._max_jobs) as thread_pool:
-            sorted_graph = self._sort_graph()
-            for i in sorted_graph:
-                target_function = i[0]
-                if self._check_target_out_of_date(target_function):
-                    self._outdated_target_funcs.add(target_function)
-                    self._visit_target(thread_pool, target_function, visitor)
-            self._outdated_target_funcs = set()
+        sorted_graph = self._sort_graph()
+        for i in sorted_graph:
+            target_function = i[0]
+            if self._check_target_out_of_date(target_function):
+                self._outdated_target_funcs.add(target_function)
+                visitor(self._target_graph[target_function])
+        self._outdated_target_funcs = set()
 
         self._task_dict = {}
 
