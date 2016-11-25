@@ -38,7 +38,6 @@ _arg_parser.add_argument('targets', type=str, nargs='+', help='Build targets.')
 _arg_parser.add_argument('-j', '--jobs',
                          metavar='NUM_JOBS',
                          type=_validate_gt_one,
-                         default=1,
                          help='Max number of jobs, default is 1.')
 
 
@@ -50,11 +49,14 @@ _arg_parser.add_argument('-d', '--dry', action='store_true',
 def run_program(make):
     args = _arg_parser.parse_args()
     
-    if not args.dry:
+    if args.dry and args.jobs:
+        print("-d/--dry and -j/--jobs cannot be used together.", file=sys.stderr)
+        exit(1)
+
+    if args.jobs:
         make.set_max_jobs(args.jobs)
     else:
-        print('-d/--dry cannot be used in combination with -j/--jobs.')
-        exit(1)
+        make.set_max_jobs(1)
 
     try:
         make.set_run_targets(args.targets)
