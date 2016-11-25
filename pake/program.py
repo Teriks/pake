@@ -19,7 +19,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from pake import TargetInputNotFound
+from pake import TargetInputNotFound, UndefinedTargetException
 import argparse
 import sys
 
@@ -45,11 +45,17 @@ _arg_parser.add_argument("-j", "--jobs",
 def run_program(make):
     args = _arg_parser.parse_args()
     make.set_max_jobs(args.jobs)
-    make.set_run_targets(args.targets)
+
+    try:
+        make.set_run_targets(args.targets)
+    except UndefinedTargetException as target_undef_err:
+        print(str(target_undef_err), file=sys.stderr)
+        exit(1)
 
     try:
         make.execute()
     except TargetInputNotFound as input_file_err:
         print(str(input_file_err), file=sys.stderr)
         exit(1)
+
     make.clear()

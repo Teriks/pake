@@ -150,7 +150,7 @@ class Make:
             self._target_funcs_by_name[target_function.__name__] = target_function
         for dep in depends:
             if dep not in self._target_graph:
-                raise UndefinedTargetException('Target "{target}" not defined.'
+                raise UndefinedTargetException('Target "{target}" is not defined.'
                                                .format(target=dep.__name__))
 
     def _check_target_out_of_date(self, target_function):
@@ -212,7 +212,7 @@ class Make:
                 if target in self._target_funcs_by_name:
                     self._run_targets[i] = self._target_funcs_by_name[target]
                 else:
-                    raise UndefinedTargetException("Target {target} not defined."
+                    raise UndefinedTargetException('Target "{target}" is not defined.'
                                                    .format(target=target))
 
     def _run_target_task(self, target_function):
