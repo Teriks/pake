@@ -18,8 +18,7 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-from pake import TargetInputNotFound, UndefinedTargetException
+import pake
 import argparse
 import sys
 
@@ -32,6 +31,8 @@ def _validate_gt_one(value):
         _arg_parser.error('Number of jobs cannot be less than 1.')
     return i_value
 
+
+_arg_parser.add_argument('-v', '--version', action='version', version='pake '+pake.__version__)
 
 _arg_parser.add_argument('targets', type=str, nargs='+', help='Build targets.')
 
@@ -60,7 +61,7 @@ def run_program(make):
 
     try:
         make.set_run_targets(args.targets)
-    except UndefinedTargetException as target_undef_err:
+    except pake.UndefinedTargetException as target_undef_err:
         print(str(target_undef_err), file=sys.stderr)
         exit(1)
 
@@ -69,7 +70,7 @@ def run_program(make):
             make.visit()
         else:
             make.execute()
-    except TargetInputNotFound as input_file_err:
+    except pake.TargetInputNotFound as input_file_err:
         print(str(input_file_err), file=sys.stderr)
         exit(1)
 
