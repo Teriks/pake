@@ -11,7 +11,7 @@
 #
 # 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 #
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 # LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
 # HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
 # LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
@@ -29,25 +29,32 @@ _arg_parser = argparse.ArgumentParser()
 def _validate_gt_one(value):
     i_value = int(value)
     if i_value < 1:
-        _arg_parser.error("Number of jobs cannot be less than 1.")
+        _arg_parser.error('Number of jobs cannot be less than 1.')
     return i_value
 
 
-_arg_parser.add_argument("targets", type=str, nargs='+', help="Build targets.")
+_arg_parser.add_argument('targets', type=str, nargs='+', help='Build targets.')
 
-_arg_parser.add_argument("-j", "--jobs",
-                         metavar="NUM_JOBS",
+_arg_parser.add_argument('-j', '--jobs',
+                         metavar='NUM_JOBS',
                          type=_validate_gt_one,
                          default=1,
-                         help="Max number of jobs, default is 1.")
+                         help='Max number of jobs, default is 1.')
 
 
-_arg_parser.add_argument("-d", "--dry", action='store_true')
+_arg_parser.add_argument('-d', '--dry', action='store_true', 
+                         help='Use to preform a dry run, lists all targets that '
+                              'will be executed in the next actual invocation.')
 
 
 def run_program(make):
     args = _arg_parser.parse_args()
-    make.set_max_jobs(args.jobs)
+    
+    if not args.dry:
+        make.set_max_jobs(args.jobs)
+    else:
+        print('-d/--dry cannot be used in combination with -j/--jobs.')
+        exit(1)
 
     try:
         make.set_run_targets(args.targets)

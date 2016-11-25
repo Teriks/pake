@@ -217,9 +217,9 @@ class Make:
 
     def _run_target_task(self, target_function):
         with self._task_dict_lock:
-            for i in self.get_dependencies(target_function):
-                if i in self._task_dict and self._task_dict[i].running():
-                    self._task_dict[i].result()
+            for dep_target_func in self.get_dependencies(target_function):
+                if dep_target_func in self._task_dict and self._task_dict[dep_target_func].running():
+                    self._task_dict[dep_target_func].result()
 
         sig = inspect.signature(target_function)
         if len(sig.parameters) > 0:
@@ -243,9 +243,8 @@ class Make:
         self._check_inputs_exist()
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=self._max_jobs) as thread_pool:
-            sorted_graph = self._sort_graph()
-            for i in sorted_graph:
-                target_function = i[0]
+            for node in self._sort_graph():
+                target_function = node[0]
                 if self._check_target_out_of_date(target_function):
                     self._outdated_target_funcs.add(target_function)
                     self._run_target(thread_pool, target_function)
@@ -260,13 +259,10 @@ class Make:
 
         self._check_inputs_exist()
 
-        sorted_graph = self._sort_graph()
-        for i in sorted_graph:
-            target_function = i[0]
+        for node in self._sort_graph():
+            target_function = node[0]
             if self._check_target_out_of_date(target_function):
-                self._outdated_target_funcs.add(target_function)
                 visitor(self._target_graph[target_function])
-        self._outdated_target_funcs = set()
 
         self._task_dict = {}
 
