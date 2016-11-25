@@ -176,14 +176,14 @@ class Make:
         return False
 
     def _sort_graph(self):
-        visited, dummy_targets, graph_out, to_visit = set(), set(), [], []
+        visited, no_dep_targets, graph_out, to_visit = set(), set(), [], []
 
         for target_function in self._run_targets:
             target = self._target_graph[target_function]
             dependencies = self._target_graph[target_function].dependencies
             if len(dependencies) == 0:
-                if target_function not in dummy_targets:
-                    dummy_targets.add(target_function)
+                if target_function not in no_dep_targets:
+                    no_dep_targets.add(target_function)
                     visited.add(target_function)
             else:
                 to_visit.append((target_function, target))
@@ -197,7 +197,8 @@ class Make:
 
         def get_edges(e): return e.dependencies
 
-        return itertools.chain(((dummy, []) for dummy in dummy_targets), topological_sort(graph_out, get_edges=get_edges))
+        return itertools.chain(((dummy, []) for dummy in no_dep_targets),
+                               topological_sort(graph_out, get_edges=get_edges))
 
     def set_run_targets(self, *target_functions):
         if _is_iterable_not_str(target_functions[0]):
