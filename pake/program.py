@@ -74,4 +74,7 @@ def run_program(make):
         print(str(input_file_err), file=sys.stderr)
         exit(1)
 
+    if make.get_last_run_count() == 0:
+        print("Nothing to do, all targets up to date.")
+
     make.clear()

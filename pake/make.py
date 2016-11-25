@@ -82,6 +82,10 @@ class Make:
         self._task_dict_lock = threading.RLock()
         self._task_dict = {}
         self._max_jobs = 1
+        self._last_run_count = 0
+
+    def get_last_run_count(self):
+        return self._last_run_count
 
     def set_max_jobs(self, count):
         if count < 1:
@@ -240,12 +244,14 @@ class Make:
                                               .format(file=i, target=target_function.__name__))
 
     def execute(self):
+        self._last_run_count = 0
         self._check_inputs_exist()
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=self._max_jobs) as thread_pool:
             for node in self._sort_graph():
                 target_function = node[0]
                 if self._check_target_out_of_date(target_function):
+                    self._last_run_count += 1
                     self._outdated_target_funcs.add(target_function)
                     self._run_target(thread_pool, target_function)
             self._outdated_target_funcs = set()
@@ -257,11 +263,14 @@ class Make:
             def visitor(target):
                 print("Execute Target: " + target.function.__name__)
 
+        self._last_run_count = 0
+
         self._check_inputs_exist()
 
         for node in self._sort_graph():
             target_function = node[0]
             if self._check_target_out_of_date(target_function):
+                self._last_run_count += 1
                 visitor(self._target_graph[target_function])
 
         self._task_dict = {}
