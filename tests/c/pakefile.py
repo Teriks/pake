@@ -28,7 +28,7 @@ def bar(target):
     print(target.input)
 
 
-@make.target(inputs="foo.c", outputs="foo", depends=["bar", baz])
+@make.target(inputs="foo.c", outputs="foo", depends=[bar, baz])
 def foo(target):
     pake.touch(target.output)
     print(target.input)

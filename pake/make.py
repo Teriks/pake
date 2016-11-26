@@ -163,9 +163,10 @@ class Make:
             raise TargetRedefinedException('Target "{target}" already defined.'
                                            .format(target=target_function.__name__))
         else:
+            resolved_dependencies = self._resolve_target_strings(depends)
+            
             self._target_graph[target_function] = Target(
-                target_function, inputs, outputs,
-                self._resolve_target_strings(depends)
+                target_function, inputs, outputs, resolved_dependencies
             )
 
             self._target_funcs_by_name[target_function.__name__] = target_function
@@ -218,12 +219,12 @@ class Make:
                                topological_sort(graph_out, get_edges=get_edges))
 
     def _resolve_target_strings(self, target_functions):
-        result = []
-        for i in range(0, len(target_functions)):
-            target = target_functions[i]
+        result = list(target_functions)
+        for i in range(0, len(result)):
+            target = result[i]
             if type(target) is str:
                 if target in self._target_funcs_by_name:
-                    result.append(self._target_funcs_by_name[target])
+                    result[i] = self._target_funcs_by_name[target]
                 else:
                     raise UndefinedTargetException('Target "{target}" is not defined.'
                                                    .format(target=target))
