@@ -23,7 +23,8 @@ import argparse
 import sys
 import ast
 
-class DefineSyntaxError(SyntaxError):
+
+class _DefineSyntaxError(SyntaxError):
     pass
 
 
@@ -83,7 +84,7 @@ def _coerce_define_value(value_name, value):
                 try:
                     return ast.literal_eval(ls)
                 except SyntaxError as syn_err:
-                    raise DefineSyntaxError(
+                    raise _DefineSyntaxError(
                         'Error parsing define value of "{name}": {message}'
                         .format(name=value_name, message=str(syn_err)))
         else:
@@ -129,10 +130,9 @@ def run_program(make):
     if args.define:
         try:
             make.set_defines(_defines_to_dic(args.define))
-        except DefineSyntaxError as syn_err:
+        except _DefineSyntaxError as syn_err:
             print(str(syn_err), file=sys.stderr)
             exit(1)
-        print(make.get_defines())
 
     try:
         if args.dry_run:
