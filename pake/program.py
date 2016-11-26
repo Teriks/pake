@@ -42,16 +42,60 @@ _arg_parser.add_argument('-j', '--jobs',
                          help='Max number of jobs, default is 1.')
 
 
-_arg_parser.add_argument('-d', '--dry', action='store_true', 
+_arg_parser.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
                          help='Use to preform a dry run, lists all targets that '
                               'will be executed in the next actual invocation.')
+
+
+_arg_parser.add_argument('-D', '--define',  nargs=1, action='append')
+
+
+def _is_float(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+
+def _is_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+
+def _coerce_define_value(value):
+    if _is_int(value):
+        return int(value)
+    elif _is_float(value):
+        return float(value)
+    else:
+        lower = value.lower()
+        if lower == 'false':
+            return False
+        if lower == 'true':
+            return True
+    return value
+
+
+def _defines_to_dic(defines):
+    result = {}
+    for i in defines:
+        d = i[0].split('=', maxsplit=1)
+        if len(d) == 1:
+            result[d[0]] = True
+        else:
+            result[d[0]] = _coerce_define_value(d[1])
+    return result
 
 
 def run_program(make):
     args = _arg_parser.parse_args()
     
-    if args.dry and args.jobs:
-        print("-d/--dry and -j/--jobs cannot be used together.", file=sys.stderr)
+    if args.dry_run and args.jobs:
+        print("-n/--dry-run and -j/--jobs cannot be used together.", file=sys.stderr)
         exit(1)
 
     if args.jobs:
@@ -65,8 +109,11 @@ def run_program(make):
         print(str(target_undef_err), file=sys.stderr)
         exit(1)
 
+    if args.define:
+        make.set_defines(_defines_to_dic(args.define))
+
     try:
-        if args.dry:
+        if args.dry_run:
             make.visit()
         else:
             make.execute()

@@ -33,12 +33,20 @@ def foo(target):
 
 @make.target
 def dummy():
-    print("dummy")
+    if make['DUMMY_PRINT_CAPS']:
+        print("DUMMY")
+    else:
+        print("dummy")
 
 
 @make.target
 def dummy2(target):
-    print("dummy2")
+    # catch -D DUMMY_PRINT_CAPS=true or even just
+    # -D DUMMY_PRINT_CAPS
+    if make['DUMMY_PRINT_CAPS']:
+        print("DUMMY2")
+    else:
+        print("dummy2")
 
 
 pake.run_program(make)

@@ -83,6 +83,21 @@ class Make:
         self._task_dict = {}
         self._max_jobs = 1
         self._last_run_count = 0
+        self._defines = {}
+
+    def __getitem__(self, item):
+        if item in self._defines:
+            return self._defines[item]
+        else:
+            return None
+
+    def set_defines(self, defines_dict):
+        if type(defines_dict) is not dict:
+            raise ValueError('defines_dict must be a dictionary.')
+        self._defines = defines_dict
+
+    def get_defines(self):
+        return self._defines
 
     def get_last_run_count(self):
         return self._last_run_count
