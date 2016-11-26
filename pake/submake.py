@@ -21,7 +21,7 @@ def run_script(script_path, *args):
         work_dir = os.path.dirname(os.path.abspath(script_path))
         output = subprocess.check_output([sys.executable, script_path, "-C", work_dir]+str_filter_args,
                                          stderr=subprocess.STDOUT, universal_newlines=True)
-        print(script_path+": "+output)
+        print(output)
     except subprocess.CalledProcessError as err:
         raise SubMakeException(err.output)
 

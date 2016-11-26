@@ -132,6 +132,7 @@ def run(make):
 
     if args.directory:
         os.chdir(args.directory)
+        print("Entering Directory: "+args.directory)
     
     if args.dry_run and args.jobs:
         print("-n/--dry-run and -j/--jobs cannot be used together.", file=sys.stderr)
@@ -164,5 +165,8 @@ def run(make):
 
     if make.get_last_run_count() == 0:
         print("Nothing to do, all targets up to date.")
+
+    if args.directory:
+        print("Leaving Directory: "+args.directory)
 
     make.clear()
