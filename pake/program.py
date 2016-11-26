@@ -22,6 +22,7 @@ import pake
 import argparse
 import sys
 import ast
+import os
 
 
 class _DefineSyntaxError(SyntaxError):
@@ -36,6 +37,16 @@ def _validate_gt_one(value):
     if i_value < 1:
         _arg_parser.error('Number of jobs cannot be less than 1.')
     return i_value
+
+
+def _validate_dir(path):
+    if os.path.exists(path):
+        if os.path.isdir(path):
+            return path
+        else:
+            _arg_parser.error('Directory "{name}" does not exist.'.format(name=path))
+    else:
+        _arg_parser.error('Path "{path}" is not a directory.')
 
 
 _arg_parser.add_argument('-v', '--version', action='version', version='pake '+pake.__version__)
@@ -53,7 +64,12 @@ _arg_parser.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
                               'will be executed in the next actual invocation.')
 
 
-_arg_parser.add_argument('-D', '--define',  nargs=1, action='append')
+_arg_parser.add_argument('-D', '--define',  action='append',
+                         help='Add defined value.')
+
+
+_arg_parser.add_argument('-C', '--directory', type=_validate_dir,
+                         help='Change directory before executing.')
 
 
 def _is_float(s):
@@ -111,6 +127,9 @@ def _defines_to_dic(defines):
 
 def run_program(make):
     args = _arg_parser.parse_args()
+
+    if args.directory:
+        os.chdir(args.directory)
     
     if args.dry_run and args.jobs:
         print("-n/--dry-run and -j/--jobs cannot be used together.", file=sys.stderr)

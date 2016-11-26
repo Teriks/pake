@@ -3,7 +3,10 @@
 import sys
 import os
 
-sys.path.append(os.path.abspath('../../'))
+# the directory above tests to the path so pake can be included
+# not needed if module is 'installed'
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../')))
 
 import pake
 import time
