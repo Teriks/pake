@@ -85,9 +85,9 @@ def _defines_to_dic(defines):
     for i in defines:
         d = i[0].split('=', maxsplit=1)
         if len(d) == 1:
-            result[d[0]] = True
+            result[d[0].strip()] = True
         else:
-            result[d[0]] = _coerce_define_value(d[1])
+            result[d[0].strip()] = _coerce_define_value(d[1])
     return result
 
 
