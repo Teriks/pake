@@ -216,7 +216,7 @@ class Make:
             if cur[0] not in visited:
                 to_visit.extend(
                     [(edge, self._target_graph[edge]) for edge in cur[1].dependencies])
-                
+
                 graph_out.insert(0, (cur[0], cur[1]))
                 visited.add(cur[0])
 
@@ -244,10 +244,14 @@ class Make:
         else:
             self._run_targets = self._resolve_target_strings(target_functions)
 
+    def _target_task_running(self, target_function):
+        return target_function in self._task_dict and \
+               self._task_dict[target_function].running()
+
     def _run_target_task(self, target_function):
         with self._task_dict_lock:
             for dep_target_func in self.get_dependencies(target_function):
-                if dep_target_func in self._task_dict and self._task_dict[dep_target_func].running():
+                if self._target_task_running(dep_target_func):
                     self._task_dict[dep_target_func].result()
 
         sig = inspect.signature(target_function)
@@ -280,6 +284,7 @@ class Make:
                     self._last_run_count += 1
                     self._outdated_target_funcs.add(target_function)
                     self._run_target(thread_pool, target_function)
+
             self._outdated_target_funcs = set()
 
         self._task_dict = {}

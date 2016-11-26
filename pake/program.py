@@ -35,7 +35,7 @@ _arg_parser = argparse.ArgumentParser()
 def _validate_gt_one(value):
     i_value = int(value)
     if i_value < 1:
-        _arg_parser.error('Number of jobs cannot be less than 1.')
+        _arg_parser.error('Max number of parallel jobs cannot be less than 1.')
     return i_value
 
 
@@ -56,7 +56,9 @@ _arg_parser.add_argument('targets', type=str, nargs='+', help='Build targets.')
 _arg_parser.add_argument('-j', '--jobs',
                          metavar='NUM_JOBS',
                          type=_validate_gt_one,
-                         help='Max number of parallel jobs, default is 1.')
+                         help='Max number of parallel jobs.  Using this option '
+                              'enables unrelated targets to run in parallel with a '
+                              'max of N targets running at a time.')
 
 
 _arg_parser.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
@@ -137,8 +139,6 @@ def run_program(make):
 
     if args.jobs:
         make.set_max_jobs(args.jobs)
-    else:
-        make.set_max_jobs(1)
 
     try:
         make.set_run_targets(args.targets)
