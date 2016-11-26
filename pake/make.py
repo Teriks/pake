@@ -165,12 +165,12 @@ class Make:
             raise TargetRedefinedException('Target "{target}" already defined.'
                                            .format(target=target_function.__name__))
         else:
-            self._target_graph[target_function] = Target(target_function, inputs, outputs, depends)
+            self._target_graph[target_function] = Target(
+                target_function, inputs, outputs,
+                self._resolve_target_strings(depends)
+            )
+
             self._target_funcs_by_name[target_function.__name__] = target_function
-        for dep in depends:
-            if dep not in self._target_graph:
-                raise UndefinedTargetException('Target "{target}" is not defined.'
-                                               .format(target=dep.__name__))
 
     def _check_target_out_of_date(self, target_function):
         dependencies = self.get_dependencies(target_function)
@@ -219,20 +219,23 @@ class Make:
         return itertools.chain(((no_deps, []) for no_deps in no_dep_targets),
                                topological_sort(graph_out, get_edges=get_edges))
 
-    def set_run_targets(self, *target_functions):
-        if _is_iterable_not_str(target_functions[0]):
-            self._run_targets = list(target_functions[0])
-        else:
-            self._run_targets = list(target_functions)
-
-        for i in range(0, len(self._run_targets)):
-            target = self._run_targets[i]
+    def _resolve_target_strings(self, target_functions):
+        result = []
+        for i in range(0, len(target_functions)):
+            target = target_functions[i]
             if type(target) is str:
                 if target in self._target_funcs_by_name:
-                    self._run_targets[i] = self._target_funcs_by_name[target]
+                    result.append(self._target_funcs_by_name[target])
                 else:
                     raise UndefinedTargetException('Target "{target}" is not defined.'
                                                    .format(target=target))
+        return result
+
+    def set_run_targets(self, *target_functions):
+        if _is_iterable_not_str(target_functions[0]):
+            self._run_targets = self._resolve_target_strings(target_functions[0])
+        else:
+            self._run_targets = self._resolve_target_strings(target_functions)
 
     def _run_target_task(self, target_function):
         with self._task_dict_lock:
