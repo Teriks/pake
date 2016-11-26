@@ -21,6 +21,11 @@
 import pake
 import argparse
 import sys
+import ast
+
+class DefineSyntaxError(SyntaxError):
+    pass
+
 
 _arg_parser = argparse.ArgumentParser()
 
@@ -66,13 +71,25 @@ def _is_int(s):
         return False
 
 
-def _coerce_define_value(value):
+def _coerce_define_value(value_name, value):
     if _is_int(value):
         return int(value)
     elif _is_float(value):
         return float(value)
     else:
-        lower = value.lower()
+        ls = value.lstrip()
+        if len(ls) > 0:
+            if ls[0] == '\'' or ls[0] == '\"':
+                try:
+                    return ast.literal_eval(ls)
+                except SyntaxError as syn_err:
+                    raise DefineSyntaxError(
+                        'Error parsing define value of "{name}": {message}'
+                        .format(name=value_name, message=str(syn_err)))
+        else:
+            return True
+
+        lower = ls.rstrip().lower()
         if lower == 'false':
             return False
         if lower == 'true':
@@ -87,7 +104,7 @@ def _defines_to_dic(defines):
         if len(d) == 1:
             result[d[0].strip()] = True
         else:
-            result[d[0].strip()] = _coerce_define_value(d[1])
+            result[d[0].strip()] = _coerce_define_value(d[0], d[1])
     return result
 
 
@@ -110,7 +127,12 @@ def run_program(make):
         exit(1)
 
     if args.define:
-        make.set_defines(_defines_to_dic(args.define))
+        try:
+            make.set_defines(_defines_to_dic(args.define))
+        except DefineSyntaxError as syn_err:
+            print(str(syn_err), file=sys.stderr)
+            exit(1)
+        print(make.get_defines())
 
     try:
         if args.dry_run:
