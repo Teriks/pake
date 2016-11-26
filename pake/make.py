@@ -97,7 +97,7 @@ class Make:
         self._defines = defines_dict
 
     def get_defines(self):
-        return self._defines
+        return dict(self._defines)
 
     def get_last_run_count(self):
         return self._last_run_count
