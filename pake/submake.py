@@ -8,14 +8,22 @@ class SubMakeException(Exception):
 
 
 def _execute(cmd):
-    popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
+    popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+
+    stdout = []
     for stdout_line in iter(popen.stdout.readline, ""):
+        stdout.append(stdout_line)
         yield stdout_line
+
+    stderr = []
+    for stderr_line in iter(popen.stderr.readline, ""):
+        stderr.append(stderr_line)
 
     popen.stdout.close()
     return_code = popen.wait()
     if return_code:
-        raise subprocess.CalledProcessError(return_code, cmd)
+        output = ''.join(stderr)+''.join(stdout)
+        raise subprocess.CalledProcessError(return_code, cmd, output=output)
 
 
 def run_script(script_path, *args):
