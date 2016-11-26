@@ -44,9 +44,9 @@ def _validate_dir(path):
         if os.path.isdir(path):
             return path
         else:
-            _arg_parser.error('Directory "{name}" does not exist.'.format(name=path))
+            _arg_parser.error('Path "{path}" is not a directory.')
     else:
-        _arg_parser.error('Path "{path}" is not a directory.')
+        _arg_parser.error('Directory "{name}" does not exist.'.format(name=path))
 
 
 _arg_parser.add_argument('-v', '--version', action='version', version='pake '+pake.__version__)
