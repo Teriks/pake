@@ -56,7 +56,7 @@ _arg_parser.add_argument('targets', type=str, nargs='+', help='Build targets.')
 _arg_parser.add_argument('-j', '--jobs',
                          metavar='NUM_JOBS',
                          type=_validate_gt_one,
-                         help='Max number of jobs, default is 1.')
+                         help='Max number of parallel jobs, default is 1.')
 
 
 _arg_parser.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
