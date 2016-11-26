@@ -13,8 +13,9 @@ import pake
 make = pake.Make()
 
 
-@make.add_target
+@make.target(inputs="bam.c", outputs="bam")
 def test(target):
+    pake.touch("bam")
     print("TEST SUB MAKE")
 
 pake.run_program(make)
