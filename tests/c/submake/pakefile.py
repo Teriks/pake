@@ -18,4 +18,4 @@ def test(target):
     pake.touch("bam")
     print("TEST SUB MAKE")
 
-pake.run_program(make)
+pake.run(make)

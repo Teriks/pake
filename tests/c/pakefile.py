@@ -66,4 +66,4 @@ def dummy2(target):
         print(dummy_print)
 
 
-pake.run_program(make)
+pake.run(make)

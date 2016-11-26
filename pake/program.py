@@ -127,7 +127,7 @@ def _defines_to_dic(defines):
     return result
 
 
-def run_program(make):
+def run(make):
     args = _arg_parser.parse_args()
 
     if args.directory:

@@ -25,7 +25,7 @@ __license__ = 'Three Clause BSD'
 __version__ = '0.0.1.0'
 
 from pake.make import Make, TargetRedefinedException, UndefinedTargetException, TargetInputNotFound
-from pake.program import run_program
+from pake.program import run
 from pake.submake import run_script
 import os
 
