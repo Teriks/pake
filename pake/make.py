@@ -184,7 +184,7 @@ class Make:
 
         for target_function in self._run_targets:
             target = self._target_graph[target_function]
-            dependencies = self._target_graph[target_function].dependencies
+            dependencies = target.dependencies
             if len(dependencies) == 0:
                 if target_function not in no_dep_targets:
                     no_dep_targets.add(target_function)
@@ -201,7 +201,7 @@ class Make:
 
         def get_edges(e): return e.dependencies
 
-        return itertools.chain(((dummy, []) for dummy in no_dep_targets),
+        return itertools.chain(((no_deps, []) for no_deps in no_dep_targets),
                                topological_sort(graph_out, get_edges=get_edges))
 
     def set_run_targets(self, *target_functions):
