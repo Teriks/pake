@@ -145,19 +145,17 @@ class Make:
         return self._target_graph[target_function].dependencies
 
     def add_target(self, target_function, inputs=None, outputs=None, depends=None):
-        if not depends: depends = []
-        if not inputs: inputs = []
-        if not outputs: outputs = []
+        if not depends:
+            depends = []
+        if not inputs:
+            inputs = []
+        if not outputs:
+            outputs = []
 
         if type(depends) is not list:
             depends = [depends]
-
         if type(inputs) is not list:
             inputs = [inputs]
-
-        if type(outputs) is not list:
-            outputs = [outputs]
-
         if type(outputs) is not list:
             outputs = [outputs]
 
@@ -229,6 +227,9 @@ class Make:
                 else:
                     raise UndefinedTargetException('Target "{target}" is not defined.'
                                                    .format(target=target))
+            elif not inspect.isfunction(target):
+                raise ValueError('Given target "{obj}" was neither a function or a string.'
+                                 .format(obj=target))
         return result
 
     def set_run_targets(self, *target_functions):
@@ -254,16 +255,17 @@ class Make:
         with self._task_dict_lock:
             self._task_dict[target_function] = task
 
-    def _check_inputs_exist(self):
+    def _check_graph_inputs_exist(self):
         for target_function, target in self._target_graph.items():
             for i in target.inputs:
                 if not os.path.exists(i):
-                    raise TargetInputNotFound('Input file "{file}" in target "{target}" could not be found.'
-                                              .format(file=i, target=target_function.__name__))
+                    raise TargetInputNotFound(
+                        'Input file "{file}" in target "{target}" could not be found.'
+                        .format(file=i, target=target_function.__name__))
 
     def execute(self):
         self._last_run_count = 0
-        self._check_inputs_exist()
+        self._check_graph_inputs_exist()
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=self._max_jobs) as thread_pool:
             for node in self._sort_graph():
@@ -283,7 +285,7 @@ class Make:
 
         self._last_run_count = 0
 
-        self._check_inputs_exist()
+        self._check_graph_inputs_exist()
 
         for node in self._sort_graph():
             target_function = node[0]
