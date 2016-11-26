@@ -23,6 +23,27 @@ class CyclicDependencyError(Exception):
     pass
 
 
+def _get_edges_or_empty(graph, vertex, get_edges):
+    if vertex in graph:
+        return get_edges(graph[vertex])
+    else:
+        return []
+
+
+def check_cyclic(graph, get_edges=None):
+    path = set()
+
+    def visit(node):
+        path.add(node)
+        for edge in _get_edges_or_empty(graph, node, get_edges):
+            if edge in path or visit(edge):
+                return True
+        path.remove(node)
+        return False
+
+    return any(visit(node) for node in graph)
+
+
 def topological_sort(graph_unsorted, get_edges=None):
     if get_edges is None:
         def get_edges(t): return t[1]

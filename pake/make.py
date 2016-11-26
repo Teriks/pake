@@ -19,7 +19,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from pake.topologicalsort import topological_sort
+from pake.graph import topological_sort, check_cyclic, CyclicDependencyError
 import itertools
 import threading
 import concurrent.futures
@@ -194,6 +194,11 @@ class Make:
         return False
 
     def _sort_graph(self):
+        def get_edges(e): return e.dependencies
+
+        if check_cyclic(self._target_graph, get_edges=get_edges):
+            raise CyclicDependencyError("Cyclic target dependency detected.")
+
         visited, no_dep_targets, graph_out, to_visit = set(), set(), [], []
 
         for target_function in self._run_targets:
@@ -209,11 +214,11 @@ class Make:
         while to_visit:
             cur = to_visit.pop()
             if cur[0] not in visited:
-                to_visit.extend([(edge, self._target_graph[edge]) for edge in cur[1].dependencies])
+                to_visit.extend(
+                    [(edge, self._target_graph[edge]) for edge in cur[1].dependencies])
+                
                 graph_out.insert(0, (cur[0], cur[1]))
                 visited.add(cur[0])
-
-        def get_edges(e): return e.dependencies
 
         return itertools.chain(((no_deps, []) for no_deps in no_dep_targets),
                                topological_sort(graph_out, get_edges=get_edges))
