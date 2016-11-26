@@ -46,6 +46,8 @@ def dummy():
     else:
         print(dummy_print)
 
+    pake.run_script("submake/pakefile.py", "test")
+
 
 @make.target
 def dummy2(target):

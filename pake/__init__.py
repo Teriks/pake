@@ -26,6 +26,7 @@ __version__ = '0.0.1.0'
 
 from pake.make import Make, TargetRedefinedException, UndefinedTargetException, TargetInputNotFound
 from pake.program import run_program
+from pake.submake import run_script
 import os
 
 
