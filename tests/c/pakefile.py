@@ -46,13 +46,15 @@ def dummy():
 
 @make.target
 def dummy2(target):
-    # catch -D DUMMY_PRINT_CAPS=true or even
-    # -D DUMMY_PRINT_CAPS
+
     dummy_print = "dummy2"
 
+    # get the value of DUMMY_PRINT if it is defined
     if make['DUMMY_PRINT']:
         dummy_print = make['DUMMY_PRINT']
 
+    # catch -D DUMMY_PRINT_CAPS=true or even
+    # -D DUMMY_PRINT_CAPS
     if make['DUMMY_PRINT_CAPS']:
         print(dummy_print.upper())
     else:
