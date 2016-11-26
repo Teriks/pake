@@ -244,15 +244,22 @@ class Make:
         else:
             self._run_targets = self._resolve_target_strings(target_functions)
 
+    def _target_task_exists(self, target_function):
+        return target_function in self._task_dict
+
     def _target_task_running(self, target_function):
-        return target_function in self._task_dict and \
-               self._task_dict[target_function].running()
+        return self._task_dict[target_function].running()
 
     def _run_target_task(self, target_function):
         with self._task_dict_lock:
             for dep_target_func in self.get_dependencies(target_function):
-                if self._target_task_running(dep_target_func):
-                    self._task_dict[dep_target_func].result()
+                if self._target_task_exists(dep_target_func):
+                    task = self._task_dict[dep_target_func]
+                    if self._target_task_running(dep_target_func):
+                        task.result()
+                    else:
+                        if task.exception():
+                            raise task.exception()
 
         sig = inspect.signature(target_function)
         if len(sig.parameters) > 0:
@@ -261,7 +268,11 @@ class Make:
             target_function()
 
     def _run_target(self, thread_pool, target_function):
+        def done_callback(t):
+            if t.exception():
+                raise t.exception()
         task = thread_pool.submit(self._run_target_task, target_function)
+        task.add_done_callback(done_callback)
         with self._task_dict_lock:
             self._task_dict[target_function] = task
 
