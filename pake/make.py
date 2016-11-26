@@ -164,7 +164,7 @@ class Make:
                                            .format(target=target_function.__name__))
         else:
             resolved_dependencies = self._resolve_target_strings(depends)
-            
+
             self._target_graph[target_function] = Target(
                 target_function, inputs, outputs, resolved_dependencies
             )
