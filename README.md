@@ -61,8 +61,12 @@ def do_stuff(target):
     print(target.input)
     pake.touch(target.output)
 	
+	
+	
 
-# Basically a dummy target
+	
+
+# Basically a dummy target (if nothing actually depended on it)
 
 @make.target
 def print_define():
@@ -74,6 +78,15 @@ def print_define():
 	
     if make["SOME_DEFINE"]:
 	    print(make["SOME_DEFINE"])
+		
+		
+		
+		
+# Always runs, because there are no inputs or outputs to use for file change detection
+
+@make.target(depends=[do_stuff, print_define])
+def all():
+    print("Finished doing stuff! nothing more to do.")
 	
 
 pake.run(make)
@@ -84,7 +97,7 @@ pake.run(make)
 Then:
 
 
-`./pakefile.py do_stuff print_define -DSOME_DEFINE="test"`
+`./pakefile.py all -DSOME_DEFINE="test"`
 
 
 # Current Options
