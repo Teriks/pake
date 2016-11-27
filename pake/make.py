@@ -96,7 +96,7 @@ class Make:
             raise ValueError('defines_dict must be a dictionary.')
         self._defines = defines_dict
 
-    def target_function_count(self):
+    def target_count(self):
         return len(self._target_graph)
 
     def get_defines(self):
@@ -113,13 +113,13 @@ class Make:
     def get_max_jobs(self):
         return self._max_jobs
 
-    def is_target_function(self, target_function):
+    def is_target(self, target_function):
         if type(target_function) is str:
             return target_function in self._target_funcs_by_name
         return target_function in self._target_graph
 
-    def get_target_functions(self):
-        return list(self._target_graph.keys())
+    def get_targets(self):
+        return list(t for k, t in self._target_graph.items())
 
     def target(self, *args, **kwargs):
         if len(args) == 1 and inspect.isfunction(args[0]):
@@ -136,7 +136,7 @@ class Make:
         if type(target_function) is str:
             return self._target_graph[self._target_funcs_by_name[target_function]]
         return self._target_graph[target_function]
-    
+
     def get_outputs(self, target_function):
         return self.get_target(target_function).outputs
 

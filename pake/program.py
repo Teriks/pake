@@ -153,7 +153,7 @@ def run(make):
 
     with _ChDirContext(args.directory):
 
-        if make.target_function_count() == 0:
+        if make.target_count() == 0:
             print('*** No Targets.  Stop.')
             exit(0)
 
