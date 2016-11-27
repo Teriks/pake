@@ -19,12 +19,8 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-import os
+from pathlib import Path
 
 
-def touch(file_name, times=None):
-    file_handle = open(file_name, 'a')
-    try:
-        os.utime(file_name, times)
-    finally:
-        file_handle.close()
+def touch(fname, mode=0o666, exist_ok=True):
+    Path(fname).touch(mode=mode, exist_ok=exist_ok)
