@@ -28,7 +28,6 @@ import pake
 make = pake.Make()
 
 
-
 @make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
 def do_stuff_first(target):
     print(target.input)
