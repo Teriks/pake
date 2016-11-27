@@ -55,7 +55,8 @@ def do_multiple_stuffs(target):
 
 	
 
-@make.target(inputs="do_stuff.c", outputs="do_stuff.o", depends=[do_stuff_first, do_stuff_first_2, do_multiple_stuffs])
+@make.target(inputs="do_stuff.c", outputs="do_stuff.o", 
+             depends=[do_stuff_first, do_stuff_first_2, do_multiple_stuffs])
 def do_stuff(target):
     print(target.input)
     pake.touch(target.output)
