@@ -21,6 +21,7 @@ Uninstall prior to updating.
 
 
 ```python
+
 #!/usr/bin/python3
 
 import pake
@@ -40,7 +41,21 @@ def do_stuff_first_2(target):
     pake.touch(target.output)
 	
 
-@make.target(inputs="do_stuff.c", outputs="do_stuff.o", depends=[do_stuff_first, do_stuff_first_2])
+	
+# Rebuild both if either input is out of date (has a greater modification time than either output file)
+# Or if either output file is missing.
+
+@make.target(inputs=["stuffs_one.c", "stuffs_two.c"], outputs=["stuffs_one.o", "stuffs_two.o"])	
+def do_multiple_stuffs(target):
+    for i in target.inputs:
+        print(i)
+		
+    for o in target.outputs:
+        pake.touch(o)
+
+	
+
+@make.target(inputs="do_stuff.c", outputs="do_stuff.o", depends=[do_stuff_first, do_stuff_first_2, do_multiple_stuffs])
 def do_stuff(target):
     print(target.input)
     pake.touch(target.output)
