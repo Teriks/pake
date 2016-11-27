@@ -96,6 +96,9 @@ class Make:
             raise ValueError('defines_dict must be a dictionary.')
         self._defines = defines_dict
 
+    def target_function_count(self):
+        return len(self._target_graph)
+
     def get_defines(self):
         return dict(self._defines)
 

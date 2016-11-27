@@ -127,46 +127,62 @@ def _defines_to_dic(defines):
     return result
 
 
+class _ChDirContext:
+    def __init__(self, directory):
+        self._cwd = os.getcwd()
+        self._dir = directory
+
+    def __enter__(self):
+        if self._dir:
+            print('Entering Directory: "{dir}"'.format(dir=self._dir))
+            os.chdir(self._dir)
+        return self
+
+    def __exit__(self, type, value, traceback):
+        if self._dir:
+            print('Leaving Directory: "{dir}"'.format(dir=self._dir))
+            os.chdir(self._cwd)
+
+
 def run(make):
     args = _arg_parser.parse_args()
-
-    if args.directory:
-        os.chdir(args.directory)
-        print("Entering Directory: "+args.directory)
     
     if args.dry_run and args.jobs:
         print("-n/--dry-run and -j/--jobs cannot be used together.", file=sys.stderr)
         exit(1)
 
-    if args.jobs:
-        make.set_max_jobs(args.jobs)
+    with _ChDirContext(args.directory):
 
-    try:
-        make.set_run_targets(args.targets)
-    except pake.UndefinedTargetException as target_undef_err:
-        print(str(target_undef_err), file=sys.stderr)
-        exit(1)
+        if make.target_function_count() == 0:
+            print('*** No Targets.  Stop.')
+            exit(0)
 
-    if args.define:
+        if args.jobs:
+            make.set_max_jobs(args.jobs)
+
         try:
-            make.set_defines(_defines_to_dic(args.define))
-        except _DefineSyntaxError as syn_err:
-            print(str(syn_err), file=sys.stderr)
+            make.set_run_targets(args.targets)
+        except pake.UndefinedTargetException as target_undef_err:
+            print(str(target_undef_err), file=sys.stderr)
             exit(1)
 
-    try:
-        if args.dry_run:
-            make.visit()
-        else:
-            make.execute()
-    except pake.TargetInputNotFound as input_file_err:
-        print(str(input_file_err), file=sys.stderr)
-        exit(1)
+        if args.define:
+            try:
+                make.set_defines(_defines_to_dic(args.define))
+            except _DefineSyntaxError as syn_err:
+                print(str(syn_err), file=sys.stderr)
+                exit(1)
 
-    if make.get_last_run_count() == 0:
-        print("Nothing to do, all targets up to date.")
+        try:
+            if args.dry_run:
+                make.visit()
+            else:
+                make.execute()
+        except pake.TargetInputNotFound as input_file_err:
+            print(str(input_file_err), file=sys.stderr)
+            exit(1)
 
-    if args.directory:
-        print("Leaving Directory: "+args.directory)
+        if make.get_last_run_count() == 0:
+            print("Nothing to do, all targets up to date.")
 
     make.clear()
