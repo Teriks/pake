@@ -260,9 +260,8 @@ class Make:
                     task = self._task_dict[dep_target_func]
                     if self._target_task_running(dep_target_func):
                         task.result()
-                    else:
-                        if task.exception():
-                            raise task.exception()
+                    elif task.exception():
+                        raise task.exception()
 
         sig = inspect.signature(target_function)
         if len(sig.parameters) > 0:
