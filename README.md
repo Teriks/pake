@@ -45,7 +45,7 @@ def do_stuff_first_2(target):
 # Rebuild both if either input is out of date (has a more recent modification time than either output file)
 # Or if either output file is missing.
 
-@make.target(inputs=["stuffs_one.c", "stuffs_two.c"], outputs=["stuffs_one.o", "stuffs_two.o"])	
+@make.target(inputs=["stuffs_one.c", "stuffs_two.c"], outputs=["stuffs_one.o", "stuffs_two.o"])
 def do_multiple_stuffs(target):
     for i in target.inputs:
         print(i)
