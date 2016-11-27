@@ -44,19 +44,19 @@ def check_cyclic(graph, get_edges=None):
     return any(visit(node) for node in graph)
 
 
-def topological_sort(graph_unsorted, get_edges=None):
+def topological_sort(graph, get_edges=None):
     if get_edges is None:
         def get_edges(t): return t[1]
-    graph_unsorted = dict(graph_unsorted)
-    while graph_unsorted:
+    graph = dict(graph)
+    while graph:
         acyclic = False
-        for node, edges in list(graph_unsorted.items()):
+        for node, edges in list(graph.items()):
             for edge in get_edges(edges):
-                if edge in graph_unsorted:
+                if edge in graph:
                     break
             else:
                 acyclic = True
-                del graph_unsorted[node]
+                del graph[node]
                 yield (node, edges)
         if not acyclic:
             raise CyclicDependencyError("Cyclic dependency detected.")
