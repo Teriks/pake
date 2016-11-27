@@ -33,15 +33,15 @@ make = pake.Make()
 def do_stuff_first(target):
     print(target.input)
     pake.touch(target.output)
-	
-	
+
+
 @make.target(inputs="do_stuff_first_2.c", outputs="do_stuff_first_2.o")
 def do_stuff_first_2(target):
     print(target.input)
     pake.touch(target.output)
-	
 
-	
+
+
 # Rebuild both if either input is out of date (has a more recent modification time than either output file)
 # Or if either output file is missing.
 
@@ -52,7 +52,6 @@ def do_multiple_stuffs(target):
 		
     for o in target.outputs:
         pake.touch(o)
-
 	
 
 @make.target(inputs="do_stuff.c", outputs="do_stuff.o", 
@@ -64,11 +63,8 @@ def do_stuff(target):
 	# Run a pakefile.py script in a subdirectory, build 'all' target
 	
 	pake.run_script("submake/pakefile.py", "all")
-	
-	
-	
 
-	
+
 
 # Basically a dummy target (if nothing actually depended on it)
 
@@ -82,16 +78,16 @@ def print_define():
 	
     if make["SOME_DEFINE"]:
 	    print(make["SOME_DEFINE"])
-		
-		
-		
-		
+
+
+
 # Always runs, because there are no inputs or outputs to use for file change detection
 
 @make.target(depends=[do_stuff, print_define])
 def all():
     print("Finished doing stuff! nothing more to do.")
 	
+
 
 pake.run(make)
 
