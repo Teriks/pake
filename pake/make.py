@@ -19,12 +19,13 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from pake.graph import topological_sort, check_cyclic, CyclicDependencyError
-import itertools
-import threading
 import concurrent.futures
 import inspect
+import itertools
 import os
+import threading
+
+from pake.graph import topological_sort, check_cyclic, CyclicDependencyError
 
 
 class TargetRedefinedException(Exception):
@@ -196,7 +197,8 @@ class Make:
         return False
 
     def _sort_graph(self):
-        def get_edges(e): return e.dependencies
+        def get_edges(e):
+            return e.dependencies
 
         if check_cyclic(self._target_graph, get_edges=get_edges):
             raise CyclicDependencyError("Cyclic target dependency detected.")
@@ -272,6 +274,7 @@ class Make:
         def done_callback(t):
             if t.exception():
                 raise t.exception()
+
         task = thread_pool.submit(self._run_target_task, target_function)
         task.add_done_callback(done_callback)
         with self._task_dict_lock:
@@ -283,7 +286,7 @@ class Make:
                 if not os.path.exists(i):
                     raise TargetInputNotFound(
                         'Input file "{file}" in target "{target}" could not be found.'
-                        .format(file=i, target=target_function.__name__))
+                            .format(file=i, target=target_function.__name__))
 
     def execute(self):
         self._last_run_count = 0
@@ -307,7 +310,6 @@ class Make:
                 print("Execute Target: " + target.function.__name__)
 
         self._last_run_count = 0
-
         self._check_graph_inputs_exist()
 
         for node in self._sort_graph():

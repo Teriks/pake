@@ -30,7 +30,7 @@ def bar(target):
 
 @make.target(inputs="foo.c", outputs="foo", depends=["bar", baz])
 def foo(target):
-    pake.touch(target.output)
+    pake.files.touch(target.output)
     print(target.input)
 
 

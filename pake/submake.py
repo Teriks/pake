@@ -19,9 +19,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import os
 import subprocess
 import sys
-import os
 
 
 class SubMakeException(Exception):
@@ -43,7 +43,7 @@ def _execute(cmd):
     popen.stdout.close()
     return_code = popen.wait()
     if return_code:
-        output = ''.join(stderr)+''.join(stdout)
+        output = ''.join(stderr) + ''.join(stdout)
         raise subprocess.CalledProcessError(return_code, cmd, output=output)
 
 
@@ -60,10 +60,8 @@ def run_script(script_path, *args):
 
         str_filter_args = list(str(a) for a in args)
         work_dir = os.path.dirname(os.path.abspath(script_path))
-        output = _execute([sys.executable, script_path, "-C", work_dir]+str_filter_args)
+        output = _execute([sys.executable, script_path, "-C", work_dir] + str_filter_args)
         for line in output:
             sys.stdout.write(line)
     except subprocess.CalledProcessError as err:
         raise SubMakeException(err.output)
-
-

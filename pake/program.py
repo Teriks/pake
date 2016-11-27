@@ -18,11 +18,12 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import pake
 import argparse
-import sys
 import ast
 import os
+import sys
+
+import pake
 
 
 class _DefineSyntaxError(SyntaxError):
@@ -49,7 +50,7 @@ def _validate_dir(path):
         _arg_parser.error('Directory "{path}" does not exist.'.format(path=path))
 
 
-_arg_parser.add_argument('-v', '--version', action='version', version='pake '+pake.__version__)
+_arg_parser.add_argument('-v', '--version', action='version', version='pake ' + pake.__version__)
 
 _arg_parser.add_argument('targets', type=str, nargs='+', help='Build targets.')
 
@@ -60,15 +61,12 @@ _arg_parser.add_argument('-j', '--jobs',
                               'enables unrelated targets to run in parallel with a '
                               'max of N targets running at a time.')
 
-
 _arg_parser.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
                          help='Use to preform a dry run, lists all targets that '
                               'will be executed in the next actual invocation.')
 
-
 _arg_parser.add_argument('-D', '--define', nargs=1, action='append',
                          help='Add defined value.')
-
 
 _arg_parser.add_argument('-C', '--directory', type=_validate_dir,
                          help='Change directory before executing.')
@@ -104,7 +102,7 @@ def _coerce_define_value(value_name, value):
                 except SyntaxError as syn_err:
                     raise _DefineSyntaxError(
                         'Error parsing define value of "{name}": {message}'
-                        .format(name=value_name, message=str(syn_err)))
+                            .format(name=value_name, message=str(syn_err)))
         else:
             return True
 
@@ -146,7 +144,7 @@ class _ChDirContext:
 
 def run(make):
     args = _arg_parser.parse_args()
-    
+
     if args.dry_run and args.jobs:
         print("-n/--dry-run and -j/--jobs cannot be used together.", file=sys.stderr)
         exit(1)

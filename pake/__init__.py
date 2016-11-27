@@ -24,15 +24,12 @@ __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
 __version__ = '0.1.0.0'
 
-from pake.make import Make, TargetRedefinedException, UndefinedTargetException, TargetInputNotFound
+from pake.fileutil import touch
+from pake.make import \
+    Make, \
+    TargetRedefinedException, \
+    UndefinedTargetException, \
+    TargetInputNotFound, \
+    CyclicDependencyError
 from pake.program import run
 from pake.submake import run_script
-import os
-
-
-def touch(file_name, times=None):
-    file_handle = open(file_name, 'a')
-    try:
-        os.utime(file_name, times)
-    finally:
-        file_handle.close()
