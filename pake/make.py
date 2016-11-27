@@ -132,20 +132,19 @@ class Make:
 
         return wrapper
 
-    def get_outputs(self, target_function):
+    def get_target(self, target_function):
         if type(target_function) is str:
-            return self._target_graph[self._target_funcs_by_name[target_function]].outputs
-        return self._target_graph[target_function].outputs
+            return self._target_graph[self._target_funcs_by_name[target_function]]
+        return self._target_graph[target_function]
+    
+    def get_outputs(self, target_function):
+        return self.get_target(target_function).outputs
 
     def get_inputs(self, target_function):
-        if type(target_function) is str:
-            return self._target_graph[self._target_funcs_by_name[target_function]].inputs
-        return self._target_graph[target_function].inputs
+        return self.get_target(target_function).inputs
 
     def get_dependencies(self, target_function):
-        if type(target_function) is str:
-            return self._target_graph[self._target_funcs_by_name[target_function]].dependencies
-        return self._target_graph[target_function].dependencies
+        return self.get_target(target_function).dependencies
 
     def add_target(self, target_function, inputs=None, outputs=None, depends=None):
         if not depends:
