@@ -1,69 +1,93 @@
 #!/usr/bin/python3
 
-import sys
-import os
-
-# the directory above tests to the path so pake can be included
-# not needed if module is 'installed'
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../')))
-
 import pake
-import time
+
+import glob
+import os
 
 make = pake.Make()
 
 
-@make.target(inputs="baz.c", outputs="baz.o")
-def baz(target):
-    pake.touch(target.output)
-    time.sleep(5)
+@make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
+def do_stuff_first(target):
     print(target.input)
-
-
-@make.target(inputs="bar.c", outputs="bar.o")
-def bar(target):
     pake.touch(target.output)
-    time.sleep(5)
+
+
+@make.target(inputs="do_stuff_first_2.c", outputs="do_stuff_first_2.o")
+def do_stuff_first_2(target):
     print(target.input)
-
-
-@make.target(inputs="foo.c", outputs="foo", depends=["bar", baz])
-def foo(target):
     pake.touch(target.output)
-    print(target.input)
 
+
+# If there are an un-equal amount of inputs to outputs,
+# rebuild all inputs if any input is newer than any output, or if any output file is missing.
+
+@make.target(inputs=["stuffs_one.c", "stuffs_two.c"], outputs="stuffs_combined.o")
+def do_multiple_stuffs(target):
+    # All inputs and outputs will be considered out of date
+
+    for i in target.outdated_inputs:
+        print(i)
+
+    for o in target.outdated_outputs:
+        pake.touch(o)
+
+
+# Rebuild the input on the left that corresponds to the output in the same position on the right when
+# that specific input is out of date, or it's output is missing.
+
+@make.target(inputs=["stuffs_three.c", "stuffs_four.c"], outputs=["stuffs_three.o", "stuffs_four.o"])
+def do_multiple_stuffs_2(target):
+    for i in target.outdated_inputs:
+        print(i)
+
+    for o in target.outdated_outputs:
+        pake.touch(o)
+
+
+@make.target(inputs="do_stuff.c", outputs="do_stuff.o",
+             depends=[do_stuff_first, do_stuff_first_2, do_multiple_stuffs, do_multiple_stuffs_2])
+def do_stuff(target):
+    print(target.input)
+    pake.touch(target.output)
+
+    # Run a pakefile.py script in a subdirectory, build 'all' target
+
+    pake.run_script("submake/pakefile.py", "all")
+
+
+
+# Basically a dummy target (if nothing actually depended on it)
 
 @make.target
-def dummy():
-    dummy_print = "dummy"
+def print_define():
 
-    if make['DUMMY_PRINT']:
-        dummy_print = make['DUMMY_PRINT']
+    # Defines are interpreted into python literals.
+    # If you pass and integer, you get an int.. string str, (True or False) a bool etc.
+    # Defines that are not given a value explicitly are given the value of 'True'
+    # Defines that don't exist return 'None'
 
-    if make['DUMMY_PRINT_CAPS']:
-        print(dummy_print.upper())
-    else:
-        print(dummy_print)
+    if make["SOME_DEFINE"]:
+        print(make["SOME_DEFINE"])
 
-    pake.run_script("submake/pakefile.py", "test")
 
+
+# Always runs, because there are no inputs or outputs to use for file change detection
+
+@make.target(depends=[do_stuff, print_define])
+def all():
+    print("Finished doing stuff! nothing more to do.")
+
+
+
+# Clean .o files in the directory
 
 @make.target
-def dummy2(target):
+def clean():
+    for i in glob.glob("*.o"):
+        os.unlink(i)
 
-    dummy_print = "dummy2"
-
-    # get the value of DUMMY_PRINT if it is defined
-    if make['DUMMY_PRINT']:
-        dummy_print = make['DUMMY_PRINT']
-
-    # catch -D DUMMY_PRINT_CAPS=true or even
-    # -D DUMMY_PRINT_CAPS
-    if make['DUMMY_PRINT_CAPS']:
-        print(dummy_print.upper())
-    else:
-        print(dummy_print)
 
 
 pake.run(make)

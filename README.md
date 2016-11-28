@@ -26,6 +26,9 @@ Uninstall prior to updating.
 
 import pake
 
+import glob
+import os
+
 make = pake.Make()
 
 
@@ -41,28 +44,41 @@ def do_stuff_first_2(target):
     pake.touch(target.output)
 
 
+# If there are an un-equal amount of inputs to outputs,
+# rebuild all inputs if any input is newer than any output, or if any output file is missing.
 
-# Rebuild both if either input is out of date (has a more recent modification time than either output file)
-# Or if either output file is missing.
-
-@make.target(inputs=["stuffs_one.c", "stuffs_two.c"], outputs=["stuffs_one.o", "stuffs_two.o"])
+@make.target(inputs=["stuffs_one.c", "stuffs_two.c"], outputs="stuffs_combined.o")
 def do_multiple_stuffs(target):
-    for i in target.inputs:
+    # All inputs and outputs will be considered out of date
+ 
+    for i in target.outdated_inputs:
         print(i)
-		
-    for o in target.outputs:
+
+    for o in target.outdated_outputs:
         pake.touch(o)
-	
+
+
+# Rebuild the input on the left that corresponds to the output in the same position on the right when
+# that specific input is out of date, or it's output is missing.
+
+@make.target(inputs=["stuffs_three.c", "stuffs_four.c"], outputs=["stuffs_three.o", "stuffs_four.o"])
+def do_multiple_stuffs_2(target):
+    for i in target.outdated_inputs:
+        print(i)
+
+    for o in target.outdated_outputs:
+        pake.touch(o)
+
 
 @make.target(inputs="do_stuff.c", outputs="do_stuff.o", 
-             depends=[do_stuff_first, do_stuff_first_2, do_multiple_stuffs])
+             depends=[do_stuff_first, do_stuff_first_2, do_multiple_stuffs, do_multiple_stuffs_2])
 def do_stuff(target):
     print(target.input)
     pake.touch(target.output)
-	
-	# Run a pakefile.py script in a subdirectory, build 'all' target
-	
-	pake.run_script("submake/pakefile.py", "all")
+
+    # Run a pakefile.py script in a subdirectory, build 'all' target
+
+    pake.run_script("submake/pakefile.py", "all")
 
 
 
@@ -70,14 +86,14 @@ def do_stuff(target):
 
 @make.target
 def print_define():
-    
-	# Defines are interpreted into python literals.
-	# If you pass and integer, you get an int.. string str, (True or False) a bool etc.
-	# Defines that are not given a value explicitly are given the value of 'True'
-	# Defines that don't exist return 'None'
-	
+
+    # Defines are interpreted into python literals.
+    # If you pass and integer, you get an int.. string str, (True or False) a bool etc.
+    # Defines that are not given a value explicitly are given the value of 'True'
+    # Defines that don't exist return 'None'
+
     if make["SOME_DEFINE"]:
-	    print(make["SOME_DEFINE"])
+        print(make["SOME_DEFINE"])
 
 
 
@@ -86,7 +102,16 @@ def print_define():
 @make.target(depends=[do_stuff, print_define])
 def all():
     print("Finished doing stuff! nothing more to do.")
-	
+
+
+
+# Clean .o files in the directory
+
+@make.target
+def clean():
+    for i in glob.glob("*.o"):
+        os.unlink(i)
+
 
 
 pake.run(make)

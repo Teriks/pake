@@ -24,6 +24,7 @@ import inspect
 import itertools
 import os
 import threading
+from pake.util import _ReadOnlyList
 
 from pake.graph import topological_sort, check_cyclic, CyclicDependencyError
 
@@ -58,6 +59,28 @@ class Target:
         self.inputs = inputs
         self.outputs = outputs
         self.dependencies = dependencies
+        self._outdated_inputs = []
+        self._outdated_outputs = []
+
+    def add_outdated_input(self, input_file):
+        if _is_iterable_not_str(input_file):
+            self._outdated_inputs = self._outdated_inputs + list(input_file)
+        else:
+            self._outdated_inputs.append(input_file)
+
+    def add_outdated_output(self, input_file):
+        if _is_iterable_not_str(input_file):
+            self._outdated_outputs = self._outdated_outputs + list(input_file)
+        else:
+            self._outdated_outputs.append(input_file)
+
+    @property
+    def outdated_inputs(self):
+        return _ReadOnlyList(self._outdated_inputs)
+
+    @property
+    def outdated_outputs(self):
+        return _ReadOnlyList(self._outdated_outputs)
 
     @property
     def output(self):
@@ -174,24 +197,47 @@ class Make:
 
             self._target_funcs_by_name[target_function.__name__] = target_function
 
+    def _is_input_newer(self, input_file, output_file):
+        return (os.path.getmtime(input_file) - os.path.getmtime(output_file)) > 0.1
+
     def _check_target_out_of_date(self, target_function):
-        dependencies = self.get_dependencies(target_function)
-        inputs = self.get_inputs(target_function)
-        outputs = self.get_outputs(target_function)
+        target = self.get_target(target_function)
+        dependencies, inputs, outputs = target.dependencies, target.inputs, target.outputs
 
         if (len(inputs) == 0 or len(outputs) == 0) and len(dependencies) == 0:
             return True
 
-        for o in outputs:
-            if not os.path.exists(o):
+        if len(inputs) == len(outputs):
+            out_of_date = False
+            for x in range(0, len(inputs)):
+                i, o = inputs[x], outputs[x]
+                if not os.path.exists(o):
+                    target.add_outdated_input(i)
+                    target.add_outdated_output(o)
+                    out_of_date = True
+                elif self._is_input_newer(i, o):
+                    target.add_outdated_input(i)
+                    target.add_outdated_output(o)
+                    out_of_date = True
+
+            if out_of_date:
                 return True
-            for i in inputs:
-                diff = (os.path.getmtime(i) - os.path.getmtime(o))
-                if diff > 0.1:
+        else:
+            for o in outputs:
+                if not os.path.exists(o):
+                    target.add_outdated_input(inputs)
+                    target.add_outdated_output(outputs)
                     return True
+                for i in inputs:
+                    if self._is_input_newer(i, o):
+                        target.add_outdated_input(inputs)
+                        target.add_outdated_output(outputs)
+                        return True
 
         for d in dependencies:
             if d in self._outdated_target_funcs:
+                target.add_outdated_input(inputs)
+                target.add_outdated_output(outputs)
                 return True
 
         return False
