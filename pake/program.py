@@ -183,4 +183,4 @@ def run(make):
         if make.get_last_run_count() == 0:
             print("Nothing to do, all targets up to date.")
 
-    make.clear()
+    make.clear_targets()

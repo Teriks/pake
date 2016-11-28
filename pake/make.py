@@ -365,7 +365,7 @@ class Make:
 
         self._task_dict = {}
 
-    def clear(self):
+    def clear_targets(self):
         self._target_graph = {}
         self._target_funcs_by_name = {}
         self._run_targets = []
