@@ -50,7 +50,7 @@ def do_stuff_first_2(target):
 @make.target(inputs=["stuffs_one.c", "stuffs_two.c"], outputs="stuffs_combined.o")
 def do_multiple_stuffs(target):
     # All inputs and outputs will be considered out of date
- 
+
     for i in target.outdated_inputs:
         print(i)
 
@@ -63,6 +63,8 @@ def do_multiple_stuffs(target):
 
 @make.target(inputs=["stuffs_three.c", "stuffs_four.c"], outputs=["stuffs_three.o", "stuffs_four.o"])
 def do_multiple_stuffs_2(target):
+    # Only out of date inputs/outputs will be in these collections
+    
     for i in target.outdated_inputs:
         print(i)
 
@@ -70,7 +72,7 @@ def do_multiple_stuffs_2(target):
         pake.touch(o)
 
 
-@make.target(inputs="do_stuff.c", outputs="do_stuff.o", 
+@make.target(inputs="do_stuff.c", outputs="do_stuff.o",
              depends=[do_stuff_first, do_stuff_first_2, do_multiple_stuffs, do_multiple_stuffs_2])
 def do_stuff(target):
     print(target.input)

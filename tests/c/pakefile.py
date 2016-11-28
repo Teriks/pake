@@ -39,6 +39,8 @@ def do_multiple_stuffs(target):
 
 @make.target(inputs=["stuffs_three.c", "stuffs_four.c"], outputs=["stuffs_three.o", "stuffs_four.o"])
 def do_multiple_stuffs_2(target):
+    # Only out of date inputs/outputs will be in these collections
+
     for i in target.outdated_inputs:
         print(i)
 
