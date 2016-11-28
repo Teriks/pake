@@ -34,10 +34,10 @@ def do_stuff_first_2(target):
 def do_multiple_stuffs(target):
     # All inputs and outputs will be considered out of date
 
-    for i in target.outdated_inputs:
+    for i in target.inputs:
         print(i)
 
-    for o in target.outdated_outputs:
+    for o in target.outputs:
         pake.touch(o)
 
 
@@ -47,6 +47,9 @@ def do_multiple_stuffs(target):
 @make.target(inputs=["stuffs_three.c", "stuffs_four.c"], outputs=["stuffs_three.o", "stuffs_four.o"])
 def do_multiple_stuffs_2(target):
     # Only out of date inputs/outputs will be in these collections
+
+    # The elements correspond to each other when the number of inputs is the same as the number of outputs.
+    # target.outdated_input[i] is the input related to the output: target.outdated_output[i]
 
     for i in target.outdated_inputs:
         print(i)
