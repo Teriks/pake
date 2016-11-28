@@ -62,13 +62,17 @@ class Target:
         self._outdated_inputs = []
         self._outdated_outputs = []
 
-    def add_outdated_input(self, input_file):
+    def add_outdated_input_output(self, input_file, output_file):
+        self._add_outdated_input(input_file)
+        self._add_outdated_output(output_file)
+
+    def _add_outdated_input(self, input_file):
         if _is_iterable_not_str(input_file):
             self._outdated_inputs = self._outdated_inputs + list(input_file)
         else:
             self._outdated_inputs.append(input_file)
 
-    def add_outdated_output(self, input_file):
+    def _add_outdated_output(self, input_file):
         if _is_iterable_not_str(input_file):
             self._outdated_outputs = self._outdated_outputs + list(input_file)
         else:
@@ -212,12 +216,10 @@ class Make:
             for x in range(0, len(inputs)):
                 i, o = inputs[x], outputs[x]
                 if not os.path.exists(o):
-                    target.add_outdated_input(i)
-                    target.add_outdated_output(o)
+                    target.add_outdated_input_output(i, o)
                     out_of_date = True
                 elif self._is_input_newer(i, o):
-                    target.add_outdated_input(i)
-                    target.add_outdated_output(o)
+                    target.add_outdated_input_output(i, o)
                     out_of_date = True
 
             if out_of_date:
@@ -225,19 +227,16 @@ class Make:
         else:
             for o in outputs:
                 if not os.path.exists(o):
-                    target.add_outdated_input(inputs)
-                    target.add_outdated_output(outputs)
+                    target.add_outdated_input_output(inputs, outputs)
                     return True
                 for i in inputs:
                     if self._is_input_newer(i, o):
-                        target.add_outdated_input(inputs)
-                        target.add_outdated_output(outputs)
+                        target.add_outdated_input_output(inputs, outputs)
                         return True
 
         for d in dependencies:
             if d in self._outdated_target_funcs:
-                target.add_outdated_input(inputs)
-                target.add_outdated_output(outputs)
+                target.add_outdated_input_output(inputs, outputs)
                 return True
 
         return False
