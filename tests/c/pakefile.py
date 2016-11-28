@@ -1,9 +1,16 @@
 #!/usr/bin/python3
 
-import pake
-
-import glob
+import sys
 import os
+import glob
+
+
+# the directory above tests to the path so pake can be included
+# not needed if module is 'installed'
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../')))
+
+import pake
 
 make = pake.Make()
 
@@ -89,6 +96,8 @@ def all():
 def clean():
     for i in glob.glob("*.o"):
         os.unlink(i)
+
+    pake.run_script("submake/pakefile.py", "clean")
 
 
 
