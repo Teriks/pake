@@ -200,7 +200,7 @@ class Make:
     def _is_input_newer(self, input_file, output_file):
         return (os.path.getmtime(input_file) - os.path.getmtime(output_file)) > 0.1
 
-    def _check_target_out_of_date(self, target_function):
+    def _handle_target_out_of_date(self, target_function):
         target = self.get_target(target_function)
         dependencies, inputs, outputs = target.dependencies, target.inputs, target.outputs
 
@@ -341,7 +341,7 @@ class Make:
         with concurrent.futures.ThreadPoolExecutor(max_workers=self._max_jobs) as thread_pool:
             for node in self._sort_graph():
                 target_function = node[0]
-                if self._check_target_out_of_date(target_function):
+                if self._handle_target_out_of_date(target_function):
                     self._last_run_count += 1
                     self._outdated_target_funcs.add(target_function)
                     self._run_target(thread_pool, target_function)
@@ -360,7 +360,7 @@ class Make:
 
         for node in self._sort_graph():
             target_function = node[0]
-            if self._check_target_out_of_date(target_function):
+            if self._handle_target_out_of_date(target_function):
                 self._last_run_count += 1
                 visitor(self._target_graph[target_function])
 
