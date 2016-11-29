@@ -25,7 +25,7 @@ import sys
 
 import pake
 
-from pake.util import ChangeDirContext
+from pake.util import ChangeDirContext, str_is_int, str_is_float
 
 
 class _DefineSyntaxError(SyntaxError):
@@ -74,26 +74,10 @@ _arg_parser.add_argument('-C', '--directory', type=_validate_dir,
                          help='Change directory before executing.')
 
 
-def _is_float(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
-
-
-def _is_int(s):
-    try:
-        int(s)
-        return True
-    except ValueError:
-        return False
-
-
 def _coerce_define_value(value_name, value):
-    if _is_int(value):
+    if str_is_int(value):
         return int(value)
-    elif _is_float(value):
+    elif str_is_float(value):
         return float(value)
     else:
         ls = value.lstrip()

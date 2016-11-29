@@ -24,7 +24,7 @@ import inspect
 import itertools
 import os
 import threading
-from pake.util import ReadOnlyList
+from pake.util import ReadOnlyList, is_iterable, is_iterable_not_str
 
 from pake.graph import topological_sort, check_cyclic, CyclicDependencyError
 
@@ -41,18 +41,6 @@ class TargetInputNotFound(FileNotFoundError):
     pass
 
 
-def _is_iterable(obj):
-    try:
-        a = iter(obj)
-    except TypeError:
-        return False
-    return True
-
-
-def _is_iterable_not_str(obj):
-    return _is_iterable(obj) and type(obj) is not str
-
-
 class Target:
     def __init__(self, function, inputs, outputs, dependencies):
         self.function = function
@@ -67,13 +55,13 @@ class Target:
         self._add_outdated_output(output_file)
 
     def _add_outdated_input(self, input_file):
-        if _is_iterable_not_str(input_file):
+        if is_iterable_not_str(input_file):
             self._outdated_inputs = self._outdated_inputs + list(input_file)
         else:
             self._outdated_inputs.append(input_file)
 
     def _add_outdated_output(self, input_file):
-        if _is_iterable_not_str(input_file):
+        if is_iterable_not_str(input_file):
             self._outdated_outputs = self._outdated_outputs + list(input_file)
         else:
             self._outdated_outputs.append(input_file)
@@ -163,7 +151,7 @@ class Make:
         :param target_functions: List of target function names, or direct references to target functions.
         """
 
-        if _is_iterable_not_str(target_functions[0]):
+        if is_iterable_not_str(target_functions[0]):
             self._run_targets = self._resolve_target_strings(target_functions[0])
         else:
             self._run_targets = self._resolve_target_strings(target_functions)

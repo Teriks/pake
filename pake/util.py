@@ -33,7 +33,6 @@ class ReadOnlyList:
             yield i
 
 
-
 class ChangeDirContext:
     def __init__(self, directory):
         self._cwd = os.getcwd()
@@ -58,3 +57,35 @@ class ChangeDirContext:
         if self._dir and self._dir != self._cwd:
             self.on_exit(self._dir)
             os.chdir(self._cwd)
+
+
+def is_iterable(obj):
+    """Test if an object is iterable."""
+    try:
+        a = iter(obj)
+    except TypeError:
+        return False
+    return True
+
+
+def is_iterable_not_str(obj):
+    """Test if an object is iterable and not a string."""
+    return is_iterable(obj) and type(obj) is not str
+
+
+def str_is_float(s):
+    """Test if a string can be parsed into a float."""
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+
+def str_is_int(s):
+    """Test if a string can be parsed into an integer."""
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
