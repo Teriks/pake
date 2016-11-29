@@ -25,7 +25,7 @@ import sys
 
 import pake
 
-from pake.util import ChangeDirContext, str_is_int, str_is_float
+from pake.util import ChangeDirContext, DefinesContainer, str_is_int, str_is_float
 
 
 class _DefineSyntaxError(SyntaxError):
@@ -112,14 +112,23 @@ def _defines_to_dic(defines):
 
 
 def get_defines():
+    """Preemptively get the defines passed to the pakefile on the command line.
+
+    :return: A :py:class:`pake.util.DefinesContainer` which behaves
+        similarly to how :py:class:`Make` does when it comes to reading
+        defines that do not exist.
+
+    :rtype: pake.util.DefinesContainer
+    """
+
     args = _arg_parser.parse_args()
     if args.define:
         try:
-            return _defines_to_dic(args.define)
+            return DefinesContainer(_defines_to_dic(args.define))
         except _DefineSyntaxError as syn_err:
             print(str(syn_err), file=sys.stderr)
             exit(1)
-    return {}
+    return DefinesContainer({})
 
 
 def run(make):

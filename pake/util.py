@@ -21,6 +21,28 @@
 import os
 
 
+class DefinesContainer:
+    def __init__(self, dict):
+        self._d = dict
+
+    def __hash__(self):
+        return hash(self._d)
+
+    def __str__(self):
+        return str(self._d)
+
+    def __getitem__(self, item):
+        return self._d[item]
+
+    def __contains__(self, item):
+        return item in self._d
+
+    def __getitem__(self, item):
+        if item in self._d:
+            return self._d[item]
+        else:
+            return None
+
 class ReadOnlyList:
     def __init__(self, l):
         self._l = l
