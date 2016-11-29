@@ -14,15 +14,13 @@ import pake
 
 make = pake.Make()
 
-# Alternate way to get defines.
-# this works before pake.run() is called
-# and can be used outside/before targets are ran
+# Get defines passed in from the command line.
+# This method returns a pake.util.DefinesContainer,
+# which is a read only dictionary like object with
+# some slight caveats when accessing non existent items.
+# See comments above access example below for more detail.
 
 defines = pake.get_defines()
-
-# Print all defines.
-
-print("Defines: "+str(defines))
 
 
 @make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
@@ -90,8 +88,8 @@ def print_define():
     # Defines that are not given a value explicitly are given the value of 'True'
     # Defines that don't exist return 'None'
 
-    if make["SOME_DEFINE"]:
-        print(make["SOME_DEFINE"])
+    if defines["SOME_DEFINE"]:
+        print(defines["SOME_DEFINE"])
 
 
 

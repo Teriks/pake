@@ -158,13 +158,6 @@ def run(make):
             print(str(target_undef_err), file=sys.stderr)
             exit(1)
 
-        if args.define:
-            try:
-                make.set_defines(_defines_to_dic(args.define))
-            except _DefineSyntaxError as syn_err:
-                print(str(syn_err), file=sys.stderr)
-                exit(1)
-
         try:
             if args.dry_run:
                 make.visit()

@@ -132,18 +132,6 @@ class Make:
         self._task_dict = {}
         self._max_jobs = 1
         self._last_run_count = 0
-        self._defines = {}
-
-    def __getitem__(self, item):
-        """Retrieve a define value by name, specified on the command line after pake.run((your Make)) is called.
-
-        :param item: The name of a define (specified on the command line) to retrieve a value for.
-        :type item: str
-        """
-        if item in self._defines:
-            return self._defines[item]
-        else:
-            return None
 
     def set_run_targets(self, *target_functions):
         """Set the entry targets for the next call to execute.  These are the targets that will be ran.
@@ -156,19 +144,6 @@ class Make:
         else:
             self._run_targets = self._resolve_target_strings(target_functions)
 
-    def set_defines(self, defines_dict):
-        """Set the defines dictionary, used when retrieving defines.
-
-        :raises ValueError: if defines_dict is not a dictionary objection.
-
-        :param defines_dict: The defines dictionary to use.
-        :type defines_dict: dict
-        """
-
-        if type(defines_dict) is not dict:
-            raise ValueError('defines_dict must be a dictionary.')
-        self._defines = dict(defines_dict)
-
     def target_count(self):
         """Get the number of defined targets.
 
@@ -176,14 +151,6 @@ class Make:
         :rtype: int
         """
         return len(self._target_graph)
-
-    def get_defines(self):
-        """Get a copy of the defines dictionary.
-
-        :return: A copy of the defines dictionary.
-        :rtype: dict
-        """
-        return dict(self._defines)
 
     def get_last_run_count(self):
         """Get the number of targets executed during the last run.
