@@ -24,7 +24,7 @@ import inspect
 import itertools
 import os
 import threading
-from pake.util import ReadOnlyList, is_iterable, is_iterable_not_str
+from pake.util import ReadOnlyList, is_iterable_not_str
 
 from pake.graph import topological_sort, check_cyclic, CyclicDependencyError
 
