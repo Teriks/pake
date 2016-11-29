@@ -19,7 +19,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-class _ReadOnlyList:
+class ReadOnlyList:
     def __init__(self, l):
         self._l = l
 

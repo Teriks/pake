@@ -24,7 +24,7 @@ import inspect
 import itertools
 import os
 import threading
-from pake.util import _ReadOnlyList
+from pake.util import ReadOnlyList
 
 from pake.graph import topological_sort, check_cyclic, CyclicDependencyError
 
@@ -80,18 +80,51 @@ class Target:
 
     @property
     def outdated_inputs(self):
-        return _ReadOnlyList(self._outdated_inputs)
+        """Gets a read only list of target inputs that pake considers to be outdated.
+
+        :returns: Read only list of outdated target inputs.
+        :rtype: pake.util.ReadOnlyList
+        """
+
+        return ReadOnlyList(self._outdated_inputs)
 
     @property
     def outdated_outputs(self):
-        return _ReadOnlyList(self._outdated_outputs)
+        """Gets a read only list of target outputs that pake considers to be outdated.
+
+        :returns: Read only list of outdated target outputs.
+        :rtype: pake.util.ReadOnlyList
+        """
+
+        return ReadOnlyList(self._outdated_outputs)
 
     @property
     def output(self):
+        """Gets the first declared target output.
+
+        If there are no outputs at all, returns None.
+
+        :returns: The given path of the first target output.
+        :rtype: str
+        """
+
+        if len(self.outputs) == 0:
+            return None
+
         return self.outputs[0]
 
     @property
     def input(self):
+        """Gets the first declared target input.
+
+        If there are no inputs at all, returns None.
+
+        :returns: The given path of the first target input.
+        :rtype: str
+        """
+        if len(self.inputs) == 0:
+            return None
+
         return self.inputs[0]
 
     def __hash__(self):
@@ -114,42 +147,114 @@ class Make:
         self._defines = {}
 
     def __getitem__(self, item):
+        """Retrieve a define value by name, specified on the command line after pake.run((your Make)) is called.
+
+        :param item: The name of a define (specified on the command line) to retrieve a value for.
+        :type item: str
+        """
         if item in self._defines:
             return self._defines[item]
         else:
             return None
 
+    def set_run_targets(self, *target_functions):
+        """Set the entry targets for the next call to execute.  These are the targets that will be ran.
+
+        :param target_functions: List of target function names, or direct references to target functions.
+        """
+
+        if _is_iterable_not_str(target_functions[0]):
+            self._run_targets = self._resolve_target_strings(target_functions[0])
+        else:
+            self._run_targets = self._resolve_target_strings(target_functions)
+
     def set_defines(self, defines_dict):
+        """Set the defines dictionary, used when retrieving defines.
+
+        :raises ValueError: if defines_dict is not a dictionary objection.
+
+        :param defines_dict: The defines dictionary to use.
+        :type defines_dict: dict
+        """
+
         if type(defines_dict) is not dict:
             raise ValueError('defines_dict must be a dictionary.')
-        self._defines = defines_dict
+        self._defines = dict(defines_dict)
 
     def target_count(self):
+        """Get the number of defined targets.
+
+        :return: The number of currently defined targets.
+        :rtype: int
+        """
         return len(self._target_graph)
 
     def get_defines(self):
+        """Get a copy of the defines dictionary.
+
+        :return: A copy of the defines dictionary.
+        :rtype: dict
+        """
         return dict(self._defines)
 
     def get_last_run_count(self):
+        """Get the number of targets executed during the last run.
+
+        :return: The number of targets executed during the last run.
+        :rtype: int
+        """
         return self._last_run_count
 
     def set_max_jobs(self, count):
+        """Set the max number of targets that can run in parallel.
+
+         :raises ValueError: if count is less than 1.
+
+        :param count: The max number of targets that can run in parallel at a time.
+        :type count: int
+        """
+
         if count < 1:
             raise ValueError("Max job count must be greater than zero.")
         self._max_jobs = count
 
     def get_max_jobs(self):
+        """Get the max number of targets that can run in parallel.
+
+        :return: The max number of targets that can run in parallel.
+        :rtype: int
+        """
         return self._max_jobs
 
     def is_target(self, target_function):
+        """Determine if a specific function is a registered pake target.
+
+        :param target_function: The function to test.
+        :type target_function: func
+        :return: True if target_function is a registered pake target.
+        :rtype: bool
+        """
+
         if type(target_function) is str:
             return target_function in self._target_funcs_by_name
         return target_function in self._target_graph
 
     def get_targets(self):
+        """Get a list of :py:class:`pake.Target` representing the targets registered to this :py:class:`pake.Make` object.
+
+        :return: List of :py:class:`pake.Target` objects.
+        :rtype: list
+        """
         return list(t for k, t in self._target_graph.items())
 
     def target(self, *args, **kwargs):
+        """Decorator for registering pake targets.
+
+        :param inputs: (Optional) list of input files or single input file
+        :param outputs: (Optional) list of output files or single output file
+        :param depends: (Optional) list of dependent target functions, or strings naming previously registered target functions.
+        """
+
         if len(args) == 1 and inspect.isfunction(args[0]):
             self.add_target(args[0])
             return args[0]
@@ -161,20 +266,60 @@ class Make:
         return wrapper
 
     def get_target(self, target_function):
+        """Get the :py:class:`pake.Target` object that holds details regarding a registered target function.
+
+        :param target_function: The registered target function to return the :py:class:`pake.Target` instance for.
+        :type target_function: func
+        :return: :py:class:`pake.Target` representing the defails of a registered target function.
+        """
+
         if type(target_function) is str:
             return self._target_graph[self._target_funcs_by_name[target_function]]
         return self._target_graph[target_function]
 
     def get_outputs(self, target_function):
+        """Gets the outputs of a registered target function.
+
+        :param target_function:
+        :type target_function: func
+        :return: List of declared output files, as str objects.
+        :rtype: list of str
+        """
+
         return self.get_target(target_function).outputs
 
     def get_inputs(self, target_function):
+        """Gets the inputs of a registered target function.
+
+        :param target_function:
+        :type target_function: func
+        :return: List of declared input files, as str objects.
+        :rtype: list of str
+        """
         return self.get_target(target_function).inputs
 
     def get_dependencies(self, target_function):
+        """Gets the dependencies of a registered target function.
+
+        :param target_function:
+        :type target_function: func
+        :return: List of declared target functions, as func objects.
+        :rtype: list of func
+        """
         return self.get_target(target_function).dependencies
 
     def add_target(self, target_function, inputs=None, outputs=None, depends=None):
+        """
+        :param target_function: The function for the target.
+        :type target_function: func
+        :param inputs: Optional input files for the target, used for change detection.
+            This may be a single string, or a list of strings.
+        :param outputs: Optional output files for the target, used for change detection.
+            This may be a single string, or a list of strings.
+        :param depends: Optional dependencies, this may be a list of other target function references, or a single target function.
+            Functions may be referenced by string but they must be previously defined.
+        """
+
         if not depends:
             depends = []
         if not inputs:
@@ -287,12 +432,6 @@ class Make:
                                  .format(obj=target))
         return result
 
-    def set_run_targets(self, *target_functions):
-        if _is_iterable_not_str(target_functions[0]):
-            self._run_targets = self._resolve_target_strings(target_functions[0])
-        else:
-            self._run_targets = self._resolve_target_strings(target_functions)
-
     def _target_task_exists(self, target_function):
         return target_function in self._task_dict
 
@@ -334,6 +473,8 @@ class Make:
                             .format(file=i, target=target_function.__name__))
 
     def execute(self):
+        """Execute out of date targets, IE. run pake."""
+
         self._last_run_count = 0
         self._check_graph_inputs_exist()
 
@@ -350,6 +491,12 @@ class Make:
         self._task_dict = {}
 
     def visit(self, visitor=None):
+        """Visit out of date targets without executing them, the default visitor prints:  "Execute Target: target_function_name"
+
+        :param visitor: (Optional) A function which takes a single :py:class:`pake.Target` argument.
+            It can be used to visit out of date targets.
+        """
+
         if not visitor:
             def visitor(target):
                 print("Execute Target: " + target.function.__name__)
@@ -366,6 +513,8 @@ class Make:
         self._task_dict = {}
 
     def clear_targets(self):
+        """Clear all registered targets, and run targets set by :func:`~pake.Make.set_run_targets`"""
+
         self._target_graph = {}
         self._target_funcs_by_name = {}
         self._run_targets = []
