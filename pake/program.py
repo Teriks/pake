@@ -111,6 +111,17 @@ def _defines_to_dic(defines):
     return result
 
 
+def get_defines():
+    args = _arg_parser.parse_args()
+    if args.define:
+        try:
+            return _defines_to_dic(args.define)
+        except _DefineSyntaxError as syn_err:
+            print(str(syn_err), file=sys.stderr)
+            exit(1)
+    return {}
+
+
 def run(make):
     """The main entry point into pake, handles program arguments and sets up your :py:class:`pake.Make` object for execution.
     :param make: your :py:class:`pake.Make` object, with targets registered.

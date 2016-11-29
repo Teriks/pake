@@ -14,6 +14,16 @@ import pake
 
 make = pake.Make()
 
+# Alternate way to get defines.
+# this works before pake.run() is called
+# and can be used outside/before targets are ran
+
+defines = pake.get_defines()
+
+# Print all defines.
+
+print("Defines: "+str(defines))
+
 
 @make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
 def do_stuff_first(target):
