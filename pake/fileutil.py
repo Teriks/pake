@@ -28,7 +28,7 @@ def touch(file_name, mode=0o666, exist_ok=True):
     If the file already exists, the function succeeds if exist_ok is true (and its modification time is updated to the current time), otherwise FileExistsError is raised.
 
     :raises FileExistsError:
-    
+
     :param file_name: The file name.
     :param mode: The umask.
     :param exist_ok: whether or not it is okay for the file to exist already.

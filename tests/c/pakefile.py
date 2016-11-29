@@ -23,6 +23,12 @@ make = pake.Make()
 defines = pake.get_defines()
 
 
+# get the value of -C/--directory from the command line, or return the current working directory if non is specified
+
+directory = pake.get_directory()
+
+
+
 @make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
 def do_stuff_first(target):
     print(target.input)

@@ -131,6 +131,21 @@ def get_defines():
     return DefinesContainer({})
 
 
+def get_directory():
+    """Get the desired working directory for pake, the return value depends on if -C/--directory is used, and what value is passed to it.
+    If a value is passed to -C, that value is returned by this function.  If -C is not specified then the currrent working directory is returned.
+
+    :return: The value passed to -C/--directory on the command line, or the current working directory if -C was not used.
+    :rtype: str
+    """
+
+    args = _arg_parser.parse_args()
+    if args.directory:
+        return args.directory
+    else:
+        return os.getcwd()
+
+
 def run(make):
     """The main entry point into pake, handles program arguments and sets up your :py:class:`pake.Make` object for execution.
     :param make: your :py:class:`pake.Make` object, with targets registered.
