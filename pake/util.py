@@ -31,9 +31,6 @@ class DefinesContainer:
     def __str__(self):
         return str(self._d)
 
-    def __getitem__(self, item):
-        return self._d[item]
-
     def __contains__(self, item):
         return item in self._d
 
