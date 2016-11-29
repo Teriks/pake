@@ -131,18 +131,23 @@ class _ChDirContext:
         self._dir = directory
 
     def __enter__(self):
-        if self._dir:
+        if self._dir and self._dir != self._cwd:
             print('Entering Directory: "{dir}"'.format(dir=self._dir))
             os.chdir(self._dir)
         return self
 
     def __exit__(self, type, value, traceback):
-        if self._dir:
+        if self._dir and self._dir != self._cwd:
             print('Leaving Directory: "{dir}"'.format(dir=self._dir))
             os.chdir(self._cwd)
 
 
 def run(make):
+    """The main entry point into pake, handles program arguments and sets up your :py:class:`pake.Make` object for execution.
+    :param make: your :py:class:`pake.Make` object, with targets registered.
+    :type make: pake.Make
+    """
+
     args = _arg_parser.parse_args()
 
     if args.dry_run and args.jobs:

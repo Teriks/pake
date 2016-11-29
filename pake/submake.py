@@ -48,6 +48,11 @@ def _execute(cmd):
 
 
 def run_script(script_path, *args):
+    """Run another pakefile.py programmatically, changing directories if required""
+    :param script_path: The path to the pakefile that is going to be ran.
+    :param args: Command line arguments to pass the pakefile.
+    """
+
     if os.path.exists(script_path):
         if not os.path.isfile(script_path):
             raise FileNotFoundError('"{script_path}" is not a file.'
