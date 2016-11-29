@@ -25,6 +25,8 @@ import sys
 
 import pake
 
+from pake.util import ChangeDirContext
+
 
 class _DefineSyntaxError(SyntaxError):
     pass
@@ -125,23 +127,6 @@ def _defines_to_dic(defines):
     return result
 
 
-class _ChDirContext:
-    def __init__(self, directory):
-        self._cwd = os.getcwd()
-        self._dir = directory
-
-    def __enter__(self):
-        if self._dir and self._dir != self._cwd:
-            print('Entering Directory: "{dir}"'.format(dir=self._dir))
-            os.chdir(self._dir)
-        return self
-
-    def __exit__(self, type, value, traceback):
-        if self._dir and self._dir != self._cwd:
-            print('Leaving Directory: "{dir}"'.format(dir=self._dir))
-            os.chdir(self._cwd)
-
-
 def run(make):
     """The main entry point into pake, handles program arguments and sets up your :py:class:`pake.Make` object for execution.
     :param make: your :py:class:`pake.Make` object, with targets registered.
@@ -154,7 +139,7 @@ def run(make):
         print("-n/--dry-run and -j/--jobs cannot be used together.", file=sys.stderr)
         exit(1)
 
-    with _ChDirContext(args.directory):
+    with ChangeDirContext(args.directory):
 
         if make.target_count() == 0:
             print('*** No Targets.  Stop.')
