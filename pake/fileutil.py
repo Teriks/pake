@@ -22,5 +22,15 @@
 from pathlib import Path
 
 
-def touch(fname, mode=0o666, exist_ok=True):
-    Path(fname).touch(mode=mode, exist_ok=exist_ok)
+def touch(file_name, mode=0o666, exist_ok=True):
+    """
+    Create a file at this given path. If mode is given, it is combined with the process’ umask value to determine the file mode and access flags.
+    If the file already exists, the function succeeds if exist_ok is true (and its modification time is updated to the current time), otherwise FileExistsError is raised.
+
+    :raises FileExistsError:
+    
+    :param file_name: The file name.
+    :param mode: The umask.
+    :param exist_ok: whether or not it is okay for the file to exist already.
+    """
+    Path(file_name).touch(mode=mode, exist_ok=exist_ok)
