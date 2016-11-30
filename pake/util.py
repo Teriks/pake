@@ -26,10 +26,13 @@ class DefinesContainer:
         self._d = dict
 
     def __hash__(self):
-        return hash(self._d)
+        return self._d.__hash__()
+
+    def __eq__(self, other):
+        return self._d.__eq__(other)
 
     def __str__(self):
-        return str(self._d)
+        return self._d.__str__()
 
     def __contains__(self, item):
         return item in self._d
@@ -38,7 +41,7 @@ class DefinesContainer:
         return self._d.__iter__()
 
     def __len__(self):
-        return len(self._d)
+        return self._d.__len__()
 
     def get(self, item, default=None):
         if item in self._d:
@@ -61,7 +64,19 @@ class ReadOnlyList:
         return self._l.__iter__()
 
     def __len__(self):
-        return len(self._l)
+        return self._l.__len__()
+
+    def __contains__(self, item):
+        return item in self._l
+
+    def __str__(self):
+        return self._l.__str__()
+
+    def __hash__(self):
+        return self._l.__hash__()
+
+    def __eq__(self, other):
+        return self._l.__eq__(other)
 
 
 class ChangeDirContext:

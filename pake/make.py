@@ -50,12 +50,13 @@ class Target:
         self._dependencies = dependencies
         self._outdated_inputs = []
         self._outdated_outputs = []
+        self._dependency_outputs = [output for output in
+                                    itertools.chain.from_iterable(self._make.get_outputs(d) for d in self._dependencies)]
 
     @property
     def dependency_outputs(self):
-        for d in self._dependencies:
-            for o in self._make.get_outputs(d):
-                yield o
+        return ReadOnlyList(self._dependency_outputs)
+
 
     @property
     def dependencies(self):
