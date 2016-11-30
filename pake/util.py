@@ -79,7 +79,7 @@ class ReadOnlyList:
         return self._l.__eq__(other)
 
     def __radd__(self, other):
-        return self._l.__radd__(other)
+        return other.__add__(self)
 
     def __add__(self, other):
         return self._l.__add__(other)
