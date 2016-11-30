@@ -34,6 +34,12 @@ class DefinesContainer:
     def __contains__(self, item):
         return item in self._d
 
+    def __iter__(self):
+        return self._d.__iter__()
+
+    def __len__(self):
+        return len(self._d)
+
     def __getitem__(self, item):
         if item in self._d:
             return self._d[item]
@@ -48,8 +54,10 @@ class ReadOnlyList:
         return self._l[item]
 
     def __iter__(self):
-        for i in self._l:
-            yield i
+        return self._l.__iter__()
+
+    def __len__(self):
+        return len(self._l)
 
 
 class ChangeDirContext:
