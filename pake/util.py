@@ -78,6 +78,24 @@ class ReadOnlyList:
     def __eq__(self, other):
         return self._l.__eq__(other)
 
+    def __radd__(self, other):
+        return self._l.__radd__(other)
+
+    def __add__(self, other):
+        return self._l.__add__(other)
+
+    def __ge__(self, other):
+        return self._l.__ge__(other)
+
+    def __le__(self, other):
+        return self._l.__le__(other)
+
+    def __lt__(self, other):
+        return self._l.__lt__(other)
+
+    def __gt__(self, other):
+        return self._l.__gt__(other)
+
 
 class ChangeDirContext:
     def __init__(self, directory):
