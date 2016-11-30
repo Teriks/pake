@@ -42,13 +42,36 @@ class TargetInputNotFound(FileNotFoundError):
 
 
 class Target:
-    def __init__(self, function, inputs, outputs, dependencies):
-        self.function = function
-        self.inputs = inputs
-        self.outputs = outputs
-        self.dependencies = dependencies
+    def __init__(self, make,  function, inputs, outputs, dependencies):
+        self._make = make
+        self._function = function
+        self._inputs = inputs
+        self._outputs = outputs
+        self._dependencies = dependencies
         self._outdated_inputs = []
         self._outdated_outputs = []
+
+    @property
+    def dependency_outputs(self):
+        for d in self._dependencies:
+            for o in self._make.get_outputs(d):
+                yield o
+
+    @property
+    def dependencies(self):
+        return ReadOnlyList(self._dependencies)
+
+    @property
+    def inputs(self):
+        return ReadOnlyList(self._inputs)
+
+    @property
+    def outputs(self):
+        return ReadOnlyList(self._outputs)
+
+    @property
+    def make(self):
+        return self._make
 
     def _add_outdated_input_output(self, input_file, output_file):
         self._add_outdated_input(input_file)
@@ -296,7 +319,7 @@ class Make:
             resolved_dependencies = self._resolve_target_strings(depends)
 
             self._target_graph[target_function] = Target(
-                target_function, inputs, outputs, resolved_dependencies
+                self, target_function, inputs, outputs, resolved_dependencies
             )
 
             self._target_funcs_by_name[target_function.__name__] = target_function

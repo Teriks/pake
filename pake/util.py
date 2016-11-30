@@ -40,11 +40,15 @@ class DefinesContainer:
     def __len__(self):
         return len(self._d)
 
-    def __getitem__(self, item):
+    def get(self, item, default=None):
         if item in self._d:
             return self._d[item]
         else:
-            return None
+            return default
+
+    def __getitem__(self, item):
+        return self.get(item, None)
+
 
 class ReadOnlyList:
     def __init__(self, l):

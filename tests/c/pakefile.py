@@ -81,6 +81,8 @@ def do_stuff(target):
 
     # Run a pakefile.py script in a subdirectory, build 'all' target
 
+    print(list(target.dependency_outputs))
+
     pake.run_script("submake/pakefile.py", "all")
 
 
