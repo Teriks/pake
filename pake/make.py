@@ -419,19 +419,10 @@ class Make:
         with self._task_dict_lock:
             self._task_dict[target_function] = task
 
-    def _check_graph_inputs_exist(self):
-        for target_function, target in self._target_graph.items():
-            for i in target.inputs:
-                if not os.path.exists(i):
-                    raise TargetInputNotFound(
-                        'Input file "{file}" in target "{target}" could not be found.'
-                            .format(file=i, target=target_function.__name__))
-
     def execute(self):
         """Execute out of date targets, IE. run pake."""
 
         self._last_run_count = 0
-        self._check_graph_inputs_exist()
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=self._max_jobs) as thread_pool:
             for node in self._sort_graph():
@@ -457,7 +448,6 @@ class Make:
                 print("Execute Target: " + target.function.__name__)
 
         self._last_run_count = 0
-        self._check_graph_inputs_exist()
 
         for node in self._sort_graph():
             target_function = node[0]
