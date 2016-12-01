@@ -165,7 +165,7 @@ Gives:
 ```
 
 usage: pakefile.py [-h] [-v] [-j NUM_JOBS] [-n] [-D DEFINE] [-C DIRECTORY]
-                   targets [targets ...]
+                   [targets [targets ...]]
 
 positional arguments:
   targets               Build targets.
