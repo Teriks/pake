@@ -105,6 +105,8 @@ def print_define():
     if make["SOME_DEFINE"]:
         print(make["SOME_DEFINE"])
 
+    print(make.get_define("SOME_DEFINE2", "SOME_DEFINE2_DEFAULT"))
+
 
 
 # Always runs, because there are no inputs or outputs to use for file change detection
