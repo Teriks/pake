@@ -161,10 +161,22 @@ class Make:
     def __getitem__(self, item):
         return self.get_define(item)
 
-    def set_defines(self, param):
-        self._defines = dict(param)
+    def set_defines(self, defines_dict):
+        """Set the available defines for this :py:class:`pake.Make` instance.
+        :param param: A dictionary of defined values, in the format {str: value}
+        """
+        self._defines = dict(defines_dict)
 
     def get_define(self, name, default=None):
+        """Get the value of a define passed in from the command line using -D, or an alternative default.
+           By default, if the value does not exist this method returns None, a default can be specified
+           in the second parameter.
+
+        :param name: The name of the define.
+        :type name: str
+        :param default: The optional default value of the define, the normal default is None
+        :return: The defines value.
+        """
         if name in self._defines:
             return self._defines[name]
         else:
