@@ -10,24 +10,11 @@ import glob
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../')))
 
+
 import pake
 
-make = pake.Make()
 
-# Get defines passed in from the command line.
-# This method returns a pake.util.DefinesContainer,
-# which is a read only dictionary like object with
-# some slight caveats when accessing non existent items.
-# See comments above access example below for more detail.
-
-defines = pake.get_defines()
-
-
-# get the value of -C/--directory from the command line, or return the current
-# working directory if none is specified
-
-directory = pake.get_directory()
-
+make = pake.init()
 
 
 @make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
@@ -99,8 +86,8 @@ def print_define():
     # Defines that are not given a value explicitly are given the value of 'True'
     # Defines that don't exist return 'None'
 
-    if defines["SOME_DEFINE"]:
-        print(defines["SOME_DEFINE"])
+    if make["SOME_DEFINE"]:
+        print(make["SOME_DEFINE"])
 
 
 

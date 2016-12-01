@@ -11,7 +11,7 @@ sys.path.append(
 
 import pake
 
-make = pake.Make()
+make = pake.init()
 
 
 @make.target(inputs="test.c", outputs="test.o")

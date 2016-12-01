@@ -18,8 +18,6 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import os
-
 
 class DefinesContainer:
     def __init__(self, dict):
@@ -95,32 +93,6 @@ class ReadOnlyList:
 
     def __gt__(self, other):
         return self._l.__gt__(other)
-
-
-class ChangeDirContext:
-    def __init__(self, directory):
-        self._cwd = os.getcwd()
-        self._dir = directory
-
-        def on_enter(directory):
-            print('Entering Directory: "{dir}"'.format(dir=directory))
-
-        def on_exit(directory):
-            print('Leaving Directory: "{dir}"'.format(dir=directory))
-
-        self.on_enter = on_enter
-        self.on_exit = on_exit
-
-    def __enter__(self):
-        if self._dir and self._dir != self._cwd:
-            self.on_enter(self._dir)
-            os.chdir(self._dir)
-        return self
-
-    def __exit__(self, type, value, traceback):
-        if self._dir and self._dir != self._cwd:
-            self.on_exit(self._dir)
-            os.chdir(self._cwd)
 
 
 def is_iterable(obj):

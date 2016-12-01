@@ -156,6 +156,19 @@ class Make:
         self._task_dict = {}
         self._max_jobs = 1
         self._last_run_count = 0
+        self._defines = {}
+
+    def __getitem__(self, item):
+        return self.get_define(item)
+
+    def set_defines(self, param):
+        self._defines = dict(param)
+
+    def get_define(self, name, default=None):
+        if name in self._defines:
+            return self._defines[name]
+        else:
+            return default
 
     def set_run_targets(self, *target_functions):
         """Set the entry targets for the next call to execute.  These are the targets that will be ran.
@@ -487,3 +500,5 @@ class Make:
         self._target_graph = {}
         self._target_funcs_by_name = {}
         self._run_targets = []
+
+

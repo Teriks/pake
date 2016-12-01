@@ -21,10 +21,11 @@
 import argparse
 import ast
 import os
+import atexit
 
 import pake
 
-from pake.util import ChangeDirContext, DefinesContainer, str_is_int, str_is_float
+from pake.util import DefinesContainer, str_is_int, str_is_float
 
 
 class _DefineSyntaxError(SyntaxError):
@@ -110,38 +111,31 @@ def _defines_to_dic(defines):
     return result
 
 
-def get_defines():
-    """Preemptively get the defines passed to the pakefile on the command line.
-
-    :return: A :py:class:`pake.util.DefinesContainer` which behaves
-        similarly to how :py:class:`Make` does when it comes to reading
-        defines that do not exist.
-
-    :rtype: pake.util.DefinesContainer
+def init():
+    """Init pake (Possibly change working directory) and return a :py:class:`pake.Make` instance.
+    :return: :py:class:`pake.Make` instance.
+    :rtype: pake.Make
     """
 
     args = _arg_parser.parse_args()
+    if args.directory and args.directory != os.getcwd():
+        os.chdir(args.directory)
+        print('Entering Directory: "{dir}"'.format(dir=args.directory))
+
+        def _at_exit_chdir():
+            print('Leaving Directory: "{dir}"'.format(dir=args.directory))
+
+        atexit.register(_at_exit_chdir)
+
+    make = pake.Make()
+
     if args.define:
         try:
-            return DefinesContainer(_defines_to_dic(args.define))
+            return make.set_defines(_defines_to_dic(args.define))
         except _DefineSyntaxError as syn_err:
             _arg_parser.error(str(syn_err))
-    return DefinesContainer({})
 
-
-def get_directory():
-    """Get the desired working directory for pake, the return value depends on if -C/--directory is used, and what value is passed to it.
-    If a value is passed to -C, that value is returned by this function.  If -C is not specified then the currrent working directory is returned.
-
-    :return: The value passed to -C/--directory on the command line, or the current working directory if -C was not used.
-    :rtype: str
-    """
-
-    args = _arg_parser.parse_args()
-    if args.directory:
-        return args.directory
-    else:
-        return os.getcwd()
+    return make
 
 
 def run(make, default_targets=None):
@@ -160,39 +154,37 @@ def run(make, default_targets=None):
     if args.dry_run and args.jobs:
         _arg_parser.error("-n/--dry-run and -j/--jobs cannot be used together.")
 
-    with ChangeDirContext(args.directory):
+    if make.target_count() == 0:
+        _arg_parser.error('*** No Targets.  Stop.')
 
-        if make.target_count() == 0:
-            _arg_parser.error('*** No Targets.  Stop.')
+    if args.jobs:
+        make.set_max_jobs(args.jobs)
 
-        if args.jobs:
-            make.set_max_jobs(args.jobs)
+    if len(args.targets) > 0:
+        run_targets = args.targets
+    else:
+        if default_targets is None:
+            _arg_parser.error("No targets were provided and no default target was specified in the pakefile.")
 
-        if len(args.targets) > 0:
-            run_targets = args.targets
+        if pake.util.is_iterable_not_str(default_targets):
+            run_targets = default_targets
         else:
-            if default_targets is None:
-                _arg_parser.error("No targets were provided and no default target was specified in the pakefile.")
+            run_targets = [default_targets]
 
-            if pake.util.is_iterable_not_str(default_targets):
-                run_targets = default_targets
-            else:
-                run_targets = [default_targets]
+    try:
+        make.set_run_targets(run_targets)
+    except pake.UndefinedTargetException as target_undef_err:
+        _arg_parser.error(str(target_undef_err))
 
-        try:
-            make.set_run_targets(run_targets)
-        except pake.UndefinedTargetException as target_undef_err:
-            _arg_parser.error(str(target_undef_err))
+    try:
+        if args.dry_run:
+            make.visit()
+        else:
+            make.execute()
+    except pake.TargetInputNotFound as input_file_err:
+        _arg_parser.error(str(input_file_err))
 
-        try:
-            if args.dry_run:
-                make.visit()
-            else:
-                make.execute()
-        except pake.TargetInputNotFound as input_file_err:
-            _arg_parser.error(str(input_file_err))
-
-        if make.get_last_run_count() == 0:
-            print("Nothing to do, all targets up to date.")
+    if make.get_last_run_count() == 0:
+        print("Nothing to do, all targets up to date.")
 
     make.clear_targets()

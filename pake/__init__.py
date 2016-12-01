@@ -32,5 +32,5 @@ from pake.make import \
     TargetInputNotFound, \
     CyclicDependencyError
 
-from pake.program import run, get_defines, get_directory
+from pake.program import run, init
 from pake.submake import run_script
