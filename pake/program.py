@@ -170,7 +170,6 @@ def run(make, default_targets=None):
         if args.jobs:
             make.set_max_jobs(args.jobs)
 
-
         if len(args.targets) > 0:
             run_targets = args.targets
         else:
