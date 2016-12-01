@@ -143,7 +143,7 @@ def clean():
 
 
 
-pake.run(make)
+pake.run(make, default_targets=all)
 
 
 ```
