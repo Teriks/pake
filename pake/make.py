@@ -163,7 +163,7 @@ class Make:
 
     def set_defines(self, defines_dict):
         """Set the available defines for this :py:class:`pake.Make` instance.
-        :param param: A dictionary of defined values, in the format {str: value}
+        :param defines_dict: A dictionary of defined values, in the format {str: value}
         """
         self._defines = dict(defines_dict)
 

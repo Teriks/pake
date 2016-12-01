@@ -75,6 +75,9 @@ _arg_parser.add_argument('-C', '--directory', type=_validate_dir,
 
 
 def _coerce_define_value(value_name, value):
+
+    literal_eval_triggers = {"'", '"', "(", "{", "["}
+
     if str_is_int(value):
         return int(value)
     elif str_is_float(value):
@@ -82,7 +85,7 @@ def _coerce_define_value(value_name, value):
     else:
         ls = value.lstrip()
         if len(ls) > 0:
-            if ls[0] == '\'' or ls[0] == '\"':
+            if ls[0] in literal_eval_triggers:
                 try:
                     return ast.literal_eval(ls)
                 except SyntaxError as syn_err:
@@ -128,10 +131,9 @@ def init():
         atexit.register(_at_exit_chdir)
 
     make = pake.Make()
-
     if args.define:
         try:
-            return make.set_defines(_defines_to_dic(args.define))
+            make.set_defines(_defines_to_dic(args.define))
         except _DefineSyntaxError as syn_err:
             _arg_parser.error(str(syn_err))
 

@@ -17,6 +17,12 @@ import pake
 make = pake.init()
 
 
+print(make["LIST"])
+print(make["DICT"])
+print(make["SET"])
+print(make["TUP"])
+
+
 @make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
 def do_stuff_first(target):
     print(target.input)
