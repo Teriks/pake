@@ -59,6 +59,13 @@ def _exports_to_args():
 
 
 def export(name, value):
+    """Export a define which will be passed to sub script invocations when calling :py:func:`pake.run_script`
+    :param name: The name of the define.
+    :type name: str
+    :param value: The define value, which can be bool, string, list, set, dictionary or tuple.
+                  Composites like lists, tuples (etc..) must consist only of simple literal values
+                  (not variable references of any kind).
+    """
     _exports[name] = value
 
 
