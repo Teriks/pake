@@ -103,6 +103,10 @@ def do_stuff(target):
     print(target.input)
     pake.touch(target.output)
 
+    # Print the collective outputs of this targets immediate dependencies
+
+    print("Dependency outputs: "+str(target.dependency_outputs))
+
     # Run a pakefile.py script in a subdirectory, build 'all' target
 
     pake.run_script("submake/pakefile.py", "all")
