@@ -25,6 +25,14 @@ print(make["TUP"])
 
 pake.export("TEST_EXPORT", "test\"test")
 
+pake.export("TEST_EXPORT1", [1,"te\"st", [3, 4, 'test\'test']])
+
+pake.export("TEST_EXPORT2", {0 : 1, 1: "te\"st", 2: [3, 4, 'test\'test']})
+
+pake.export("TEST_EXPORT3", {1,"te\"st", 3, 4, 'test\'test'})
+
+pake.export("TEST_EXPORT4", (1,"te\"st", [3, 4, 'test\'test']))
+
 
 @make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
 def do_stuff_first(target):

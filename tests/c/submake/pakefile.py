@@ -13,7 +13,11 @@ import pake
 
 make = pake.init()
 
-print(make["TEST_EXPORT"])
+print("Import Export TEST 0 = "+str(make["TEST_EXPORT"]))
+print("Import Export TEST 1 = "+str(make["TEST_EXPORT1"]))
+print("Import Export TEST 2 = "+str(make["TEST_EXPORT2"]))
+print("Import Export TEST 3 = "+str(make["TEST_EXPORT3"]))
+print("Import Export TEST 4 = "+str(make["TEST_EXPORT4"]))
 
 
 @make.target(inputs="test.c", outputs="test.o")
