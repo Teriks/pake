@@ -54,7 +54,7 @@ def _validate_dir(path):
 
 _arg_parser.add_argument('-v', '--version', action='version', version='pake ' + pake.__version__)
 
-_arg_parser.add_argument('targets', type=str, nargs='+', help='Build targets.')
+_arg_parser.add_argument('targets', type=str, nargs='*', help='Build targets.')
 
 _arg_parser.add_argument('-j', '--jobs',
                          metavar='NUM_JOBS',
@@ -146,32 +146,42 @@ def get_directory():
         return os.getcwd()
 
 
-def run(make):
+def run(make, default_targets=None):
     """The main entry point into pake, handles program arguments and sets up your :py:class:`pake.Make` object for execution.
     :param make: your :py:class:`pake.Make` object, with targets registered.
+    :param default_targets: The targets to execute if no targets are specified on the command line
     :type make: pake.Make
     """
 
     args = _arg_parser.parse_args()
 
     if args.dry_run and args.jobs:
-        print("-n/--dry-run and -j/--jobs cannot be used together.", file=sys.stderr)
-        exit(1)
+        _arg_parser.error("-n/--dry-run and -j/--jobs cannot be used together.")
 
     with ChangeDirContext(args.directory):
 
         if make.target_count() == 0:
-            print('*** No Targets.  Stop.')
-            exit(0)
+            _arg_parser.error('*** No Targets.  Stop.')
 
         if args.jobs:
             make.set_max_jobs(args.jobs)
 
+
+        if len(args.targets) > 0:
+            run_targets = args.targets
+        else:
+            if default_targets is None:
+                _arg_parser.error("No targets were provided and no default target was specified in the pakefile.")
+
+            if pake.util.is_iterable_not_str(default_targets):
+                run_targets = default_targets
+            else:
+                run_targets = [default_targets]
+
         try:
-            make.set_run_targets(args.targets)
+            make.set_run_targets(run_targets)
         except pake.UndefinedTargetException as target_undef_err:
-            print(str(target_undef_err), file=sys.stderr)
-            exit(1)
+            _arg_parser.error(str(target_undef_err))
 
         try:
             if args.dry_run:
@@ -179,8 +189,7 @@ def run(make):
             else:
                 make.execute()
         except pake.TargetInputNotFound as input_file_err:
-            print(str(input_file_err), file=sys.stderr)
-            exit(1)
+            _arg_parser.error(str(input_file_err))
 
         if make.get_last_run_count() == 0:
             print("Nothing to do, all targets up to date.")
