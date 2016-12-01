@@ -69,6 +69,15 @@ def export(name, value):
     _exports[name] = value
 
 
+def un_export(name):
+    """Prevent a previously exported value from being exported during new invocations of :py:func:`pake.run_script`.
+    :param name: The name of the previously exported define.
+    :type name: str
+    """
+    if name in _exports:
+        del _exports[name]
+
+
 def run_script(script_path, *args):
     """Run another pakefile.py programmatically, changing directories if required
     :param script_path: The path to the pakefile that is going to be ran.
