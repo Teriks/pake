@@ -21,7 +21,6 @@
 import argparse
 import ast
 import os
-import sys
 
 import pake
 
