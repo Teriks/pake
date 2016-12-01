@@ -13,6 +13,8 @@ import pake
 
 make = pake.init()
 
+print(make["TEST_EXPORT"])
+
 
 @make.target(inputs="test.c", outputs="test.o")
 def all(target):

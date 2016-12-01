@@ -33,4 +33,4 @@ from pake.make import \
     CyclicDependencyError
 
 from pake.program import run, init
-from pake.submake import run_script
+from pake.submake import run_script, export

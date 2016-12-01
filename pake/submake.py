@@ -47,6 +47,21 @@ def _execute(cmd):
         raise subprocess.CalledProcessError(return_code, cmd, output=output)
 
 
+_exports = {}
+
+
+def _exports_to_args():
+    args = []
+    for k, v in _exports.items():
+        args.append("-D")
+        args.append(k+"="+str(v))
+    return args
+
+
+def export(name, value):
+    _exports[name] = value
+
+
 def run_script(script_path, *args):
     """Run another pakefile.py programmatically, changing directories if required
     :param script_path: The path to the pakefile that is going to be ran.
@@ -65,7 +80,7 @@ def run_script(script_path, *args):
 
         str_filter_args = list(str(a) for a in args)
         work_dir = os.path.dirname(os.path.abspath(script_path))
-        output = _execute([sys.executable, script_path, "-C", work_dir] + str_filter_args)
+        output = _execute([sys.executable, script_path, "-C", work_dir] + _exports_to_args() + str_filter_args)
         for line in output:
             sys.stdout.write(line)
     except subprocess.CalledProcessError as err:

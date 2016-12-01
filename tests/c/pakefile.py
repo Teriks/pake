@@ -23,6 +23,9 @@ print(make["SET"])
 print(make["TUP"])
 
 
+pake.export("TEST_EXPORT", "test\"test")
+
+
 @make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
 def do_stuff_first(target):
     print(target.input)
