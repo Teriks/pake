@@ -149,8 +149,12 @@ def get_directory():
 def run(make, default_targets=None):
     """The main entry point into pake, handles program arguments and sets up your :py:class:`pake.Make` object for execution.
     :param make: your :py:class:`pake.Make` object, with targets registered.
-    :param default_targets: The targets to execute if no targets are specified on the command line
     :type make: pake.Make
+
+    :param default_targets: The targets to execute if no targets are specified on the command line.
+        This can be a single target, or a list.  The elements may be direct function references or function names as strings.
+
+    :type default_targets: list or func
     """
 
     args = _arg_parser.parse_args()
