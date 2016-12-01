@@ -126,8 +126,7 @@ def get_defines():
         try:
             return DefinesContainer(_defines_to_dic(args.define))
         except _DefineSyntaxError as syn_err:
-            print(str(syn_err), file=sys.stderr)
-            exit(1)
+            _arg_parser.error(str(syn_err))
     return DefinesContainer({})
 
 
