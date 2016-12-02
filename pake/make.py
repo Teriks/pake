@@ -286,7 +286,7 @@ class Make:
 
         :param target_functions: List of target function names, or direct references to target functions.
 
-        :raises UndefinedTargetException: If a given target is not a registered target reference or name.
+        :raises pake.make.UndefinedTargetException: If a given target is not a registered target reference or name.
         """
 
         if is_iterable_not_str(target_functions[0]):
@@ -426,8 +426,8 @@ class Make:
         :param depends: Optional dependencies, this may be a list of other target function references, or a single target function.
                         Functions may be referenced by string but they must be previously defined.
 
-        :raises TargetRedefinedException: Raised if the given target_function has already been registered as a target.
-        :raises UndefinedTargetException: If there is a reference to an unregistered target in this targets dependencies.
+        :raises pake.make.TargetRedefinedException: Raised if the given target_function has already been registered as a target.
+        :raises pake.make.UndefinedTargetException: If there is a reference to an unregistered target in this targets dependencies.
 
         """
 
@@ -582,8 +582,8 @@ class Make:
     def execute(self):
         """Execute out of date targets, IE. run pake.
 
-        :raises CyclicDependencyError: Raised if a cyclic dependency is detected in the target graph.
-        :raises TargetInputNotFound: Raised if one of a targets inputs does not exist.
+        :raises pake.graph.CyclicDependencyError: Raised if a cyclic dependency is detected in the target graph.
+        :raises pake.make.TargetInputNotFound: Raised if one of a targets inputs does not exist.
         """
 
         self._last_run_count = 0
@@ -606,8 +606,8 @@ class Make:
         :param visitor: (Optional) A function which takes a single :py:class:`pake.make.Target` argument.
                         It can be used to visit out of date targets.
 
-        :raises CyclicDependencyError: Raised if a cyclic dependency is detected in the target graph.
-        :raises TargetInputNotFound: Raised if one of a targets inputs does not exist.
+        :raises pake.graph.CyclicDependencyError: Raised if a cyclic dependency is detected in the target graph.
+        :raises pake.make.TargetInputNotFound: Raised if one of a targets inputs does not exist.
         """
 
         if not visitor:

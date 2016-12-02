@@ -90,7 +90,7 @@ def run_script(script_path, *args):
     :param args: Command line arguments to pass the pakefile.
 
     :raises FileNotFoundError: Raised if the given pakefile script does not exist.
-    :raises SubMakeException: If the submake script exits in a non successful manner.
+    :raises pake.submake.SubMakeException: If the submake script exits in a non successful manner.
     """
 
     if os.path.exists(script_path):
