@@ -19,7 +19,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-class CyclicDependencyError(Exception):
+class CyclicDependencyException(Exception):
     """Raised upon detecting a cyclic dependency in a dependency graph."""
     pass
 
@@ -69,7 +69,7 @@ def topological_sort(graph, get_edges=None):
 
     :type get_edges: func
 
-    :raises pake.graph.CyclicDependencyError: Raised when a cycle is detected in the given graph.
+    :raises pake.graph.CyclicDependencyException: Raised when a cycle is detected in the given graph.
 
     :return: A topologically sorted copy of the given graph.
     :rtype: dict
@@ -89,4 +89,4 @@ def topological_sort(graph, get_edges=None):
                 del graph[node]
                 yield (node, edges)
         if not acyclic:
-            raise CyclicDependencyError("Cyclic dependency detected.")
+            raise CyclicDependencyException("Cyclic dependency detected.")

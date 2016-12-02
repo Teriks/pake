@@ -197,7 +197,7 @@ def run(make, default_targets=None):
             make.visit()
         else:
             make.execute()
-    except pake.TargetInputNotFound as input_file_err:
+    except pake.TargetInputNotFoundException as input_file_err:
         _arg_parser.error(str(input_file_err))
 
     if make.get_last_run_count() == 0:

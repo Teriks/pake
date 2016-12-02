@@ -26,7 +26,7 @@ import os
 import threading
 from pake.util import ReadOnlyList, is_iterable_not_str
 
-from pake.graph import topological_sort, check_cyclic, CyclicDependencyError
+from pake.graph import topological_sort, check_cyclic, CyclicDependencyException
 
 
 class TargetRedefinedException(Exception):
@@ -40,7 +40,7 @@ class UndefinedTargetException(Exception):
     pass
 
 
-class TargetInputNotFound(FileNotFoundError):
+class TargetInputNotFoundException(FileNotFoundError):
     """Raised when one of a targets input files is not found at the time of that targets execution."""
     def __init__(self, target_function, input_file):
         super().__init__('Input "{input}" of Target "{target}" did not exist upon target execution.'
@@ -150,7 +150,7 @@ class Target:
     def make(self):
         """Gets the :py:class:`pake.make.Make` instance which this target is registered in.
 
-        :return: pake.Make
+        :return: pake.make.Make
         """
 
         return self._make
@@ -466,7 +466,7 @@ class Make:
 
         for i in inputs:
             if not os.path.exists(i):
-                raise TargetInputNotFound(target_function, i)
+                raise TargetInputNotFoundException(target_function, i)
 
         if (len(inputs) == 0 or len(outputs) == 0) and len(dependencies) == 0:
             return True
@@ -506,7 +506,7 @@ class Make:
             return e.dependencies
 
         if check_cyclic(self._target_graph, get_edges=get_edges):
-            raise CyclicDependencyError("Cyclic target dependency detected.")
+            raise CyclicDependencyException("Cyclic target dependency detected.")
 
         visited, no_dep_targets, graph_out, to_visit = set(), set(), [], []
 
@@ -582,8 +582,8 @@ class Make:
     def execute(self):
         """Execute out of date targets, IE. run pake.
 
-        :raises pake.graph.CyclicDependencyError: Raised if a cyclic dependency is detected in the target graph.
-        :raises pake.make.TargetInputNotFound: Raised if one of a targets inputs does not exist.
+        :raises pake.graph.CyclicDependencyException: Raised if a cyclic dependency is detected in the target graph.
+        :raises pake.make.TargetInputNotFoundException: Raised if one of a targets inputs does not exist.
         """
 
         self._last_run_count = 0
@@ -606,8 +606,8 @@ class Make:
         :param visitor: (Optional) A function which takes a single :py:class:`pake.make.Target` argument.
                         It can be used to visit out of date targets.
 
-        :raises pake.graph.CyclicDependencyError: Raised if a cyclic dependency is detected in the target graph.
-        :raises pake.make.TargetInputNotFound: Raised if one of a targets inputs does not exist.
+        :raises pake.graph.CyclicDependencyException: Raised if a cyclic dependency is detected in the target graph.
+        :raises pake.make.TargetInputNotFoundException: Raised if one of a targets inputs does not exist.
         """
 
         if not visitor:

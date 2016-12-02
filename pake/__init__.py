@@ -25,12 +25,14 @@ __license__ = 'Three Clause BSD'
 __version__ = '0.1.0.0'
 
 from pake.fileutil import touch
+
 from pake.make import \
     Make, \
     TargetRedefinedException, \
     UndefinedTargetException, \
-    TargetInputNotFound, \
-    CyclicDependencyError
+    TargetInputNotFoundException
+
+from pake.graph import CyclicDependencyException
 
 from pake.program import run, init
-from pake.submake import run_script, export
+from pake.submake import run_script, export, un_export
