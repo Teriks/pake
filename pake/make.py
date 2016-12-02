@@ -50,12 +50,18 @@ class TargetInputNotFound(FileNotFoundError):
 
     @property
     def target_function(self):
-        """Return a reference to the target function that has the missing input."""
+        """Return a reference to the target function that has the missing input.
+
+        :rtype: func
+        """
         return self._target_function
 
     @property
     def input(self):
-        """Return the path to the missing input."""
+        """Return the path to the missing input.
+        
+        :rtype: str
+        """
         return self._input
 
 
