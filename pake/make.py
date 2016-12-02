@@ -60,6 +60,16 @@ class TargetInputNotFound(FileNotFoundError):
 
 
 class Target:
+    """Holds information about a registered targets inputs, outputs, dependencies etc.
+    This is a contextual object that is created for each target function registered to a :py:meth:`pake.make.Make`
+    instance, it can be retrieved by passing a given targets function reference or function name to
+    :py:meth:`pake.make.Make.get_target`
+
+    An instance of a registered targets :py:class:`pake.make.Target` object is passed to it's target function as
+    the first argument when the target executes.  A target functions first argument can be omitted and
+    pake will avoid passing it to the target function when it is not needed.
+    """
+
     def __init__(self, make,  function, inputs, outputs, dependencies):
         self._make = make
         self._function = function
@@ -203,6 +213,16 @@ class Target:
 
 
 class Make:
+    """The make context class.  Target functions can be registered to an instance of this class
+    using the :py:meth:`pake.make.Make.target` python decorator, or manually using the :py:meth:`pake.make.Make.add_target`
+    function.
+
+    This class can execute registered targets in the correct order according to their dependencies, it also handles file
+    change detection based off each targets inputs and outputs.
+
+    It is the main context object used by pake, an instance is returned by :py:meth:`pake.program.init`.
+    """
+
     def __init__(self):
         self._target_graph = {}
         self._target_funcs_by_name = {}

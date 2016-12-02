@@ -20,7 +20,7 @@
 
 
 class ReadOnlyList:
-    """A read only list wrapper that allows for concatenation and the usual python list comparisons,
+    """A read only list wrapper that allows for concatenation and the usual python list comparisons, iteration, etc...
     but no modifying operations.
     """
 
