@@ -214,8 +214,14 @@ class Make:
         self._last_run_count = 0
         self._defines = {}
 
-    def __getitem__(self, item):
-        return self.get_define(item)
+    def __getitem__(self, name):
+        """Retrieve the value of a define, returns None if the define does not exist.
+
+        :param name: The name of the define.
+        :type name: str
+        :return: The defines value, or None if the define does not exist.
+        """
+        return self.get_define(name)
 
     def set_defines(self, defines_dict):
         """Set the available defines for this :py:class:`pake.make.Make` instance.
@@ -225,9 +231,10 @@ class Make:
         self._defines = dict(defines_dict)
 
     def get_define(self, name, default=None):
-        """Get the value of a define passed in from the command line using -D, or an alternative default.
-           By default, if the value does not exist this method returns None, a default can be specified
-           in the second parameter.
+        """Get the value of a define, or an alternative default.
+
+        By default, if the given define does not exist this method returns None, a default can be specified
+        in the second parameter.
 
         :param name: The name of the define.
         :type name: str
