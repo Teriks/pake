@@ -56,6 +56,12 @@ pake.util module
 Module contents
 ---------------
 
+.. automodule:: pake
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 These objects/functions are imported from pake's submodules
 into the pake module, and are directly accesible from the pake namespace.
 
