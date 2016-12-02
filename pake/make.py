@@ -225,6 +225,8 @@ class Make:
         """Set the entry targets for the next call to execute.  These are the targets that will be ran.
 
         :param target_functions: List of target function names, or direct references to target functions.
+
+        :raises UndefinedTargetException: If a given target is not a registered target reference or name.
         """
 
         if is_iterable_not_str(target_functions[0]):
@@ -353,7 +355,7 @@ class Make:
         return self.get_target(target_function).dependencies
 
     def add_target(self, target_function, inputs=None, outputs=None, depends=None):
-        """Register a pake target function.
+        """Manually register a pake target function.
 
         :param target_function: The function for the target.
         :type target_function: func
@@ -363,6 +365,10 @@ class Make:
                         This may be a single string, or a list of strings.
         :param depends: Optional dependencies, this may be a list of other target function references, or a single target function.
                         Functions may be referenced by string but they must be previously defined.
+
+        :raises TargetRedefinedException: Raised if the given target_function has already been registered as a target.
+        :raises UndefinedTargetException: If there is a reference to an unregistered target in this targets dependencies.
+
         """
 
         if not depends:
@@ -510,7 +516,10 @@ class Make:
             self._task_dict[target_function] = task
 
     def execute(self):
-        """Execute out of date targets, IE. run pake."""
+        """Execute out of date targets, IE. run pake.
+
+        :raises CyclicDependencyError: Raised if a cyclic dependency is detected in the target graph.
+        """
 
         self._last_run_count = 0
 
@@ -531,6 +540,8 @@ class Make:
 
         :param visitor: (Optional) A function which takes a single :py:class:`pake.Target` argument.
                         It can be used to visit out of date targets.
+
+        :raises CyclicDependencyError: Raised if a cyclic dependency is detected in the target graph.
         """
 
         if not visitor:

@@ -20,7 +20,7 @@
 
 
 class DefinesContainer:
-    """A dictionary like container for define values.
+    """A dictionary wrapper for dictionaries containing define values.
     The standard indexing operation on this dictionary like object returns None
     when a key does not exist.
     """
