@@ -90,9 +90,9 @@ class Target:
 
     @property
     def name(self):
-        """Return the name of the targets function.
+        """Get the name of the target function.
 
-        :return: The name of the targets function.
+        :return: The name of the target function.
         :rtype: str
         """
         return self._function.__name__
