@@ -149,7 +149,8 @@ Gives:
 
 ```
 
-usage: pakefile.py [-h] [-v] [-j NUM_JOBS] [-n] [-D DEFINE] [-C DIRECTORY]
+usage: pakefile.py [-h] [-v] [-j NUM_JOBS] [-n] [-t] [-D DEFINE]
+                   [-C DIRECTORY]
                    [targets [targets ...]]
 
 positional arguments:
@@ -164,6 +165,7 @@ optional arguments:
                         targets running at a time.
   -n, --dry-run         Use to preform a dry run, lists all targets that will
                         be executed in the next actual invocation.
+  -t, --targets         List all target names.
   -D DEFINE, --define DEFINE
                         Add defined value.
   -C DIRECTORY, --directory DIRECTORY

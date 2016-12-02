@@ -68,7 +68,7 @@ _arg_parser.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
                               'will be executed in the next actual invocation.')
 
 _arg_parser.add_argument('-t', '--targets', action='store_true', dest='list_targets',
-                         help='List all target names')
+                         help='List all target names.')
 
 _arg_parser.add_argument('-D', '--define', nargs=1, action='append',
                          help='Add defined value.')
