@@ -22,7 +22,7 @@ import sys
 import re
 
 
-sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('..'))
 
 
 # -- General configuration ------------------------------------------------
@@ -60,7 +60,7 @@ author = 'Teriks'
 #
 # The short X.Y version.
 version = ''
-with open('pake/__init__.py') as f:
+with open('../pake/__init__.py') as f:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
 
 # The full version, including alpha/beta/rc tags.
