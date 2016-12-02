@@ -1,4 +1,6 @@
-# About
+# About pake
+
+[![Documentation Status](https://readthedocs.org/projects/pake/badge/?version=latest)](http://pake.readthedocs.io/en/latest/?badge=latest)
 
 pake is a make like python build utility where targets, dependencies and build commands
 can be expressed entirely in python, similar to ruby rake.
