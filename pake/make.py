@@ -54,9 +54,12 @@ class Target:
                                     itertools.chain.from_iterable(self._make.get_outputs(d) for d in self._dependencies)]
 
     @property
+    def function(self):
+        return self._function
+
+    @property
     def dependency_outputs(self):
         return ReadOnlyList(self._dependency_outputs)
-
 
     @property
     def dependencies(self):
