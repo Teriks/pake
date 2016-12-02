@@ -64,7 +64,7 @@ def topological_sort(graph, get_edges=None):
     :param graph: A graph in the form {node : [edge1, edge2], ...}, see get_edges parameter for caveats
     :type graph: dict
 
-    :param get_edges:  If your edges container is not an iterable type, this should be a function
+    :param get_edges:  If your edge container is not an iterable type, this should be a function
                        that returns an iterable over a series of edges (References to other nodes in the graph)
 
     :type get_edges: func
