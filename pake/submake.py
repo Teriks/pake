@@ -25,6 +25,9 @@ import sys
 
 
 class SubMakeException(Exception):
+    """A blanket exception raised when any error occurs during the actual execution
+    of another pakefile while calling :py:meth:`pake.submake.run_script`.
+    """
     pass
 
 
@@ -59,7 +62,7 @@ def _exports_to_args():
 
 
 def export(name, value):
-    """Export a define which will be passed to sub script invocations when calling :py:func:`pake.run_script`
+    """Export a define which will be passed to sub script invocations when calling :py:func:`pake.submake.run_script`
 
     :param name: The name of the define.
     :type name: str
@@ -71,7 +74,7 @@ def export(name, value):
 
 
 def un_export(name):
-    """Prevent a previously exported value from being exported during new invocations of :py:func:`pake.run_script`.
+    """Prevent a previously exported value from being exported during new invocations of :py:func:`pake.submake.run_script`.
 
     :param name: The name of the previously exported define.
     :type name: str
@@ -85,7 +88,7 @@ def run_script(script_path, *args):
 
     :param script_path: The path to the pakefile that is going to be ran.
     :param args: Command line arguments to pass the pakefile.
-    
+
     :raises FileNotFoundError: Raised if the given pakefile script does not exist.
     :raises SubMakeException: If the submake script exits in a non successful manner.
     """

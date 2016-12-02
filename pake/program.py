@@ -115,10 +115,10 @@ def _defines_to_dic(defines):
 
 
 def init():
-    """Init pake (Possibly change working directory) and return a :py:class:`pake.Make` instance.
+    """Init pake (Possibly change working directory) and return a :py:class:`pake.make.Make` instance.
 
-    :return: :py:class:`pake.Make` instance.
-    :rtype: pake.Make
+    :return: :py:class:`pake.make.Make` instance.
+    :rtype: pake.make.Make
     """
 
     args = _arg_parser.parse_args()
@@ -142,10 +142,10 @@ def init():
 
 
 def run(make, default_targets=None):
-    """The main entry point into pake, handles program arguments and sets up your :py:class:`pake.Make` object for execution.
+    """The main entry point into pake, handles program arguments and sets up your :py:class:`pake.make.Make` object for execution.
 
-    :param make: your :py:class:`pake.Make` object, with targets registered.
-    :type make: pake.Make
+    :param make: your :py:class:`pake.make.Make` object, with targets registered.
+    :type make: pake.make.Make
 
     :param default_targets: The targets to execute if no targets are specified on the command line.
                             This can be a single target, or a list.  The elements may be direct function references

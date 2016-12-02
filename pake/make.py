@@ -30,14 +30,18 @@ from pake.graph import topological_sort, check_cyclic, CyclicDependencyError
 
 
 class TargetRedefinedException(Exception):
+    """Raised when the same target function is registered to a :py:class:`pake.make.Make` instance more than once"""
     pass
 
 
 class UndefinedTargetException(Exception):
+    """Raised in cases where a target function is not registered to a :py:class:`pake.make.Make` instance
+    when it should be in order for a given operation to complete."""
     pass
 
 
 class TargetInputNotFound(FileNotFoundError):
+    """Raised when one of a targets input files is not found at the time of that targets execution."""
     pass
 
 
@@ -76,8 +80,8 @@ class Target:
     def dependencies(self):
         """Gets a read only list of dependencies for the target.
 
-        The dependencies are listed as function references, you can resolve their :py:class:`pake.Target`
-        instance by using :py:func:`~pake.Make.get_target` on the :py:class:`Make` instance the dependency
+        The dependencies are listed as function references, you can resolve their :py:class:`pake.make.Target`
+        instance by using :py:meth:`pake.make.Make.get_target` on the :py:class:`pake.make.Make` instance the dependency
         was registered to.
 
         :return: Read only list of target inputs.
@@ -105,7 +109,7 @@ class Target:
 
     @property
     def make(self):
-        """Gets the :py:class:`pake.Make` instance which this target is registered in.
+        """Gets the :py:class:`pake.make.Make` instance which this target is registered in.
 
         :return: pake.Make
         """
@@ -200,7 +204,7 @@ class Make:
         return self.get_define(item)
 
     def set_defines(self, defines_dict):
-        """Set the available defines for this :py:class:`pake.Make` instance.
+        """Set the available defines for this :py:class:`pake.make.Make` instance.
 
         :param defines_dict: A dictionary of defined values, in the format {str: value}
         """
@@ -285,9 +289,9 @@ class Make:
         return target_function in self._target_graph
 
     def get_targets(self):
-        """Get a list of :py:class:`pake.Target` representing the targets registered to this :py:class:`pake.Make` object.
+        """Get a list of :py:class:`pake.make.Target` representing the targets registered to this :py:class:`pake.make.Make` object.
 
-        :return: List of :py:class:`pake.Target` objects.
+        :return: List of :py:class:`pake.make.Target` objects.
         :rtype: list
         """
         return list(t for k, t in self._target_graph.items())
@@ -312,11 +316,11 @@ class Make:
         return wrapper
 
     def get_target(self, target_function):
-        """Get the :py:class:`pake.Target` object that holds details regarding a registered target function.
+        """Get the :py:class:`pake.make.Target` object that holds details regarding a registered target function.
 
-        :param target_function: The registered target function to return the :py:class:`pake.Target` instance for.
+        :param target_function: The registered target function to return the :py:class:`pake.make.Target` instance for.
         :type target_function: func
-        :return: :py:class:`pake.Target` representing the defails of a registered target function.
+        :return: :py:class:`pake.make.Target` representing the defails of a registered target function.
         """
 
         if type(target_function) is str:
@@ -538,7 +542,7 @@ class Make:
     def visit(self, visitor=None):
         """Visit out of date targets without executing them, the default visitor prints:  "Execute Target: target_function_name"
 
-        :param visitor: (Optional) A function which takes a single :py:class:`pake.Target` argument.
+        :param visitor: (Optional) A function which takes a single :py:class:`pake.make.Target` argument.
                         It can be used to visit out of date targets.
 
         :raises CyclicDependencyError: Raised if a cyclic dependency is detected in the target graph.
@@ -559,7 +563,7 @@ class Make:
         self._task_dict = {}
 
     def clear_targets(self):
-        """Clear all registered targets, and run targets set by :py:meth:`pake.Make.set_run_targets`"""
+        """Clear all registered targets, and run targets set by :py:meth:`pake.make.Make.set_run_targets`"""
 
         self._target_graph = {}
         self._target_funcs_by_name = {}

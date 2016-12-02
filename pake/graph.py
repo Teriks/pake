@@ -20,6 +20,7 @@
 
 
 class CyclicDependencyError(Exception):
+    """Raised upon detecting a cyclic dependency in a dependency graph."""
     pass
 
 
