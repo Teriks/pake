@@ -68,6 +68,8 @@ def topological_sort(graph, get_edges=None):
 
     :type get_edges: func
 
+    :raises CyclicDependencyError: Raised when a cycle is detected in the given graph.
+
     :return: A topologically sorted copy of the given graph.
     :rtype: dict
     """

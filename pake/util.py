@@ -105,7 +105,11 @@ class ReadOnlyList:
 
 
 def is_iterable(obj):
-    """Test if an object is iterable."""
+    """Test if an object is iterable.
+
+    :returns: True or False
+    :rtype: bool
+    """
 
     try:
         a = iter(obj)
@@ -115,13 +119,21 @@ def is_iterable(obj):
 
 
 def is_iterable_not_str(obj):
-    """Test if an object is iterable and not a string."""
+    """Test if an object is iterable and not a string.
+
+    :returns: True or False
+    :rtype: bool
+    """
 
     return is_iterable(obj) and type(obj) is not str
 
 
 def str_is_float(s):
-    """Test if a string can be parsed into a float."""
+    """Test if a string can be parsed into a float.
+
+    :returns: True or False
+    :rtype: bool
+    """
 
     try:
         float(s)
@@ -131,7 +143,11 @@ def str_is_float(s):
 
 
 def str_is_int(s):
-    """Test if a string can be parsed into an integer."""
+    """Test if a string can be parsed into an integer.
+
+    :returns: True or False
+    :rtype: bool
+    """
 
     try:
         int(s)

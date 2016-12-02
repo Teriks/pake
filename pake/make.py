@@ -548,7 +548,7 @@ class Make:
         self._task_dict = {}
 
     def clear_targets(self):
-        """Clear all registered targets, and run targets set by :func:`~pake.Make.set_run_targets`"""
+        """Clear all registered targets, and run targets set by :py:meth:`pake.Make.set_run_targets`"""
 
         self._target_graph = {}
         self._target_funcs_by_name = {}
