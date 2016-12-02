@@ -67,6 +67,9 @@ _arg_parser.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
                          help='Use to preform a dry run, lists all targets that '
                               'will be executed in the next actual invocation.')
 
+_arg_parser.add_argument('-t', '--targets', action='store_true', dest='list_targets',
+                         help='List all target names')
+
 _arg_parser.add_argument('-D', '--define', nargs=1, action='append',
                          help='Add defined value.')
 
@@ -159,8 +162,16 @@ def run(make, default_targets=None):
     if args.dry_run and args.jobs:
         _arg_parser.error("-n/--dry-run and -j/--jobs cannot be used together.")
 
+    if len(args.targets) > 0 and args.list_targets:
+        _arg_parser.error("Run targets may not be specified when using the -t/--targets option to list targets.")
+
     if make.target_count() == 0:
         _arg_parser.error('*** No Targets.  Stop.')
+
+    if args.list_targets:
+        for i in make.get_targets():
+            print(i.name)
+        return
 
     if args.jobs:
         make.set_max_jobs(args.jobs)
@@ -191,5 +202,3 @@ def run(make, default_targets=None):
 
     if make.get_last_run_count() == 0:
         print("Nothing to do, all targets up to date.")
-
-    make.clear_targets()

@@ -44,7 +44,7 @@ class TargetInputNotFound(FileNotFoundError):
     """Raised when one of a targets input files is not found at the time of that targets execution."""
     def __init__(self, target_function, input_file):
         super().__init__('Input "{input}" of Target "{target}" did not exist upon target execution.'
-                         .format(target=target_function.__name__, input=input_file))
+                         .format(target=target_function.name, input=input_file))
         self._target_function = target_function
         self._input = input
 
@@ -59,7 +59,7 @@ class TargetInputNotFound(FileNotFoundError):
     @property
     def input(self):
         """Return the path to the missing input.
-        
+
         :rtype: str
         """
         return self._input
@@ -87,6 +87,15 @@ class Target:
         self._dependency_outputs = [output for output in
                                     itertools.chain.from_iterable(self._make.get_outputs(d)
                                                                   for d in self._dependencies)]
+
+    @property
+    def name(self):
+        """Return the name of the targets function.
+
+        :return: The name of the targets function.
+        :rtype: str
+        """
+        return self._function.__name__
 
     @property
     def function(self):

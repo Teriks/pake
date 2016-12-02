@@ -17,12 +17,6 @@ import pake
 make = pake.init()
 
 
-print(make["LIST"])
-print(make["DICT"])
-print(make["SET"])
-print(make["TUP"])
-
-
 pake.export("TEST_EXPORT", "test\"test")
 
 pake.export("TEST_EXPORT1", [1,"te\"st", [3, 4, 'test\'test']])
@@ -107,6 +101,11 @@ def print_define():
         print(make["SOME_DEFINE"])
 
     print(make.get_define("SOME_DEFINE2", "SOME_DEFINE2_DEFAULT"))
+
+    print(make["LIST"])
+    print(make["DICT"])
+    print(make["SET"])
+    print(make["TUP"])
 
 
 
