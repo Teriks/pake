@@ -24,8 +24,8 @@ class ReadOnlyList:
     but no modifying operations.
     """
 
-    def __init__(self, l):
-        self._l = l
+    def __init__(self, base_list):
+        self._l = base_list
 
     def __getitem__(self, item):
         return self._l[item]
