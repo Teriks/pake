@@ -64,11 +64,9 @@ def do_multiple_stuffs_2(target):
     # The elements correspond to each other when the number of inputs is the same as the number of outputs.
     # target.outdated_input[i] is the input related to the output: target.outdated_output[i]
 
-    for i in target.outdated_inputs:
-        print(i)
-
-    for o in target.outdated_outputs:
-        pake.touch(o)
+    for i in zip(target.outdated_inputs, target.outdated_outputs):
+        print(i[0])
+        pake.touch(i[1])
 
 
 @make.target(inputs="do_stuff.c", outputs="do_stuff.o",
