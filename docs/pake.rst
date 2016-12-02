@@ -63,7 +63,7 @@ Module contents
 
 
 These objects/functions are imported from pake's submodules
-into the pake module, and are directly accesible from the pake namespace.
+into the pake module, and are directly accessible from the pake namespace.
 
 For example, pake is initialized with **pake.init()**, which is actually
 a call to :py:meth:`pake.program.init` in the :py:mod:`pake.program` module.
