@@ -153,9 +153,7 @@ And for example, to run:
 Pakes current usage is:
 
 
-	usage: pakefile.py [-h] [-v] [-j NUM_JOBS] [-n] [-t] [-D DEFINE]
-					   [-C DIRECTORY]
-					   [targets [targets ...]]
+	usage: pakefile.py [-h] [-v] [-j NUM_JOBS] [-n] [-t] [-D DEFINE] [-C DIRECTORY] [targets [targets ...]]
 
 	positional arguments:
 	  targets               Build targets.
