@@ -33,6 +33,17 @@ import pake
 make = pake.init()
 
 
+# Export python literals as defines to scripts ran with pake.run_script.
+
+pake.export("SOME_EXPORTED_DEFINE", ["a", "b", "c"])
+pake.export("SOME_EXPORTED_DEFINE2", 4)
+
+
+# Prevent SOME_EXPORTED_DEFINE2 from being exported.
+
+pake.un_export("SOME_EXPORTED_DEFINE2")
+
+
 @make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
 def do_stuff_first(target):
     print(target.input)
