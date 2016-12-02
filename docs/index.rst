@@ -162,7 +162,7 @@ Pakes current usage is:
 	  [-C DIRECTORY] [targets [targets ...]]
 
 	positional arguments:
-	  targets               Build targets.
+	  targets               (Build targets)
 
 	optional arguments:
 	  -h, --help            show this help message and exit

@@ -286,7 +286,7 @@ class Make:
 
         :param target_functions: List of target function names, or direct references to target functions.
 
-        :raises pake.make.UndefinedTargetException: If a given target is not a registered target reference or name.
+        :raises pake.make.UndefinedTargetException: Raised if a given target is not a registered target reference or name.
         """
 
         if is_iterable_not_str(target_functions[0]):
@@ -313,7 +313,7 @@ class Make:
     def set_max_jobs(self, count):
         """Set the max number of targets that can run in parallel.
 
-         :raises ValueError: if count is less than 1.
+         :raises ValueError: Raised if count is less than 1.
 
         :param count: The max number of targets that can run in parallel at a time.
         :type count: int
@@ -427,7 +427,7 @@ class Make:
                         Functions may be referenced by string but they must be previously defined.
 
         :raises pake.make.TargetRedefinedException: Raised if the given target_function has already been registered as a target.
-        :raises pake.make.UndefinedTargetException: If there is a reference to an unregistered target in this targets dependencies.
+        :raises pake.make.UndefinedTargetException: Raised if there is a reference to an unregistered target in this targets dependencies.
 
         """
 
@@ -583,7 +583,7 @@ class Make:
         """Execute out of date targets, IE. run pake.
 
         :raises pake.graph.CyclicDependencyException: Raised if a cyclic dependency is detected in the target graph.
-        :raises pake.make.TargetInputNotFoundException: Raised if one of a targets inputs does not exist.
+        :raises pake.make.TargetInputNotFoundException: Raised if one of a targets inputs does not exist upon target execution.
         """
 
         self._last_run_count = 0
@@ -607,7 +607,7 @@ class Make:
                         It can be used to visit out of date targets.
 
         :raises pake.graph.CyclicDependencyException: Raised if a cyclic dependency is detected in the target graph.
-        :raises pake.make.TargetInputNotFoundException: Raised if one of a targets inputs does not exist.
+        :raises pake.make.TargetInputNotFoundException: Raised if one of a targets inputs does not exist upon visiting the target.
         """
 
         if not visitor:
