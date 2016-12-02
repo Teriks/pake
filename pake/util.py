@@ -19,43 +19,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-class DefinesContainer:
-    """A dictionary wrapper for dictionaries containing define values.
-    The standard indexing operation on this dictionary like object returns None
-    when a key does not exist.
-    """
-
-    def __init__(self, dict):
-        self._d = dict
-
-    def __hash__(self):
-        return self._d.__hash__()
-
-    def __eq__(self, other):
-        return self._d.__eq__(other)
-
-    def __str__(self):
-        return self._d.__str__()
-
-    def __contains__(self, item):
-        return item in self._d
-
-    def __iter__(self):
-        return self._d.__iter__()
-
-    def __len__(self):
-        return self._d.__len__()
-
-    def get(self, item, default=None):
-        if item in self._d:
-            return self._d[item]
-        else:
-            return default
-
-    def __getitem__(self, item):
-        return self.get(item, None)
-
-
 class ReadOnlyList:
     """A read only list wrapper that allows for concatenation and the usual python list comparisons,
     but no modifying operations.

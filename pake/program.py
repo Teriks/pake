@@ -25,7 +25,7 @@ import atexit
 
 import pake
 
-from pake.util import DefinesContainer, str_is_int, str_is_float
+from pake.util import str_is_int, str_is_float
 
 
 class _DefineSyntaxError(SyntaxError):
