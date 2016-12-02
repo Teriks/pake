@@ -51,7 +51,8 @@ class Target:
         self._outdated_inputs = []
         self._outdated_outputs = []
         self._dependency_outputs = [output for output in
-                                    itertools.chain.from_iterable(self._make.get_outputs(d) for d in self._dependencies)]
+                                    itertools.chain.from_iterable(self._make.get_outputs(d)
+                                                                  for d in self._dependencies)]
 
     @property
     def function(self):
@@ -166,6 +167,7 @@ class Make:
 
     def set_defines(self, defines_dict):
         """Set the available defines for this :py:class:`pake.Make` instance.
+
         :param defines_dict: A dictionary of defined values, in the format {str: value}
         """
         self._defines = dict(defines_dict)
@@ -316,15 +318,16 @@ class Make:
         return self.get_target(target_function).dependencies
 
     def add_target(self, target_function, inputs=None, outputs=None, depends=None):
-        """
+        """Register a pake target function.
+
         :param target_function: The function for the target.
         :type target_function: func
         :param inputs: Optional input files for the target, used for change detection.
-            This may be a single string, or a list of strings.
+                       This may be a single string, or a list of strings.
         :param outputs: Optional output files for the target, used for change detection.
-            This may be a single string, or a list of strings.
+                        This may be a single string, or a list of strings.
         :param depends: Optional dependencies, this may be a list of other target function references, or a single target function.
-            Functions may be referenced by string but they must be previously defined.
+                        Functions may be referenced by string but they must be previously defined.
         """
 
         if not depends:
@@ -492,7 +495,7 @@ class Make:
         """Visit out of date targets without executing them, the default visitor prints:  "Execute Target: target_function_name"
 
         :param visitor: (Optional) A function which takes a single :py:class:`pake.Target` argument.
-            It can be used to visit out of date targets.
+                        It can be used to visit out of date targets.
         """
 
         if not visitor:

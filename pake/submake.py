@@ -60,17 +60,19 @@ def _exports_to_args():
 
 def export(name, value):
     """Export a define which will be passed to sub script invocations when calling :py:func:`pake.run_script`
+
     :param name: The name of the define.
     :type name: str
-    :param value: The define value, which can be bool, string, list, set, dictionary or tuple.
-                  Composites like lists, tuples (etc..) must consist only of simple literal values
-                  (not variable references of any kind).
+    :param value: The define value, which can be a int, float, bool, string, list, set, dictionary or tuple
+                  (Basically any type that can be expressed as a literal).  Composite literals like lists, tuples (etc..)
+                   must consist only of simple literal values (not variable references of any kind).
     """
     _exports[name] = value
 
 
 def un_export(name):
     """Prevent a previously exported value from being exported during new invocations of :py:func:`pake.run_script`.
+
     :param name: The name of the previously exported define.
     :type name: str
     """
@@ -80,6 +82,7 @@ def un_export(name):
 
 def run_script(script_path, *args):
     """Run another pakefile.py programmatically, changing directories if required
+
     :param script_path: The path to the pakefile that is going to be ran.
     :param args: Command line arguments to pass the pakefile.
     """
