@@ -42,7 +42,21 @@ class UndefinedTargetException(Exception):
 
 class TargetInputNotFound(FileNotFoundError):
     """Raised when one of a targets input files is not found at the time of that targets execution."""
-    pass
+    def __init__(self, target_function, input_file):
+        super().__init__('Input "{input}" of Target "{target}" did not exist upon target execution.'
+                         .format(target=target_function.__name__, input=input_file))
+        self._target_function = target_function
+        self._input = input
+
+    @property
+    def target_function(self):
+        """Return a reference to the target function that has the missing input."""
+        return self._target_function
+
+    @property
+    def input(self):
+        """Return the path to the missing input."""
+        return self._input
 
 
 class Target:
@@ -408,6 +422,10 @@ class Make:
         target = self.get_target(target_function)
         dependencies, inputs, outputs = target.dependencies, target.inputs, target.outputs
 
+        for i in inputs:
+            if not os.path.exists(i):
+                raise TargetInputNotFound(target_function, i)
+
         if (len(inputs) == 0 or len(outputs) == 0) and len(dependencies) == 0:
             return True
 
@@ -523,6 +541,7 @@ class Make:
         """Execute out of date targets, IE. run pake.
 
         :raises CyclicDependencyError: Raised if a cyclic dependency is detected in the target graph.
+        :raises TargetInputNotFound: Raised if one of a targets inputs does not exist.
         """
 
         self._last_run_count = 0
@@ -546,6 +565,7 @@ class Make:
                         It can be used to visit out of date targets.
 
         :raises CyclicDependencyError: Raised if a cyclic dependency is detected in the target graph.
+        :raises TargetInputNotFound: Raised if one of a targets inputs does not exist.
         """
 
         if not visitor:
