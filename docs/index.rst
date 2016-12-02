@@ -1,3 +1,7 @@
+.. |br| raw:: html
+
+   <br />
+
 .. pake documentation master file, created by
    sphinx-quickstart on Fri Dec  2 08:17:16 2016.
    You can adapt this file completely to your liking, but it should at least
@@ -153,7 +157,9 @@ And for example, to run:
 Pakes current usage is:
 
 
-	usage: pakefile.py [-h] [-v] [-j NUM_JOBS] [-n] [-t] [-D DEFINE] [-C DIRECTORY] [targets [targets ...]]
+	usage: 
+	  pakefile.py [-h] [-v] [-j NUM_JOBS] [-n] [-t] [-D DEFINE] |br|
+	  [-C DIRECTORY] [targets [targets ...]]
 
 	positional arguments:
 	  targets               Build targets.
