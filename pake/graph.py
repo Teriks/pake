@@ -31,6 +31,19 @@ def _get_edges_or_empty(graph, vertex, get_edges):
 
 
 def check_cyclic(graph, get_edges=None):
+    """Determine if a directed graph is cyclic, graphs are given in the form {node : [edge1, edge2], ...}
+
+    :param graph: A graph in the form {node : [edge1, edge2], ...}, see get_edges parameter for caveats
+    :type graph: dict
+
+    :param get_edges:  If your edges container is not an iterable type, this should be a function
+                       that returns an iterable over a series of edges (References to other nodes in the graph)
+
+    :type get_edges: func
+
+    :return: True if the graph contains a cycle, False otherwise.
+    """
+
     path = set()
 
     def visit(node):
@@ -45,6 +58,20 @@ def check_cyclic(graph, get_edges=None):
 
 
 def topological_sort(graph, get_edges=None):
+    """Preform a topological sort on a directed graph, graphs are given in the form {node : [edge1, edge2], ...}
+
+    :param graph: A graph in the form {node : [edge1, edge2], ...}, see get_edges parameter for caveats
+    :type graph: dict
+
+    :param get_edges:  If your edges container is not an iterable type, this should be a function
+                       that returns an iterable over a series of edges (References to other nodes in the graph)
+
+    :type get_edges: func
+
+    :return: A topologically sorted copy of the given graph.
+    :rtype: dict
+    """
+
     if get_edges is None:
         def get_edges(t): return t[1]
     graph = dict(graph)

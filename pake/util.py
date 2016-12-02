@@ -20,6 +20,11 @@
 
 
 class DefinesContainer:
+    """A dictionary like container for define values.
+    The standard indexing operation on this dictionary like object returns None
+    when a key does not exist.
+    """
+
     def __init__(self, dict):
         self._d = dict
 
@@ -52,6 +57,10 @@ class DefinesContainer:
 
 
 class ReadOnlyList:
+    """A read only list wrapper that allows for concatenation and the usual python list comparisons,
+    but no modifying operations.
+    """
+
     def __init__(self, l):
         self._l = l
 
@@ -97,6 +106,7 @@ class ReadOnlyList:
 
 def is_iterable(obj):
     """Test if an object is iterable."""
+
     try:
         a = iter(obj)
     except TypeError:
@@ -106,11 +116,13 @@ def is_iterable(obj):
 
 def is_iterable_not_str(obj):
     """Test if an object is iterable and not a string."""
+
     return is_iterable(obj) and type(obj) is not str
 
 
 def str_is_float(s):
     """Test if a string can be parsed into a float."""
+
     try:
         float(s)
         return True
@@ -120,6 +132,7 @@ def str_is_float(s):
 
 def str_is_int(s):
     """Test if a string can be parsed into an integer."""
+
     try:
         int(s)
         return True

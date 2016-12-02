@@ -56,26 +56,60 @@ class Target:
 
     @property
     def function(self):
+        """Gets the function that is executed by this target.
+
+        :return: A function reference.
+        :rtype: func
+        """
         return self._function
 
     @property
     def dependency_outputs(self):
+        """Gets a read only list outputs produced by this targets immediate dependencies.
+
+        :return: Read only list outputs from this targets immediate dependencies.
+        :rtype: pake.util.ReadOnlyList
+        """
         return ReadOnlyList(self._dependency_outputs)
 
     @property
     def dependencies(self):
+        """Gets a read only list of dependencies for the target.
+
+        The dependencies are listed as function references, you can resolve their :py:class:`pake.Target`
+        instance by using :py:func:`~pake.Make.get_target` on the :py:class:`Make` instance the dependency
+        was registered to.
+
+        :return: Read only list of target inputs.
+        :rtype: pake.util.ReadOnlyList
+        """
         return ReadOnlyList(self._dependencies)
 
     @property
     def inputs(self):
+        """Gets a read only list of inputs for the target.
+
+        :return: Read only list of target inputs.
+        :rtype: pake.util.ReadOnlyList
+        """
         return ReadOnlyList(self._inputs)
 
     @property
     def outputs(self):
+        """Gets a read only list of outputs for the target.
+
+        :return: Read only list of target outputs.
+        :rtype: pake.util.ReadOnlyList
+        """
         return ReadOnlyList(self._outputs)
 
     @property
     def make(self):
+        """Gets the :py:class:`pake.Make` instance which this target is registered in.
+
+        :return: pake.Make
+        """
+
         return self._make
 
     def _add_outdated_input_output(self, input_file, output_file):
@@ -262,6 +296,7 @@ class Make:
         :param inputs: (Optional) list of input files or single input file
         :param outputs: (Optional) list of output files or single output file
         :param depends: (Optional) list of dependent target functions, or strings naming previously registered target functions.
+                        If there is only one dependency, it can be passed as a single argument.
         """
 
         if len(args) == 1 and inspect.isfunction(args[0]):
