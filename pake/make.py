@@ -444,7 +444,7 @@ class Make:
                 target._add_outdated_input_output(inputs, outputs)
                 return True
 
-        if len(inputs) == 0 and len(outputs) == 0:
+        if len(inputs) == 0 or len(outputs) == 0:
             return True
 
         if len(inputs) == len(outputs):
