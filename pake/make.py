@@ -444,10 +444,10 @@ class Make:
                 target._add_outdated_input_output(inputs, outputs)
                 return True
 
-        if len(inputs) == 0 or len(outputs) == 0:
-            return True
-
         if len(inputs) == len(outputs):
+            if len(inputs) == 0 and len(dependencies) == 0:
+                return True
+
             out_of_date = False
             for x in range(0, len(inputs)):
                 i, o = inputs[x], outputs[x]
@@ -461,6 +461,10 @@ class Make:
             if out_of_date:
                 return True
         else:
+            if (len(inputs) == 0 or len(outputs) == 0) and len(dependencies) == 0:
+                target._add_outdated_input_output(inputs, outputs)
+                return True
+
             for o in outputs:
                 if not os.path.exists(o):
                     target._add_outdated_input_output(inputs, outputs)
