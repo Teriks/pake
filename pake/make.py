@@ -439,7 +439,12 @@ class Make:
             if not os.path.exists(i):
                 raise TargetInputNotFoundException(target_function, i)
 
-        if (len(inputs) == 0 or len(outputs) == 0) and len(dependencies) == 0:
+        for d in dependencies:
+            if d in self._outdated_target_funcs:
+                target._add_outdated_input_output(inputs, outputs)
+                return True
+
+        if len(inputs) == 0 and len(outputs) == 0:
             return True
 
         if len(inputs) == len(outputs):
@@ -464,11 +469,6 @@ class Make:
                     if self._is_input_newer(i, o):
                         target._add_outdated_input_output(inputs, outputs)
                         return True
-
-        for d in dependencies:
-            if d in self._outdated_target_funcs:
-                target._add_outdated_input_output(inputs, outputs)
-                return True
 
         return False
 
