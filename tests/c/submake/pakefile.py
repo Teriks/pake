@@ -22,7 +22,7 @@ print("Import Export TEST 4 = "+str(make["TEST_EXPORT4"]))
 
 @make.target(inputs="test.c", outputs="test.o")
 def all(target):
-    pake.touch(target.output)
+    pake.touch(target.outputs[0])
     print(target.input)
 
 

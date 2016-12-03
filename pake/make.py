@@ -191,35 +191,6 @@ class Target:
 
         return ReadOnlyList(self._outdated_outputs)
 
-    @property
-    def output(self):
-        """Gets the first declared target output.
-
-        If there are no outputs at all, returns None.
-
-        :returns: The given path of the first target output.
-        :rtype: str
-        """
-
-        if len(self.outputs) == 0:
-            return None
-
-        return self.outputs[0]
-
-    @property
-    def input(self):
-        """Gets the first declared target input.
-
-        If there are no inputs at all, returns None.
-
-        :returns: The given path of the first target input.
-        :rtype: str
-        """
-        if len(self.inputs) == 0:
-            return None
-
-        return self.inputs[0]
-
     def __hash__(self):
         return hash(self.function)
 

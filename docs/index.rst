@@ -41,14 +41,14 @@ shows off some functionality:
 
 	@make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
 	def do_stuff_first(target):
-		print(target.input)
-		pake.touch(target.output)
+		print(target.inputs[0])
+		pake.touch(target.outputs[0])
 
 
 	@make.target(inputs="do_stuff_first_2.c", outputs="do_stuff_first_2.o")
 	def do_stuff_first_2(target):
-		print(target.input)
-		pake.touch(target.output)
+		print(target.inputs[0])
+		pake.touch(target.outputs[0])
 
 
 	# If there are an un-equal amount of inputs to outputs,
@@ -93,8 +93,8 @@ shows off some functionality:
 	depends=[do_stuff_first, do_stuff_first_2, do_multiple_stuffs, do_multiple_stuffs_2]
 	)
 	def do_stuff(target):
-		print(target.input)
-		pake.touch(target.output)
+		print(target.inputs[0])
+		pake.touch(target.outputs[0])
 
 		# Print the collective outputs of this targets immediate dependencies
 
