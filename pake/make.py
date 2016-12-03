@@ -461,8 +461,13 @@ class Make:
             if out_of_date:
                 return True
         else:
-            if (len(inputs) == 0 or len(outputs) == 0) and len(dependencies) == 0:
-                target._add_outdated_input_output(inputs, outputs)
+            if len(inputs) == 0 and len(outputs) > 0:
+                for o in outputs:
+                    if not os.path.exists(o):
+                        target._add_outdated_output(o)
+                        return True
+
+            if len(inputs) > 0 and len(outputs) == 0:
                 return True
 
             for o in outputs:
