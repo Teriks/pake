@@ -18,6 +18,7 @@ print("Import Export TEST 1 = "+str(make["TEST_EXPORT1"]))
 print("Import Export TEST 2 = "+str(make["TEST_EXPORT2"]))
 print("Import Export TEST 3 = "+str(make["TEST_EXPORT3"]))
 print("Import Export TEST 4 = "+str(make["TEST_EXPORT4"]))
+print("Import Export TEST 5 = "+str(make["TEST_EXPORT5"]))
 
 
 @make.target(inputs="test.c", outputs="test.o")

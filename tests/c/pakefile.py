@@ -27,6 +27,8 @@ pake.export("TEST_EXPORT3", {1,"te\"st", 3, 4, 'test\'test'})
 
 pake.export("TEST_EXPORT4", (1,"te\"st", [3, 4, 'test\'test']))
 
+pake.export("TEST_EXPORT5", "")
+
 
 @make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
 def do_stuff_first(target):

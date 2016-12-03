@@ -57,7 +57,10 @@ def _exports_to_args():
     args = []
     for k, v in _exports.items():
         args.append("-D")
-        args.append(k+"="+str(v))
+        if type(v) is str and len(v.strip()) == 0:
+            args.append(k+'="'+str(v)+'"')
+        else:
+            args.append(k+"="+str(v))
     return args
 
 
