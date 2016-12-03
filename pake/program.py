@@ -29,6 +29,11 @@ from pake.util import str_is_int, str_is_float
 
 
 class _DefineSyntaxError(SyntaxError):
+    """Occurs when :py:meth:`pake.program.run` is called without first calling :py:meth:`pake.program.init`"""
+    pass
+
+
+class PakeUninitializedException(Exception):
     pass
 
 
@@ -45,7 +50,7 @@ def _validate_gt_one(value):
 def _validate_dir(path):
     if os.path.exists(path):
         if os.path.isdir(path):
-            return path
+            return os.path.abspath(path)
         else:
             _arg_parser.error('Path "{path}" is not a directory.'.format(path=path))
     else:
@@ -117,6 +122,9 @@ def _defines_to_dic(defines):
     return result
 
 
+_cur_args = None
+
+
 def init():
     """Init pake (Possibly change working directory) and return a :py:class:`pake.make.Make` instance.
 
@@ -124,20 +132,23 @@ def init():
     :rtype: pake.make.Make
     """
 
-    args = _arg_parser.parse_args()
-    if args.directory and args.directory != os.getcwd():
-        os.chdir(args.directory)
-        print('Entering Directory: "{dir}"'.format(dir=args.directory))
+    global _cur_args
+
+    _cur_args = _arg_parser.parse_args()
+
+    if _cur_args.directory and _cur_args.directory != os.getcwd():
+        os.chdir(_cur_args.directory)
+        print('Entering Directory: "{dir}"'.format(dir=_cur_args.directory))
 
         def _at_exit_chdir():
-            print('Leaving Directory: "{dir}"'.format(dir=args.directory))
+            print('Leaving Directory: "{dir}"'.format(dir=_cur_args.directory))
 
         atexit.register(_at_exit_chdir)
 
     make = pake.Make()
-    if args.define:
+    if _cur_args.define:
         try:
-            make.set_defines(_defines_to_dic(args.define))
+            make.set_defines(_defines_to_dic(_cur_args.define))
         except _DefineSyntaxError as syn_err:
             _arg_parser.error(str(syn_err))
 
@@ -154,30 +165,34 @@ def run(make, default_targets=None):
                             This can be a single target, or a list.  The elements may be direct function references
                             or function names as strings.
 
+    :raises pake.program.PakeUninitializedException: Raised if :py:meth:`pake.program.init`
+            has not been called prior to calling this method.
+
     :type default_targets: list or func
     """
 
-    args = _arg_parser.parse_args()
+    if _cur_args is None:
+        raise PakeUninitializedException("pake.init() has not been called yet.")
 
-    if args.dry_run and args.jobs:
+    if _cur_args.dry_run and _cur_args.jobs:
         _arg_parser.error("-n/--dry-run and -j/--jobs cannot be used together.")
 
-    if len(args.targets) > 0 and args.list_targets:
+    if len(_cur_args.targets) > 0 and _cur_args.list_targets:
         _arg_parser.error("Run targets may not be specified when using the -t/--targets option to list targets.")
 
     if make.target_count() == 0:
         _arg_parser.error('*** No Targets.  Stop.')
 
-    if args.list_targets:
+    if _cur_args.list_targets:
         for i in make.get_targets():
             print(i.name)
         return
 
-    if args.jobs:
-        make.set_max_jobs(args.jobs)
+    if _cur_args.jobs:
+        make.set_max_jobs(_cur_args.jobs)
 
-    if len(args.targets) > 0:
-        run_targets = args.targets
+    if len(_cur_args.targets) > 0:
+        run_targets = _cur_args.targets
     else:
         if default_targets is None:
             _arg_parser.error("No targets were provided and no default target was specified in the pakefile.")
@@ -193,7 +208,7 @@ def run(make, default_targets=None):
         _arg_parser.error(str(target_undef_err))
 
     try:
-        if args.dry_run:
+        if _cur_args.dry_run:
             make.visit()
         else:
             make.execute()

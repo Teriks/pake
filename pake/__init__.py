@@ -34,5 +34,5 @@ from pake.make import \
 
 from pake.graph import CyclicDependencyException
 
-from pake.program import run, init
+from pake.program import run, init, PakeUninitializedException
 from pake.submake import run_script, export, un_export
