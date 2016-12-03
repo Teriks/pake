@@ -24,7 +24,7 @@ __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
 __version__ = '0.1.0.0'
 
-from pake.fileutil import touch
+from pake.fileutil import touch, ensure_path_exists
 
 from pake.make import \
     Make, \

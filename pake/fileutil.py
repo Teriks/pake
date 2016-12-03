@@ -18,8 +18,22 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
+import os
+import errno
 from pathlib import Path
+
+
+def ensure_path_exists(path):
+    """Create a directory tree if it does not exist, if the directory tree exists already this function does nothing.
+
+    :raises OSError: Raised for all directory creation errors aside from errno.EEXIST.
+    :param path: The directory path/tree.
+    """
+    try:
+        os.makedirs(path)
+    except OSError as exception:
+        if exception.args[0] != errno.EEXIST:
+            raise
 
 
 def touch(file_name, mode=0o666, exist_ok=True):

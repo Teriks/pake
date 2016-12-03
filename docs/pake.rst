@@ -88,3 +88,4 @@ Module Imported Methods:
 * :py:meth:`pake.submake.un_export`
 * :py:meth:`pake.submake.run_script`
 * :py:meth:`pake.fileutil.touch`
+* :py:meth:`pake.fileutil.ensure_path_exists`

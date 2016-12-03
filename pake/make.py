@@ -445,7 +445,7 @@ class Make:
                 return True
 
         if len(inputs) == len(outputs):
-            if len(inputs) == 0:
+            if len(inputs) == 0 and len(dependencies) == 0:
                 return True
 
             out_of_date = False
