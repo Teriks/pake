@@ -261,7 +261,7 @@ def run(make, default_targets=None):
         _exit_error(str(input_file_err))
     except pake.SubMakeException as submake_err:
         _exit_error(str(submake_err))
-    except pake.TargetInnerException as inner_target_err:
+    except pake.TargetAggregateException as inner_target_err:
         _exit_error(str(inner_target_err))
 
     if make.get_last_run_count() == 0:

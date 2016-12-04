@@ -32,35 +32,28 @@ from pake.util import ReadOnlyList, is_iterable_not_str
 from pake.graph import topological_sort, check_cyclic, CyclicDependencyException
 
 
-class TargetInnerException(PakeException):
+class TargetAggregateException(PakeException):
     """Raised when an exception that does not derive from
        :py:class:`pake.exception.PakeException` is raised while a target is executing."""
 
-    def __init__(self, target, inner):
-        self._inner = inner
-        self._target = target
-
-        super().__init__('Exception occurred in pake target: "{}"\n\n{}'
-                         .format(self.target.name,
-                                 self.inner_trace_str))
+    def __init__(self, inner_exceptions):
+        self._inner_exceptions = inner_exceptions
+        super().__init__(self.inner_trace_str)
 
 
     @property
     def inner_trace_str(self):
         """Returns a formatted stack trace string for the inner exception."""
-        return ''.join(
-            traceback.format_exception(None, self.inner, self.inner.__traceback__))
+        except_str = ['Exception encountered in target: "{target}".\n\n'.format(target=x[0].name)+
+                      ''.join(traceback.format_exception(None,x[1],x[1].__traceback__)) for x in self._inner_exceptions]
+
+        return '\n\n'.join(except_str)
 
     @property
-    def target(self):
-        """Returns the :py:class:`pake.make.Target` instance for the target in which
-           The exception was raised."""
-        return self._target
-
-    @property
-    def inner(self):
-        """Return the exception instance that was raised inside the target."""
-        return self._inner
+    def inner_exceptions(self):
+        """Returns a list in the form [(:py:class:`pake.make.Target`, exception_object), ...] representing all
+        exceptions raised inside pake targets which do not derive from :py:pake:`pake.exception.PakeException`."""
+        return self._inner_exceptions
 
 
 class TargetRedefinedException(PakeException):
@@ -387,7 +380,7 @@ class Make:
         :type info: str
         :param inputs: (Optional) input files for the target, used for change detection.
                        This may be a single string, or a list of strings.
-        :rtype inputs: str, or list of str
+        :type inputs: str, or list of str
         :param outputs: (Optional) output files for the target, used for change detection.
                         This may be a single string, or a list of strings.
         :type outputs: str, or list of str
@@ -464,7 +457,7 @@ class Make:
         :type info: str
         :param inputs: (Optional) input files for the target, used for change detection.
                        This may be a single string, or a list of strings.
-        :rtype inputs: str, or list of str
+        :type inputs: str, or list of str
         :param outputs: (Optional) output files for the target, used for change detection.
                         This may be a single string, or a list of strings.
         :type outputs: str, or list of str
@@ -647,7 +640,7 @@ class Make:
         :raises pake.graph.CyclicDependencyException: Raised if a cyclic dependency is detected in the target graph.
         :raises pake.make.TargetInputNotFoundException: Raised if one of a targets inputs does not exist upon target execution.
 
-        :raise pake.make.TargetInnerException: Raised if an exception not derived from :py:class:`pake.exception.PakeException`
+        :raise pake.make.TargetAggregateException: Raised if an exception not derived from :py:class:`pake.exception.PakeException`
                                                is thrown inside of a target function.
         """
 
@@ -668,12 +661,15 @@ class Make:
         self._task_dict = {}
 
     def _dispatch_target_exceptions(self):
-        for err in list(self._task_exceptions):
-            self._task_exceptions.clear()
+        ex = list(self._task_exceptions)
+        self._task_exceptions.clear()
+
+        for err in ex:
             if isinstance(err[1], PakeException):
                 raise err[1]
 
-            raise TargetInnerException(err[0], err[1])
+        if len(ex) > 0:
+            raise TargetAggregateException(ex)
 
     def visit(self, visitor=None):
         """Visit out of date targets without executing them, the default visitor prints:  "Execute Target: target_function_name"

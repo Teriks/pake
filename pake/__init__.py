@@ -31,7 +31,7 @@ from pake.make import \
     TargetRedefinedException, \
     UndefinedTargetException, \
     TargetInputNotFoundException, \
-    TargetInnerException
+    TargetAggregateException
 
 from pake.graph import CyclicDependencyException
 

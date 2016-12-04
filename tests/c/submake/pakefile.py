@@ -25,6 +25,7 @@ print("Import Export TEST 5 = "+str(make["TEST_EXPORT5"]))
 def all(target):
     pake.touch(target.outputs[0])
     print(target.inputs[0])
+    raise Exception("bogus")
 
 
 @make.target

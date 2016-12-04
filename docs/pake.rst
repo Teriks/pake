@@ -86,7 +86,7 @@ Module Imported Exceptions:
 * :py:class:`pake.make.TargetRedefinedException`
 * :py:class:`pake.make.UndefinedTargetException`
 * :py:class:`pake.make.TargetInputNotFoundException`
-* :py:class:`pake.make.TargetInnerException`
+* :py:class:`pake.make.TargetAggregateException`
 * :py:class:`pake.graph.CyclicDependencyException`
 * :py:class:`pake.submake.SubMakeException`
 	

@@ -20,4 +20,5 @@
 
 
 class PakeException(Exception):
+    """Bass class for pake specific exceptions."""
     pass
