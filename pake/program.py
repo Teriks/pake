@@ -212,13 +212,13 @@ def run(make, default_targets=None):
         _arg_parser.error('*** No Targets.  Stop.')
 
     if _cur_args.list_targets:
-        for i in sorted(make.get_targets(), key=_sort_target_by_name_key):
+        for i in sorted(make.get_all_targets(), key=_sort_target_by_name_key):
             print(i.name)
         return
 
     if _cur_args.list_targets_info:
         info_targets = sorted(
-            [x for x in make.get_targets() if x.info],
+            [x for x in make.get_all_targets() if x.info],
             key=_sort_target_by_name_key
         )
 

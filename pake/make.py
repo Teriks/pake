@@ -266,7 +266,7 @@ class Make:
         self._run_targets = []
         self._outdated_target_funcs = set()
         self._task_dict_lock = threading.RLock()
-        self._task_dict = {}
+        self._target_func_to_task_dict = {}
         self._max_jobs = 1
         self._last_run_count = 0
         self._defines = {}
@@ -368,8 +368,9 @@ class Make:
             return target_function in self._target_funcs_by_name
         return target_function in self._target_graph
 
-    def get_targets(self):
-        """Get a list of :py:class:`pake.make.Target` representing the targets registered to this :py:class:`pake.make.Make` object.
+    def get_all_targets(self):
+        """Get a list of :py:class:`pake.make.Target` representing the targets registered to this
+           :py:class:`pake.make.Make` object.
 
         :return: List of :py:class:`pake.make.Target` objects.
         :rtype: list
@@ -508,8 +509,7 @@ class Make:
 
             self._target_funcs_by_name[target_function.__name__] = target_function
 
-    def _handle_target_out_of_date(self, target_function):
-        target = self.get_target(target_function)
+    def _handle_target_out_of_date(self, target):
         dependencies, inputs, outputs = target.dependencies, target.inputs, target.outputs
 
         for i in inputs:
@@ -586,7 +586,7 @@ class Make:
                 graph_out.insert(0, (cur[0], cur[1]))
                 visited.add(cur[0])
 
-        return itertools.chain(((no_deps, []) for no_deps in no_dep_targets),
+        return itertools.chain(((no_deps, self.get_target(no_deps)) for no_deps in no_dep_targets),
                                topological_sort(graph_out, get_edges=get_edges))
 
     def _resolve_target_strings(self, target_functions):
@@ -605,37 +605,37 @@ class Make:
         return result
 
     def _target_task_exists(self, target_function):
-        return target_function in self._task_dict
+        return target_function in self._target_func_to_task_dict
 
     def _target_task_running(self, target_function):
-        return self._task_dict[target_function].running()
+        return self._target_func_to_task_dict[target_function].running()
 
-    def _run_target_task(self, target_function):
+    def _run_target_task(self, target):
         with self._task_dict_lock:
-            for dep_target_func in self.get_dependencies(target_function):
+            for dep_target_func in target.dependencies:
                 if self._target_task_exists(dep_target_func):
-                    task = self._task_dict[dep_target_func]
+                    task = self._target_func_to_task_dict[dep_target_func]
                     if self._target_task_running(dep_target_func):
                         task.result()
 
-        sig = inspect.signature(target_function)
+        sig = inspect.signature(target.function)
         if len(sig.parameters) > 0:
-            target_function(self._target_graph[target_function])
+            target.function(target)
         else:
-            target_function()
+            target.function()
 
-    def _run_target(self, thread_pool, target_function):
+    def _run_target(self, thread_pool, target):
         def done_callback(t):
             if t.exception():
                 with self._task_exceptions_lock:
                     self._task_exceptions.append(
-                        (self.get_target(target_function), t.exception())
+                        (target, t.exception())
                     )
 
-        task = thread_pool.submit(self._run_target_task, target_function)
+        task = thread_pool.submit(self._run_target_task, target)
         task.add_done_callback(done_callback)
         with self._task_dict_lock:
-            self._task_dict[target_function] = task
+            self._target_func_to_task_dict[target.function] = task
 
     def execute(self):
         """Execute out of date targets, IE. run pake.
@@ -651,17 +651,17 @@ class Make:
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=self._max_jobs) as thread_pool:
             for node in self._sort_graph():
-                target_function = node[0]
-                if self._handle_target_out_of_date(target_function):
+                target = node[1]
+                if self._handle_target_out_of_date(target):
                     self._last_run_count += 1
-                    self._outdated_target_funcs.add(target_function)
-                    self._run_target(thread_pool, target_function)
+                    self._outdated_target_funcs.add(target.function)
+                    self._run_target(thread_pool, target)
 
             self._outdated_target_funcs = set()
 
         self._dispatch_target_exceptions()
 
-        self._task_dict = {}
+        self._target_func_to_task_dict = {}
 
     def _dispatch_target_exceptions(self):
         ex = list(self._task_exceptions)
@@ -693,7 +693,7 @@ class Make:
 
         self._dispatch_target_exceptions()
 
-        self._task_dict = {}
+        self._target_func_to_task_dict = {}
 
     def clear_targets(self):
         """Clear all registered targets, and run targets set by :py:meth:`pake.make.Make.set_run_targets`"""

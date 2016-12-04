@@ -62,8 +62,6 @@ def do_multiple_stuffs_2(target):
     # The elements correspond to each other when the number of inputs is the same as the number of outputs.
     # target.outdated_input[i] is the input related to the output: target.outdated_output[i]
 
-    raise ValueError("bogus")
-
     for i in zip(target.outdated_inputs, target.outdated_outputs):
         print(i[0])
         pake.touch(i[1])
