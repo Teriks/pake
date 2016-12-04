@@ -4,6 +4,14 @@ pake package
 Submodules
 ----------
 
+pake.exception module
+--------------------
+
+.. automodule:: pake.exception
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pake.fileutil module
 --------------------
 
