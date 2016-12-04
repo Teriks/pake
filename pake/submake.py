@@ -22,19 +22,44 @@
 import os
 import subprocess
 import sys
+from pake.exception import PakeException
 
 
-class SubMakeException(Exception):
+class SubMakeException(PakeException):
     """A blanket exception raised when any error occurs during the actual execution
     of another pakefile while calling :py:meth:`pake.submake.run_script`.
     """
-    pass
+    def __init__(self, script, output, return_code):
+        super().__init__('Error occurred in submake script "{script}".\n\n** Script "{script}" '
+                         'Output:\n\n{output}\n\n** Script "{script}" Return Code: {return_code}'
+                         .format(script=script,
+                                 output=output.rstrip(),
+                                 return_code=return_code))
+
+        self._script = script
+        self._output = output
+        self._return_code = return_code
+
+    @property
+    def return_code(self):
+        """Return the scripts exit return code"""
+        return self._return_code
+
+    @property
+    def output(self):
+        """Return the output produced by the script as a string."""
+        return self._output
+
+    @property
+    def script(self):
+        """Returns the path of the script that the error ocured in."""
+        return self._script
 
 
 def _execute(cmd):
     popen = subprocess.Popen(cmd,
                              stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
+                             stderr=subprocess.STDOUT,
                              universal_newlines=True)
 
     stdout = []
@@ -42,14 +67,10 @@ def _execute(cmd):
         stdout.append(stdout_line)
         yield stdout_line
 
-    stderr = []
-    for stderr_line in popen.stderr:
-        stderr.append(stderr_line)
-
     popen.stdout.close()
     return_code = popen.wait()
     if return_code:
-        output = ''.join(stderr) + ''.join(stdout)
+        output = ''.join(stdout)
         raise subprocess.CalledProcessError(return_code, cmd, output=output)
 
 
@@ -108,11 +129,14 @@ def run_script(script_path, *args):
                                 .format(script_path=script_path))
 
     try:
-
         str_filter_args = list(str(a) for a in args)
         work_dir = os.path.dirname(os.path.abspath(script_path))
-        output = _execute([sys.executable, "-u", script_path, "-C", work_dir] + _exports_to_args() + str_filter_args)
+
+        output = _execute(
+            [sys.executable, "-u", script_path, "-C", work_dir] +
+            _exports_to_args() + str_filter_args)
+
         for line in output:
             sys.stdout.write(line)
     except subprocess.CalledProcessError as err:
-        raise SubMakeException(err.output)
+        raise SubMakeException(script_path, err.output, err.returncode)

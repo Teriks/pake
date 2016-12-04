@@ -24,35 +24,70 @@ import inspect
 import itertools
 import os
 import threading
+import traceback
+
+from pake.exception import PakeException
 from pake.util import ReadOnlyList, is_iterable_not_str
 
 from pake.graph import topological_sort, check_cyclic, CyclicDependencyException
 
 
-class TargetRedefinedException(Exception):
+class TargetInnerException(PakeException):
+    """Raised when an exception that does not derive from
+       :py:class:`pake.exception.PakeException` is raised while a target is executing."""
+
+    def __init__(self, target, inner):
+        self._inner = inner
+        self._target = target
+
+        super().__init__('Exception occurred in pake target: "{}"\n\n{}'
+                         .format(self.target.name,
+                                 self.inner_trace_str))
+
+
+    @property
+    def inner_trace_str(self):
+        """Returns a formatted stack trace string for the inner exception."""
+        return ''.join(
+            traceback.format_exception(None, self.inner, self.inner.__traceback__))
+
+    @property
+    def target(self):
+        """Returns the :py:class:`pake.make.Target` instance for the target in which
+           The exception was raised."""
+        return self._target
+
+    @property
+    def inner(self):
+        """Return the exception instance that was raised inside the target."""
+        return self._inner
+
+
+class TargetRedefinedException(PakeException):
     """Raised when the same target function is registered to a :py:class:`pake.make.Make` instance more than once"""
     pass
 
 
-class UndefinedTargetException(Exception):
+class UndefinedTargetException(PakeException):
     """Raised in cases where a target function is not registered to a :py:class:`pake.make.Make` instance
     when it should be in order for a given operation to complete."""
     pass
 
 
-class TargetInputNotFoundException(FileNotFoundError):
+class TargetInputNotFoundException(PakeException):
     """Raised when one of a targets input files is not found at the time of that targets execution."""
-    def __init__(self, target_function, input_file):
+    def __init__(self, target, input_file):
         super().__init__('Input "{input}" of Target "{target}" did not exist upon target execution.'
-                         .format(target=target_function.name, input=input_file))
-        self._target_function = target_function
+                         .format(target=target.name, input=input_file))
+        self._target = target
         self._input = input
 
     @property
-    def target_function(self):
-        """Return a reference to the target function that has the missing input.
+    def target(self):
+        """Return a reference to the :py:class:`pake.make.Target` instance
+           that has the missing input.
 
-        :rtype: func
+        :rtype: pake.make.Target
         """
         return self._target_function
 
@@ -209,6 +244,10 @@ class Target:
         return self.function is other.function
 
 
+def _is_input_newer(input_file, output_file):
+    return (os.path.getmtime(input_file) - os.path.getmtime(output_file)) > 0.1
+
+
 class Make:
     """The make context class.  Target functions can be registered to an instance of this class
     using the :py:meth:`pake.make.Make.target` python decorator, or manually using the :py:meth:`pake.make.Make.add_target`
@@ -230,6 +269,8 @@ class Make:
         self._max_jobs = 1
         self._last_run_count = 0
         self._defines = {}
+        self._task_exceptions_lock = threading.RLock()
+        self._task_exceptions = []
 
     def __getitem__(self, name):
         """Retrieve the value of a define, returns None if the define does not exist.
@@ -466,16 +507,13 @@ class Make:
 
             self._target_funcs_by_name[target_function.__name__] = target_function
 
-    def _is_input_newer(self, input_file, output_file):
-        return (os.path.getmtime(input_file) - os.path.getmtime(output_file)) > 0.1
-
     def _handle_target_out_of_date(self, target_function):
         target = self.get_target(target_function)
         dependencies, inputs, outputs = target.dependencies, target.inputs, target.outputs
 
         for i in inputs:
             if not os.path.exists(i):
-                raise TargetInputNotFoundException(target_function, i)
+                raise TargetInputNotFoundException(target, i)
 
         for d in dependencies:
             if d in self._outdated_target_funcs:
@@ -492,7 +530,7 @@ class Make:
                 if not os.path.exists(o):
                     target._add_outdated_input_output(i, o)
                     out_of_date = True
-                elif self._is_input_newer(i, o):
+                elif _is_input_newer(i, o):
                     target._add_outdated_input_output(i, o)
                     out_of_date = True
 
@@ -513,7 +551,7 @@ class Make:
                     target._add_outdated_input_output(inputs, outputs)
                     return True
                 for i in inputs:
-                    if self._is_input_newer(i, o):
+                    if _is_input_newer(i, o):
                         target._add_outdated_input_output(inputs, outputs)
                         return True
 
@@ -579,7 +617,10 @@ class Make:
                     if self._target_task_running(dep_target_func):
                         task.result()
                     elif task.exception():
-                        raise task.exception()
+                        with self._task_exceptions_lock:
+                            self._task_exceptions.append(
+                                (self.get_target(target_function), task.exception())
+                            )
 
         sig = inspect.signature(target_function)
         if len(sig.parameters) > 0:
@@ -590,7 +631,10 @@ class Make:
     def _run_target(self, thread_pool, target_function):
         def done_callback(t):
             if t.exception():
-                raise t.exception()
+                with self._task_exceptions_lock:
+                    self._task_exceptions.append(
+                        (self.get_target(target_function), t.exception())
+                    )
 
         task = thread_pool.submit(self._run_target_task, target_function)
         task.add_done_callback(done_callback)
@@ -602,6 +646,9 @@ class Make:
 
         :raises pake.graph.CyclicDependencyException: Raised if a cyclic dependency is detected in the target graph.
         :raises pake.make.TargetInputNotFoundException: Raised if one of a targets inputs does not exist upon target execution.
+
+        :raise pake.make.TargetInnerException: Raised if an exception not derived from :py:class:`pake.exception.PakeException`
+                                               is thrown inside of a target function.
         """
 
         self._last_run_count = 0
@@ -616,7 +663,17 @@ class Make:
 
             self._outdated_target_funcs = set()
 
+        self._dispatch_target_exceptions()
+
         self._task_dict = {}
+
+    def _dispatch_target_exceptions(self):
+        for err in list(self._task_exceptions):
+            self._task_exceptions.clear()
+            if isinstance(err[1], PakeException):
+                raise err[1]
+
+            raise TargetInnerException(err[0], err[1])
 
     def visit(self, visitor=None):
         """Visit out of date targets without executing them, the default visitor prints:  "Execute Target: target_function_name"
@@ -639,6 +696,8 @@ class Make:
             if self._handle_target_out_of_date(target_function):
                 self._last_run_count += 1
                 visitor(self._target_graph[target_function])
+
+        self._dispatch_target_exceptions()
 
         self._task_dict = {}
 

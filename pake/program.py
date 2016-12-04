@@ -23,9 +23,11 @@ import ast
 import os
 import atexit
 import textwrap
+import sys
 
 import pake
 
+from pake.exception import PakeException
 from pake.util import str_is_int, str_is_float
 
 
@@ -34,7 +36,7 @@ class _DefineSyntaxError(SyntaxError):
     pass
 
 
-class PakeUninitializedException(Exception):
+class PakeUninitializedException(PakeException):
     pass
 
 
@@ -129,8 +131,18 @@ def _defines_to_dic(defines):
 _cur_args = None
 
 
+def _error(message):
+    print("{}: error: {}".format(_arg_parser.prog, message), file=sys.stderr)
+
+
+def _exit_error(message):
+    _error(message)
+    exit(1)
+
+
 def init():
-    """Init pake (Possibly change working directory) and return a :py:class:`pake.make.Make` instance.
+    """Init pake (Possibly change working directory) and return a
+       :py:class:`pake.make.Make` instance.
 
     :return: :py:class:`pake.make.Make` instance.
     :rtype: pake.make.Make
@@ -227,7 +239,8 @@ def run(make, default_targets=None):
     else:
         if default_targets is None:
             _arg_parser.error(
-                "No targets were provided and no default target was specified in the pakefile.")
+                "No targets were provided and no default target "
+                "was specified in the pakefile.")
 
         if pake.util.is_iterable_not_str(default_targets):
             run_targets = default_targets
@@ -245,7 +258,11 @@ def run(make, default_targets=None):
         else:
             make.execute()
     except pake.TargetInputNotFoundException as input_file_err:
-        _arg_parser.error(str(input_file_err))
+        _exit_error(str(input_file_err))
+    except pake.SubMakeException as submake_err:
+        _exit_error(str(submake_err))
+    except pake.TargetInnerException as inner_target_err:
+        _exit_error(str(inner_target_err))
 
     if make.get_last_run_count() == 0:
         print("Nothing to do, all targets up to date.")
