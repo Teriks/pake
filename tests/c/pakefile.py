@@ -4,28 +4,24 @@ import sys
 import os
 import glob
 
-
 # the directory above tests to the path so pake can be included
 # not needed if module is 'installed'
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../')))
 
-
 import pake
-
 
 make = pake.init()
 
-
 pake.export("TEST_EXPORT", "test\"test")
 
-pake.export("TEST_EXPORT1", [1,"te\"st", [3, 4, 'test\'test']])
+pake.export("TEST_EXPORT1", [1, "te\"st", [3, 4, 'test\'test']])
 
-pake.export("TEST_EXPORT2", {0 : 1, 1: "te\"st", 2: [3, 4, 'test\'test']})
+pake.export("TEST_EXPORT2", {0: 1, 1: "te\"st", 2: [3, 4, 'test\'test']})
 
-pake.export("TEST_EXPORT3", {1,"te\"st", 3, 4, 'test\'test'})
+pake.export("TEST_EXPORT3", {1, "te\"st", 3, 4, 'test\'test'})
 
-pake.export("TEST_EXPORT4", (1,"te\"st", [3, 4, 'test\'test']))
+pake.export("TEST_EXPORT4", (1, "te\"st", [3, 4, 'test\'test']))
 
 pake.export("TEST_EXPORT5", "")
 
@@ -79,19 +75,21 @@ def do_stuff(target):
 
     # Print the collective outputs of this targets immediate dependencies
 
-    print("Dependency outputs: "+str(target.dependency_outputs))
+    print("Dependency outputs: " + str(target.dependency_outputs))
 
     # Run a pakefile.py script in a subdirectory, build 'all' target
 
     pake.run_script("submake/pakefile.py", "all")
 
 
-
 # Basically a dummy target (if nothing actually depended on it)
 
-@make.target
+@make.target(info="Print Define info test. This is a very long info string "
+                  "which should be text wrapped to look nice on the command line "
+                  "by pythons built in textwrap module.  This long info string should be wrapped at 70 "
+                  "characters, which is the default value used by the textwrap module, and is similar if "
+                  "not the same wrap value used by the argparse module when formatting command help.")
 def print_define():
-
     # Defines are interpreted into python literals.
     # If you pass and integer, you get an int.. string str, (True or False) a bool etc.
     # Defines that are not given a value explicitly are given the value of 'True'
@@ -108,13 +106,12 @@ def print_define():
     print(make["TUP"])
 
 
-
 # Always runs, because there are no inputs or outputs to use for file change detection
 
-@make.target(depends=[do_stuff, print_define])
+@make.target(depends=[do_stuff, print_define],
+             info="Make all info test.")
 def all():
     print("Finished doing stuff! nothing more to do.")
-
 
 
 # Clean .o files in the directory
@@ -125,7 +122,6 @@ def clean():
         os.unlink(i)
 
     pake.run_script("submake/pakefile.py", "clean")
-
 
 
 pake.run(make, default_targets=all)

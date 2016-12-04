@@ -35,7 +35,9 @@ def _execute(cmd):
     popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 
     stdout = []
-    for stdout_line in iter(popen.stdout.readline, ""):
+    while True:
+        stdout_line = popen.stdout.readline()
+        if stdout_line == "": break
         stdout.append(stdout_line)
         yield stdout_line
 

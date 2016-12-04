@@ -22,6 +22,7 @@ import argparse
 import ast
 import os
 import atexit
+import textwrap
 
 import pake
 
@@ -74,6 +75,9 @@ _arg_parser.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
 
 _arg_parser.add_argument('-t', '--targets', action='store_true', dest='list_targets',
                          help='List all target names.')
+
+_arg_parser.add_argument('-ti', '--targets-info', action='store_true', dest='list_targets_info',
+                         help='List all targets which have info strings provided, with their info string.')
 
 _arg_parser.add_argument('-D', '--define', nargs=1, action='append',
                          help='Add defined value.')
@@ -155,6 +159,10 @@ def init():
     return make
 
 
+def _sort_target_by_name_key(target):
+    return target.name.lower()
+
+
 def run(make, default_targets=None):
     """The main entry point into pake, handles program arguments and sets up your :py:class:`pake.make.Make` object for execution.
 
@@ -180,12 +188,35 @@ def run(make, default_targets=None):
     if len(_cur_args.targets) > 0 and _cur_args.list_targets:
         _arg_parser.error("Run targets may not be specified when using the -t/--targets option to list targets.")
 
+    if _cur_args.list_targets and _cur_args.list_targets_info:
+        _arg_parser.error("-t/--targets and -ti/--targets-info cannot be used together.")
+
     if make.target_count() == 0:
         _arg_parser.error('*** No Targets.  Stop.')
 
     if _cur_args.list_targets:
-        for i in make.get_targets():
+        for i in sorted(make.get_targets(), key=_sort_target_by_name_key):
             print(i.name)
+        return
+
+    if _cur_args.list_targets_info:
+        info_targets = sorted(
+            [x for x in make.get_targets() if x.info],
+            key=_sort_target_by_name_key
+        )
+
+        longest_target_name = len(
+            max(info_targets, key=_sort_target_by_name_key).name
+        )
+
+        newline_header = ('\n ' + (' ' * longest_target_name) + ' # ')
+
+        if len(info_targets) == 0:
+            print("No targets with info strings are present.")
+            return
+        for i in info_targets:
+                print(('{:<'+str(longest_target_name)+'}  {}')
+                      .format(i.name, '# '+newline_header.join(textwrap.wrap(i.info)))+'\n')
         return
 
     if _cur_args.jobs:
@@ -195,7 +226,8 @@ def run(make, default_targets=None):
         run_targets = _cur_args.targets
     else:
         if default_targets is None:
-            _arg_parser.error("No targets were provided and no default target was specified in the pakefile.")
+            _arg_parser.error(
+                "No targets were provided and no default target was specified in the pakefile.")
 
         if pake.util.is_iterable_not_str(default_targets):
             run_targets = default_targets

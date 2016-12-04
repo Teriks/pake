@@ -76,7 +76,7 @@ class Target:
     pake will avoid passing it to the target function when it is not needed.
     """
 
-    def __init__(self, make,  function, inputs, outputs, dependencies):
+    def __init__(self, make,  function, inputs, outputs, dependencies, info=None):
         self._make = make
         self._function = function
         self._inputs = inputs
@@ -87,6 +87,17 @@ class Target:
         self._dependency_outputs = [output for output in
                                     itertools.chain.from_iterable(self._make.get_outputs(d)
                                                                   for d in self._dependencies)]
+        self._info = info
+
+    @property
+    def info(self):
+        """Get the info string for the target.
+
+        :return: The target info string, or None if no info string exists.
+        :rtype: str
+        """
+
+        return self._info
 
     @property
     def name(self):
@@ -324,12 +335,27 @@ class Make:
         return list(t for k, t in self._target_graph.items())
 
     def target(self, *args, **kwargs):
-        """Decorator for registering pake targets.
+        """Decorator for registering pake targets, this decorator delegates to :py:meth:`pake.make.Make.add_target`.
 
-        :param inputs: (Optional) list of input files or single input file
-        :param outputs: (Optional) list of output files or single output file
-        :param depends: (Optional) list of dependent target functions, or strings naming previously registered target functions.
-                        If there is only one dependency, it can be passed as a single argument.
+        :param target_function: The function for the target.
+        :type target_function: func
+
+        :param info: (Optional) information string for the target.  :py:meth:`pake.program.run` can display
+                     documented targets with their corresponding info string when the -ti/--target-info option is passed
+                     to a pakefile script.
+        :type info: str
+        :param inputs: (Optional) input files for the target, used for change detection.
+                       This may be a single string, or a list of strings.
+        :rtype inputs: str, or list of str
+        :param outputs: (Optional) output files for the target, used for change detection.
+                        This may be a single string, or a list of strings.
+        :type outputs: str, or list of str
+        :param depends: (Optional) dependencies, this may be a list of other target function references, or a single target function.
+                        Functions may be referenced by string but they must be previously defined.
+        :type depends: func/str, or list of func/str
+
+        :raises pake.make.TargetRedefinedException: Raised if the given target_function has already been registered as a target.
+        :raises pake.make.UndefinedTargetException: Raised if there is a reference to an unregistered target in this targets dependencies.
         """
 
         if len(args) == 1 and inspect.isfunction(args[0]):
@@ -385,21 +411,28 @@ class Make:
         """
         return self.get_target(target_function).dependencies
 
-    def add_target(self, target_function, inputs=None, outputs=None, depends=None):
+    def add_target(self, target_function, inputs=None, outputs=None, depends=None, info=None):
         """Manually register a pake target function.
 
         :param target_function: The function for the target.
         :type target_function: func
-        :param inputs: Optional input files for the target, used for change detection.
+
+        :param info: (Optional) information string for the target.  :py:meth:`pake.program.run` can display
+                     documented targets with their corresponding info string when the -ti/--target-info option is passed
+                     to a pakefile script.
+        :type info: str
+        :param inputs: (Optional) input files for the target, used for change detection.
                        This may be a single string, or a list of strings.
-        :param outputs: Optional output files for the target, used for change detection.
+        :rtype inputs: str, or list of str
+        :param outputs: (Optional) output files for the target, used for change detection.
                         This may be a single string, or a list of strings.
-        :param depends: Optional dependencies, this may be a list of other target function references, or a single target function.
+        :type outputs: str, or list of str
+        :param depends: (Optional) dependencies, this may be a list of other target function references, or a single target function.
                         Functions may be referenced by string but they must be previously defined.
+        :type depends: func/str, or list of func/str
 
         :raises pake.make.TargetRedefinedException: Raised if the given target_function has already been registered as a target.
         :raises pake.make.UndefinedTargetException: Raised if there is a reference to an unregistered target in this targets dependencies.
-
         """
 
         if not depends:
@@ -423,7 +456,12 @@ class Make:
             resolved_dependencies = self._resolve_target_strings(depends)
 
             self._target_graph[target_function] = Target(
-                self, target_function, inputs, outputs, resolved_dependencies
+                self,
+                target_function,
+                inputs,
+                outputs,
+                resolved_dependencies,
+                info
             )
 
             self._target_funcs_by_name[target_function.__name__] = target_function
