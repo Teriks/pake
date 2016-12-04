@@ -32,17 +32,18 @@ class SubMakeException(Exception):
 
 
 def _execute(cmd):
-    popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    popen = subprocess.Popen(cmd,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE,
+                             universal_newlines=True)
 
     stdout = []
-    while True:
-        stdout_line = popen.stdout.readline()
-        if stdout_line == "": break
+    for stdout_line in popen.stdout:
         stdout.append(stdout_line)
         yield stdout_line
 
     stderr = []
-    for stderr_line in iter(popen.stderr.readline, ""):
+    for stderr_line in popen.stderr:
         stderr.append(stderr_line)
 
     popen.stdout.close()
@@ -110,7 +111,7 @@ def run_script(script_path, *args):
 
         str_filter_args = list(str(a) for a in args)
         work_dir = os.path.dirname(os.path.abspath(script_path))
-        output = _execute([sys.executable, script_path, "-C", work_dir] + _exports_to_args() + str_filter_args)
+        output = _execute([sys.executable, "-u", script_path, "-C", work_dir] + _exports_to_args() + str_filter_args)
         for line in output:
             sys.stdout.write(line)
     except subprocess.CalledProcessError as err:
