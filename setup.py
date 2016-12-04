@@ -12,6 +12,11 @@ readme = ''
 with open('README.md') as f:
     readme = f.read()
 
+
+install_requires = [
+    'colorama>=0.3.7'
+]
+
 setup(name='pake',
       author='Teriks',
       url='https://github.com/Teriks/pake',

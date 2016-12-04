@@ -27,9 +27,8 @@ import threading
 import traceback
 
 from pake.exception import PakeException
-from pake.util import ReadOnlyList, is_iterable_not_str
-
 from pake.graph import topological_sort, check_cyclic, CyclicDependencyException
+from pake.util import ReadOnlyList, is_iterable_not_str
 
 
 class TargetAggregateException(PakeException):
@@ -40,14 +39,19 @@ class TargetAggregateException(PakeException):
         self._inner_exceptions = inner_exceptions
         super().__init__(self.inner_trace_str)
 
+    def _get_trace(self, exception):
+        if isinstance(exception[1], PakeException):
+            return str(exception[1]).rstrip('\n')
+        else:
+            return (''.join(traceback.format_exception(None, exception[1], exception[1].__traceback__))).rstrip('\n')
 
     @property
     def inner_trace_str(self):
         """Returns a formatted stack trace string for the inner exception."""
-        except_str = ['Exception encountered in target: "{target}".\n\n'.format(target=x[0].name)+
-                      ''.join(traceback.format_exception(None,x[1],x[1].__traceback__)) for x in self._inner_exceptions]
+        except_str = ['Exception encountered in target "{target}", stack trace:\n\n{trace}'
+                          .format(target=x[0].name, trace=self._get_trace(x)) for x in self._inner_exceptions]
 
-        return '\n\n'.join(except_str)
+        return 'One or more exceptions were raised inside pake targets:\n\n' + '\n\n'.join(except_str)
 
     @property
     def inner_exceptions(self):
@@ -69,6 +73,7 @@ class UndefinedTargetException(PakeException):
 
 class TargetInputNotFoundException(PakeException):
     """Raised when one of a targets input files is not found at the time of that targets execution."""
+
     def __init__(self, target, input_file):
         super().__init__('Input "{input}" of Target "{target}" did not exist upon target execution.'
                          .format(target=target.name, input=input_file))
@@ -104,7 +109,7 @@ class Target:
     pake will avoid passing it to the target function when it is not needed.
     """
 
-    def __init__(self, make,  function, inputs, outputs, dependencies, info=None):
+    def __init__(self, make, function, inputs, outputs, dependencies, info=None):
         self._make = make
         self._function = function
         self._inputs = inputs
@@ -115,7 +120,10 @@ class Target:
         self._dependency_outputs = [output for output in
                                     itertools.chain.from_iterable(self._make.get_outputs(d)
                                                                   for d in self._dependencies)]
-        self._info = info
+        if type(info) is str:
+            self._info = info
+        else:
+            self._info = str(info)
 
     @property
     def info(self):
@@ -609,11 +617,6 @@ class Make:
                     task = self._task_dict[dep_target_func]
                     if self._target_task_running(dep_target_func):
                         task.result()
-                    elif task.exception():
-                        with self._task_exceptions_lock:
-                            self._task_exceptions.append(
-                                (self.get_target(target_function), task.exception())
-                            )
 
         sig = inspect.signature(target_function)
         if len(sig.parameters) > 0:
@@ -663,11 +666,6 @@ class Make:
     def _dispatch_target_exceptions(self):
         ex = list(self._task_exceptions)
         self._task_exceptions.clear()
-
-        for err in ex:
-            if isinstance(err[1], PakeException):
-                raise err[1]
-
         if len(ex) > 0:
             raise TargetAggregateException(ex)
 
@@ -703,5 +701,3 @@ class Make:
         self._target_graph = {}
         self._target_funcs_by_name = {}
         self._run_targets = []
-
-

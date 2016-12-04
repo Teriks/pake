@@ -18,20 +18,27 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import colorama
+import re
 
-__author__ = 'Teriks'
-__copyright__ = 'Copyright (c) 2016 Teriks'
-__license__ = 'Three Clause BSD'
-__version__ = '0.1.0.0'
+colorama.init()
 
-from pake.console import print_error, print_warning
-from pake.fileutil import touch, ensure_path_exists
-from pake.graph import CyclicDependencyException
-from pake.make import \
-    Make, \
-    TargetRedefinedException, \
-    UndefinedTargetException, \
-    TargetInputNotFoundException, \
-    TargetAggregateException
-from pake.program import run, init, PakeUninitializedException
-from pake.submake import run_script, export, un_export, SubMakeException
+_remove_ansi_codes_regex = re.compile(r'\x1b\[([0-9,A-Z]{1,2}(;[0-9]{1,2})?(;[0-9]{3})?)?[m|K]?')
+
+
+def remove_ansi_codes(string):
+    """Strip ANSI escape sequences out of a string.
+    :returns: A string with ansi escape sequences removed.
+    :rtype: str
+    """
+    return _remove_ansi_codes_regex.sub('', string)
+
+
+def print_error(message):
+    """Print a message in red on the console."""
+    print(colorama.Fore.RED + remove_ansi_codes(message) + colorama.Style.RESET_ALL)
+
+
+def print_warning(message):
+    """Print a message in yellow on the console."""
+    print(colorama.Fore.YELLOW + remove_ansi_codes(message) + colorama.Style.RESET_ALL)

@@ -99,3 +99,5 @@ Module Imported Methods:
 * :py:meth:`pake.submake.run_script`
 * :py:meth:`pake.fileutil.touch`
 * :py:meth:`pake.fileutil.ensure_path_exists`
+* :py:meth:`pake.console.print_error`
+* :py:meth:`pake.console.print_warning`

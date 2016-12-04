@@ -20,13 +20,13 @@
 
 import argparse
 import ast
-import os
 import atexit
+import colorama
+import inspect
+import os
 import textwrap
-import sys
 
 import pake
-
 from pake.exception import PakeException
 from pake.util import str_is_int, str_is_float
 
@@ -89,7 +89,6 @@ _arg_parser.add_argument('-C', '--directory', type=_validate_dir,
 
 
 def _coerce_define_value(value_name, value):
-
     literal_eval_triggers = {"'", '"', "(", "{", "["}
 
     if str_is_int(value):
@@ -129,10 +128,11 @@ def _defines_to_dic(defines):
 
 
 _cur_args = None
+_init_file_name = ""
 
 
 def _error(message):
-    print("{}: error: {}".format(_arg_parser.prog, message), file=sys.stderr)
+    pake.print_error(colorama.Fore.RED + "{}: error: {}".format(_init_file_name, message))
 
 
 def _exit_error(message):
@@ -149,6 +149,11 @@ def init():
     """
 
     global _cur_args
+    global _init_file_name
+
+    frame = inspect.stack()[1]
+    module = inspect.getmodule(frame[0])
+    _init_file_name = os.path.abspath(module.__file__)
 
     _cur_args = _arg_parser.parse_args()
 
@@ -227,8 +232,8 @@ def run(make, default_targets=None):
             print("No targets with info strings are present.")
             return
         for i in info_targets:
-                print(('{:<'+str(longest_target_name)+'}  {}')
-                      .format(i.name, '# '+newline_header.join(textwrap.wrap(i.info)))+'\n')
+            print(('{:<' + str(longest_target_name) + '}  {}')
+                  .format(i.name, '# ' + newline_header.join(textwrap.wrap(i.info))) + '\n')
         return
 
     if _cur_args.jobs:

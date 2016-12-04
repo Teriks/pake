@@ -22,6 +22,7 @@
 import os
 import subprocess
 import sys
+
 from pake.exception import PakeException
 
 
@@ -29,9 +30,10 @@ class SubMakeException(PakeException):
     """A blanket exception raised when any error occurs during the actual execution
     of another pakefile while calling :py:meth:`pake.submake.run_script`.
     """
+
     def __init__(self, script, output, return_code):
-        super().__init__('Error occurred in submake script "{script}".\n\n** Script "{script}" '
-                         'Output:\n\n{output}\n\n** Script "{script}" Return Code: {return_code}'
+        super().__init__('Error occurred in submake script "{script}", script output:\n\n'
+                         '{output}\n\n** Script "{script}" Return Code: {return_code}'
                          .format(script=script,
                                  output=output.rstrip(),
                                  return_code=return_code))
@@ -82,9 +84,9 @@ def _exports_to_args():
     for k, v in _exports.items():
         args.append("-D")
         if type(v) is str and len(v.strip()) == 0:
-            args.append(k+'="'+str(v)+'"')
+            args.append(k + '="' + str(v) + '"')
         else:
-            args.append(k+"="+str(v))
+            args.append(k + "=" + str(v))
     return args
 
 
