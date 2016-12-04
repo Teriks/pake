@@ -120,7 +120,7 @@ class Target:
         self._dependency_outputs = [output for output in
                                     itertools.chain.from_iterable(self._make.get_outputs(d)
                                                                   for d in self._dependencies)]
-        if type(info) is str:
+        if info is None:
             self._info = info
         else:
             self._info = str(info)
