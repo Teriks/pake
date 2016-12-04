@@ -25,6 +25,7 @@ import colorama
 import inspect
 import os
 import textwrap
+import sys
 
 import pake
 from pake.exception import PakeException
@@ -212,6 +213,7 @@ def run(make, default_targets=None):
         _arg_parser.error('*** No Targets.  Stop.')
 
     if _cur_args.list_targets:
+        print('\nAll Targets:\n')
         for i in sorted(make.get_all_targets(), key=_sort_target_by_name_key):
             print(i.name)
         return
@@ -231,6 +233,8 @@ def run(make, default_targets=None):
         if len(info_targets) == 0:
             print("No targets with info strings are present.")
             return
+
+        print('\nDocumented Targets:\n')
         for i in info_targets:
             print(('{:<' + str(longest_target_name) + '}  {}')
                   .format(i.name, '# ' + newline_header.join(textwrap.wrap(i.info))) + '\n')
