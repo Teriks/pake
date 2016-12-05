@@ -25,7 +25,6 @@ import colorama
 import inspect
 import os
 import textwrap
-import sys
 
 import pake
 from pake.exception import PakeException
@@ -38,6 +37,7 @@ class _DefineSyntaxError(SyntaxError):
 
 
 class PakeUninitializedException(PakeException):
+    """Raised if :py:meth:`pake.program.init` has not been called prior to calling :py:meth:`pake.program.run`"""
     pass
 
 
