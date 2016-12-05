@@ -28,7 +28,8 @@ _remove_ansi_codes_regex = re.compile(r'\x1b\[([0-9,A-Z]{1,2}(;[0-9]{1,2})?(;[0-
 
 def remove_ansi_codes(string):
     """Strip ANSI escape sequences out of a string.
-    :returns: A string with ansi escape sequences removed.
+
+    :return: A string with any ANSI escape sequences removed.
     :rtype: str
     """
     return _remove_ansi_codes_regex.sub('', string)
