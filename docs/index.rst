@@ -65,15 +65,16 @@ shows off some functionality:
             pake.touch(o)
 
 
-    # Rebuild the input on the left that corresponds to the output in the same position on the right when
-    # that specific input is out of date, or it's output is missing.
+    # Rebuild the input on the left that corresponds to the output in the same position
+    # on the right when that specific input is out of date, or it's output is missing.
 
     @make.target(inputs=["stuffs_three.c", "stuffs_four.c"], outputs=["stuffs_three.o", "stuffs_four.o"])
     def do_multiple_stuffs_2(target):
         # Only out of date inputs/outputs will be in these collections
 
-        # The elements correspond to each other when the number of inputs is the same as the number of outputs.
-        # target.outdated_input[i] is the input related to the output: target.outdated_output[i]
+        # The elements correspond to each other when the number of inputs is the same
+        # as the number of outputs.  target.outdated_input[i] is the input related to
+        # the output: target.outdated_output[i]
 
         for i in zip(target.outdated_inputs, target.outdated_outputs):
             print(i[0])
@@ -100,9 +101,11 @@ shows off some functionality:
 
     @make.target(info="Print Define info test. This is a very long info string "
                       "which should be text wrapped to look nice on the command line "
-                      "by pythons built in textwrap module.  This long info string should be wrapped at 70 "
-                      "characters, which is the default value used by the textwrap module, and is similar if "
-                      "not the same wrap value used by the argparse module when formatting command help.")
+                      "by pythons built in textwrap module.  This long info string"
+                      "should be wrapped at 70 characters, which is the default "
+                      "value used by the textwrap module, and is similar if "
+                      "not the same wrap value used by the argparse module when "
+                      "formatting command help.")
     def print_define(target):
         # Defines are interpreted into python literals.
         # If you pass and integer, you get an int.. string str, (True or False) a bool etc.
@@ -113,11 +116,6 @@ shows off some functionality:
             target.print(make["SOME_DEFINE"])
 
         target.print(make.get_define("SOME_DEFINE2", "SOME_DEFINE2_DEFAULT"))
-
-        target.print(make["LIST"])
-        target.print(make["DICT"])
-        target.print(make["SET"])
-        target.print(make["TUP"])
 
 
     # Always runs, because there are no inputs or outputs to use for file change detection
