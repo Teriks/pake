@@ -84,7 +84,11 @@ into the pake module, and are directly accessible from the pake namespace.
 For example, pake is initialized with **pake.init()**, which is actually
 a call to :py:meth:`pake.program.init` in the :py:mod:`pake.program` module.
 
-	
+**pake.init()** returns a :py:class:`pake.make.Make` instance which you register your
+targets to via the :py:meth:`pake.make.Make.target` decorator, you then run :py:meth:`pake.program.run`
+(**pake.run()**) on that instance to start executing pake targets.
+
+
 Module Imported Classes:
 
 * :py:class:`pake.make.Make`
