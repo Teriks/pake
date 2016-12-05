@@ -56,7 +56,7 @@ class TargetAggregateException(PakeException):
     @property
     def inner_exceptions(self):
         """Returns a list in the form [(:py:class:`pake.make.Target`, exception_object), ...] representing all
-        exceptions raised inside pake targets which do not derive from :py:pake:`pake.exception.PakeException`."""
+        exceptions raised inside pake targets which do not derive from :py:class:`pake.exception.PakeException`."""
         return self._inner_exceptions
 
 

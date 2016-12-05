@@ -4,8 +4,16 @@ pake package
 Submodules
 ----------
 
+pake.console module
+-------------------
+
+.. automodule:: pake.console
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pake.exception module
---------------------
+---------------------
 
 .. automodule:: pake.exception
     :members:
