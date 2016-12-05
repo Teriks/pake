@@ -112,13 +112,17 @@ def un_export(name):
         del _exports[name]
 
 
-def run_script(script_path, *args, stdout=sys.stdout):
-    """Run another pakefile.py programmatically, changing directories if required
+def run_script(script_path, *args, stdout=sys.stdout, stdout_collect=True):
+    """Run another pakefile.py programmatically, changing directories if required.
+       The scripts stderr will be redirected to stdout.
 
 
     :param script_path: The path to the pakefile that is going to be ran.
     :param args: Command line arguments to pass the pakefile.
     :param stdout: A file like object to write the scripts output to, default is **sys.stdout**.
+    :param stdout_collect: If set to True, the scripts output will be collected and writen all at once to the stdout
+                           parameter.  Otherwise the scripts output will be written line by line as it is read from the
+                           stdout pipe.
 
     :raises FileNotFoundError: Raised if the given pakefile script does not exist.
     :raises pake.submake.SubMakeException: Raised if the submake script exits in a non successful manner.
@@ -140,7 +144,11 @@ def run_script(script_path, *args, stdout=sys.stdout):
             [sys.executable, "-u", script_path, "-C", work_dir] +
             _exports_to_args() + str_filter_args)
 
-        for line in output:
-            stdout.write(line)
+        if stdout_collect:
+            stdout.write(''.join(output))
+        else:
+            for line in output:
+                stdout.write(line)
+
     except subprocess.CalledProcessError as err:
         raise SubMakeException(script_path, err.output, err.returncode)

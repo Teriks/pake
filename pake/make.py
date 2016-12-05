@@ -134,20 +134,22 @@ class Target:
         sys.stdout.write(''.join(self._print_queue))
         self._print_queue.clear()
 
-    def run_script(self, script_path, *args):
+    def run_script(self, script_path, *args, stdout_collect=True):
         """Run a sub pakefile and print it's output to stdout in a synchronized fashion.  See
         :py:meth:`pake.submake.run_script`.
 
         :param script_path: The path to the pakefile that is going to be ran.
         :param args: Command line arguments to pass the pakefile.
-        :param stdout: A file like object to write the scripts output to, default is **sys.stdout**.
+        :param stdout_collect: If set to True, the scripts output will be collected and writen all at once to the targets
+                               stdout queue.  Otherwise the scripts output will be written line by line as it is read from
+                               the stdout pipe.
 
         :raises FileNotFoundError: Raised if the given pakefile script does not exist.
         :raises pake.submake.SubMakeException: Raised if the submake script exits in a non successful manner.
 
         """
 
-        pake.submake.run_script(script_path, *args, stdout=self)
+        pake.submake.run_script(script_path, *args, stdout=self, stdout_collect=stdout_collect)
 
     def print_error(self, *objects, sep=' ', end='\n'):
         """Print red colored data to stdout in a synchronized fashion.  See :py:meth:`pake.console.print_warning`."""
