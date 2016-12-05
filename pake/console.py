@@ -35,11 +35,13 @@ def remove_ansi_codes(string):
     return _remove_ansi_codes_regex.sub('', string)
 
 
-def print_error(message):
+def print_error(*objects, sep=' ', end='\n', file=None):
     """Print a message in red on the console."""
-    print(colorama.Fore.RED + remove_ansi_codes(message) + colorama.Style.RESET_ALL)
+    print(colorama.Fore.RED + remove_ansi_codes(sep.join(objects)) + colorama.Style.RESET_ALL,
+          end=end, file=file)
 
 
-def print_warning(message):
+def print_warning(*objects, sep=' ', end='\n', file=None):
     """Print a message in yellow on the console."""
-    print(colorama.Fore.YELLOW + remove_ansi_codes(message) + colorama.Style.RESET_ALL)
+    print(colorama.Fore.YELLOW + remove_ansi_codes(sep.join(objects)) + colorama.Style.RESET_ALL,
+          end=end, file=file)

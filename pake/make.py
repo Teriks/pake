@@ -25,6 +25,9 @@ import itertools
 import os
 import threading
 import traceback
+import sys
+import pake.submake
+import pake.console
 
 from pake.exception import PakeException
 from pake.graph import topological_sort, check_cyclic, CyclicDependencyException
@@ -49,7 +52,7 @@ class TargetAggregateException(PakeException):
     def inner_trace_str(self):
         """Returns a formatted stack trace string for the inner exception."""
         except_str = ['Exception encountered in target "{target}", stack trace:\n\n{trace}'
-                          .format(target=x[0].name, trace=self._get_trace(x)) for x in self._inner_exceptions]
+                      .format(target=x[0].name, trace=self._get_trace(x)) for x in self._inner_exceptions]
 
         return 'One or more exceptions were raised inside pake targets:\n\n' + '\n\n'.join(except_str)
 
@@ -123,6 +126,48 @@ class Target:
             self._info = info
         else:
             self._info = str(info)
+
+        self._print_queue = []
+        self._print_queue_lock = threading.RLock()
+
+    def _write_stdout_queue(self):
+        [sys.stdout.write(i) for i in self._print_queue]
+        self._print_queue.clear()
+
+    def run_script(self, script_path, *args):
+        """Run a sub pakefile and print it's output to stdout in a synchronized fashion.  See
+        :py:meth:`pake.submake.run_script`.
+
+        :param script_path: The path to the pakefile that is going to be ran.
+        :param args: Command line arguments to pass the pakefile.
+        :param stdout: A file like object to write the scripts output to, default is **sys.stdout**.
+
+        :raises FileNotFoundError: Raised if the given pakefile script does not exist.
+        :raises pake.submake.SubMakeException: Raised if the submake script exits in a non successful manner.
+
+        """
+
+        pake.submake.run_script(script_path, *args, stdout=self)
+
+    def print_error(self, *objects, sep=' ', end='\n'):
+        """Print red colored data to stdout in a synchronized fashion.  See :py:meth:`pake.console.print_warning`."""
+        pake.console.print_error(*objects, sep=sep, end=end, file=self)
+
+    def print_warning(self, *objects, sep=' ', end='\n'):
+        """Print yellow colored data to stdout in a synchronized fashion.  See :py:meth:`pake.console.print_warning`."""
+        pake.console.print_warning(*objects, sep=sep, end=end, file=self)
+
+    def print(self, *objects, sep=' ', end='\n'):
+        """Print data to stdout in a synchronized fashion."""
+        print(*objects, sep=sep, end=end, file=self)
+
+    def write(self, data):
+        """Write data to stdout in a synchronized fashion."""
+        if self._make.get_max_jobs() > 1:
+            with self._print_queue_lock:
+                self._print_queue.append(data)
+        else:
+            sys.stdout.write(data)
 
     @property
     def info(self):
@@ -207,13 +252,13 @@ class Target:
 
     def _add_outdated_input(self, input_file):
         if is_iterable_not_str(input_file):
-            self._outdated_inputs = self._outdated_inputs + list(input_file)
+            self._outdated_inputs += list(input_file)
         else:
             self._outdated_inputs.append(input_file)
 
     def _add_outdated_output(self, input_file):
         if is_iterable_not_str(input_file):
-            self._outdated_outputs = self._outdated_outputs + list(input_file)
+            self._outdated_outputs += list(input_file)
         else:
             self._outdated_outputs.append(input_file)
 
@@ -271,6 +316,7 @@ class Make:
         self._defines = {}
         self._task_exceptions_lock = threading.RLock()
         self._task_exceptions = []
+        self._target_print_lock = threading.RLock()
 
     def __getitem__(self, name):
         """Retrieve the value of a define, returns None if the define does not exist.
@@ -627,6 +673,8 @@ class Make:
 
     def _run_target(self, thread_pool, target):
         def done_callback(t):
+            with self._target_print_lock:
+                target._write_stdout_queue()
             if t.exception():
                 with self._task_exceptions_lock:
                     self._task_exceptions.append(

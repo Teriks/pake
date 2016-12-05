@@ -70,16 +70,19 @@ def do_multiple_stuffs_2(target):
 @make.target(inputs="do_stuff.c", outputs="do_stuff.o",
              depends=[do_stuff_first, do_stuff_first_2, do_multiple_stuffs, do_multiple_stuffs_2])
 def do_stuff(target):
-    print(target.inputs[0])
+
+    target.print_error("TEST")
+    target.print(target.inputs[0])
+
     pake.touch(target.outputs[0])
 
     # Print the collective outputs of this targets immediate dependencies
 
-    print("Dependency outputs: " + str(target.dependency_outputs))
+    target.print("Dependency outputs: " + str(target.dependency_outputs))
 
     # Run a pakefile.py script in a subdirectory, build 'all' target
 
-    pake.run_script("submake/pakefile.py", "all")
+    target.run_script("submake/pakefile.py", "all")
 
 
 # Basically a dummy target (if nothing actually depended on it)
@@ -89,39 +92,39 @@ def do_stuff(target):
                   "by pythons built in textwrap module.  This long info string should be wrapped at 70 "
                   "characters, which is the default value used by the textwrap module, and is similar if "
                   "not the same wrap value used by the argparse module when formatting command help.")
-def print_define():
+def print_define(target):
     # Defines are interpreted into python literals.
     # If you pass and integer, you get an int.. string str, (True or False) a bool etc.
     # Defines that are not given a value explicitly are given the value of 'True'
     # Defines that don't exist return 'None'
 
     if make["SOME_DEFINE"]:
-        print(make["SOME_DEFINE"])
+        target.print(make["SOME_DEFINE"])
 
-    print(make.get_define("SOME_DEFINE2", "SOME_DEFINE2_DEFAULT"))
+    target.print(make.get_define("SOME_DEFINE2", "SOME_DEFINE2_DEFAULT"))
 
-    print(make["LIST"])
-    print(make["DICT"])
-    print(make["SET"])
-    print(make["TUP"])
+    target.print(make["LIST"])
+    target.print(make["DICT"])
+    target.print(make["SET"])
+    target.print(make["TUP"])
 
 
 # Always runs, because there are no inputs or outputs to use for file change detection
 
 @make.target(depends=[do_stuff, print_define],
              info="Make all info test.")
-def all():
-    print("Finished doing stuff! nothing more to do.")
+def all(target):
+    target.print("Finished doing stuff! nothing more to do.")
 
 
 # Clean .o files in the directory
 
 @make.target
-def clean():
+def clean(target):
     for i in glob.glob("*.o"):
         os.unlink(i)
 
-    pake.run_script("submake/pakefile.py", "clean")
+    target.run_script("submake/pakefile.py", "clean")
 
 
 pake.run(make, default_targets=all)

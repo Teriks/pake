@@ -24,7 +24,6 @@ __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
 __version__ = '0.1.0.0'
 
-from pake.console import print_error, print_warning
 from pake.fileutil import touch, ensure_path_exists
 from pake.graph import CyclicDependencyException
 from pake.make import \
@@ -34,4 +33,4 @@ from pake.make import \
     TargetInputNotFoundException, \
     TargetAggregateException
 from pake.program import run, init, PakeUninitializedException
-from pake.submake import run_script, export, un_export, SubMakeException
+from pake.submake import export, un_export, SubMakeException
