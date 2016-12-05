@@ -271,7 +271,6 @@ class Make:
         self._defines = {}
         self._task_exceptions_lock = threading.RLock()
         self._task_exceptions = []
-        self._thread_pool_executor = None
 
     def __getitem__(self, name):
         """Retrieve the value of a define, returns None if the define does not exist.
@@ -662,7 +661,6 @@ class Make:
         self._last_run_count = 0
 
         with self.get_threadpool_executor() as thread_pool:
-            self._thread_pool_executor = thread_pool
             for node in self._sort_graph():
                 target = node[1]
                 if self._handle_target_out_of_date(target):
@@ -672,7 +670,6 @@ class Make:
 
             self._outdated_target_funcs = set()
 
-        self._thread_pool_executor = None
         self._dispatch_target_exceptions()
         self._target_func_to_task_dict = {}
 
