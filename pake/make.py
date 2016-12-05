@@ -381,10 +381,9 @@ class Make:
         return target_function in self._target_graph
 
     def get_all_targets(self):
-        """Get a list of :py:class:`pake.make.Target` representing the targets registered to this
-           :py:class:`pake.make.Make` object.
+        """Get a list of :py:class:`pake.make.Target` representing the targets registered to this :py:class:`pake.make.Make` object.
 
-        :return: List of :py:class:`pake.make.Target` objects.
+        :return: List of :py:class:`pake.make.Target` objects
         :rtype: list
         """
         return list(t for k, t in self._target_graph.items())
