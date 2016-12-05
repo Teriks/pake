@@ -13,10 +13,6 @@ with open('README.md') as f:
     readme = f.read()
 
 
-install_requires = [
-    'colorama>=0.3.7'
-]
-
 setup(name='pake',
       author='Teriks',
       url='https://github.com/Teriks/pake',
@@ -26,6 +22,9 @@ setup(name='pake',
       description='A make like build utility using python.',
       long_description=readme,
       include_package_data=True,
+      install_requires=[
+          'colorama>=0.3.7'
+      ],
       classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'License :: OSI Approved :: BSD 3-Clause License',
