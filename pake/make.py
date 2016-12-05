@@ -131,7 +131,7 @@ class Target:
         self._print_queue_lock = threading.RLock()
 
     def _write_stdout_queue(self):
-        [sys.stdout.write(i) for i in self._print_queue]
+        sys.stdout.write(''.join(self._print_queue))
         self._print_queue.clear()
 
     def run_script(self, script_path, *args):
