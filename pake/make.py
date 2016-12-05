@@ -305,6 +305,18 @@ class Make:
         else:
             return default
 
+    def get_threadpool_executor(self):
+        """Return a :py:class:`concurrent.futures.ThreadPoolExecutor` instance with **max_workers** set to the value
+           of :py:meth:`pake.make.Make.get_max_jobs`.  :py:class:`concurrent.futures.ThreadPoolExecutor` is provided by
+           the built in **concurrent.futures** module.
+
+           :returns: Thread pool executor with **max_workers** set to
+                     the value of :py:meth:`pake.make.Make.get_max_jobs`.
+
+           :rtype: concurrent.futures.ThreadPoolExecutor
+           """
+        return concurrent.futures.ThreadPoolExecutor(max_workers=self.get_max_jobs())
+
     def set_run_targets(self, *target_functions):
         """Set the entry targets for the next call to execute.  These are the targets that will be ran.
 
@@ -649,7 +661,7 @@ class Make:
 
         self._last_run_count = 0
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=self._max_jobs) as thread_pool:
+        with self.get_threadpool_executor() as thread_pool:
             for node in self._sort_graph():
                 target = node[1]
                 if self._handle_target_out_of_date(target):
