@@ -21,7 +21,6 @@
 import argparse
 import ast
 import atexit
-import colorama
 import inspect
 import os
 import textwrap
@@ -133,7 +132,7 @@ _init_file_name = ""
 
 
 def _error(message):
-    pake.print_error(colorama.Fore.RED + "{}: error: {}".format(_init_file_name, message))
+    pake.print_error("{}: error: {}".format(_init_file_name, message))
 
 
 def _exit_error(message):
