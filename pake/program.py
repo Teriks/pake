@@ -142,8 +142,7 @@ def _exit_error(message):
 
 
 def init():
-    """Init pake (Possibly change working directory) and return a
-       :py:class:`pake.make.Make` instance.
+    """Init pake (Possibly change working directory) and return a :py:class:`pake.make.Make` instance.
 
     :return: :py:class:`pake.make.Make` instance.
     :rtype: pake.make.Make

@@ -82,8 +82,7 @@ class TargetInputNotFoundException(PakeException):
 
     @property
     def target(self):
-        """Return a reference to the :py:class:`pake.make.Target` instance
-           that has the missing input.
+        """Return a reference to the :py:class:`pake.make.Target` instance that has the missing input.
 
         :rtype: pake.make.Target
         """
