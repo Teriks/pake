@@ -271,6 +271,7 @@ class Make:
         self._defines = {}
         self._task_exceptions_lock = threading.RLock()
         self._task_exceptions = []
+        self._thread_pool_executor = None
 
     def __getitem__(self, name):
         """Retrieve the value of a define, returns None if the define does not exist.
@@ -307,13 +308,20 @@ class Make:
     def get_threadpool_executor(self):
         """Return a :py:class:`concurrent.futures.ThreadPoolExecutor` instance with **max_workers** set to the value
            of :py:meth:`pake.make.Make.get_max_jobs`.  :py:class:`concurrent.futures.ThreadPoolExecutor` is provided by
-           the built in **concurrent.futures** module.
+           the built in **concurrent.futures** module.  If this function is called inside of a target it will return
+           the thread pool that is currently being used to execute targets, otherwise it will create a new one.
 
            :returns: Thread pool executor with **max_workers** set to
                      the value of :py:meth:`pake.make.Make.get_max_jobs`.
 
            :rtype: concurrent.futures.ThreadPoolExecutor
            """
+
+        # Return the one being used to run targets if it exists.
+        if self._thread_pool_executor:
+            return self._thread_pool_executor
+
+        # Otherwise return a new one.
         return concurrent.futures.ThreadPoolExecutor(max_workers=self.get_max_jobs())
 
     def set_run_targets(self, *target_functions):
@@ -660,6 +668,7 @@ class Make:
         self._last_run_count = 0
 
         with self.get_threadpool_executor() as thread_pool:
+            self._thread_pool_executor = thread_pool
             for node in self._sort_graph():
                 target = node[1]
                 if self._handle_target_out_of_date(target):
@@ -669,8 +678,8 @@ class Make:
 
             self._outdated_target_funcs = set()
 
+        self._thread_pool_executor = None
         self._dispatch_target_exceptions()
-
         self._target_func_to_task_dict = {}
 
     def _dispatch_target_exceptions(self):
@@ -702,7 +711,6 @@ class Make:
                 visitor(self._target_graph[target_function])
 
         self._dispatch_target_exceptions()
-
         self._target_func_to_task_dict = {}
 
     def clear_targets(self):
