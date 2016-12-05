@@ -140,7 +140,7 @@ class Target:
 
         :param script_path: The path to the pakefile that is going to be ran.
         :param args: Command line arguments to pass the pakefile.
-        :param stdout_collect: If set to True, the scripts output will be collected and writen all at once to the targets
+        :param stdout_collect: If set to True, the scripts output will be collected and written all at once to the targets
                                stdout queue.  Otherwise the scripts output will be written line by line as it is read from
                                the stdout pipe.
 
