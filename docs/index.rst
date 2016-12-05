@@ -19,24 +19,22 @@ shows off some functionality:
 
 .. code-block:: python
 
-	import sys
-	import os
-	import glob
-	import pake
+    import sys
+    import os
+    import glob
+    import pake
+
+    make = pake.init()
+
+    # Export python literals as defines to scripts ran with target.run_script.
+
+    pake.export("SOME_EXPORTED_DEFINE", ["a", "b", "c"])
+    pake.export("SOME_EXPORTED_DEFINE2", 4)
 
 
-	make = pake.init()
+    # Prevent SOME_EXPORTED_DEFINE2 from being exported.
 
-
-	# Export python literals as defines to scripts ran with target.run_script.
-
-	pake.export("SOME_EXPORTED_DEFINE", ["a", "b", "c"])
-	pake.export("SOME_EXPORTED_DEFINE2", 4)
-
-
-	# Prevent SOME_EXPORTED_DEFINE2 from being exported.
-
-	pake.un_export("SOME_EXPORTED_DEFINE2")
+    pake.un_export("SOME_EXPORTED_DEFINE2")
 
 
     @make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
@@ -137,6 +135,7 @@ shows off some functionality:
 
 
     pake.run(make, default_targets=all)
+
 	
 	
 And for example, to run:
