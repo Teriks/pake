@@ -25,10 +25,11 @@ import inspect
 import os
 import textwrap
 
+
 import pake
 from pake.exception import PakeException
 from pake.util import str_is_int, str_is_float
-
+import pake.console
 
 class _DefineSyntaxError(SyntaxError):
     """Occurs when :py:meth:`pake.program.run` is called without first calling :py:meth:`pake.program.init`"""
@@ -132,7 +133,7 @@ _init_file_name = ""
 
 
 def _error(message):
-    pake.print_error("{}: error: {}".format(_init_file_name, message))
+    pake.console.print_error("{}: error: {}".format(_init_file_name, message))
 
 
 def _exit_error(message):
