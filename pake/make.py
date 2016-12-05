@@ -308,8 +308,7 @@ class Make:
     def get_threadpool_executor(self):
         """Return a :py:class:`concurrent.futures.ThreadPoolExecutor` instance with **max_workers** set to the value
            of :py:meth:`pake.make.Make.get_max_jobs`.  :py:class:`concurrent.futures.ThreadPoolExecutor` is provided by
-           the built in **concurrent.futures** module.  If this function is called inside of a target it will return
-           the thread pool that is currently being used to execute targets, otherwise it will create a new one.
+           the built in **concurrent.futures** module.
 
            :returns: Thread pool executor with **max_workers** set to
                      the value of :py:meth:`pake.make.Make.get_max_jobs`.
@@ -317,11 +316,6 @@ class Make:
            :rtype: concurrent.futures.ThreadPoolExecutor
            """
 
-        # Return the one being used to run targets if it exists.
-        if self._thread_pool_executor:
-            return self._thread_pool_executor
-
-        # Otherwise return a new one.
         return concurrent.futures.ThreadPoolExecutor(max_workers=self.get_max_jobs())
 
     def set_run_targets(self, *target_functions):
