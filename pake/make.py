@@ -136,7 +136,6 @@ class Target:
     def run_script(self,
                    script_path,
                    *args,
-                   stdout_collect=True,
                    print_execute_header=True,
                    execute_header='***** Executing Script "{}"\n'):
 
@@ -145,9 +144,6 @@ class Target:
 
         :param script_path: The path to the pakefile that is going to be ran.
         :param args: Command line arguments to pass the pakefile.
-        :param stdout_collect: If set to True, the scripts output will be collected and written all at once to the targets
-                               stdout queue.  Otherwise the scripts output will be written line by line as it is read from
-                               the stdout pipe.
 
         :param print_execute_header: Whether or not to execute_header before the standard output of the program.
 
@@ -162,7 +158,7 @@ class Target:
         pake.submake.run_script(script_path,
                                 *args,
                                 stdout=self,
-                                stdout_collect=stdout_collect,
+                                stdout_collect=True,
                                 print_execute_header=print_execute_header,
                                 execute_header=execute_header)
 
