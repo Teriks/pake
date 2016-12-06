@@ -20,7 +20,7 @@
 
 import errno
 import os
-from pathlib import Path
+import pathlib
 
 
 def ensure_path_exists(path):
@@ -47,4 +47,4 @@ def touch(file_name, mode=0o666, exist_ok=True):
     :param mode: The umask.
     :param exist_ok: whether or not it is okay for the file to exist already.
     """
-    Path(file_name).touch(mode=mode, exist_ok=exist_ok)
+    pathlib.Path(file_name).touch(mode=mode, exist_ok=exist_ok)

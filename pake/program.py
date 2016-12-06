@@ -27,17 +27,18 @@ import textwrap
 
 
 import pake
-from pake.exception import PakeException
-from pake.util import str_is_int, str_is_float
+import pake.exception
+import pake.util
 import pake.console
 
+
 class _DefineSyntaxError(SyntaxError):
-    """Occurs when :py:meth:`pake.program.run` is called without first calling :py:meth:`pake.program.init`"""
     pass
 
 
-class PakeUninitializedException(PakeException):
-    """Raised if :py:meth:`pake.program.init` has not been called prior to calling :py:meth:`pake.program.run`"""
+class PakeUninitializedException(pake.exception.PakeException):
+    """Occurs when calling certain pake functions (that rely on global state)
+    prior to py:meth:`pake.program.init` being called"""
     pass
 
 
@@ -88,13 +89,15 @@ _arg_parser.add_argument('-D', '--define', nargs=1, action='append',
 _arg_parser.add_argument('-C', '--directory', type=_validate_dir,
                          help='Change directory before executing.')
 
+_arg_parser.add_argument('--s_depth', type=int, default=0, help=argparse.SUPPRESS)
+
 
 def _coerce_define_value(value_name, value):
     literal_eval_triggers = {"'", '"', "(", "{", "["}
 
-    if str_is_int(value):
+    if pake.util.str_is_int(value):
         return int(value)
-    elif str_is_float(value):
+    elif pake.util.str_is_float(value):
         return float(value)
     else:
         ls = value.lstrip()
@@ -139,6 +142,28 @@ def _error(message):
 def _exit_error(message):
     _error(message)
     exit(1)
+
+
+def get_submake_depth():
+    """Get the submake depth of this script, which depends on if another pakefile is executing it
+    or not.  Successive calls to :py:meth:`pake.submake.run_script` in child scripts increase the
+    submake depth.  Submake depth starts at 0.
+
+    :raises pake.program.PakeUninitializedException: Raised if :py:meth:`pake.program.init`
+            has not been called prior to calling this method.
+
+    :return: The submake depth
+    :rtype: int
+    """
+
+    if _cur_args is None:
+        raise PakeUninitializedException("pake.init() has not been called yet.")
+
+    if hasattr(_cur_args, 's_depth'):
+        return _cur_args.s_depth
+    else:
+        return 0
+
 
 
 def init():

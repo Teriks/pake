@@ -102,11 +102,13 @@ Module Imported Exceptions:
 * :py:class:`pake.program.PakeUninitializedException`
 * :py:class:`pake.graph.CyclicDependencyException`
 * :py:class:`pake.submake.SubMakeException`
+* :py:class:`pake.exception.PakeException`
 	
 Module Imported Methods:
 
 * :py:meth:`pake.program.init`
 * :py:meth:`pake.program.run`
+* :py:meth:`pake.program.get_submake_depth`
 * :py:meth:`pake.submake.export`
 * :py:meth:`pake.submake.un_export`
 * :py:meth:`pake.fileutil.touch`

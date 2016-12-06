@@ -22,11 +22,11 @@
 import os
 import subprocess
 import sys
+import pake
+import pake.program
 
-from pake.exception import PakeException
 
-
-class SubMakeException(PakeException):
+class SubMakeException(pake.PakeException):
     """A blanket exception raised when any error occurs during the actual execution
     of another pakefile while calling :py:meth:`pake.submake.run_script`.
     """
@@ -112,7 +112,13 @@ def un_export(name):
         del _exports[name]
 
 
-def run_script(script_path, *args, stdout=sys.stdout, stdout_collect=True):
+def run_script(script_path,
+               *args,
+               stdout=sys.stdout,
+               stdout_collect=True,
+               print_execute_header=True,
+               execute_header='***** Execute Script "{}" *****\n'):
+
     """Run another pakefile.py programmatically, changing directories if required.
        The scripts stderr will be redirected to stdout.
 
@@ -123,6 +129,12 @@ def run_script(script_path, *args, stdout=sys.stdout, stdout_collect=True):
     :param stdout_collect: If set to True, the scripts output will be collected and writen all at once to the stdout
                            parameter.  Otherwise the scripts output will be written line by line as it is read from the
                            stdout pipe.
+
+    :param print_execute_header: Whether or not to execute_header before the standard output of the program.
+
+    :param execute_header: The header to print before the scripts standard output if print_execute_header is True,
+                           the placeholder {} may be used to insert the script_path into the header.
+
 
     :raises FileNotFoundError: Raised if the given pakefile script does not exist.
     :raises pake.submake.SubMakeException: Raised if the submake script exits in a non successful manner.
@@ -140,13 +152,27 @@ def run_script(script_path, *args, stdout=sys.stdout, stdout_collect=True):
         str_filter_args = list(str(a) for a in args)
         work_dir = os.path.dirname(os.path.abspath(script_path))
 
+        try:
+            depth = pake.program.get_submake_depth()
+        except pake.PakeUninitializedException:
+            depth = 0
+
         output = _execute(
-            [sys.executable, "-u", script_path, "-C", work_dir] +
+            [sys.executable, "-u", script_path, "--s_depth", str(depth+1), "-C", work_dir] +
             _exports_to_args() + str_filter_args)
 
+        if print_execute_header:
+            header = execute_header.format(script_path)
+
         if stdout_collect:
-            stdout.write(''.join(output))
+            if print_execute_header:
+                stdout.write(header+''.join(output))
+            else:
+                stdout.write(''.join(output))
         else:
+            if print_execute_header:
+                stdout.write(header)
+
             for line in output:
                 stdout.write(line)
 

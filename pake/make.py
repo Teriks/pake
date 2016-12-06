@@ -28,13 +28,12 @@ import traceback
 import sys
 import pake.submake
 import pake.console
+import pake.exception
+import pake.graph
+import pake.util
 
-from pake.exception import PakeException
-from pake.graph import topological_sort, check_cyclic, CyclicDependencyException
-from pake.util import ReadOnlyList, is_iterable_not_str
 
-
-class TargetAggregateException(PakeException):
+class TargetAggregateException(pake.exception.PakeException):
     """Raised when an exception that does not derive from
        :py:class:`pake.exception.PakeException` is raised while a target is executing."""
 
@@ -43,7 +42,7 @@ class TargetAggregateException(PakeException):
         super().__init__(self.inner_trace_str)
 
     def _get_trace(self, exception):
-        if isinstance(exception[1], PakeException):
+        if isinstance(exception[1], pake.exception.PakeException):
             return str(exception[1]).rstrip('\n')
         else:
             return (''.join(traceback.format_exception(None, exception[1], exception[1].__traceback__))).rstrip('\n')
@@ -63,18 +62,18 @@ class TargetAggregateException(PakeException):
         return self._inner_exceptions
 
 
-class TargetRedefinedException(PakeException):
+class TargetRedefinedException(pake.exception.PakeException):
     """Raised when the same target function is registered to a :py:class:`pake.make.Make` instance more than once"""
     pass
 
 
-class UndefinedTargetException(PakeException):
+class UndefinedTargetException(pake.exception.PakeException):
     """Raised in cases where a target function is not registered to a :py:class:`pake.make.Make` instance
     when it should be in order for a given operation to complete."""
     pass
 
 
-class TargetInputNotFoundException(PakeException):
+class TargetInputNotFoundException(pake.exception.PakeException):
     """Raised when one of a targets input files is not found at the time of that targets execution."""
 
     def __init__(self, target, input_file):
@@ -134,7 +133,13 @@ class Target:
         sys.stdout.write(''.join(self._print_queue))
         self._print_queue.clear()
 
-    def run_script(self, script_path, *args, stdout_collect=True):
+    def run_script(self,
+                   script_path,
+                   *args,
+                   stdout_collect=True,
+                   print_execute_header=True,
+                   execute_header='***** Execute Script "{}" *****\n'):
+
         """Run a sub pakefile and print it's output to stdout in a synchronized fashion.  See
         :py:meth:`pake.submake.run_script`.
 
@@ -144,12 +149,22 @@ class Target:
                                stdout queue.  Otherwise the scripts output will be written line by line as it is read from
                                the stdout pipe.
 
+        :param print_execute_header: Whether or not to execute_header before the standard output of the program.
+
+        :param execute_header: The header to print before the scripts standard output if print_execute_header is True,
+                               the placeholder {} may be used to insert the script_path into the header.
+
         :raises FileNotFoundError: Raised if the given pakefile script does not exist.
         :raises pake.submake.SubMakeException: Raised if the submake script exits in a non successful manner.
 
         """
 
-        pake.submake.run_script(script_path, *args, stdout=self, stdout_collect=stdout_collect)
+        pake.submake.run_script(script_path,
+                                *args,
+                                stdout=self,
+                                stdout_collect=stdout_collect,
+                                print_execute_header=print_execute_header,
+                                execute_header=execute_header)
 
     def print_error(self, *objects, sep=' ', end='\n'):
         """Print red colored data to stdout in a synchronized fashion.  See :py:meth:`pake.console.print_warning`."""
@@ -206,7 +221,7 @@ class Target:
         :return: Read only list outputs from this targets immediate dependencies.
         :rtype: pake.util.ReadOnlyList
         """
-        return ReadOnlyList(self._dependency_outputs)
+        return pake.util.ReadOnlyList(self._dependency_outputs)
 
     @property
     def dependencies(self):
@@ -219,7 +234,7 @@ class Target:
         :return: Read only list of target inputs.
         :rtype: pake.util.ReadOnlyList
         """
-        return ReadOnlyList(self._dependencies)
+        return pake.util.ReadOnlyList(self._dependencies)
 
     @property
     def inputs(self):
@@ -228,7 +243,7 @@ class Target:
         :return: Read only list of target inputs.
         :rtype: pake.util.ReadOnlyList
         """
-        return ReadOnlyList(self._inputs)
+        return pake.util.ReadOnlyList(self._inputs)
 
     @property
     def outputs(self):
@@ -237,7 +252,7 @@ class Target:
         :return: Read only list of target outputs.
         :rtype: pake.util.ReadOnlyList
         """
-        return ReadOnlyList(self._outputs)
+        return pake.util.ReadOnlyList(self._outputs)
 
     @property
     def make(self):
@@ -253,13 +268,13 @@ class Target:
         self._add_outdated_output(output_file)
 
     def _add_outdated_input(self, input_file):
-        if is_iterable_not_str(input_file):
+        if pake.util.is_iterable_not_str(input_file):
             self._outdated_inputs += list(input_file)
         else:
             self._outdated_inputs.append(input_file)
 
     def _add_outdated_output(self, input_file):
-        if is_iterable_not_str(input_file):
+        if pake.util.is_iterable_not_str(input_file):
             self._outdated_outputs += list(input_file)
         else:
             self._outdated_outputs.append(input_file)
@@ -272,7 +287,7 @@ class Target:
         :rtype: pake.util.ReadOnlyList
         """
 
-        return ReadOnlyList(self._outdated_inputs)
+        return pake.util.ReadOnlyList(self._outdated_inputs)
 
     @property
     def outdated_outputs(self):
@@ -282,7 +297,7 @@ class Target:
         :rtype: pake.util.ReadOnlyList
         """
 
-        return ReadOnlyList(self._outdated_outputs)
+        return pake.util.ReadOnlyList(self._outdated_outputs)
 
     def __hash__(self):
         return hash(self.function)
@@ -363,7 +378,7 @@ class Make:
         :raises pake.make.UndefinedTargetException: Raised if a given target is not a registered target reference or name.
         """
 
-        if is_iterable_not_str(target_functions[0]):
+        if pake.util.is_iterable_not_str(target_functions[0]):
             self._run_targets = self._resolve_target_strings(target_functions[0])
         else:
             self._run_targets = self._resolve_target_strings(target_functions)
@@ -611,8 +626,8 @@ class Make:
         def get_edges(e):
             return e.dependencies
 
-        if check_cyclic(self._target_graph, get_edges=get_edges):
-            raise CyclicDependencyException("Cyclic target dependency detected.")
+        if pake.graph.check_cyclic(self._target_graph, get_edges=get_edges):
+            raise pake.graph.CyclicDependencyException("Cyclic target dependency detected.")
 
         visited, no_dep_targets, graph_out, to_visit = set(), set(), [], []
 
@@ -636,7 +651,7 @@ class Make:
                 visited.add(cur[0])
 
         return itertools.chain(((no_deps, self.get_target(no_deps)) for no_deps in no_dep_targets),
-                               topological_sort(graph_out, get_edges=get_edges))
+                               pake.graph.topological_sort(graph_out, get_edges=get_edges))
 
     def _resolve_target_strings(self, target_functions):
         result = list(target_functions)
@@ -668,7 +683,7 @@ class Make:
                         task.result()
 
         sig = inspect.signature(target.function)
-        target.print('===== Executing target: "{}" ====='
+        target.print('===== Executing target: "{}"'
                      .format(target.name))
         
         if len(sig.parameters) > 0:
