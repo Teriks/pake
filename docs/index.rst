@@ -149,29 +149,29 @@ And for example, to run:
 
 Pakes current usage is:
 
+    usage:
+     pakefile.py [-h] [-v] [-j NUM_JOBS] [-n] [-t] [-ti] [-D DEFINE] |br|
+     [-C DIRECTORY] [targets [targets ...]]
 
-	usage: 
-	  pakefile.py [-h] [-v] [-j NUM_JOBS] [-n] [-t] [-D DEFINE] |br|
-	  [-C DIRECTORY] [targets [targets ...]]
+    positional arguments:
+      targets               (Build targets).
 
-	positional arguments:
-	  targets               (Build targets)
-
-	optional arguments:
-	  -h, --help            show this help message and exit
-	  -v, --version         show program's version number and exit
-	  -j NUM_JOBS, --jobs NUM_JOBS
-							Max number of parallel jobs. Using this option enables
-							unrelated targets to run in parallel with a max of N
-							targets running at a time.
-	  -n, --dry-run         Use to preform a dry run, lists all targets that will
-							be executed in the next actual invocation.
-	  -t, --targets         List all target names.
-	  -D DEFINE, --define DEFINE
-							Add defined value.
-	  -C DIRECTORY, --directory DIRECTORY
-							Change directory before executing.
-
+    optional arguments:
+      -h, --help            show this help message and exit
+      -v, --version         show program's version number and exit
+      -j NUM_JOBS, --jobs NUM_JOBS
+                            Max number of parallel jobs. Using this option enables
+                            unrelated targets to run in parallel with a max of N
+                            targets running at a time.
+      -n, --dry-run         Use to preform a dry run, lists all targets that will
+                            be executed in the next actual invocation.
+      -t, --targets         List all target names.
+      -ti, --targets-info   List all targets which have info strings provided,
+                            with their info string.
+      -D DEFINE, --define DEFINE
+                            Add defined value.
+      -C DIRECTORY, --directory DIRECTORY
+                            Change directory before executing.
 
 
 Indices and tables
