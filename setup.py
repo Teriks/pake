@@ -25,6 +25,7 @@ setup(name='pake',
       install_requires=[
           'colorama>=0.3.7'
       ],
+      scripts=['bin/pake'],
       classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'License :: OSI Approved :: BSD 3-Clause License',

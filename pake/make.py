@@ -303,6 +303,8 @@ class Target:
         return hash(self.function)
 
     def __eq__(self, other):
+        if type(other) != Target:
+            return False
         return self.function is other.function
 
 
