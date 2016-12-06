@@ -117,7 +117,7 @@ def run_script(script_path,
                stdout=sys.stdout,
                stdout_collect=True,
                print_execute_header=True,
-               execute_header='***** Execute Script "{}" *****\n'):
+               execute_header='***** Execute Script "{}"\n'):
 
     """Run another pakefile.py programmatically, changing directories if required.
        The scripts stderr will be redirected to stdout.

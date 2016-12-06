@@ -138,7 +138,7 @@ class Target:
                    *args,
                    stdout_collect=True,
                    print_execute_header=True,
-                   execute_header='***** Execute Script "{}" *****\n'):
+                   execute_header='***** Execute Script "{}"\n'):
 
         """Run a sub pakefile and print it's output to stdout in a synchronized fashion.  See
         :py:meth:`pake.submake.run_script`.
