@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-import re, os
+import re
 
 version = ''
 with open('pake/__init__.py') as f:
