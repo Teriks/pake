@@ -155,7 +155,7 @@ And for example, to run:
 cd your_pakefile_directory
 pake all -DSOME_DEFINE="test"
 
-``
+```
 
 pake will look for "pakefile.py" or "pakefile" in the current directory and run it.
 
