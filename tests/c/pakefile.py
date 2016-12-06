@@ -110,7 +110,7 @@ def print_define(target):
 @make.target(depends=[do_stuff, print_define],
              info="Make all info test.")
 def all(target):
-    target.print("Finished doing stuff! nothing more to do.")
+    target.print_error("Finished doing stuff! nothing more to do.")
 
 
 # Clean .o files in the directory

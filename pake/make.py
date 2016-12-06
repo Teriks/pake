@@ -668,6 +668,9 @@ class Make:
                         task.result()
 
         sig = inspect.signature(target.function)
+        target.print('===== Executing target: "{}" ====='
+                     .format(target.name))
+        
         if len(sig.parameters) > 0:
             target.function(target)
         else:
