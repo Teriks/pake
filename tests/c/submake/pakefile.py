@@ -24,7 +24,7 @@ print("Import Export TEST 5 = "+str(make["TEST_EXPORT5"]))
 @make.target(inputs="test.c", outputs="test.o")
 def all(target):
     pake.touch(target.outputs[0])
-    print(target.inputs[0])
+    target.print(target.inputs[0])
 
 
 @make.target

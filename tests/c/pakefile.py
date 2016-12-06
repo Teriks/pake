@@ -28,13 +28,13 @@ pake.export("TEST_EXPORT5", "")
 
 @make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
 def do_stuff_first(target):
-    print(target.inputs[0])
+    target.print(target.inputs[0])
     pake.touch(target.outputs[0])
 
 
 @make.target(inputs="do_stuff_first_2.c", outputs="do_stuff_first_2.o")
 def do_stuff_first_2(target):
-    print(target.inputs[0])
+    target.print(target.inputs[0])
     pake.touch(target.outputs[0])
 
 
@@ -46,7 +46,7 @@ def do_multiple_stuffs(target):
     # All inputs and outputs will be considered out of date
 
     for i in target.inputs:
-        print(i)
+        target.print(i)
 
     for o in target.outputs:
         pake.touch(o)
@@ -64,7 +64,7 @@ def do_multiple_stuffs_2(target):
     # the output: target.outdated_output[i]
 
     for i in zip(target.outdated_inputs, target.outdated_outputs):
-        print(i[0])
+        target.print(i[0])
         pake.touch(i[1])
 
 

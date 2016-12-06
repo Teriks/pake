@@ -39,13 +39,13 @@ shows off some functionality:
 
     @make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
     def do_stuff_first(target):
-        print(target.inputs[0])
+        target.print(target.inputs[0])
         pake.touch(target.outputs[0])
 
 
     @make.target(inputs="do_stuff_first_2.c", outputs="do_stuff_first_2.o")
     def do_stuff_first_2(target):
-        print(target.inputs[0])
+        target.print(target.inputs[0])
         pake.touch(target.outputs[0])
 
 
@@ -57,7 +57,7 @@ shows off some functionality:
         # All inputs and outputs will be considered out of date
 
         for i in target.inputs:
-            print(i)
+            target.print(i)
 
         for o in target.outputs:
             pake.touch(o)
@@ -75,7 +75,7 @@ shows off some functionality:
         # the output: target.outdated_output[i]
 
         for i in zip(target.outdated_inputs, target.outdated_outputs):
-            print(i[0])
+            target.print(i[0])
             pake.touch(i[1])
 
 
