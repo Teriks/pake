@@ -167,15 +167,17 @@ class Target:
                                 execute_header=execute_header)
 
     def print_error(self, *objects, sep=' ', end='\n'):
-        """Print red colored data to stdout in a synchronized fashion.  See :py:meth:`pake.console.print_warning`."""
+        """Print objects to stdout in a synchronized fashion with a text foreground color of red.
+        See :py:meth:`pake.console.print_error`."""
         pake.console.print_error(*objects, sep=sep, end=end, file=self)
 
     def print_warning(self, *objects, sep=' ', end='\n'):
-        """Print yellow colored data to stdout in a synchronized fashion.  See :py:meth:`pake.console.print_warning`."""
+        """Print objects to stdout in a synchronized fashion with a text foreground color of yellow.
+        See :py:meth:`pake.console.print_warning`."""
         pake.console.print_warning(*objects, sep=sep, end=end, file=self)
 
     def print(self, *objects, sep=' ', end='\n'):
-        """Print data to stdout in a synchronized fashion."""
+        """Print objects to stdout in a synchronized fashion."""
         print(*objects, sep=sep, end=end, file=self)
 
     def write(self, data):
