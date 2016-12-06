@@ -42,7 +42,8 @@ class PakeUninitializedException(pake.exception.PakeException):
     pass
 
 
-_arg_parser = argparse.ArgumentParser(prog="pake")
+_arg_parser = argparse.ArgumentParser(prog="pake",
+                                      description="pake, a (make like) python build utility.")
 
 
 def _validate_gt_one(value):
