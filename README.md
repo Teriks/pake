@@ -159,10 +159,14 @@ pake all -DSOME_DEFINE="test"
 
 pake will look for "pakefile.py" or "pakefile" in the current directory and run it.
 
-Or you can specify one or more files to run with **-f/--file**:
+Or you can specify one or more files to run with **-f/--file**.
+The switch does not have multiple arguments, but it can be used more than once to specify multiple files.
 
+For example:
 
 `pake -f your_pakefile.py all -DSOME_DEFINE="test"`
+
+`pake -f your_pakefile_1.py -f your_pakefile_2.py all -DSOME_DEFINE="test"`
 
 
 # Current Options
