@@ -145,9 +145,9 @@ def _exit_error(message):
 
 
 def get_submake_depth():
-    """Get the submake depth of this script, which depends on if another pakefile is executing it
-    or not.  Successive calls to :py:meth:`pake.submake.run_script` in child scripts increase the
-    submake depth.  Submake depth starts at 0.
+    """Get the submake depth of this script.  The value depends on if another pakefile is executing the script
+    this method is called in.  Successive calls to :py:meth:`pake.submake.run_script` in child scripts increase the
+    submake depth by one.  The initial submake depth is 0.
 
     :raises pake.program.PakeUninitializedException: Raised if :py:meth:`pake.program.init`
             has not been called prior to calling this method.
