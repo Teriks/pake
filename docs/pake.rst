@@ -1,74 +1,6 @@
 pake package
 ============
 
-Submodules
-----------
-
-pake.console module
--------------------
-
-.. automodule:: pake.console
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pake.exception module
----------------------
-
-.. automodule:: pake.exception
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pake.fileutil module
---------------------
-
-.. automodule:: pake.fileutil
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pake.graph module
------------------
-
-.. automodule:: pake.graph
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pake.make module
-----------------
-
-.. automodule:: pake.make
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pake.program module
--------------------
-
-.. automodule:: pake.program
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pake.submake module
--------------------
-
-.. automodule:: pake.submake
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pake.util module
-----------------
-
-.. automodule:: pake.util
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
 Module contents
 ---------------
 
@@ -103,7 +35,7 @@ Module Imported Exceptions:
 * :py:class:`pake.graph.CyclicDependencyException`
 * :py:class:`pake.submake.SubMakeException`
 * :py:class:`pake.exception.PakeException`
-	
+
 Module Imported Methods:
 
 * :py:meth:`pake.program.init`
@@ -113,3 +45,78 @@ Module Imported Methods:
 * :py:meth:`pake.submake.un_export`
 * :py:meth:`pake.fileutil.touch`
 * :py:meth:`pake.fileutil.ensure_path_exists`
+
+
+Submodules
+----------
+
+pake.program module
+-------------------
+
+.. automodule:: pake.program
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pake.make module
+----------------
+
+.. automodule:: pake.make
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pake.console module
+-------------------
+
+.. automodule:: pake.console
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :exclude-members: print_error, print_warning
+
+    .. autofunction:: pake.console.print_error(*objects, sep=' ', end='\n', file=sys.stdout)
+    .. autofunction:: pake.console.print_warning(*objects, sep=' ', end='\n', file=sys.stdout)
+
+pake.exception module
+---------------------
+
+.. automodule:: pake.exception
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pake.fileutil module
+--------------------
+
+.. automodule:: pake.fileutil
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pake.graph module
+-----------------
+
+.. automodule:: pake.graph
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pake.submake module
+-------------------
+
+.. automodule:: pake.submake
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :exclude-members: run_script
+
+    .. autofunction:: pake.submake.run_script(script_path, *args, stdout=sys.stdout, stdout_collect=True, print_execute_header=True, execute_header='***** Executing Script "{}"\\n')
+
+pake.util module
+----------------
+
+.. automodule:: pake.util
+    :members:
+    :undoc-members:
+    :show-inheritance:
