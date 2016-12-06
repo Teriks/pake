@@ -42,7 +42,7 @@ class PakeUninitializedException(pake.exception.PakeException):
     pass
 
 
-_arg_parser = argparse.ArgumentParser()
+_arg_parser = argparse.ArgumentParser(prog="pake")
 
 
 def _validate_gt_one(value):

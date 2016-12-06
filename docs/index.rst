@@ -140,18 +140,26 @@ shows off some functionality:
 	
 And for example, to run:
 
+.. code-block:: bash
+
+    cd your_pakefile_directory
+    pake all -DSOME_DEFINE="test"
+
+
+pake will look for "pakefile.py" or "pakefile" in the current directory and run it.
+
+Or you can specify one or more files to run with **-f/--file**:
 
 .. code-block:: bash
 
-	python pakefile.py all -DSOME_DEFINE="test"
-	
+    pake -f your_pakefile.py all -DSOME_DEFINE="test"
 
 
 Pakes current usage is:
 
     usage:
-     pakefile.py [-h] [-v] [-j NUM_JOBS] [-n] [-t] [-ti] [-D DEFINE] |br|
-     [-C DIRECTORY] [targets [targets ...]]
+     pake [-h] [-v] [-j NUM_JOBS] [-n] [-t] [-ti] [-D DEFINE] |br|
+     [-C DIRECTORY] [-f FILE] [targets [targets ...]]
 
     positional arguments:
       targets               (Build targets).
@@ -172,6 +180,9 @@ Pakes current usage is:
                             Add defined value.
       -C DIRECTORY, --directory DIRECTORY
                             Change directory before executing.
+      -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
+                            once, all specified pakefiles will be executed in
+                            order.
 
 
 Indices and tables

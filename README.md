@@ -148,25 +148,35 @@ pake.run(make, default_targets=all)
 
 ```
 
-Then:
+And for example, to run:
+
+```
+
+cd your_pakefile_directory
+pake all -DSOME_DEFINE="test"
+
+``
+
+pake will look for "pakefile.py" or "pakefile" in the current directory and run it.
+
+Or you can specify one or more files to run with *-f/--file*:
 
 
-`./pakefile.py all -DSOME_DEFINE="test"`
+`pake -f your_pakefile.py all -DSOME_DEFINE="test"`
 
 
 # Current Options
 
+`pake -h`
 
-`python pakefile.py -h`
 
 Gives:
 
-
 ```
 
-usage: pakefile.py [-h] [-v] [-j NUM_JOBS] [-n] [-t] [-ti] [-D DEFINE]
-                   [-C DIRECTORY]
-                   [targets [targets ...]]
+usage: pake [-h] [-v] [-j NUM_JOBS] [-n] [-t] [-ti] [-D DEFINE] [-C DIRECTORY]
+            [-f FILE]
+            [targets [targets ...]]
 
 positional arguments:
   targets               Build targets.
@@ -187,6 +197,10 @@ optional arguments:
                         Add defined value.
   -C DIRECTORY, --directory DIRECTORY
                         Change directory before executing.
+  -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
+                        once, all specified pakefiles will be executed in
+                        order.
+
 
 ```
 
