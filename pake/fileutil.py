@@ -48,8 +48,11 @@ class FileHelper:
 
         self._target = target
 
-    def makedirs(self, path, silent=False):
+    def makedirs(self, path, silent=False, exist_ok=True):
         """Create a directory tree if it does not exist, if the directory tree exists already this function does nothing.
+
+        :param exist_ok: If False, an OSError will be thrown if any directory
+                         in the given path already exists.
 
         :param silent: If True, don't print information to the targets output.
 
@@ -130,15 +133,22 @@ class FileHelper:
                                    .format(src, dest))
             shutil.copy(src, dest)
 
-    def remove(self, path, silent=False):
-        """Remove a file from disk.
+    def remove(self, path, silent=False, must_exist=False):
+        """Remove a file from disk if it exists, otherwise do nothing.
 
+        :raise FileNotFoundError: If must_exist is True, and the file does not exist.
+        :param must_exist: If set to True, a FileNotFoundError will be raised if the file does not exist.
         :param path: The path of the file to remove.
         :param silent: If True, don't print information to the targets output.
         """
         if not silent and self._target is not None:
             self._target.print('Remove: "{}"'.format(path))
-        os.remove(path)
+
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            if must_exist:
+                raise
 
     def glob_remove(self, glob_pattern, silent=False):
         """Remove files using a glob pattern, this makes use of pythons built in glob module.
@@ -169,10 +179,15 @@ class FileHelper:
         for i in (d for d in glob.iglob(glob_pattern) if os.path.isdir(d)):
             shutil.rmtree(i, ignore_errors=True)
 
-    def removedirs(self, path, silent=False):
+    def removedirs(self, path, silent=False, must_exist=False):
         """Remove a directory tree if it exist, if the directory tree does not exists this function does nothing.
 
         This function will remove non empty directories.
+
+        :raises FileNotFoundError: Raised if must_exist is True and the given path does not exist.
+
+        :param must_exist: If True, a FileNotFoundError will be raised if the directory
+                           does not exist.
 
         :param silent: If True, don't print information to the targets output.
 
@@ -180,4 +195,8 @@ class FileHelper:
         :param path: The directory path/tree."""
         if not silent and self._target is not None:
             self._target.print('Remove Directory(s): "{}"'.format(path))
-        shutil.rmtree(path, ignore_errors=True)
+        try:
+            shutil.rmtree(path)
+        except FileNotFoundError:
+            if must_exist:
+                raise
