@@ -140,7 +140,7 @@ class Target:
 
         :param print_command: When set to True, the full command being executed will be the first thing printed to the targets output.
         :param write_output: When set to True, all output from the command will be written to the targets output.
-        :param ignore_returncode: If set to True, non zero exit codes will be ignored.
+        :param ignore_returncode: If set to True, non zero exit codes will be ignored. (No :py:class:`pake.process.ExecuteProcessError` will be raised)
         :param ignore_stderr: If set to True, stderr will be redirected to DEVNULL instead of stdout.
 
         :param args: A list comprising the command and it's arguments, if you pass something other than
