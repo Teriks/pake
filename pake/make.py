@@ -51,7 +51,7 @@ class TargetAggregateException(pake.exception.PakeException):
     @property
     def inner_trace_str(self):
         """Returns a formatted stack trace string for the inner exception."""
-        except_str = ['Exception encountered in target "{target}", stack trace:\n\n{trace}'
+        except_str = ['Exception encountered in target "{target}", Info:\n\n{trace}'
                       .format(target=x[0].name, trace=self._get_trace(x)) for x in self._inner_exceptions]
 
         return 'One or more exceptions were raised inside pake targets:\n\n' + '\n\n'.join(except_str)

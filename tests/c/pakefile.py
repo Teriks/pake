@@ -106,13 +106,16 @@ def print_define(target):
 
     target.print(make.get_define("SOME_DEFINE2", "SOME_DEFINE2_DEFAULT"))
 
+class TestE(pake.PakeException):
+    pass
+
 
 # Always runs, because there are no inputs or outputs to use for file change detection
 
 @make.target(depends=[do_stuff, print_define],
              info="Make all info test.")
 def all(target):
-    target.execute("ping www.google.com")
+    target.execute("ping www.google.com", write_output=False)
     target.print_error("Finished doing stuff! nothing more to do.")
 
 

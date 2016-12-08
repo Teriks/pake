@@ -26,10 +26,10 @@ import pake.exception
 
 class ExecuteProcessError(pake.exception.PakeException):
     """Raised when a process executed by :py:meth:`pake.process.execute` returns with a non zero status code."""
-
-    def __init__(self, return_code, args, output):
+    def __init__(self, return_code, command_args, output):
+        super().__init__('Error executing command: "{}", Return Code: {}'.format(' '.join(command_args), return_code))
         self._return_code = return_code
-        self._args = args
+        self._command_args = command_args
         self._output = output
 
     @property
@@ -38,14 +38,14 @@ class ExecuteProcessError(pake.exception.PakeException):
         return self._return_code
 
     @property
-    def args(self):
+    def command_args(self):
         """The process arguments, this includes the program."""
-        return self._args
+        return self._command_args
 
     @property
     def output(self):
         """The program output."""
-        return self.output
+        return self._output
 
 
 def execute(args, ignore_stderr=False, ignore_returncode=False):
@@ -82,4 +82,4 @@ def execute(args, ignore_stderr=False, ignore_returncode=False):
     return_code = p_open.wait()
     if not ignore_returncode and return_code:
         output = ''.join(stdout)
-        raise ExecuteProcessError(return_code, args, output=output)
+        raise ExecuteProcessError(return_code, args, output)
