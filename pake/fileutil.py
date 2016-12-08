@@ -69,9 +69,9 @@ class FileHelper:
                 raise
 
     def touch(self,file_name, mode=0o666, exist_ok=True, silent=False):
-        """Create a file at this given path. If mode is given, it is combined with the process’ umask value to determine the file mode and access flags.
-        If the file already exists, the function succeeds if exist_ok is true (and its modification time is updated to the current time),
-        otherwise FileExistsError is raised.
+        """Create a file at this given path. If mode is given, it is combined with the process’ umask value to determine
+        the file mode and access flags.  If the file already exists, the function succeeds if exist_ok is true
+        (and its modification time is updated to the current time), otherwise FileExistsError is raised.
 
         :raises FileExistsError: Raised if exist_ok is False and the file already exists.
 
@@ -160,7 +160,7 @@ class FileHelper:
 
         :param glob_pattern: The glob pattern to use to search for files to remove.
 
-        :raises OSError: Raised if the file is in use (On Windows), or if there is another problem deleting one of the files.
+        :raises OSError: Raised if a file is in use (On Windows), or if there is another problem deleting one of the files.
         """
         if not silent and self._target is not None:
             self._target.print('Glob Remove Files: "{}"'.format(glob_pattern))
