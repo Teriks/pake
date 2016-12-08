@@ -117,11 +117,11 @@ def print_define(target):
 
 # Always runs, because there are no inputs or outputs to use for file change detection
 
-@make.target(depends=[do_stuff, print_define],
+@make.target(outputs="main", depends=[do_stuff],
              info="Make all info test.")
 def all(target):
-    target.execute("ping www.google.com", write_output=False)
-    target.print_error("Finished doing stuff! nothing more to do.")
+    file_helper = pake.FileHelper(target)
+    file_helper.touch(target.outputs[0])
 
 
 # Clean .o files in the directory
@@ -151,4 +151,4 @@ def three(target):
     target.print("THREE")
 
 
-pake.run(make, default_targets=[one, two, three, all])
+pake.run(make, default_targets=[one, two, three, print_define, all])
