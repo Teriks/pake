@@ -184,10 +184,12 @@ def init():
 
     if _cur_args.directory and _cur_args.directory != os.getcwd():
         os.chdir(_cur_args.directory)
-        print('Entering Directory: "{dir}"'.format(dir=_cur_args.directory))
+        print('pake[{}]: Entering Directory "{}"'
+              .format(get_submake_depth(), _cur_args.directory))
 
         def _at_exit_chdir():
-            print('Leaving Directory: "{dir}"'.format(dir=_cur_args.directory))
+            print('pake[{}]: Leaving Directory "{}"'
+                  .format(get_submake_depth(), _cur_args.directory))
 
         atexit.register(_at_exit_chdir)
 

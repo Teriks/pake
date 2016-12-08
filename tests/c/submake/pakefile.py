@@ -6,7 +6,7 @@ import glob
 
 # the directory above tests to the path so pake can be included
 # not needed if module is 'installed'
-sys.path.append(
+sys.path.insert(1,
     os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../../')))
 
 import pake
