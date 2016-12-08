@@ -138,17 +138,17 @@ def clean(target):
     target.run_script("submake/pakefile.py", "clean")
 
 @make.target
-def one():
-    print("ONE")
+def one(target):
+    target.print("ONE")
 
 @make.target
-def two():
-    print("TWO")
+def two(target):
+    target.print("TWO")
 
 
 @make.target
-def three():
-    print("THREE")
+def three(target):
+    target.print("THREE")
 
 
 pake.run(make, default_targets=[one, two, three, all])
