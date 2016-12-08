@@ -14,155 +14,199 @@ Welcome to pake's documentation!
 
 Pake requires python3.4+
 
-Here is a small pake example that does not do anything useful but
-shows off some functionality:
+Writing Basic Targets
+---------------------
 
 .. code-block:: python
 
-    import sys
-    import os
-    import glob
     import pake
+    import glob
+    import os
+
+    # Targets are registered the the pake.Make object
+    # returned by pake's initialization call, using the target decorator.
 
     make = pake.init()
 
-    # Export python literals as defines to scripts ran with target.run_script.
+    # Try to grab a command line define,
+    # in particular the value of -D CC=.. if
+    # it has been passed on the command line.
+    # CC will default to gcc in this case
+    #
+    # you can also use the syntax: make["CC"] to
+    # attempt to get the defines value, if it is not
+    # defined then it will return None.
 
-    pake.export("SOME_EXPORTED_DEFINE", ["a", "b", "c"])
-    pake.export("SOME_EXPORTED_DEFINE2", 4)
-
-
-    # Prevent SOME_EXPORTED_DEFINE2 from being exported.
-
-    pake.un_export("SOME_EXPORTED_DEFINE2")
-
-
-    @make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
-    def do_stuff_first(target):
-        target.print(target.inputs[0])
-        pake.touch(target.outputs[0])
+    CC = make.get_define("CC", "gcc")
 
 
-    @make.target(inputs="do_stuff_first_2.c", outputs="do_stuff_first_2.o")
-    def do_stuff_first_2(target):
-        target.print(target.inputs[0])
-        pake.touch(target.outputs[0])
+    # If you just have a single input/output, there is no
+    # need to pass a list to the targets inputs/ouputs
 
+    @make.target(inputs="foo/foo.c", outputs="foo/foo.o")
+    def foo(target):
+        # Execute a program (gcc) and print its stdout/stderr to the
+        # targets output.
+        target.execute('gcc -c "{}" -o "{}"'
+                       .format(target.inputs[0], target.outputs[0]))
 
-    # If there are an un-equal amount of inputs to outputs,
-    # rebuild all inputs if any input is newer than any output, or if any output file is missing.
+    # A way you could collect inputs for a target with the glob module..
+    BAR_CFILES = glob.glob("bar/*.c")
 
-    @make.target(inputs=["stuffs_one.c", "stuffs_two.c"], outputs="stuffs_combined.o")
-    def do_multiple_stuffs(target):
-        # All inputs and outputs will be considered out of date
+    # Change the .c extension to .o
+    BAR_OBJECTS = [os.path.splitext(f)+".o" for f in BAR_CFILES]
 
-        for i in target.inputs:
-            target.print(i)
+    # Pake can handle file change detection with multiple inputs
+    # and outputs, as long is there is the same amount of inputs as
+    # there are outputs.  If the amount of inputs is different from
+    # the amount of ouputs, the target is considered to be out
+    # of date if any input file is newer than any output file.
+    #
+    # When the amount of inputs is equal to the amount of outputs,
+    # pake will compare each input to its corresponding output
+    # and collect out of date input/outputs into target.outdated_inputs
+    # and target.outdated_outputs respectively
+    @make.target(inputs=BAR_CFILES, outputs=BAR_OBJECTS)
+    def bar(target):
 
-        for o in target.outputs:
-            pake.touch(o)
-
-
-    # Rebuild the input on the left that corresponds to the output in the same position
-    # on the right when that specific input is out of date, or it's output is missing.
-
-    @make.target(inputs=["stuffs_three.c", "stuffs_four.c"], outputs=["stuffs_three.o", "stuffs_four.o"])
-    def do_multiple_stuffs_2(target):
-        # Only out of date inputs/outputs will be in these collections
-
-        # The elements correspond to each other when the number of inputs is the same
-        # as the number of outputs.  target.outdated_input[i] is the input related to
-        # the output: target.outdated_output[i]
+        # zip together the outdated inputs and outputs, since they
+        # corrispond to each other, this iterates of a sequence of python
+        # tuple objects in the form ("input", "output")
 
         for i in zip(target.outdated_inputs, target.outdated_outputs):
-            target.print(i[0])
-            pake.touch(i[1])
+            target.execute('gcc -c "{}" -o "{}"'
+                           .format(target.inputs[0], target.outputs[0])
+
+    # This target depends on the foo and bar targets, as
+    # specified with the decorators 'depends' parameter,
+    # And only outputs "bin/baz".
+
+    # The target uses the 'info' parameter of the target
+    # decorator to document the target. Documentation
+    # can be viewed by running 'pake -ti' in the directory
+    # the pakefile exists in, it will list all documented targets
+    # with their documentation.
+    #
+    # The pake.FileHelper class (pake.fileutils.FileHelper)
+    # can be used to preform basic file system operations while
+    # printing to the targets output information about what said
+    # operation is doing.
+    @make.target(outputs="bin/baz", depends=[foo, bar],
+                 info="Use this to build baz")
+    def baz(target):
+        file_helper = pake.FileHelper(target)
+
+        # Create a bin directory, this won't complain if it exists already
+        file_helper.makedirs("bin")
+
+        # Execute gcc with target.execute, using the list argument form
+        # instead of a string, this allows easily concatenating all the
+        # immediate dependencies outputs to the command line arguments
+        #
+        # target.dependency_outputs contains a list of all outputs that this
+        # targets immediate dependencies produce
+        #
+        target.execute(["gcc", "-o", target.output[0]] + target.dependency_outputs)
 
 
-    @make.target(inputs="do_stuff.c", outputs="do_stuff.o",
-                 depends=[do_stuff_first, do_stuff_first_2, do_multiple_stuffs, do_multiple_stuffs_2])
-    def do_stuff(target):
-        target.print(target.inputs[0])
-
-        pake.touch(target.outputs[0])
-
-        # Print the collective outputs of this targets immediate dependencies
-
-        target.print("Dependency outputs: " + str(target.dependency_outputs))
-
-        # Run a pakefile.py script in a subdirectory, build 'all' target
-
-        target.run_script("submake/pakefile.py", "all")
-
-
-    # Basically a dummy target (if nothing actually depended on it)
-
-    @make.target(info="Print Define info test. This is a very long info string "
-                      "which should be text wrapped to look nice on the command line "
-                      "by pythons built in textwrap module.  This long info string"
-                      "should be wrapped at 70 characters, which is the default "
-                      "value used by the textwrap module, and is similar if "
-                      "not the same wrap value used by the argparse module when "
-                      "formatting command help.")
-    def print_define(target):
-        # Defines are interpreted into python literals.
-        # If you pass and integer, you get an int.. string str, (True or False) a bool etc.
-        # Defines that are not given a value explicitly are given the value of 'True'
-        # Defines that don't exist return 'None'
-
-        if make["SOME_DEFINE"]:
-            target.print(make["SOME_DEFINE"])
-
-        target.print(make.get_define("SOME_DEFINE2", "SOME_DEFINE2_DEFAULT"))
-
-
-    # Always runs, because there are no inputs or outputs to use for file change detection
-
-    @make.target(depends=[do_stuff, print_define],
-                 info="Make all info test.")
-    def all(target):
-        target.print("Finished doing stuff! nothing more to do.")
-
-
-    # Clean .o files in the directory
-
-    @make.target
+    @make.target(info="Clean binaries")
     def clean(target):
-        for i in glob.glob("*.o"):
-            os.unlink(i)
+        file_helper = pake.FileHelper(target)
 
-        target.run_script("submake/pakefile.py", "clean")
+        # Clean up using a the FileHelper object
+        # Remove any bin directory, this wont complain if "bin"
+        # does not exist.
+        file_helper.removedirs("bin")
 
 
-    pake.run(make, default_targets=all)
+    # Run pake, the default target that will be executed when
+    # none is specified will be 'baz'. the default_targets parameter
+    # is optional, if it is not specified then you will have to specify
+    # which target needs to be ran on the command line when you run pake.
 
-	
-	
-And for example, to run:
+    pake.run(make, default_targets=baz)
+
+
+Running Pake
+------------
 
 .. code-block:: bash
 
     cd your_pakefile_directory
-    pake all -DSOME_DEFINE="test"
 
+    # Run pake with up to 10 targets running in parallel
+
+    pake -j 10
 
 pake will look for "pakefile.py" or "pakefile" in the current directory and run it.
 
 Or you can specify one or more files to run with **-f/--file**.
-The switch does not have multiple arguments, but it can be used more than once to specify multiple files.
+The switch does not have multiple arguments, but it can be used
+more than once to specify multiple files.
 
 For example:
 
 .. code-block:: bash
 
-    pake -f your_pakefile.py all -DSOME_DEFINE="test"
+    pake -f pakefile.py foo
 
-    # Or:
-
-    pake -f your_pakefile_1.py -f your_pakefile_2.py all -DSOME_DEFINE="test"
+    pake -f your_pakefile_1.py -f your_pakefile_2.py foo
 
 
-Pakes current usage is:
+Running Subpake scripts
+-----------------------
+
+Pake is able to run itself through the use of target.run_script
+or even pake.submake.run_script.  target.run_script is preferred
+because it handles writing synchronized program output to the targets
+output queue when multiple jobs ar running.
+
+.. code-block:: python
+
+    import pake
+
+    # This is required to use pake.submake.run_script
+    # outside of a target
+    import pake.submake
+
+    make = pake.init()
+
+    # Try to get the CC define from the command line,
+    # default to "GCC".
+
+    CC = make.get_define("CC", "gcc")
+
+    # Export the CC variable's value to all invocations
+    # of pake.submake.run_script, or target.runscript here after
+    # as a define that can be retrieved with make.get_define()
+    #
+    pake.export("CC", CC)
+
+
+    # Execute outside of a target, by default the stdout/stderr
+    # of the subscript goes to this scripts stdout.  The file
+    # object to which stdout gets written to can be specified
+    # with pake.submake.run_script(..., stdout=(file))
+
+    pake.submake.run_script("sometasks/pakefile.py", "dotasks")
+
+    # This target does not depend on anything or have any inputs/outputs
+    # it will basically only run if you explicitly specify it as a default
+    # target in pake.run, or specify it on the command line
+
+    @make.target
+    def my_phony_target(target):
+        # Arguments are passed in a variadic parameter...
+        # Run a sub script with the same amount of jobs as this file was requested
+        # to run with, also specify that the "foo" target is to be ran.
+        # The scripts output is written to this targets output queue,
+        # or immediately printed if pake is running a non parallel build.
+
+        target.run_script("library/pakefile.py", "foo", "-j", make.get_max_jobs())
+
+
+Pakes Current Usage
+-------------------
 
     usage:
      pake [-h] [-v] [-j NUM_JOBS] [-n] [-t] [-ti] [-D DEFINE] |br|

@@ -41,8 +41,7 @@ def do_stuff_first_2(target):
     file_helper = pake.FileHelper(target)
 
     target.print(target.inputs[0])
-    file_helper.copy(target.inputs[0], target.outputs[0],
-                     copy_metadata=True)
+    file_helper.copy(target.inputs[0], target.outputs[0],copy_metadata=True)
 
 
 # If there are an un-equal amount of inputs to outputs,
