@@ -96,7 +96,7 @@ Writing basic targets
     # the pakefile exists in, it will list all documented targets
     # with their documentation.
     #
-    # The pake.FileHelper class (pake.fileutils.FileHelper)
+    # The pake.FileHelper class (pake.fileutil.FileHelper)
     # can be used to preform basic file system operations while
     # printing to the targets output information about what said
     # operation is doing.
