@@ -144,7 +144,7 @@ Running pake scripts in pake
 Pake is able to run itself through the use of :py:meth:`pake.make.Target.run_script`
 or even :py:meth:`pake.submake.run_script`.  :py:meth:`pake.make.Target.run_script`
 is preferred because it handles writing program output to the targets
-output queue in a synchronized manner when multiple jobs ar running.
+output queue in a synchronized manner when multiple jobs are running.
 
 .. code-block:: python
 

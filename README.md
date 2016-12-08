@@ -149,7 +149,7 @@ pake.run(make, default_targets=baz)
 Pake is able to run itself through the use of target.run_script
 or even pake.submake.run_script.  target.run_script is preferred
 because it handles writing program output to the targets
-output queue in a synchronized manner when multiple jobs ar running.
+output queue in a synchronized manner when multiple jobs are running.
 
 ```python
 
