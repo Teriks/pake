@@ -660,14 +660,19 @@ class Make:
         if pake.graph.check_cyclic(self._target_graph, get_edges=get_edges):
             raise pake.graph.CyclicDependencyException("Cyclic target dependency detected.")
 
-        visited, no_dep_targets, graph_out, to_visit = set(), set(), [], []
+        visited = set()
+        no_dep_targets_set = set()
+        no_dep_targets = []
+        graph_out = []
+        to_visit  = []
 
         for target_function in self._run_targets:
             target = self._target_graph[target_function]
             dependencies = target.dependencies
             if len(dependencies) == 0:
-                if target_function not in no_dep_targets:
-                    no_dep_targets.add(target_function)
+                if target_function not in no_dep_targets_set:
+                    no_dep_targets_set.add(target_function)
+                    no_dep_targets.append(target_function)
                     visited.add(target_function)
             else:
                 to_visit.append((target_function, target))
@@ -681,8 +686,10 @@ class Make:
                 graph_out.insert(0, (cur[0], cur[1]))
                 visited.add(cur[0])
 
-        return itertools.chain(((no_deps, self.get_target(no_deps)) for no_deps in no_dep_targets),
-                               pake.graph.topological_sort(graph_out, get_edges=get_edges))
+        return itertools.chain(
+            ((no_deps, self.get_target(no_deps)) for no_deps in no_dep_targets),
+            pake.graph.topological_sort(graph_out, get_edges=get_edges)
+        )
 
     def resolve_targets(self, target_functions):
         """Converts any 'by name' references to targets in a list into actual function references.
