@@ -167,6 +167,26 @@ output queue when multiple jobs ar running.
     #
     pake.export("CC", CC)
 
+    # You can also export lists, dictionaries sets and tuples,
+    # as long as they only contain literal values.
+    # Literal values being: strings, integers, floats; and
+    # other lists, dicts, sets and tuples (if they only contain literals)
+
+    pake.export("CC_FLAGS", ['-Wextra', '-Wall'])
+
+
+    # Nesting works with composite literals,
+    # as long as everything is a pure literal or something
+    # that str()'s or repr()'s into a literal.
+
+    pake.export("STUFF",
+                ['you',
+                 ['might',
+                  ('be',
+                   ['a',
+                    {'bad' :
+                         ['person', ['if', {'you', 'do'}, ("this",) ]]
+                     }])]])
 
     # Execute outside of a target, by default the stdout/stderr
     # of the subscript goes to this scripts stdout.  The file
