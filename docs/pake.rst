@@ -24,6 +24,7 @@ targets to via the :py:meth:`pake.make.Make.target` decorator, you then run :py:
 Module Imported Classes:
 
 * :py:class:`pake.make.Make`
+* :py:class:`pake.fileutil.FileHelper`
 
 Module Imported Exceptions:
 
@@ -31,9 +32,9 @@ Module Imported Exceptions:
 * :py:class:`pake.make.UndefinedTargetException`
 * :py:class:`pake.make.TargetInputNotFoundException`
 * :py:class:`pake.make.TargetAggregateException`
-* :py:class:`pake.program.PakeUninitializedException`
 * :py:class:`pake.graph.CyclicDependencyException`
 * :py:class:`pake.submake.SubMakeException`
+* :py:class:`pake.program.PakeUninitializedException`
 * :py:class:`pake.exception.PakeException`
 
 Module Imported Methods:
@@ -43,8 +44,6 @@ Module Imported Methods:
 * :py:meth:`pake.program.get_submake_depth`
 * :py:meth:`pake.submake.export`
 * :py:meth:`pake.submake.un_export`
-* :py:meth:`pake.fileutil.touch`
-* :py:meth:`pake.fileutil.ensure_path_exists`
 
 
 Submodules
