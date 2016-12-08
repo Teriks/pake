@@ -129,6 +129,10 @@ Writing basic targets
         # does not exist.
         file_helper.removedirs("bin")
 
+        # Glob remove object files from the foo and bar directories
+        file_helper.glob_remove("foo/*.o")
+        file_helper.glob_remove("bar/*.o")
+
 
     # Run pake, the default target that will be executed when
     # none is specified will be 'baz'. the default_targets parameter
