@@ -220,8 +220,14 @@ def run(make, default_targets=None):
     :raises pake.program.PakeUninitializedException: Raised if :py:meth:`pake.program.init`
             has not been called prior to calling this method.
 
+    :raises pake.make.UndefinedTargetException: If any specified default target is not a target registered
+                                                with the :py:class:`pake.make.Make` instance passed to this function.
+
     :type default_targets: list or func
     """
+
+    default_targets = make.resolve_targets(default_targets)
+
 
     if _cur_args is None:
         raise PakeUninitializedException("pake.init() has not been called yet.")
@@ -239,6 +245,11 @@ def run(make, default_targets=None):
         _arg_parser.error('*** No Targets.  Stop.')
 
     if _cur_args.list_targets:
+        if len(default_targets) > 0:
+            print('\nDefault Targets:\n')
+            for i in default_targets:
+                print(i.__name__)
+
         print('\nAll Targets:\n')
         for i in sorted(make.get_all_targets(), key=_sort_target_by_name_key):
             print(i.name)
@@ -259,6 +270,11 @@ def run(make, default_targets=None):
         if len(info_targets) == 0:
             print("No targets with info strings are present.")
             return
+
+        if len(default_targets) > 0:
+            print('\nDefault Targets:\n')
+            for i in default_targets:
+                print(i.__name__)
 
         print('\nDocumented Targets:\n')
         for i in info_targets:

@@ -404,7 +404,7 @@ class Make:
     def _get_threadpool_executor(self):
         return concurrent.futures.ThreadPoolExecutor(max_workers=self.get_max_jobs())
 
-    def set_run_targets(self, *target_functions):
+    def set_run_targets(self, target_functions):
         """Set the entry targets for the next call to execute.  These are the targets that will be ran.
 
         :param target_functions: List of target function names, or direct references to target functions.
@@ -412,10 +412,7 @@ class Make:
         :raises pake.make.UndefinedTargetException: Raised if a given target is not a registered target reference or name.
         """
 
-        if pake.util.is_iterable_not_str(target_functions[0]):
-            self._run_targets = self._resolve_target_strings(target_functions[0])
-        else:
-            self._run_targets = self._resolve_target_strings(target_functions)
+        self._run_targets = self.resolve_targets(target_functions)
 
     def target_count(self):
         """Get the number of defined targets.
@@ -583,18 +580,18 @@ class Make:
         if not outputs:
             outputs = []
 
-        if type(depends) is not list:
+        if not pake.util.is_iterable_not_str(depends):
             depends = [depends]
-        if type(inputs) is not list:
+        if not pake.util.is_iterable_not_str(inputs):
             inputs = [inputs]
-        if type(outputs) is not list:
+        if not pake.util.is_iterable_not_str(outputs):
             outputs = [outputs]
 
         if target_function in self._target_graph:
             raise TargetRedefinedException('Target "{target}" already defined.'
                                            .format(target=target_function.__name__))
         else:
-            resolved_dependencies = self._resolve_target_strings(depends)
+            resolved_dependencies = self.resolve_targets(depends)
 
             self._target_graph[target_function] = Target(
                 self,
@@ -687,8 +684,23 @@ class Make:
         return itertools.chain(((no_deps, self.get_target(no_deps)) for no_deps in no_dep_targets),
                                pake.graph.topological_sort(graph_out, get_edges=get_edges))
 
-    def _resolve_target_strings(self, target_functions):
-        result = list(target_functions)
+    def resolve_targets(self, target_functions):
+        """Converts any 'by name' references to targets in a list into actual function references.
+        :param target_functions: A single target, or a list of targets.
+                                 The list may contain a mix of 'by name' references and function references
+
+        :raises pake.make.UndefinedTargetException: If an undefined target is referenced.
+        :return: A list of target function references.
+        """
+
+        if target_functions is None:
+            return []
+
+        if not pake.util.is_iterable_not_str(target_functions):
+            result = [target_functions]
+        else:
+            result = list(target_functions)
+
         for i in range(0, len(result)):
             target = result[i]
             if type(target) is str:

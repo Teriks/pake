@@ -14,7 +14,6 @@ import pake
 
 make = pake.init()
 
-
 pake.export("TEST_EXPORT", "test\"test")
 
 pake.export("TEST_EXPORT1", [1, "te\"st", [3, 4, 'test\'test']])
@@ -139,4 +138,4 @@ def clean(target):
     target.run_script("submake/pakefile.py", "clean")
 
 
-pake.run(make, default_targets=all)
+pake.run(make, default_targets=[all])
