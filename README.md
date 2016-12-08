@@ -19,7 +19,7 @@ How to use me anyway:
 Uninstall prior to updating.
 
 
-# Writing Basic Targets
+# Writing basic targets
 
 
 ```python
@@ -134,31 +134,7 @@ pake.run(make, default_targets=baz)
 
 ```
 
-And for example, to run:
-
-```bash
-
-cd your_pakefile_directory
-
-# Run pake with up to 10 targets running in parallel
-
-pake -j 10
-
-```
-
-pake will look for "pakefile.py" or "pakefile" in the current directory and run it.
-
-Or you can specify one or more files to run with **-f/--file**.
-The switch does not have multiple arguments, but it can be used more than once to specify multiple files.
-
-For example:
-
-`pake -f pakefile.py foo`
-
-`pake -f your_pakefile_1.py -f your_pakefile_2.py foo`
-
-
-# Running Subpake scripts
+# Running pake scripts in pake
 
 Pake is able to run itself through the use of target.run_script
 or even pake.submake.run_script.  target.run_script is preferred
@@ -210,12 +186,32 @@ def my_phony_target(target):
 
 ```
 
+Running pake:
 
-# Current Options
+```bash
 
-`pake -h`
+cd your_pakefile_directory
 
-Gives:
+# Run pake with up to 10 targets running in parallel
+
+pake -j 10
+
+```
+
+pake will look for "pakefile.py" or "pakefile" in the current directory and run it.
+
+Or you can specify one or more files to run with **-f/--file**.
+The switch does not have multiple arguments, but it can be used more than once to specify multiple files.
+
+For example:
+
+`pake -f pakefile.py foo`
+
+`pake -f your_pakefile_1.py -f your_pakefile_2.py foo`
+
+
+# Pakes current options
+
 
 ```
 

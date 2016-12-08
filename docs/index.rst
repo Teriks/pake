@@ -14,7 +14,7 @@ Welcome to pake's documentation!
 
 Pake requires python3.4+
 
-Writing Basic Targets
+Writing basic targets
 ---------------------
 
 .. code-block:: python
@@ -127,34 +127,8 @@ Writing Basic Targets
     pake.run(make, default_targets=baz)
 
 
-Running Pake
-------------
-
-.. code-block:: bash
-
-    cd your_pakefile_directory
-
-    # Run pake with up to 10 targets running in parallel
-
-    pake -j 10
-
-pake will look for "pakefile.py" or "pakefile" in the current directory and run it.
-
-Or you can specify one or more files to run with **-f/--file**.
-The switch does not have multiple arguments, but it can be used
-more than once to specify multiple files.
-
-For example:
-
-.. code-block:: bash
-
-    pake -f pakefile.py foo
-
-    pake -f your_pakefile_1.py -f your_pakefile_2.py foo
-
-
-Running Subpake scripts
------------------------
+Running pake scripts in pake
+----------------------------
 
 Pake is able to run itself through the use of target.run_script
 or even pake.submake.run_script.  target.run_script is preferred
@@ -205,8 +179,34 @@ output queue when multiple jobs ar running.
         target.run_script("library/pakefile.py", "foo", "-j", make.get_max_jobs())
 
 
-Pakes Current Usage
--------------------
+Running pake
+------------
+
+.. code-block:: bash
+
+    cd your_pakefile_directory
+
+    # Run pake with up to 10 targets running in parallel
+
+    pake -j 10
+
+pake will look for "pakefile.py" or "pakefile" in the current directory and run it.
+
+Or you can specify one or more files to run with **-f/--file**.
+The switch does not have multiple arguments, but it can be used
+more than once to specify multiple files.
+
+For example:
+
+.. code-block:: bash
+
+    pake -f pakefile.py foo
+
+    pake -f your_pakefile_1.py -f your_pakefile_2.py foo
+
+
+Pakes current options
+---------------------
 
     usage:
      pake [-h] [-v] [-j NUM_JOBS] [-n] [-t] [-ti] [-D DEFINE] |br|
