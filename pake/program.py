@@ -246,11 +246,11 @@ def run(make, default_targets=None):
 
     if _cur_args.list_targets:
         if len(default_targets) > 0:
-            print('\nDefault Targets:\n')
+            print('\n# Default Targets:\n')
             for i in default_targets:
                 print(i.__name__)
 
-        print('\nAll Targets:\n')
+        print('\n# All Targets:\n')
         for i in sorted(make.get_all_targets(), key=_sort_target_by_name_key):
             print(i.name)
         return
@@ -272,11 +272,11 @@ def run(make, default_targets=None):
             return
 
         if len(default_targets) > 0:
-            print('\nDefault Targets:\n')
+            print('\n# Default Targets:\n')
             for i in default_targets:
                 print(i.__name__)
 
-        print('\nDocumented Targets:\n')
+        print('\n# Documented Targets:\n')
         for i in info_targets:
             print(('{:<' + str(longest_target_name) + '}  {}')
                   .format(i.name, '# ' + newline_header.join(textwrap.wrap(i.info))) + '\n')
