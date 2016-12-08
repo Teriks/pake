@@ -38,7 +38,7 @@ class _DefineSyntaxError(SyntaxError):
 
 class PakeUninitializedException(pake.exception.PakeException):
     """Occurs when calling certain pake functions (that rely on global state)
-    prior to py:meth:`pake.program.init` being called"""
+    prior to :py:meth:`pake.program.init` being called"""
     pass
 
 
@@ -167,7 +167,7 @@ def get_submake_depth():
 
 
 def init():
-    """Init pake (Possibly change working directory) and return a :py:class:`pake.make.Make` instance.
+    """Init pake (possibly change working directory) and return a :py:class:`pake.make.Make` instance.
 
     :return: :py:class:`pake.make.Make` instance.
     :rtype: pake.make.Make
