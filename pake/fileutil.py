@@ -88,6 +88,8 @@ class FileHelper:
     def copytree(self, src, dest, symlinks=False, ignore=False, silent=False):
         """Copy an entire directory tree recursively to a destination.
 
+        :raises FileNotFoundError: If the given source path is not found.
+
         :param src: The source directory tree.
         :param dest: The destination path.
         :param symlinks: If True, try to copy symlinks.
@@ -102,10 +104,11 @@ class FileHelper:
     def move(self, src, dest, silent=False):
         """Move a file to a new location.
 
+        :raises FileNotFoundError: If the given source file is not found.
+
         :param src: The file.
         :param dest: The destination to move the file to.
         :param silent: If True, don't print information to the targets output.
-        :return:
         """
 
         if not silent and self._target is not None:
@@ -116,6 +119,7 @@ class FileHelper:
     def copy(self, src, dest, copy_metadata=False, silent=False):
         """Copy a file to a destination.
 
+        :raises FileNotFoundError: If the given source file is not found.
         :param src: The file.
         :param dest: The destination path.
         :param copy_metadata: If True, file metadata like creation time will be copied to the new file.
@@ -191,7 +195,6 @@ class FileHelper:
 
         :param silent: If True, don't print information to the targets output.
 
-        :raises OSError: Raised for all directory removal errors aside from errno.EEXIST.
         :param path: The directory path/tree."""
         if not silent and self._target is not None:
             self._target.print('Remove Directory(s): "{}"'.format(path))

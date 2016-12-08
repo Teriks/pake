@@ -133,8 +133,8 @@ def clean(target):
 
     file_helper.glob_remove("*.o")
 
-    file_helper.removedirs("test", must_exist=True)
-    file_helper.remove("test2", must_exist=True)
+    file_helper.removedirs("test")
+    file_helper.remove("test2")
 
     target.run_script("submake/pakefile.py", "clean")
 
