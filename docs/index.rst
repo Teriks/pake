@@ -75,7 +75,7 @@ Writing Basic Targets
 
         for i in zip(target.outdated_inputs, target.outdated_outputs):
             target.execute('gcc -c "{}" -o "{}"'
-                           .format(target.inputs[0], target.outputs[0])
+                           .format(i[0], i[1])
 
     # This target depends on the foo and bar targets, as
     # specified with the decorators 'depends' parameter,
