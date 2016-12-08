@@ -19,6 +19,14 @@ How to use me anyway:
 Uninstall prior to updating.
 
 
+# Example project using pake
+
+
+I am using the pake_build branch of libasm_io to help test pake
+
+[](https://github.com/Teriks/libasm_io/tree/pake_build)
+
+
 # Writing basic targets
 
 
