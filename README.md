@@ -24,7 +24,7 @@ Uninstall prior to updating.
 
 I am using the pake_build branch of libasm_io to help test pake
 
-[](https://github.com/Teriks/libasm_io/tree/pake_build)
+https://github.com/Teriks/libasm_io/tree/pake_build
 
 
 # Writing basic targets
