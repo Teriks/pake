@@ -106,9 +106,6 @@ def print_define(target):
 
     target.print(make.get_define("SOME_DEFINE2", "SOME_DEFINE2_DEFAULT"))
 
-class TestE(pake.PakeException):
-    pass
-
 
 # Always runs, because there are no inputs or outputs to use for file change detection
 
