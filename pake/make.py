@@ -31,6 +31,7 @@ import pake.console
 import pake.exception
 import pake.graph
 import pake.util
+import pake.process
 
 
 class TargetAggregateException(pake.exception.PakeException):
@@ -132,6 +133,39 @@ class Target:
     def _write_stdout_queue(self):
         sys.stdout.write(''.join(self._print_queue))
         self._print_queue.clear()
+
+    def execute(self, args, ignore_stderr=False, ignore_returncode=False, write_output=True, print_command=True):
+        """Execute a system command, write stdout and stderr to the targets output, also return a list of lines output from the program.
+        The command is not passed directly to the shell, so you may not use any shell specific syntax like subshells, redirection, pipes ect..
+
+        :param print_command: When set to True, the full command being executed will be the first thing printed to the targets output.
+        :param write_output: When set to True, all output from the command will be written to the targets output.
+        :param ignore_returncode: If set to True, non zero exit codes will be ignored.
+        :param ignore_stderr: If set to True, stderr will be redirected to DEVNULL instead of stdout.
+
+        :param args: A list comprising the command and it's arguments, if you pass something other than
+                     a list it will be stringified and tokenized into program + arguments using the shlex module.
+
+        :raise pake.process.ExecuteProcessError: If the executed process completes with a non 0 return code.
+
+        :type args: list or str
+        :return: An list of lines output by the command.
+        """
+
+        if print_command:
+            if type(args) is not list:
+                self.print(str(args))
+            else:
+                self.print(' '.join(args))
+
+        if write_output:
+            lines = []
+            for line in pake.process.execute(args, ignore_stderr=ignore_stderr, ignore_returncode=ignore_returncode):
+                self.write(line)
+                lines.append(line)
+            return lines
+        else:
+            return list(pake.process.execute(args, ignore_stderr=ignore_stderr, ignore_returncode=ignore_returncode))
 
     def run_script(self,
                    script_path,

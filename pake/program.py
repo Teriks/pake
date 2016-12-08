@@ -166,7 +166,6 @@ def get_submake_depth():
         return 0
 
 
-
 def init():
     """Init pake (Possibly change working directory) and return a :py:class:`pake.make.Make` instance.
 

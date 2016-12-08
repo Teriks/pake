@@ -10,8 +10,10 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../')))
 
 import pake
+import pake.process
 
 make = pake.init()
+
 
 pake.export("TEST_EXPORT", "test\"test")
 
@@ -110,6 +112,7 @@ def print_define(target):
 @make.target(depends=[do_stuff, print_define],
              info="Make all info test.")
 def all(target):
+    target.execute("ping www.google.com")
     target.print_error("Finished doing stuff! nothing more to do.")
 
 

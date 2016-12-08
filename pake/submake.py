@@ -23,7 +23,7 @@ import os
 import subprocess
 import sys
 import pake
-import pake.program
+import pake.process
 
 
 class SubMakeException(pake.PakeException):
@@ -56,24 +56,6 @@ class SubMakeException(pake.PakeException):
     def script(self):
         """Returns the path of the script that the error ocured in."""
         return self._script
-
-
-def _execute(cmd):
-    popen = subprocess.Popen(cmd,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT,
-                             universal_newlines=True)
-
-    stdout = []
-    for stdout_line in popen.stdout:
-        stdout.append(stdout_line)
-        yield stdout_line
-
-    popen.stdout.close()
-    return_code = popen.wait()
-    if return_code:
-        output = ''.join(stdout)
-        raise subprocess.CalledProcessError(return_code, cmd, output=output)
 
 
 _exports = {}
@@ -157,7 +139,7 @@ def run_script(script_path,
         except pake.PakeUninitializedException:
             depth = 0
 
-        output = _execute(
+        output = pake.process.execute(
             [sys.executable, "-u", script_path, "--s_depth", str(depth+1), "-C", work_dir] +
             _exports_to_args() + str_filter_args)
 
@@ -176,5 +158,5 @@ def run_script(script_path,
             for line in output:
                 stdout.write(line)
 
-    except subprocess.CalledProcessError as err:
+    except pake.process.ExecuteProcessError as err:
         raise SubMakeException(script_path, err.output, err.returncode)
