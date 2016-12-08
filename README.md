@@ -99,6 +99,7 @@ def bar(target):
 @make.target(outputs="bin/baz", depends=[foo, bar],
              info="Use this to build baz")
 def baz(target):
+    # see: pake.fileutil.FileHelper
     file_helper = pake.FileHelper(target)
 
     # Create a bin directory, this won't complain if it exists already
@@ -116,6 +117,7 @@ def baz(target):
 
 @make.target(info="Clean binaries")
 def clean(target):
+    # see: pake.fileutil.FileHelper
     file_helper = pake.FileHelper(target)
 
     # Clean up using a the FileHelper object
