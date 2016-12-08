@@ -159,4 +159,4 @@ def run_script(script_path,
                 stdout.write(line)
 
     except pake.process.ExecuteProcessError as err:
-        raise SubMakeException(script_path, err.output, err.returncode)
+        raise SubMakeException(script_path, err.output, err.return_code)

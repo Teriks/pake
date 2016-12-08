@@ -23,7 +23,8 @@ print("Import Export TEST 5 = "+str(make["TEST_EXPORT5"]))
 
 @make.target(inputs="test.c", outputs="test.o")
 def all(target):
-    pake.touch(target.outputs[0])
+    file_helper = pake.FileHelper(target)
+    file_helper.touch(target.outputs[0])
     target.print(target.inputs[0])
 
 

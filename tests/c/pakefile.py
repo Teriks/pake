@@ -10,7 +10,7 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../')))
 
 import pake
-import pake.process
+
 
 make = pake.init()
 
@@ -30,14 +30,19 @@ pake.export("TEST_EXPORT5", "")
 
 @make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
 def do_stuff_first(target):
+    file_helper = pake.FileHelper(target)
+
     target.print(target.inputs[0])
-    pake.touch(target.outputs[0])
+    file_helper.copy(target.inputs[0], target.outputs[0])
 
 
 @make.target(inputs="do_stuff_first_2.c", outputs="do_stuff_first_2.o")
 def do_stuff_first_2(target):
+    file_helper = pake.FileHelper(target)
+
     target.print(target.inputs[0])
-    pake.touch(target.outputs[0])
+    file_helper.copy(target.inputs[0], target.outputs[0],
+                     copy_metadata=True)
 
 
 # If there are an un-equal amount of inputs to outputs,
@@ -45,13 +50,15 @@ def do_stuff_first_2(target):
 
 @make.target(inputs=["stuffs_one.c", "stuffs_two.c"], outputs="stuffs_combined.o")
 def do_multiple_stuffs(target):
+    file_helper = pake.FileHelper(target)
+
     # All inputs and outputs will be considered out of date
 
     for i in target.inputs:
         target.print(i)
 
     for o in target.outputs:
-        pake.touch(o)
+        file_helper.touch(o)
 
 
 # Rebuild the input on the left that corresponds to the output in the same position
@@ -59,6 +66,7 @@ def do_multiple_stuffs(target):
 
 @make.target(inputs=["stuffs_three.c", "stuffs_four.c"], outputs=["stuffs_three.o", "stuffs_four.o"])
 def do_multiple_stuffs_2(target):
+    file_helper = pake.FileHelper(target)
     # Only out of date inputs/outputs will be in these collections
 
     # The elements correspond to each other when the number of inputs is the same
@@ -67,15 +75,17 @@ def do_multiple_stuffs_2(target):
 
     for i in zip(target.outdated_inputs, target.outdated_outputs):
         target.print(i[0])
-        pake.touch(i[1])
+        file_helper.touch(i[1])
 
 
 @make.target(inputs="do_stuff.c", outputs="do_stuff.o",
              depends=[do_stuff_first, do_stuff_first_2, do_multiple_stuffs, do_multiple_stuffs_2])
 def do_stuff(target):
+    file_helper = pake.FileHelper(target)
+
     target.print(target.inputs[0])
 
-    pake.touch(target.outputs[0])
+    file_helper.touch(target.outputs[0])
 
     # Print the collective outputs of this targets immediate dependencies
 
@@ -120,8 +130,9 @@ def all(target):
 
 @make.target
 def clean(target):
-    for i in glob.glob("*.o"):
-        os.unlink(i)
+    file_helper = pake.FileHelper(target)
+
+    file_helper.glob_remove("*.o")
 
     target.run_script("submake/pakefile.py", "clean")
 

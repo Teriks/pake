@@ -25,7 +25,7 @@ __license__ = 'Three Clause BSD'
 __version__ = '0.1.0.0'
 
 from pake.exception import PakeException
-from pake.fileutil import touch, ensure_path_exists
+from pake.fileutil import FileHelper
 from pake.graph import CyclicDependencyException
 from pake.make import \
     Make, \
