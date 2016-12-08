@@ -151,4 +151,4 @@ def three():
     print("THREE")
 
 
-pake.run(make, default_targets=all)
+pake.run(make, default_targets=[one, two, three, all])
