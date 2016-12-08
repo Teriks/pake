@@ -14,6 +14,15 @@ Welcome to pake's documentation!
 
 Pake requires python3.4+
 
+
+Indices and tables
+------------------
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
+
 Writing basic targets
 ---------------------
 
@@ -234,11 +243,3 @@ Pakes current options
       -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
                             once, all specified pakefiles will be executed in
                             order.
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
