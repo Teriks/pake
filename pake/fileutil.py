@@ -82,7 +82,7 @@ class FileHelper:
         :param exist_ok: whether or not it is okay for the file to exist already.
         """
         if not silent and self._target is not None:
-            self._target.print('Touch file: "{}"'.format(file_name))
+            self._target.print('Touched File: "{}"'.format(file_name))
         pathlib.Path(file_name).touch(mode=mode, exist_ok=exist_ok)
 
     def copytree(self, src, dest, symlinks=False, ignore=False, silent=False):
@@ -97,7 +97,7 @@ class FileHelper:
         :param silent: If True, Don't print info the the targets output.
         """
         if not silent and self._target is not None:
-            self._target.print('Copy Tree: "{}" -> "{}"'
+            self._target.print('Copied Tree: "{}" -> "{}"'
                                .format(src, dest))
         shutil.copytree(src, dest, symlinks=symlinks, ignore=ignore)
 
@@ -112,7 +112,7 @@ class FileHelper:
         """
 
         if not silent and self._target is not None:
-            self._target.print('Move Files: "{}" -> "{}"'
+            self._target.print('Moved File: "{}" -> "{}"'
                                .format(src, dest))
         shutil.move(src, dest)
 
@@ -128,12 +128,12 @@ class FileHelper:
 
         if copy_metadata:
             if not silent and self._target is not None:
-                self._target.print('Copy File With Metadata: "{}" -> "{}"'
+                self._target.print('Copied File With Metadata: "{}" -> "{}"'
                                    .format(src, dest))
             shutil.copy2(src, dest)
         else:
             if not silent and self._target is not None:
-                self._target.print('Copy File: "{}" -> "{}"'
+                self._target.print('Copied File: "{}" -> "{}"'
                                    .format(src, dest))
             shutil.copy(src, dest)
 
@@ -146,7 +146,7 @@ class FileHelper:
         :param silent: If True, don't print information to the targets output.
         """
         if not silent and self._target is not None:
-            self._target.print('Remove: "{}"'.format(path))
+            self._target.print('Removed File: "{}"'.format(path))
 
         try:
             os.remove(path)
@@ -163,7 +163,7 @@ class FileHelper:
         :raises OSError: Raised if a file is in use (On Windows), or if there is another problem deleting one of the files.
         """
         if not silent and self._target is not None:
-            self._target.print('Glob Remove Files: "{}"'.format(glob_pattern))
+            self._target.print('Glob Removed Files: "{}"'.format(glob_pattern))
         for i in (f for f in glob.iglob(glob_pattern) if os.path.isfile(f)):
             os.remove(i)
 
@@ -179,7 +179,7 @@ class FileHelper:
         :raises OSError: Raised if there is a problem deleting one of the directories.
         """
         if not silent and self._target is not None:
-            self._target.print('Glob Remove Directories: "{}"'.format(glob_pattern))
+            self._target.print('Glob Removed Directories: "{}"'.format(glob_pattern))
         for i in (d for d in glob.iglob(glob_pattern) if os.path.isdir(d)):
             shutil.rmtree(i, ignore_errors=True)
 
@@ -197,7 +197,7 @@ class FileHelper:
 
         :param path: The directory path/tree."""
         if not silent and self._target is not None:
-            self._target.print('Remove Directory(s): "{}"'.format(path))
+            self._target.print('Removed Directory(s): "{}"'.format(path))
         try:
             shutil.rmtree(path)
         except FileNotFoundError:
