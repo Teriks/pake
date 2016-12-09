@@ -127,7 +127,7 @@ Writing basic targets
         # Clean up using a the FileHelper object
         # Remove any bin directory, this wont complain if "bin"
         # does not exist.
-        file_helper.removedirs("bin")
+        file_helper.rmtree("bin")
 
         # Glob remove object files from the foo and bar directories
         file_helper.glob_remove("foo/*.o")

@@ -65,7 +65,7 @@ class FileHelper:
         try:
             os.makedirs(path)
         except OSError as exception:
-            if exception.args[0] != errno.EEXIST:
+            if not exist_ok and exception.args[0] != errno.EEXIST:
                 raise
 
     def touch(self,file_name, mode=0o666, exist_ok=True, silent=False):
@@ -183,7 +183,7 @@ class FileHelper:
         for i in (d for d in glob.iglob(glob_pattern) if os.path.isdir(d)):
             shutil.rmtree(i, ignore_errors=True)
 
-    def removedirs(self, path, silent=False, must_exist=False):
+    def rmtree(self, path, silent=False, must_exist=False):
         """Remove a directory tree if it exist, if the directory tree does not exists this function does nothing.
 
         This function will remove non empty directories.
