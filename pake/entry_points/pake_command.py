@@ -38,15 +38,15 @@ def main(args=None):
     switch_set = {'-f', '--file'}
     continue_twice = False
 
-    for i in range(0, len(sys_args)):
+    for arg in sys_args:
         if continue_twice:
             continue_twice = False
             continue
-        if sys_args[i] in switch_set:
+        if arg in switch_set:
             continue_twice = True
             continue
 
-        actual_args.append(sys_args[i])
+        actual_args.append(arg)
 
     if not args.file:
         if os.path.exists("pakefile.py"):
