@@ -101,8 +101,10 @@ def run_script(script_path,
                print_execute_header=True,
                execute_header='***** Executing Script "{}"\n'):
 
-    """Run another pakefile.py programmatically, changing directories if required.
-       The scripts stderr will be redirected to stdout.
+    """run_script(script_path, \*args, stdout=sys.stdout, stdout_collect=True, print_execute_header=True, execute_header='***** Executing Script "{}"\\\\n')
+
+    Run another pakefile.py programmatically, changing directories if required.
+    The scripts stderr will be redirected to stdout.
 
 
     :param script_path: The path to the pakefile that is going to be ran.

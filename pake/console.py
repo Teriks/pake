@@ -35,16 +35,19 @@ def remove_ansi_codes(string):
     """
     return _remove_ansi_codes_regex.sub('', string)
 
-
 def print_error(*objects, sep=' ', end='\n', file=sys.stdout):
-    """Print objects to stdout or a file like object, ANSI escape codes are added to
+    """print_error(\*objects, sep=' ', end='\\\\n', file=sys.stdout)
+
+    Print objects to stdout or a file like object, ANSI escape codes are added to
     make the foreground text color red."""
     print(colorama.Fore.RED + remove_ansi_codes(sep.join(objects)) + colorama.Style.RESET_ALL,
           end=end, file=file)
 
 
 def print_warning(*objects, sep=' ', end='\n', file=sys.stdout):
-    """Print objects to stdout or a file like object, ANSI escape codes are added to
+    """print_warning(\*objects, sep=' ', end='\\\\n', file=sys.stdout)
+
+    Print objects to stdout or a file like object, ANSI escape codes are added to
     make the foreground text color yellow."""
     print(colorama.Fore.YELLOW + remove_ansi_codes(sep.join(objects)) + colorama.Style.RESET_ALL,
           end=end, file=file)

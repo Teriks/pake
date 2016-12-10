@@ -173,8 +173,7 @@ class Target:
                    print_execute_header=True,
                    execute_header='***** Executing Script "{}"\n'):
 
-        """Run a sub pakefile and print it's output to stdout in a synchronized fashion.  See
-        :py:meth:`pake.submake.run_script`.
+        """Run a sub pakefile and print it's output to stdout in a synchronized fashion.  See :py:meth:`pake.submake.run_script`.
 
         :param script_path: The path to the pakefile that is going to be ran.
         :param args: Command line arguments to pass the pakefile.
@@ -693,8 +692,8 @@ class Make:
 
     def resolve_targets(self, target_functions):
         """Converts any 'by name' references to targets in a list into actual function references.
-        :param target_functions: A single target, or a list of targets.
-                                 The list may contain a mix of 'by name' references and function references
+
+        :param target_functions: A single target, or a list of targets. The list may contain a mix of 'by name' references and function references
 
         :raises pake.make.UndefinedTargetException: If an undefined target is referenced.
         :return: A list of target function references.

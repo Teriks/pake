@@ -72,10 +72,6 @@ pake.console module
     :members:
     :undoc-members:
     :show-inheritance:
-    :exclude-members: print_error, print_warning
-
-    .. autofunction:: pake.console.print_error(*objects, sep=' ', end='\n', file=sys.stdout)
-    .. autofunction:: pake.console.print_warning(*objects, sep=' ', end='\n', file=sys.stdout)
 
 pake.exception module
 ---------------------
@@ -108,9 +104,6 @@ pake.submake module
     :members:
     :undoc-members:
     :show-inheritance:
-    :exclude-members: run_script
-
-    .. autofunction:: pake.submake.run_script(script_path, *args, stdout=sys.stdout, stdout_collect=True, print_execute_header=True, execute_header='***** Executing Script "{}"\\n')
 
 pake.util module
 ----------------
