@@ -176,6 +176,8 @@ class FileHelper:
         By default, :py:meth:`shutil.copy2` is used, but any function that supports the same
         signature (like :py:meth:`shutil.copy`) can be used.
 
+        :raises shutil.Error: If the destination already exists, or if src is moved into itself.
+
         :param copy_function: The copy function to use for copying individual files.
         :param src: The file.
         :param dest: The destination to move the file to.
