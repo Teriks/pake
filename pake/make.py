@@ -334,9 +334,7 @@ class Target:
         return hash(self.function)
 
     def __eq__(self, other):
-        if type(other) != Target:
-            return False
-        return self.function is other.function
+        return False if type(other) != Target else self.function is other.function
 
 
 def _is_input_newer(input_file, output_file):
@@ -395,10 +393,7 @@ class Make:
         :param default: The optional default value of the define, the normal default is None
         :return: The defines value.
         """
-        if name in self._defines:
-            return self._defines[name]
-        else:
-            return default
+        return self._defines[name] if name in self._defines else default
 
     def _get_threadpool_executor(self):
         return concurrent.futures.ThreadPoolExecutor(max_workers=self.get_max_jobs())
@@ -572,12 +567,9 @@ class Make:
         :raises pake.make.UndefinedTargetException: Raised if there is a reference to an unregistered target in this targets dependencies.
         """
 
-        if not depends:
-            depends = []
-        if not inputs:
-            inputs = []
-        if not outputs:
-            outputs = []
+        depends = [] if not depends else depends
+        inputs = [] if not inputs else inputs
+        outputs = [] if not outputs else outputs
 
         if not pake.util.is_iterable_not_str(depends):
             depends = [depends]
@@ -606,22 +598,20 @@ class Make:
     def _handle_target_out_of_date(self, target):
         dependencies, inputs, outputs = target.dependencies, target.inputs, target.outputs
 
-        for i in inputs:
-            if not os.path.exists(i):
-                raise TargetInputNotFoundException(target, i)
+        for i in (i for i in inputs if not os.path.exists(i)):
+            raise TargetInputNotFoundException(target, i)
 
-        for d in dependencies:
-            if d in self._outdated_target_funcs:
-                target._add_outdated_input_output(inputs, outputs)
-                return True
+        for d in (d for d in dependencies if d in self._outdated_target_funcs):
+            target._add_outdated_input_output(inputs, outputs)
+            return True
 
         if len(inputs) == len(outputs):
             if len(inputs) == 0:
                 return True
 
             out_of_date = False
-            for x in range(0, len(inputs)):
-                i, o = inputs[x], outputs[x]
+            for x, i in enumerate(inputs):
+                o = outputs[x]
                 if not os.path.exists(o):
                     target._add_outdated_input_output(i, o)
                     out_of_date = True
@@ -633,10 +623,9 @@ class Make:
                 return True
         else:
             if len(inputs) == 0 and len(outputs) > 0:
-                for o in outputs:
-                    if not os.path.exists(o):
-                        target._add_outdated_output(o)
-                        return True
+                for o in (o for o in outputs if not os.path.exists(o)):
+                    target._add_outdated_output(o)
+                    return True
 
             if len(inputs) > 0 and len(outputs) == 0:
                 return True
@@ -645,10 +634,9 @@ class Make:
                 if not os.path.exists(o):
                     target._add_outdated_input_output(inputs, outputs)
                     return True
-                for i in inputs:
-                    if _is_input_newer(i, o):
-                        target._add_outdated_input_output(inputs, outputs)
-                        return True
+                for i in (i for i in inputs if _is_input_newer(i,o)):
+                    target._add_outdated_input_output(inputs, outputs)
+                    return True
 
         return False
 
@@ -663,7 +651,7 @@ class Make:
         no_dep_targets_set = set()
         no_dep_targets = []
         graph_out = []
-        to_visit  = []
+        to_visit = []
 
         for target_function in self._run_targets:
             target = self._target_graph[target_function]
@@ -707,8 +695,7 @@ class Make:
         else:
             result = list(target_functions)
 
-        for i in range(0, len(result)):
-            target = result[i]
+        for i, target in enumerate(result):
             if type(target) is str:
                 if target in self._target_funcs_by_name:
                     result[i] = self._target_funcs_by_name[target]
@@ -728,11 +715,10 @@ class Make:
 
     def _run_target_task(self, target):
         with self._task_dict_lock:
-            for dep_target_func in target.dependencies:
-                if self._target_task_exists(dep_target_func):
-                    task = self._target_func_to_task_dict[dep_target_func]
-                    if self._target_task_running(dep_target_func):
-                        task.result()
+            for dep_target_func in (i for i in target.dependencies if self._target_task_exists(i)):
+                task = self._target_func_to_task_dict[dep_target_func]
+                if self._target_task_running(dep_target_func):
+                    task.result()
 
         sig = inspect.signature(target.function)
         target.print('===== Executing target: "{}"'
@@ -784,10 +770,11 @@ class Make:
         self._target_func_to_task_dict = {}
 
     def _dispatch_target_exceptions(self):
-        ex = list(self._task_exceptions)
-        self._task_exceptions.clear()
-        if len(ex) > 0:
-            raise TargetAggregateException(ex)
+        try:
+            if len(self._task_exceptions) > 0:
+                raise TargetAggregateException(self._task_exceptions)
+        finally:
+            self._task_exceptions.clear()
 
     def visit(self, visitor=None):
         """Visit out of date targets without executing them, the default visitor prints:  "Execute Target: target_function_name"
