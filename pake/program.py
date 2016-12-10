@@ -121,14 +121,11 @@ def _coerce_define_value(value_name, value):
     return value
 
 
-def _defines_to_dic(defines):
+def _defines_to_dict(defines):
     result = {}
     for i in defines:
         d = i[0].split('=', maxsplit=1)
-        if len(d) == 1:
-            result[d[0].strip()] = True
-        else:
-            result[d[0].strip()] = _coerce_define_value(d[0], d[1])
+        result[d[0].strip()] = True if len(d) == 1 else _coerce_define_value(d[0], d[1])
     return result
 
 
@@ -196,7 +193,7 @@ def init():
     make = pake.Make()
     if _cur_args.define:
         try:
-            make.set_defines(_defines_to_dic(_cur_args.define))
+            make.set_defines(_defines_to_dict(_cur_args.define))
         except _DefineSyntaxError as syn_err:
             _arg_parser.error(str(syn_err))
 
