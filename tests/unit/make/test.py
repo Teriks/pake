@@ -1,9 +1,14 @@
 import unittest
-import pake.make
 import threading
 import time
 import sys
 import io
+import os
+
+sys.path.insert(1,
+                os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../../')))
+
+import pake.make
 
 
 def test_target_1(self):
