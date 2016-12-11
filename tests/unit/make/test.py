@@ -138,3 +138,15 @@ class MakeTests(unittest.TestCase):
 
         self.assertEqual(len(make.get_all_targets()), 0)
         self.assertEqual(make.target_count(), 0)
+
+        with self.assertRaises(ValueError):
+            # Expects a function reference
+            make.add_target(target_function="test")
+
+        with self.assertRaises(ValueError):
+            # depends contains something other than a
+            # function reference or string
+            make.add_target(test_target_1, depends=[0])
+
+        self.assertEqual(len(make.get_all_targets()), 0)
+        self.assertEqual(make.target_count(), 0)

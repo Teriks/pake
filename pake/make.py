@@ -362,6 +362,14 @@ def _func_name(reference):
         return reference.__name__
 
 
+def _is_str_or_func(reference):
+    if type(reference) is str:
+        return True
+    elif inspect.isfunction(reference):
+        return True
+    return False
+
+
 class Make:
     """The make context class.  Target functions can be registered to an instance of this class
     using the :py:meth:`pake.make.Make.target` python decorator, or manually using the :py:meth:`pake.make.Make.add_target`
@@ -608,6 +616,10 @@ class Make:
         :raises pake.make.UndefinedTargetException: Raised if there is a reference to an unregistered target in this targets dependencies.
         """
 
+        if not inspect.isfunction(target_function):
+            raise ValueError('target_function expected to be a function reference, got: {}'
+                             .format(type(target_function)))
+
         depends = [] if not depends else depends
         inputs = [] if not inputs else inputs
         outputs = [] if not outputs else outputs
@@ -619,7 +631,10 @@ class Make:
         if not pake.util.is_iterable_not_str(outputs):
             outputs = [outputs]
 
-        for i in (d for d in depends if not self.is_target(d)):
+        for idx, i in enumerate(d for d in depends if not _is_str_or_func(d) or not self.is_target(d)):
+            if not _is_str_or_func(i):
+                raise ValueError('Dependency at index {} was neither a function or a string.')
+
             raise UndefinedTargetException(
                 'Dependency: "{}" of Target: "{}", was not a previously declared pake Target.'
                 .format(
