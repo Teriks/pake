@@ -307,7 +307,7 @@ def run(make, default_targets=None):
             make.execute()
     except pake.TargetInputNotFoundException as input_file_err:
         _exit_error(str(input_file_err))
-    except pake.SubMakeException as subpake_err:
+    except pake.SubPakeException as subpake_err:
         _exit_error(str(subpake_err))
     except pake.TargetAggregateException as inner_target_err:
         _exit_error(str(inner_target_err))

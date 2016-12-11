@@ -184,7 +184,7 @@ class Target:
                                the placeholder {} may be used to insert the script_path into the header.
 
         :raises FileNotFoundError: Raised if the given pakefile script does not exist.
-        :raises pake.subpake.SubMakeException: Raised if the subpake script exits in a non successful manner.
+        :raises pake.subpake.SubPakeException: Raised if the subpake script exits in a non successful manner.
 
         """
 

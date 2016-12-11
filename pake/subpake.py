@@ -26,7 +26,7 @@ import pake
 import pake.process
 
 
-class SubMakeException(pake.PakeException):
+class SubPakeException(pake.PakeException):
     """A blanket exception raised when any error occurs during the actual execution
     of another pakefile while calling :py:meth:`pake.subpake.run_pake`.
     """
@@ -120,7 +120,7 @@ def run_pake(script_path,
 
 
     :raises FileNotFoundError: Raised if the given pakefile script does not exist.
-    :raises pake.subpake.SubMakeException: Raised if the subpake script exits in a non successful manner.
+    :raises pake.subpake.SubPakeException: Raised if the subpake script exits in a non successful manner.
     """
 
     if os.path.exists(script_path):
@@ -160,4 +160,4 @@ def run_pake(script_path,
                 stdout.write(line)
 
     except pake.process.ExecuteProcessError as err:
-        raise SubMakeException(script_path, err.output, err.return_code)
+        raise SubPakeException(script_path, err.output, err.return_code)

@@ -33,7 +33,7 @@ Module Imported Exceptions:
 * :py:class:`pake.make.TargetInputNotFoundException`
 * :py:class:`pake.make.TargetAggregateException`
 * :py:class:`pake.graph.CyclicDependencyException`
-* :py:class:`pake.subpake.SubMakeException`
+* :py:class:`pake.subpake.SubPakeException`
 * :py:class:`pake.program.PakeUninitializedException`
 * :py:class:`pake.exception.PakeException`
 
