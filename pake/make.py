@@ -134,12 +134,13 @@ class Target:
         sys.stdout.write(''.join(self._print_queue))
         self._print_queue.clear()
 
-    def execute(self, args, ignore_stderr=False, ignore_returncode=False, write_output=True, print_command=True):
+    def execute(self, args, ignore_stderr=False, ignore_returncode=False, print_command=True, write_output=True, silent=False):
         """Execute a system command, write stdout and stderr to the targets output, also return a list of lines output from the program.
         The command is not passed directly to the shell, so you may not use any shell specific syntax like subshells, redirection, pipes ect..
 
+        :param write_output: When set to True, output from the command will be written to the targets output.
         :param print_command: When set to True, the full command being executed will be the first thing printed to the targets output.
-        :param write_output: When set to True, all output from the command will be written to the targets output.
+        :param silent: When set to True, nothing at all will be written to the targets console output.
         :param ignore_returncode: If set to True, non zero exit codes will be ignored. (No :py:class:`pake.process.ExecuteProcessError` will be raised)
         :param ignore_stderr: If set to True, stderr will be redirected to DEVNULL instead of stdout.
 
@@ -152,13 +153,13 @@ class Target:
         :return: An list of lines output by the command.
         """
 
-        if print_command:
+        if not silent and print_command:
             if type(args) is not list:
                 self.print(str(args))
             else:
                 self.print(' '.join(args))
 
-        if write_output:
+        if not silent and write_output:
             lines = []
             for line in pake.process.execute(args, ignore_stderr=ignore_stderr, ignore_returncode=ignore_returncode):
                 self.write(line)
@@ -170,15 +171,21 @@ class Target:
     def run_pake(self,
                  script_path,
                  *args,
-                 print_execute_header=True,
-                 execute_header='***** Running Pake "{}"\n'):
+                 write_execute_header=True,
+                 execute_header='***** Running Pake "{}"\n',
+                 write_output=True,
+                 silent=False):
 
         """Run a sub pakefile and print it's output to stdout in a synchronized fashion.  See :py:meth:`pake.subpake.run_pake`.
+
+        :param silent: If set to True, nothing at all will be written to the targets console output.
 
         :param script_path: The path to the pakefile that is going to be ran.
         :param args: Command line arguments to pass the pakefile.
 
-        :param print_execute_header: Whether or not to execute_header before the standard output of the program.
+        :param write_output: If set to True, the pake scripts output will be written to this targets console output.
+
+        :param write_execute_header: Whether or not to execute_header before the standard output of the program.
 
         :param execute_header: The header to print before the scripts standard output if print_execute_header is True,
                                the placeholder {} may be used to insert the script_path into the header.
@@ -192,8 +199,10 @@ class Target:
                               *args,
                               stdout_collect=True if self._make.get_max_jobs() > 1 else False,
                               stdout=self,
-                              print_execute_header=print_execute_header,
-                              execute_header=execute_header)
+                              write_execute_header=write_execute_header,
+                              execute_header=execute_header,
+                              write_output=write_output,
+                              silent=silent)
 
     def print_error(self, *objects, sep=' ', end='\n'):
         """Print objects to stdout in a synchronized fashion with a text foreground color of red.

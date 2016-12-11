@@ -98,22 +98,26 @@ def run_pake(script_path,
              *args,
              stdout=sys.stdout,
              stdout_collect=False,
-             print_execute_header=True,
-             execute_header='***** Running Pake "{}"\n'):
+             write_execute_header=True,
+             execute_header='***** Running Pake "{}"\n',
+             write_output=True,
+             silent=False):
     """run_pake(script_path, \*args, stdout=sys.stdout, stdout_collect=True, print_execute_header=True, execute_header='***** Executing Script "{}"\\\\n')
 
     Run another pakefile.py programmatically, changing directories if required.
     The scripts stderr will be redirected to stdout.
 
+    :param write_output: If set to True, the pake scripts output will be written to the provided stdout object.
+    :param silent: If set to True, nothing at all will be written to the provided stdout object.
 
     :param script_path: The path to the pakefile that is going to be ran.
     :param args: Command line arguments to pass the pakefile.
     :param stdout: A file like object to write the scripts output to, default is **sys.stdout**.
-    :param stdout_collect: If set to True, the scripts output will be collected and writen all at once to the stdout
+    :param stdout_collect: If set to True, the scripts output will be collected and written all at once to the stdout
                            parameter.  Otherwise the scripts output will be written line by line as it is read from the
                            stdout pipe.
 
-    :param print_execute_header: Whether or not to execute_header before the standard output of the program.
+    :param write_execute_header: Whether or not to execute_header before the standard output of the program.
 
     :param execute_header: The header to print before the scripts standard output if print_execute_header is True,
                            the placeholder {} may be used to insert the script_path into the header.
@@ -144,20 +148,28 @@ def run_pake(script_path,
             [sys.executable, "-u", script_path, "--s_depth", str(depth + 1), "-C", work_dir] +
             _exports_to_args() + str_filter_args)
 
-        if print_execute_header:
-            header = execute_header.format(script_path)
+        if not silent and stdout_collect:
+            # Force iteration
+            written_output = ''.join(output)
 
-        if stdout_collect:
-            if print_execute_header:
-                stdout.write(header + ''.join(output))
+            if write_execute_header:
+                if write_output:
+                    stdout.write(execute_header.format(script_path) + written_output)
+                else:
+                    stdout.write(execute_header.format(script_path))
+            elif write_output:
+                stdout.write(written_output)
+
+        elif not silent:
+            if write_execute_header:
+                stdout.write(execute_header.format(script_path))
+
+            if write_output:
+                for line in output:
+                    stdout.write(line)
             else:
-                stdout.write(''.join(output))
-        else:
-            if print_execute_header:
-                stdout.write(header)
-
-            for line in output:
-                stdout.write(line)
+                # Force iteration
+                list(output)
 
     except pake.process.ExecuteProcessError as err:
         raise SubPakeException(script_path, err.output, err.return_code)
