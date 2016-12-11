@@ -57,13 +57,15 @@ class FileHelper:
 
         This uses :py:meth:`os.makedirs`.
 
-        :param exist_ok: If False, an OSError will be thrown if any directory
-                         in the given path already exists.
+        :param path: The directory path/tree.
 
         :param silent: If True, don't print information to the targets output.
 
-        :raises OSError: Raised for all directory creation errors aside from **errno.EEXIST**.
-        :param path: The directory path/tree."""
+        :param exist_ok: If False, an OSError will be thrown if any directory
+                         in the given path already exists.
+
+        :raises OSError: Raised for all directory creation errors aside from **errno.EEXIST
+        """
 
         if not silent and self._target is not None:
             self._target.print('Created Directory(s): "{}"'.format(path))
@@ -74,7 +76,7 @@ class FileHelper:
             if not exist_ok and exception.args[0] != errno.EEXIST:
                 raise
 
-    def touch(self,file_name, mode=0o666, exist_ok=True, silent=False):
+    def touch(self, file_name, mode=0o666, exist_ok=True, silent=False):
         """Create a file at this given path. If mode is given, it is combined with the process’ umask value to determine
         the file mode and access flags.  If the file already exists, the function succeeds if exist_ok is true
         (and its modification time is updated to the current time), otherwise :py:class:`FileExistsError` is raised.
@@ -83,11 +85,10 @@ class FileHelper:
 
         :raises FileExistsError: Raised if exist_ok is False and the file already exists.
 
-        :param silent: If True, don't print information to the targets output.
-
         :param file_name: The file name.
         :param mode: The umask.
         :param exist_ok: whether or not it is okay for the file to exist already.
+        :param silent: If True, don't print information to the targets output.
         """
         if not silent and self._target is not None:
             self._target.print('Touched File: "{}"'.format(file_name))
@@ -128,10 +129,7 @@ class FileHelper:
         destination path as arguments. By default, :py:meth:`shutil.copy2` is used, but any
         function that supports the same signature (like :py:meth:`shutil.copy`) can be used.
 
-        :param ignore_dangling_symlinks: If True, don't throw an exception when the file pointed to
-                                         by a symlink does not exist.
 
-        :param copy_function: The copy function, if not specified :py:meth:`shutil.copy2` is used.
 
         :raises shutil.Error: If exception(s) occur, an Error is raised with a list of reasons.
 
@@ -139,6 +137,12 @@ class FileHelper:
         :param dst: The destination path.
         :param symlinks: If True, try to copy symlinks.
         :param ignore: If True, ignore errors while copying files and directories.
+
+        :param copy_function: The copy function, if not specified :py:meth:`shutil.copy2` is used.
+
+        :param ignore_dangling_symlinks: If True, don't throw an exception when the file pointed to
+                                         by a symlink does not exist.
+
         :param silent: If True, Don't print info the the targets output.
         """
         if not silent and self._target is not None:
@@ -149,8 +153,7 @@ class FileHelper:
                         symlinks=symlinks,
                         ignore=ignore,
                         copy_function=copy_function,
-                        ignore_dangling_symlinks=ignore_dangling_symlinks,
-                        silent=silent)
+                        ignore_dangling_symlinks=ignore_dangling_symlinks)
 
     def move(self, src, dest, copy_function=shutil.copy2, silent=False):
         """move(self, src, dest, copy_function=shutil.copy2, silent=False)
@@ -178,9 +181,9 @@ class FileHelper:
 
         :raises shutil.Error: If the destination already exists, or if src is moved into itself.
 
-        :param copy_function: The copy function to use for copying individual files.
         :param src: The file.
         :param dest: The destination to move the file to.
+        :param copy_function: The copy function to use for copying individual files.
         :param silent: If True, don't print information to the targets output.
         """
 
@@ -217,9 +220,9 @@ class FileHelper:
         :raise FileNotFoundError: If must_exist is True, and the file does not exist.
         :raise OSError: If the path is a directory.
 
-        :param must_exist: If set to True, a FileNotFoundError will be raised if the file does not exist.
         :param path: The path of the file to remove.
         :param silent: If True, don't print information to the targets output.
+        :param must_exist: If set to True, a FileNotFoundError will be raised if the file does not exist.
         """
         if not silent and self._target is not None:
             self._target.print('Removed File: "{}"'.format(path))
@@ -235,9 +238,9 @@ class FileHelper:
 
         Files are removed using :py:meth:`os.remove`.
 
-        :param silent: If True, don't print information to the targets output.
-
         :param glob_pattern: The glob pattern to use to search for files to remove.
+
+        :param silent: If True, don't print information to the targets output.
 
         :raises OSError: Raised if a file is in use (On Windows), or if there is another problem deleting one of the files.
         """
@@ -271,12 +274,13 @@ class FileHelper:
 
         :raises FileNotFoundError: Raised if must_exist is True and the given path does not exist.
 
-        :param must_exist: If True, a FileNotFoundError will be raised if the directory
-                           does not exist.
+        :param path: The directory path/tree.
 
         :param silent: If True, don't print information to the targets output.
 
-        :param path: The directory path/tree."""
+        :param must_exist: If True, a FileNotFoundError will be raised if the directory
+                           does not exist
+        """
         if not silent and self._target is not None:
             self._target.print('Removed Directory(s): "{}"'.format(path))
         try:
