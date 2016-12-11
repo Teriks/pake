@@ -47,6 +47,9 @@ def check_cyclic(graph, get_edges=None):
     :return: True if the graph contains a cycle, False otherwise.
     """
 
+    if get_edges is None:
+        def get_edges(t): return t
+
     path = set()
 
     def visit(node):
@@ -78,7 +81,8 @@ def topological_sort(graph, get_edges=None):
     """
 
     if get_edges is None:
-        def get_edges(t): return t[1]
+        def get_edges(t): return t
+
     graph = dict(graph)
     while graph:
         acyclic = False

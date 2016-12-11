@@ -20,7 +20,6 @@
 
 
 import os
-import subprocess
 import sys
 import pake
 import pake.process
@@ -173,6 +172,9 @@ def run_pake(script_path,
             else:
                 # Force iteration
                 list(output)
+        else:
+            # Force iteration when silent
+            list(output)
 
     except pake.process.ExecuteProcessError as err:
         raise SubPakeException(script_path, err.output, err.return_code)

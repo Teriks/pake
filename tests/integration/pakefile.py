@@ -2,7 +2,6 @@
 
 import sys
 import os
-import glob
 
 # the directory above tests to the path so pake can be included
 # not needed if module is 'installed'
@@ -131,6 +130,8 @@ def clean(target):
     file_helper = pake.FileHelper(target)
 
     file_helper.glob_remove("*.o")
+
+    file_helper.remove("main")
 
     file_helper.rmtree("test")
     file_helper.remove("test2")
