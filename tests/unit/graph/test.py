@@ -17,14 +17,15 @@ class GraphTest(unittest.TestCase):
         self.assertTrue(pake.graph.check_cyclic(graph))
 
         with self.assertRaises(pake.graph.CyclicDependencyException):
-            # force iterator to run
+            # force generator to run
             list(pake.graph.topological_sort(graph))
 
         graph = {0: [1, 2, 3], 1: [], 2: [3], 3: [], 5: []}
         self.assertFalse(pake.graph.check_cyclic(graph))
 
         try:
-            pake.graph.topological_sort(graph)
+            # force generator to run
+            list(pake.graph.topological_sort(graph))
         except pake.graph.CyclicDependencyException:
             self.fail(
                 'pake.graph.topological sort threw CyclicDependencyException on non cyclic graph')
@@ -33,8 +34,9 @@ class GraphTest(unittest.TestCase):
         self.assertTrue(pake.graph.check_cyclic(graph))
 
         with self.assertRaises(pake.graph.CyclicDependencyException):
-            # force iterator to run
+            # force generator to run
             list(pake.graph.topological_sort(graph))
+
     def test_sort(self):
         # Singular dependency for each node is the only way
         # to get a sorted output that is deterministic
