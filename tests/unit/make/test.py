@@ -70,7 +70,6 @@ class MakeTests(unittest.TestCase):
 
         # 5 and 1 should come in a deterministic order, because they are
         # leaf dependencies that are specified in order in the set_run_targets call
-        print(target_order)
         self.assertEqual(target_order,
                          [target_5,
                           target_1,
