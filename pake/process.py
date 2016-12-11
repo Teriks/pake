@@ -52,11 +52,12 @@ def execute(args, ignore_stderr=False, ignore_returncode=False):
     """Execute a system command, yield stdout and stderr as an iterator, stderr is redirected to stdout by default.
     The command is not passed directly to the shell, so you may not use any shell specific syntax like subshells, redirection, pipes ect..
 
-    :param ignore_returncode: If set to True, non zero exit codes will be ignored.
-    :param ignore_stderr: If set to True, stderr will be redirected to DEVNULL instead of stdout.  (No :py:class:`pake.process.ExecuteProcessError` will be raised)
-
     :param args: A list comprising the command and it's arguments, if you pass something other than
                  a list it will be stringified and tokenized into program + arguments using the shlex module.
+
+    :param ignore_stderr: If set to True, stderr will be redirected to DEVNULL instead of stdout.  (No :py:class:`pake.process.ExecuteProcessError` will be raised)
+
+    :param ignore_returncode: If set to True, non zero exit codes will be ignored.
 
     :raise pake.process.ExecuteProcessError: If the executed process completes with a non 0 return code.
 

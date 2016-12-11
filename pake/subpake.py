@@ -107,12 +107,12 @@ def run_pake(script_path,
     Run another pakefile.py programmatically, changing directories if required.
     The scripts stderr will be redirected to stdout.
 
-    :param write_output: If set to True, the pake scripts output will be written to the provided stdout object.
-    :param silent: If set to True, nothing at all will be written to the provided stdout object.
-
     :param script_path: The path to the pakefile that is going to be ran.
+
     :param args: Command line arguments to pass the pakefile.
+
     :param stdout: A file like object to write the scripts output to, default is **sys.stdout**.
+
     :param stdout_collect: If set to True, the scripts output will be collected and written all at once to the stdout
                            parameter.  Otherwise the scripts output will be written line by line as it is read from the
                            stdout pipe.
@@ -122,6 +122,9 @@ def run_pake(script_path,
     :param execute_header: The header to print before the scripts standard output if print_execute_header is True,
                            the placeholder {} may be used to insert the script_path into the header.
 
+    :param write_output: If set to True, the pake scripts output will be written to the provided stdout object.
+
+    :param silent: If set to True, nothing at all will be written to the provided stdout object.
 
     :raises FileNotFoundError: Raised if the given pakefile script does not exist.
     :raises pake.subpake.SubPakeException: Raised if the subpake script exits in a non successful manner.

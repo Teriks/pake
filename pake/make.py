@@ -138,14 +138,18 @@ class Target:
         """Execute a system command, write stdout and stderr to the targets output, also return a list of lines output from the program.
         The command is not passed directly to the shell, so you may not use any shell specific syntax like subshells, redirection, pipes ect..
 
-        :param write_output: When set to True, output from the command will be written to the targets console output.
-        :param print_command: When set to True, the full command being executed will be the first thing printed to the targets console output.
-        :param silent: When set to True, nothing at all will be written to the targets console output.
-        :param ignore_returncode: If set to True, non zero exit codes will be ignored. (No :py:class:`pake.process.ExecuteProcessError` will be raised)
-        :param ignore_stderr: If set to True, stderr will be redirected to DEVNULL instead of stdout.
-
         :param args: A list comprising the command and it's arguments, if you pass something other than
                      a list it will be stringified and tokenized into program + arguments using the shlex module.
+
+        :param ignore_stderr: If set to True, stderr will be redirected to DEVNULL instead of stdout.
+
+        :param ignore_returncode: If set to True, non zero exit codes will be ignored. (No :py:class:`pake.process.ExecuteProcessError` will be raised)
+
+        :param print_command: When set to True, the full command being executed will be the first thing printed to the targets console output.
+
+        :param write_output: When set to True, output from the command will be written to the targets console output.
+
+        :param silent: When set to True, nothing at all will be written to the targets console output.
 
         :raise pake.process.ExecuteProcessError: If the executed process completes with a non 0 return code.
 
@@ -178,17 +182,18 @@ class Target:
 
         """Run a sub pakefile and print it's output to stdout in a synchronized fashion.  See :py:meth:`pake.subpake.run_pake`.
 
-        :param silent: If set to True, nothing at all will be written to the targets console output.
-
         :param script_path: The path to the pakefile that is going to be ran.
-        :param args: Command line arguments to pass the pakefile.
 
-        :param write_output: If set to True, the pake scripts output will be written to this targets console output.
+        :param args: Command line arguments to pass the pakefile.
 
         :param write_execute_header: Whether or not to execute_header before the console output of the target.
 
         :param execute_header: The header to print before the scripts standard output if print_execute_header is True,
                                the placeholder {} may be used to insert the script_path into the header.
+
+        :param write_output: If set to True, the pake scripts output will be written to this targets console output.
+
+        :param silent: If set to True, nothing at all will be written to the targets console output.
 
         :raises FileNotFoundError: Raised if the given pakefile script does not exist.
         :raises pake.subpake.SubPakeException: Raised if the subpake script exits in a non successful manner.
