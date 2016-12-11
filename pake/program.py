@@ -142,15 +142,15 @@ def _exit_error(message):
     exit(1)
 
 
-def get_submake_depth():
-    """Get the submake depth of this script.  The value depends on if another pakefile is executing the script
-    this method is called in.  Successive calls to :py:meth:`pake.submake.run_script` in child scripts increase the
-    submake depth by one.  The initial submake depth is 0.
+def get_subpake_depth():
+    """Get the subpake depth of this script.  The value depends on if another pakefile is executing the script
+    this method is called in.  Successive calls to :py:meth:`pake.subpake.run_pake` in child scripts increase the
+    subpake depth by one.  The initial subpake depth is 0.
 
     :raises pake.program.PakeUninitializedException: Raised if :py:meth:`pake.program.init`
             has not been called prior to calling this method.
 
-    :return: The submake depth
+    :return: The subpake depth
     :rtype: int
     """
 
@@ -182,11 +182,11 @@ def init():
     if _cur_args.directory and _cur_args.directory != os.getcwd():
         os.chdir(_cur_args.directory)
         print('pake[{}]: Entering Directory "{}"'
-              .format(get_submake_depth(), _cur_args.directory))
+              .format(get_subpake_depth(), _cur_args.directory))
 
         def _at_exit_chdir():
             print('pake[{}]: Leaving Directory "{}"'
-                  .format(get_submake_depth(), _cur_args.directory))
+                  .format(get_subpake_depth(), _cur_args.directory))
 
         atexit.register(_at_exit_chdir)
 
@@ -307,8 +307,8 @@ def run(make, default_targets=None):
             make.execute()
     except pake.TargetInputNotFoundException as input_file_err:
         _exit_error(str(input_file_err))
-    except pake.SubMakeException as submake_err:
-        _exit_error(str(submake_err))
+    except pake.SubMakeException as subpake_err:
+        _exit_error(str(subpake_err))
     except pake.TargetAggregateException as inner_target_err:
         _exit_error(str(inner_target_err))
 

@@ -91,7 +91,7 @@ def do_stuff(target):
 
     # Run a pakefile.py script in a subdirectory, build 'all' target
 
-    target.run_script("submake/pakefile.py", "all")
+    target.run_pake("subpake/pakefile.py", "all")
 
 
 # Basically a dummy target (if nothing actually depended on it)
@@ -135,7 +135,7 @@ def clean(target):
     file_helper.rmtree("test")
     file_helper.remove("test2")
 
-    target.run_script("submake/pakefile.py", "clean")
+    target.run_pake("subpake/pakefile.py", "clean")
 
 @make.target
 def one(target):

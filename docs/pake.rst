@@ -33,7 +33,7 @@ Module Imported Exceptions:
 * :py:class:`pake.make.TargetInputNotFoundException`
 * :py:class:`pake.make.TargetAggregateException`
 * :py:class:`pake.graph.CyclicDependencyException`
-* :py:class:`pake.submake.SubMakeException`
+* :py:class:`pake.subpake.SubMakeException`
 * :py:class:`pake.program.PakeUninitializedException`
 * :py:class:`pake.exception.PakeException`
 
@@ -41,9 +41,9 @@ Module Imported Methods:
 
 * :py:meth:`pake.program.init`
 * :py:meth:`pake.program.run`
-* :py:meth:`pake.program.get_submake_depth`
-* :py:meth:`pake.submake.export`
-* :py:meth:`pake.submake.un_export`
+* :py:meth:`pake.program.get_subpake_depth`
+* :py:meth:`pake.subpake.export`
+* :py:meth:`pake.subpake.un_export`
 
 
 Submodules
@@ -97,10 +97,10 @@ pake.graph module
     :undoc-members:
     :show-inheritance:
 
-pake.submake module
+pake.subpake module
 -------------------
 
-.. automodule:: pake.submake
+.. automodule:: pake.subpake
     :members:
     :undoc-members:
     :show-inheritance:

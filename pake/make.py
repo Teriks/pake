@@ -26,7 +26,7 @@ import os
 import threading
 import traceback
 import sys
-import pake.submake
+import pake.subpake
 import pake.console
 import pake.exception
 import pake.graph
@@ -52,7 +52,7 @@ class TargetAggregateException(pake.exception.PakeException):
     def inner_trace_str(self):
         """Returns a formatted stack trace string for the inner exception."""
         except_str = ['Exception encountered in target "{target}", Info:\n\n{trace}'
-                      .format(target=x[0].name, trace=self._get_trace(x)) for x in self._inner_exceptions]
+                          .format(target=x[0].name, trace=self._get_trace(x)) for x in self._inner_exceptions]
 
         return 'One or more exceptions were raised inside pake targets:\n\n' + '\n\n'.join(except_str)
 
@@ -167,13 +167,13 @@ class Target:
         else:
             return list(pake.process.execute(args, ignore_stderr=ignore_stderr, ignore_returncode=ignore_returncode))
 
-    def run_script(self,
-                   script_path,
-                   *args,
-                   print_execute_header=True,
-                   execute_header='***** Executing Script "{}"\n'):
+    def run_pake(self,
+                 script_path,
+                 *args,
+                 print_execute_header=True,
+                 execute_header='***** Running Pake "{}"\n'):
 
-        """Run a sub pakefile and print it's output to stdout in a synchronized fashion.  See :py:meth:`pake.submake.run_script`.
+        """Run a sub pakefile and print it's output to stdout in a synchronized fashion.  See :py:meth:`pake.subpake.run_pake`.
 
         :param script_path: The path to the pakefile that is going to be ran.
         :param args: Command line arguments to pass the pakefile.
@@ -184,16 +184,16 @@ class Target:
                                the placeholder {} may be used to insert the script_path into the header.
 
         :raises FileNotFoundError: Raised if the given pakefile script does not exist.
-        :raises pake.submake.SubMakeException: Raised if the submake script exits in a non successful manner.
+        :raises pake.subpake.SubMakeException: Raised if the subpake script exits in a non successful manner.
 
         """
 
-        pake.submake.run_script(script_path,
-                                *args,
-                                stdout=self,
-                                stdout_collect=True,
-                                print_execute_header=print_execute_header,
-                                execute_header=execute_header)
+        pake.subpake.run_pake(script_path,
+                              *args,
+                              stdout_collect=True if self._make.get_max_jobs() > 1 else False,
+                              stdout=self,
+                              print_execute_header=print_execute_header,
+                              execute_header=execute_header)
 
     def print_error(self, *objects, sep=' ', end='\n'):
         """Print objects to stdout in a synchronized fashion with a text foreground color of red.
@@ -634,7 +634,7 @@ class Make:
                 if not os.path.exists(o):
                     target._add_outdated_input_output(inputs, outputs)
                     return True
-                for i in (i for i in inputs if _is_input_newer(i,o)):
+                for i in (i for i in inputs if _is_input_newer(i, o)):
                     target._add_outdated_input_output(inputs, outputs)
                     return True
 
@@ -723,7 +723,7 @@ class Make:
         sig = inspect.signature(target.function)
         target.print('===== Executing target: "{}"'
                      .format(target.name))
-        
+
         if len(sig.parameters) > 0:
             target.function(target)
         else:

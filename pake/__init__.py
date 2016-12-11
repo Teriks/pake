@@ -33,5 +33,5 @@ from pake.make import \
     UndefinedTargetException, \
     TargetInputNotFoundException, \
     TargetAggregateException
-from pake.program import run, init, get_submake_depth, PakeUninitializedException
-from pake.submake import export, un_export, SubMakeException
+from pake.program import run, init, get_subpake_depth, PakeUninitializedException
+from pake.subpake import export, un_export, SubMakeException

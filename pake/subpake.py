@@ -28,11 +28,11 @@ import pake.process
 
 class SubMakeException(pake.PakeException):
     """A blanket exception raised when any error occurs during the actual execution
-    of another pakefile while calling :py:meth:`pake.submake.run_script`.
+    of another pakefile while calling :py:meth:`pake.subpake.run_pake`.
     """
 
     def __init__(self, script, output, return_code):
-        super().__init__('Error occurred in submake script "{script}", script output:\n\n'
+        super().__init__('Error occurred in subpake script "{script}", script output:\n\n'
                          '{output}\n\n** Script "{script}" Return Code: {return_code}'
                          .format(script=script,
                                  output=output.rstrip(),
@@ -73,7 +73,7 @@ def _exports_to_args():
 
 
 def export(name, value):
-    """Export a define which will be passed to sub script invocations when calling :py:func:`pake.submake.run_script`
+    """Export a define which will be passed to sub script invocations when calling :py:func:`pake.subpake.run_pake`
 
     :param name: The name of the define.
     :type name: str
@@ -85,7 +85,7 @@ def export(name, value):
 
 
 def un_export(name):
-    """Prevent a previously exported value from being exported during new invocations of :py:func:`pake.submake.run_script`.
+    """Prevent a previously exported value from being exported during new invocations of :py:func:`pake.subpake.run_pake`.
 
     :param name: The name of the previously exported define.
     :type name: str
@@ -94,14 +94,13 @@ def un_export(name):
         del _exports[name]
 
 
-def run_script(script_path,
-               *args,
-               stdout=sys.stdout,
-               stdout_collect=True,
-               print_execute_header=True,
-               execute_header='***** Executing Script "{}"\n'):
-
-    """run_script(script_path, \*args, stdout=sys.stdout, stdout_collect=True, print_execute_header=True, execute_header='***** Executing Script "{}"\\\\n')
+def run_pake(script_path,
+             *args,
+             stdout=sys.stdout,
+             stdout_collect=False,
+             print_execute_header=True,
+             execute_header='***** Running Pake "{}"\n'):
+    """run_pake(script_path, \*args, stdout=sys.stdout, stdout_collect=True, print_execute_header=True, execute_header='***** Executing Script "{}"\\\\n')
 
     Run another pakefile.py programmatically, changing directories if required.
     The scripts stderr will be redirected to stdout.
@@ -121,7 +120,7 @@ def run_script(script_path,
 
 
     :raises FileNotFoundError: Raised if the given pakefile script does not exist.
-    :raises pake.submake.SubMakeException: Raised if the submake script exits in a non successful manner.
+    :raises pake.subpake.SubMakeException: Raised if the subpake script exits in a non successful manner.
     """
 
     if os.path.exists(script_path):
@@ -137,12 +136,12 @@ def run_script(script_path,
         work_dir = os.path.dirname(os.path.abspath(script_path))
 
         try:
-            depth = pake.program.get_submake_depth()
+            depth = pake.program.get_subpake_depth()
         except pake.PakeUninitializedException:
             depth = 0
 
         output = pake.process.execute(
-            [sys.executable, "-u", script_path, "--s_depth", str(depth+1), "-C", work_dir] +
+            [sys.executable, "-u", script_path, "--s_depth", str(depth + 1), "-C", work_dir] +
             _exports_to_args() + str_filter_args)
 
         if print_execute_header:
@@ -150,7 +149,7 @@ def run_script(script_path,
 
         if stdout_collect:
             if print_execute_header:
-                stdout.write(header+''.join(output))
+                stdout.write(header + ''.join(output))
             else:
                 stdout.write(''.join(output))
         else:

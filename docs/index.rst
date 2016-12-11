@@ -145,8 +145,8 @@ Writing basic targets
 Running pake scripts in pake
 ----------------------------
 
-Pake is able to run itself through the use of :py:meth:`pake.make.Target.run_script`
-or even :py:meth:`pake.submake.run_script`.  :py:meth:`pake.make.Target.run_script`
+Pake is able to run itself through the use of :py:meth:`pake.make.Target.run_pake`
+or even :py:meth:`pake.subpake.run_pake`.  :py:meth:`pake.make.Target.run_pake`
 is preferred because it handles writing program output to the targets
 output queue in a synchronized manner when multiple jobs are running.
 
@@ -154,9 +154,9 @@ output queue in a synchronized manner when multiple jobs are running.
 
     import pake
 
-    # This is required to use pake.submake.run_script
+    # This is required to use pake.subpake.run_pake
     # outside of a target
-    import pake.submake
+    import pake.subpake
 
     make = pake.init()
 
@@ -166,7 +166,7 @@ output queue in a synchronized manner when multiple jobs are running.
     CC = make.get_define("CC", "gcc")
 
     # Export the CC variable's value to all invocations
-    # of pake.submake.run_script, or target.runscript here after
+    # of pake.subpake.run_pake, or target.runscript here after
     # as a define that can be retrieved with make.get_define()
     #
     pake.export("CC", CC)
@@ -195,9 +195,9 @@ output queue in a synchronized manner when multiple jobs are running.
     # Execute outside of a target, by default the stdout/stderr
     # of the subscript goes to this scripts stdout.  The file
     # object to which stdout gets written to can be specified
-    # with pake.submake.run_script(..., stdout=(file))
+    # with pake.subpake.run_pake(..., stdout=(file))
 
-    pake.submake.run_script("sometasks/pakefile.py", "dotasks")
+    pake.subpake.run_pake("sometasks/pakefile.py", "dotasks")
 
     # This target does not depend on anything or have any inputs/outputs
     # it will basically only run if you explicitly specify it as a default
@@ -211,7 +211,7 @@ output queue in a synchronized manner when multiple jobs are running.
         # The scripts output is written to this targets output queue,
         # or immediately printed if pake is running a non parallel build.
 
-        target.run_script("library/pakefile.py", "foo", "-j", make.get_max_jobs())
+        target.run_pake("library/pakefile.py", "foo", "-j", make.get_max_jobs())
 
 
 Running pake
