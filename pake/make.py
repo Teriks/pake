@@ -595,6 +595,10 @@ class Make:
     def add_target(self, target_function, inputs=None, outputs=None, depends=None, info=None):
         """Manually register a pake target function.
 
+        :raises ValueError: Raised if target_function is not a function reference, or if one of the targets
+                            dependency references is not a direct function reference or string
+                           (If some other object or literal).
+
         :param target_function: The function for the target.
         :type target_function: func
 
