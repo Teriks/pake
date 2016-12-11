@@ -89,7 +89,7 @@ class TargetInputNotFoundException(pake.exception.PakeException):
 
         :rtype: pake.make.Target
         """
-        return self._target_function
+        return self._target
 
     @property
     def input(self):
@@ -355,6 +355,13 @@ def _is_input_newer(input_file, output_file):
     return (os.path.getmtime(input_file) - os.path.getmtime(output_file)) > 0.1
 
 
+def _func_name(reference):
+    if type(reference) is str:
+        return str
+    else:
+        return reference.__name__
+
+
 class Make:
     """The make context class.  Target functions can be registered to an instance of this class
     using the :py:meth:`pake.make.Make.target` python decorator, or manually using the :py:meth:`pake.make.Make.add_target`
@@ -592,6 +599,13 @@ class Make:
         if not pake.util.is_iterable_not_str(outputs):
             outputs = [outputs]
 
+        for i in (d for d in depends if not self.is_target(d)):
+            raise UndefinedTargetException(
+                'Dependency: "{}" of Target: "{}", was not a previously declared pake Target.'
+                .format(
+                    _func_name(target_function),
+                    _func_name(i)))
+
         if target_function in self._target_graph:
             raise TargetRedefinedException('Target "{target}" already defined.'
                                            .format(target=target_function.__name__))
@@ -719,6 +733,10 @@ class Make:
             elif not inspect.isfunction(target):
                 raise ValueError('Given target "{obj}" was neither a function or a string.'
                                  .format(obj=target))
+            else:
+                if not target in self._target_graph:
+                    raise UndefinedTargetException('Target "{target}" is not defined.'
+                                                   .format(target=target))
         return result
 
     def _target_task_exists(self, target_function):
