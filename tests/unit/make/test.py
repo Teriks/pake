@@ -133,3 +133,8 @@ class MakeTests(unittest.TestCase):
         # make sure it was not added
         self.assertEqual(len(make.get_all_targets()), 2)
         self.assertEqual(make.target_count(), 2)
+
+        make.clear_targets()
+
+        self.assertEqual(len(make.get_all_targets()), 0)
+        self.assertEqual(make.target_count(), 0)
