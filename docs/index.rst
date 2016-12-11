@@ -214,6 +214,12 @@ output queue in a synchronized manner when multiple jobs are running.
         target.run_pake("library/pakefile.py", "foo", "-j", make.get_max_jobs())
 
 
+
+    # Run this pake script, with a default target of 'my_phony_target'
+
+    pake.run(make, default_targets=my_phony_target)
+
+
 Running pake
 ------------
 
