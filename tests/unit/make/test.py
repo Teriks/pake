@@ -53,6 +53,17 @@ class MakeTests(unittest.TestCase):
 
         target_order.clear()
 
+        # Test visit as well
+        make.visit(lambda x: target_order.append(x.function))
+
+        self.assertEqual(target_order,
+                         [test_target_5,
+                          test_target_1,
+                          test_target_2,
+                          test_target_3,
+                          test_target_4])
+        target_order.clear()
+
     def test_get_target(self):
         make = pake.make.Make()
         make.add_target(test_target_3)
