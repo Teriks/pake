@@ -1,68 +1,186 @@
 import unittest
 import pake.make
-
-target_order = []
+import threading
+import time
+import sys
+import io
 
 
 def test_target_1(self):
-    target_order.append(test_target_1)
+    pass
 
 
 def test_target_2(self):
-    target_order.append(test_target_2)
+    pass
 
 
 def test_target_3(self):
-    target_order.append(test_target_3)
+    pass
 
 
 def test_target_4(self):
-    target_order.append(test_target_4)
+    pass
 
 
 def test_target_5(self):
-    target_order.append(test_target_5)
+    pass
 
 
 class MakeTests(unittest.TestCase):
+    def test_execute_order_parallel(self):
+        target_order = []
 
-    def text_execute_order(self):
+        def target_1():
+            target_order.append(target_1)
+
+        def target_2():
+            target_order.append(target_2)
+
+        def target_3():
+            target_order.append(target_3)
+
+        def target_4():
+            target_order.append(target_4)
+
+        def target_5():
+            target_order.append(target_5)
+
         make = pake.make.Make()
 
-        make.add_target(test_target_5)
-        make.add_target(test_target_1)
-        make.add_target(test_target_2, depends=[test_target_1])
-        make.add_target(test_target_3, depends=[test_target_2])
+        make.add_target(target_5)
+        make.add_target(target_1)
+        make.add_target(target_2, depends=[target_1])
+        make.add_target(target_3, depends=[target_2])
 
         # Having 2 as a dependency here, when it is already the dependency of
         # 3 should not affect the execution order
-        make.add_target(test_target_4, depends=[test_target_3, test_target_2])
+        make.add_target(target_4, depends=[target_3, target_2])
 
-        make.set_run_targets(["test_target_5", test_target_1, test_target_4])
+        make.set_run_targets(["target_5", target_1, target_4])
+
+        # For making pake.make.Make() shut up
+        # need to make that configurable
+
+        save_stdout = sys.stdout
+        sys.stdout = io.StringIO()
+
         make.execute()
+
+        sys.stdout = save_stdout
 
         # 5 and 1 should come in a deterministic order, because they are
         # leaf dependencies that are specified in order in the set_run_targets call
-
+        print(target_order)
         self.assertEqual(target_order,
-                         [test_target_5,
-                          test_target_1,
-                          test_target_2,
-                          test_target_3,
-                          test_target_4])
+                         [target_5,
+                          target_1,
+                          target_2,
+                          target_3,
+                          target_4])
 
         target_order.clear()
 
+        def visitor(x):
+            target_order.append(x.function)
+
+        sys.stdout = io.StringIO()
         # Test visit as well
-        make.visit(lambda x: target_order.append(x.function))
+        make.visit(visitor)
+
+        sys.stdout = save_stdout
 
         self.assertEqual(target_order,
-                         [test_target_5,
-                          test_target_1,
-                          test_target_2,
-                          test_target_3,
-                          test_target_4])
+                         [target_5,
+                          target_1,
+                          target_2,
+                          target_3,
+                          target_4])
+
         target_order.clear()
+
+        sys.stdout = save_stdout
+
+    def test_execute_order(self):
+        target_order = []
+        target_order_lock = threading.RLock()
+
+        def target_1():
+            time.sleep(0.3)
+            with target_order_lock:
+                target_order.append(target_1)
+
+        def target_2():
+            with target_order_lock:
+                target_order.append(target_2)
+
+        def target_3():
+            with target_order_lock:
+                target_order.append(target_3)
+
+        def target_4():
+            with target_order_lock:
+                target_order.append(target_4)
+
+        def target_5():
+            time.sleep(0.3)
+            with target_order_lock:
+                target_order.append(target_5)
+
+        make = pake.make.Make()
+        make.set_max_jobs(10)
+
+        make.add_target(target_5)
+        make.add_target(target_1)
+        make.add_target(target_2, depends=[target_1])
+        make.add_target(target_3, depends=[target_2])
+
+        # Having 2 as a dependency here, when it is already the dependency of
+        # 3 should not affect the execution order
+        make.add_target(target_4, depends=[target_3, target_2])
+
+        make.set_run_targets(["target_5", target_1, target_4])
+
+        # For making pake.make.Make() shut up
+        # need to make that configurable
+
+        save_stdout = sys.stdout
+        sys.stdout = io.StringIO()
+
+        make.execute()
+
+        sys.stdout = save_stdout
+
+        # 5 and 1 should come in a deterministic order, because they are
+        # leaf dependencies that are specified in order in the set_run_targets call
+        self.assertEqual(target_order,
+                         [target_5,
+                          target_1,
+                          target_2,
+                          target_3,
+                          target_4])
+
+        target_order.clear()
+
+        def visitor(x):
+            with target_order_lock:
+                target_order.append(x.function)
+
+        sys.stdout = io.StringIO()
+        # Test visit as well
+        make.visit(visitor)
+
+        sys.stdout = save_stdout
+
+        self.assertEqual(target_order,
+                         [target_5,
+                          target_1,
+                          target_2,
+                          target_3,
+                          target_4])
+
+        target_order.clear()
+
+        sys.stdout = save_stdout
 
     def test_get_target(self):
         make = pake.make.Make()

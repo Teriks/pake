@@ -800,6 +800,23 @@ class Make:
             target.function()
 
     def _run_target(self, thread_pool, target):
+        if len(target.dependencies) == 0 and target.function in self._run_targets:
+            # Execute phony run targets synchronously,
+            # That way if there are multiple targets specified
+            # on the command line that have no dependencies they
+            # will be guaranteed to execute in the order they are
+            # specified even when using the -j/--jobs option
+            try:
+                self._run_target_task(target)
+                target._write_stdout_queue()
+                return
+            except Exception as err:
+                with self._task_exceptions_lock:
+                    self._task_exceptions.append(
+                        (target, err)
+                    )
+            return
+
         def done_callback(t):
             with self._target_print_lock:
                 target._write_stdout_queue()
@@ -864,7 +881,7 @@ class Make:
 
         for node in self._sort_graph():
             target_function = node[0]
-            if self._handle_target_out_of_date(target_function):
+            if self._handle_target_out_of_date(node[1]):
                 self._last_run_count += 1
                 visitor(self._target_graph[target_function])
 
