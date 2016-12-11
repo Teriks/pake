@@ -524,13 +524,33 @@ class Make:
     def get_target(self, target_function):
         """Get the :py:class:`pake.make.Target` object that holds details regarding a registered target function.
 
+        :raises pake.make.UndefinedTargetException: Raised if the given function reference, or target name was not
+                                                    previously declared/added as a pake target.
+
+        :raises ValueError: If target_function is not a string or function reference.
+
         :param target_function: The registered target function to return the :py:class:`pake.make.Target` instance for.
         :type target_function: func
-        :return: :py:class:`pake.make.Target` representing the defails of a registered target function.
+        :return: :py:class:`pake.make.Target` representing the details of a registered target function.
         """
 
         if type(target_function) is str:
+            if target_function not in self._target_funcs_by_name:
+                raise UndefinedTargetException(
+                    'No pake target named "{}" was previously declared.'
+                    .format(target_function))
+
             return self._target_graph[self._target_funcs_by_name[target_function]]
+
+        if not inspect.isfunction(target_function):
+            raise ValueError('target_function was expected to be a function or a string, got: {}'
+                             .format(type(target_function)))
+
+        if target_function not in self._target_graph:
+            raise UndefinedTargetException(
+                'Function "{}" is not a declared pake target.'
+                .format(target_function.__name__))
+
         return self._target_graph[target_function]
 
     def get_outputs(self, target_function):
