@@ -1,24 +1,58 @@
 import unittest
 import pake.make
 
+target_order = []
+
 
 def test_target_1(self):
-    pass
+    target_order.append(test_target_1)
 
 
 def test_target_2(self):
-    pass
+    target_order.append(test_target_2)
 
 
 def test_target_3(self):
-    pass
+    target_order.append(test_target_3)
 
 
 def test_target_4(self):
-    pass
+    target_order.append(test_target_4)
+
+
+def test_target_5(self):
+    target_order.append(test_target_5)
 
 
 class MakeTests(unittest.TestCase):
+
+    def text_execute_order(self):
+        make = pake.make.Make()
+
+        make.add_target(test_target_5)
+        make.add_target(test_target_1)
+        make.add_target(test_target_2, depends=[test_target_1])
+        make.add_target(test_target_3, depends=[test_target_2])
+
+        # Having 2 as a dependency here, when it is already the dependency of
+        # 3 should not affect the execution order
+        make.add_target(test_target_4, depends=[test_target_3, test_target_2])
+
+        make.set_run_targets(["test_target_5", test_target_1, test_target_4])
+        make.execute()
+
+        # 5 and 1 should come in a deterministic order, because they are
+        # leaf dependencies that are specified in order in the set_run_targets call
+
+        self.assertEqual(target_order,
+                         [test_target_5,
+                          test_target_1,
+                          test_target_2,
+                          test_target_3,
+                          test_target_4])
+
+        target_order.clear()
+
     def test_get_target(self):
         make = pake.make.Make()
         make.add_target(test_target_3)
