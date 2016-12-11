@@ -629,7 +629,7 @@ class Make:
         for i in (i for i in inputs if not os.path.exists(i)):
             raise TargetInputNotFoundException(target, i)
 
-        for d in (d for d in dependencies if d in self._outdated_target_funcs):
+        for _ in (d for d in dependencies if d in self._outdated_target_funcs):
             target._add_outdated_input_output(inputs, outputs)
             return True
 
@@ -662,7 +662,7 @@ class Make:
                 if not os.path.exists(o):
                     target._add_outdated_input_output(inputs, outputs)
                     return True
-                for i in (i for i in inputs if _is_input_newer(i, o)):
+                for _ in (i for i in inputs if _is_input_newer(i, o)):
                     target._add_outdated_input_output(inputs, outputs)
                     return True
 
