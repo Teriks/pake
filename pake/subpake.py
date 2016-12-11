@@ -102,7 +102,7 @@ def run_pake(script_path,
              execute_header='***** Running Pake "{}"\n',
              write_output=True,
              silent=False):
-    """run_pake(script_path, \*args, stdout=sys.stdout, stdout_collect=True, print_execute_header=True, execute_header='***** Executing Script "{}"\\\\n')
+    """run_pake(script_path, \*args, stdout=sys.stdout, stdout_collect=False, write_execute_header=True, execute_header='***** Running Pake "{}"\\\\n', write_output=True, silent=False)
 
     Run another pakefile.py programmatically, changing directories if required.
     The scripts stderr will be redirected to stdout.

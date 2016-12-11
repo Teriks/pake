@@ -138,8 +138,8 @@ class Target:
         """Execute a system command, write stdout and stderr to the targets output, also return a list of lines output from the program.
         The command is not passed directly to the shell, so you may not use any shell specific syntax like subshells, redirection, pipes ect..
 
-        :param write_output: When set to True, output from the command will be written to the targets output.
-        :param print_command: When set to True, the full command being executed will be the first thing printed to the targets output.
+        :param write_output: When set to True, output from the command will be written to the targets console output.
+        :param print_command: When set to True, the full command being executed will be the first thing printed to the targets console output.
         :param silent: When set to True, nothing at all will be written to the targets console output.
         :param ignore_returncode: If set to True, non zero exit codes will be ignored. (No :py:class:`pake.process.ExecuteProcessError` will be raised)
         :param ignore_stderr: If set to True, stderr will be redirected to DEVNULL instead of stdout.
@@ -185,7 +185,7 @@ class Target:
 
         :param write_output: If set to True, the pake scripts output will be written to this targets console output.
 
-        :param write_execute_header: Whether or not to execute_header before the standard output of the program.
+        :param write_execute_header: Whether or not to execute_header before the console output of the target.
 
         :param execute_header: The header to print before the scripts standard output if print_execute_header is True,
                                the placeholder {} may be used to insert the script_path into the header.
