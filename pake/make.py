@@ -55,6 +55,20 @@ def _is_str_or_func(reference):
 
 
 class OutputLevel(enum.IntEnum):
+    """An enum for describing a :py:class:`pake.make.Make` instances output level.
+
+        none:
+         No output at all.
+
+        pake:
+         Only output that is specific to the :py:class:`pake.make.Make` instance itself, such as naming targets that are about to be executed.
+
+        targets:
+         Only output that is produced within a pake target.
+
+        pake_and_targets:
+         Output produced by the :py:class:`pake.make.Make` instance as well as user written targets.
+    """
     none = 0
     pake = 1
     targets = 2
