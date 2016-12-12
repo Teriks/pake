@@ -253,7 +253,7 @@ For example:
 
 
 You can also specify multiple targets, but do not rely on unrelated targets
-being executed in any specific order because they won't.  If there is a specific
+being executed in any specific order because they won't be.  If there is a specific
 order you need your targets to execute in, the one that comes first should be declared
 a dependency of the one that comes second, then the second target should be specified to run.
 
