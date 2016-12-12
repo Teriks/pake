@@ -252,6 +252,19 @@ For example:
 `pake -f your_pakefile_1.py -f your_pakefile_2.py foo`
 
 
+You can also specify multiple targets, but do not rely on unrelated targets
+being executed in any specific order because they won't.  If there is a specific
+order you need your targets to execute in, the one that comes first should be declared
+a dependency of the one that comes second, then the second target should be specified to run.
+
+When running parallel builds leaf dependencies will start executing pretty much
+simultaneously, and non related targets that have a dependency chain may execute
+in parallel.
+
+
+`pake target unrelated_target order_independent_phony`
+
+
 # Pakes current options
 
 
