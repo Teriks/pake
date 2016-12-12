@@ -247,7 +247,26 @@ pake.run(make, default_targets=my_phony_target)
 
 ```
 
-Running pake:
+Output from the example above:
+
+```
+
+***** Running Pake "sometasks/pakefile.py"
+pake[1]: Entering Directory "(REST OF FULL PATH...)\paketest\sometasks"
+===== Executing target: "dotasks"
+Doing tasks!
+pake[1]: Leaving Directory "(REST OF FULL PATH...)\paketest\sometasks"
+===== Executing target: "my_phony_target"
+***** Running Pake "library/pakefile.py"
+pake[1]: Entering Directory "(REST OF FULL PATH...)\paketest\library"
+===== Executing target: "foo"
+Foo!
+pake[1]: Leaving Directory "(REST OF FULL PATH...)\paketest\library"
+
+```
+
+
+# Running pake
 
 ```bash
 
