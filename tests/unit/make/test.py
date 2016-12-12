@@ -61,7 +61,10 @@ class MakeTests(unittest.TestCase):
         # 3 and 1 respectively, should not affect the execution order
         make.add_target(target_4, depends=[target_3, target_2, target_5])
 
-        make.set_run_targets("target_4")
+        # Specifying multiple times, or specifying an indirect dependency
+        # of a target that has already been specified should not change the
+        # order of target execution.
+        make.set_run_targets(["target_4", target_4, target_2])
 
         # For making pake.make.Make() shut up
         # need to make that configurable
@@ -142,7 +145,10 @@ class MakeTests(unittest.TestCase):
         # 3 and 1 respectively, should not affect the execution order
         make.add_target(target_4, depends=[target_3, target_2, target_5])
 
-        make.set_run_targets("target_4")
+        # Specifying multiple times, or specifying an indirect dependency
+        # of a target that has already been specified should not change the
+        # order of target execution.
+        make.set_run_targets(["target_4", target_4, target_2])
 
         # For making pake.make.Make() shut up
         # need to make that configurable
