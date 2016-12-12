@@ -257,7 +257,7 @@ being executed in any specific order because they won't be.  If there is a speci
 order you need your targets to execute in, the one that comes first should be declared
 a dependency of the one that comes second, then the second target should be specified to run.
 
-When running parallel builds leaf dependencies will start executing pretty much
+When running parallel builds, leaf dependencies will start executing pretty much
 simultaneously, and non related targets that have a dependency chain may execute
 in parallel.
 
