@@ -53,15 +53,15 @@ class MakeTests(unittest.TestCase):
         make = pake.make.Make()
 
         make.add_target(target_5)
-        make.add_target(target_1)
+        make.add_target(target_1, depends=[target_5])
         make.add_target(target_2, depends=[target_1])
         make.add_target(target_3, depends=[target_2])
 
-        # Having 2 as a dependency here, when it is already the dependency of
-        # 3 should not affect the execution order
-        make.add_target(target_4, depends=[target_3, target_2])
+        # Having 2 and 5 as a dependency here, when it is already the dependency of
+        # 3 and 1 respectively, should not affect the execution order
+        make.add_target(target_4, depends=[target_3, target_2, target_5])
 
-        make.set_run_targets(["target_5", target_1, target_4])
+        make.set_run_targets("target_4")
 
         # For making pake.make.Make() shut up
         # need to make that configurable
@@ -134,15 +134,15 @@ class MakeTests(unittest.TestCase):
         make.set_max_jobs(10)
 
         make.add_target(target_5)
-        make.add_target(target_1)
+        make.add_target(target_1, depends=[target_5])
         make.add_target(target_2, depends=[target_1])
         make.add_target(target_3, depends=[target_2])
 
-        # Having 2 as a dependency here, when it is already the dependency of
-        # 3 should not affect the execution order
-        make.add_target(target_4, depends=[target_3, target_2])
+        # Having 2 and 5 as a dependency here, when it is already the dependency of
+        # 3 and 1 respectively, should not affect the execution order
+        make.add_target(target_4, depends=[target_3, target_2, target_5])
 
-        make.set_run_targets(["target_5", target_1, target_4])
+        make.set_run_targets("target_4")
 
         # For making pake.make.Make() shut up
         # need to make that configurable
@@ -166,8 +166,7 @@ class MakeTests(unittest.TestCase):
         target_order.clear()
 
         def visitor(x):
-            with target_order_lock:
-                target_order.append(x.function)
+            target_order.append(x.function)
 
         sys.stdout = io.StringIO()
         # Test visit as well

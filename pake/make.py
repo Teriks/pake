@@ -739,6 +739,8 @@ class Make:
                 graph_out.insert(0, (cur[0], cur[1]))
                 visited.add(cur[0])
 
+        # Leaf dependencies come first just so that all of their workers
+        # can be fired up as quickly as possible when running a parallel build.
         return itertools.chain(
             ((no_deps, self.get_target(no_deps)) for no_deps in no_dep_targets),
             pake.graph.topological_sort(graph_out, get_edges=get_edges)
@@ -800,23 +802,6 @@ class Make:
             target.function()
 
     def _run_target(self, thread_pool, target):
-        if len(target.dependencies) == 0 and target.function in self._run_targets:
-            # Execute phony run targets synchronously,
-            # That way if there are multiple targets specified
-            # on the command line that have no dependencies they
-            # will be guaranteed to execute in the order they are
-            # specified even when using the -j/--jobs option
-            try:
-                self._run_target_task(target)
-                target._write_stdout_queue()
-                return
-            except Exception as err:
-                with self._task_exceptions_lock:
-                    self._task_exceptions.append(
-                        (target, err)
-                    )
-            return
-
         def done_callback(t):
             with self._target_print_lock:
                 target._write_stdout_queue()
