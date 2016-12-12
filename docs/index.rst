@@ -10,6 +10,13 @@
 Welcome to pake's documentation!
 ================================
 
+Indices and tables
+------------------
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
 pake is a make like python build utility where targets, dependencies and build commands
 can be expressed entirely in python, similar to ruby rake.
 
@@ -31,14 +38,6 @@ How to use me anyway:
     pip install git+git://github.com/Teriks/pake.git@master
 
 Uninstall prior to updating.
-
-
-Indices and tables
-------------------
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
 
 Writing basic targets
