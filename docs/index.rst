@@ -63,7 +63,7 @@ Writing basic targets
     BAR_CFILES = glob.glob("bar/*.c")
 
     # Change the .c extension to .o
-    BAR_OBJECTS = [os.path.splitext(f)+".o" for f in BAR_CFILES]
+    BAR_OBJECTS = [os.path.splitext(f)[0]+".o" for f in BAR_CFILES]
 
     # Pake can handle file change detection with multiple inputs
     # and outputs, as long is there is the same amount of inputs as
@@ -84,11 +84,12 @@ Writing basic targets
 
         for i in zip(target.outdated_inputs, target.outdated_outputs):
             target.execute('gcc -c "{}" -o "{}"'
-                           .format(i[0], i[1])
+                           .format(i[0], i[1]))
 
     # This target depends on the foo and bar targets, as
     # specified with the decorators 'depends' parameter,
-    # And only outputs "bin/baz".
+    # And only outputs "bin/baz" by taking the input "main.c"
+    # and linking it to the object files produced in the other targets.
 
     # The target uses the 'info' parameter of the target
     # decorator to document the target. Documentation
@@ -100,8 +101,11 @@ Writing basic targets
     # can be used to preform basic file system operations while
     # printing to the targets output information about what said
     # operation is doing.
-    @make.target(outputs="bin/baz", depends=[foo, bar],
-                 info="Use this to build baz")
+    @make.target(
+        outputs="bin/baz",
+        inputs="main.c",
+        depends=[foo, bar],
+        info="Use this to build baz")
     def baz(target):
         # see: pake.fileutil.FileHelper
         file_helper = pake.FileHelper(target)
@@ -116,7 +120,7 @@ Writing basic targets
         # target.dependency_outputs contains a list of all outputs that this
         # targets immediate dependencies produce
         #
-        target.execute(["gcc", "-o", target.output[0]] + target.dependency_outputs)
+        target.execute(["gcc", "-o", target.outputs[0]] + target.inputs + target.dependency_outputs)
 
 
     @make.target(info="Clean binaries")
