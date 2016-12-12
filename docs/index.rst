@@ -10,9 +10,27 @@
 Welcome to pake's documentation!
 ================================
 
-*pake* is a make like build utility implemented in python in the same vein as Ruby rake.
+pake is a make like python build utility where targets, dependencies and build commands
+can be expressed entirely in python, similar to ruby rake.
 
-Pake requires python3.4+
+pake supports automatic file change detection when dealing with inputs and outputs and also
+parallel builds.
+
+pake requires python3.4+
+
+
+Installing
+----------
+
+Do not use me I am still in the kiln
+
+How to use me anyway:
+
+.. code-block:: bash
+
+    pip install git+git://github.com/Teriks/pake.git@master
+
+Uninstall prior to updating.
 
 
 Indices and tables
