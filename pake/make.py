@@ -494,6 +494,16 @@ class Make:
 
         self._run_targets = self.resolve_targets(target_functions)
 
+    def get_run_targets(self):
+        """Get the run targets as set by :py:meth:`pake.make.Make.set_run_targets`, any strings that were passed into
+        :py:meth:`pake.make.Make.set_run_targets` will have since been resolved into direct function references.
+
+        :return: List of target function references
+        :rtype: list of func
+        """
+
+        return list(self._run_targets)
+
     def target_count(self):
         """Get the number of defined targets.
 
