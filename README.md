@@ -152,6 +152,21 @@ pake.run(make, default_targets=baz)
 
 ```
 
+Output from the example above:
+
+```
+
+===== Executing target: "bar"
+gcc -c "bar/bar.c" -o "bar/bar.o"
+===== Executing target: "foo"
+gcc -c "foo/foo.c" -o "foo/foo.o"
+===== Executing target: "baz"
+Created Directory(s): "bin"
+gcc -o bin/baz main.c foo/foo.o bar/bar.o
+
+
+```
+
 # Running pake scripts in pake
 
 Pake is able to run itself through the use of target.run_pake
