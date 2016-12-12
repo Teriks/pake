@@ -32,6 +32,7 @@ from pake.make import \
     TargetRedefinedException, \
     UndefinedTargetException, \
     TargetInputNotFoundException, \
-    TargetAggregateException
+    TargetAggregateException, \
+    OutputLevel
 from pake.program import run, init, get_subpake_depth, PakeUninitializedException
 from pake.subpake import export, un_export, SubPakeException

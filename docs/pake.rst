@@ -24,6 +24,7 @@ targets to via the :py:meth:`pake.make.Make.target` decorator, you then run :py:
 Module Imported Classes:
 
 * :py:class:`pake.make.Make`
+* :py:class:`pake.make.OutputLevel` (Enum)
 * :py:class:`pake.fileutil.FileHelper`
 
 Module Imported Exceptions:
