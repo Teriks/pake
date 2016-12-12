@@ -20,19 +20,20 @@
 
 
 import concurrent.futures
+import enum
 import inspect
 import itertools
 import os
+import sys
 import threading
 import traceback
-import sys
-import pake.subpake
+
 import pake.console
 import pake.exception
 import pake.graph
-import pake.util
 import pake.process
-import enum
+import pake.subpake
+import pake.util
 
 
 def _is_input_newer(input_file, output_file):
@@ -96,7 +97,7 @@ class TargetAggregateException(pake.exception.PakeException):
     def inner_trace_str(self):
         """Returns a formatted stack trace string for the inner exception."""
         except_str = ['Exception encountered in target "{target}", Info:\n\n{trace}'
-                          .format(target=x[0].name, trace=self._get_trace(x)) for x in self._inner_exceptions]
+                      .format(target=x[0].name, trace=self._get_trace(x)) for x in self._inner_exceptions]
 
         return 'One or more exceptions were raised inside pake targets:\n\n' + '\n\n'.join(except_str)
 
@@ -627,7 +628,7 @@ class Make:
             if target_function not in self._target_funcs_by_name:
                 raise UndefinedTargetException(
                     'No pake target named "{}" was previously declared.'
-                        .format(target_function))
+                    .format(target_function))
 
             return self._target_graph[self._target_funcs_by_name[target_function]]
 

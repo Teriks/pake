@@ -25,11 +25,10 @@ import inspect
 import os
 import textwrap
 
-
 import pake
+import pake.console
 import pake.exception
 import pake.util
-import pake.console
 
 
 class _DefineSyntaxError(SyntaxError):
@@ -129,17 +128,55 @@ def _defines_to_dict(defines):
     return result
 
 
-_cur_args = None
-_init_file_name = ""
-
-
-def _error(message):
+def _print_error(message):
     pake.console.print_error("{}: error: {}".format(_init_file_name, message))
 
 
 def _exit_error(message):
-    _error(message)
+    _print_error(message)
     exit(1)
+
+
+def _sort_target_by_name_key(target):
+    return target.name.lower()
+
+
+def _list_targets_info(default_targets, make):
+    info_targets = sorted(
+        [x for x in make.get_all_targets() if x.info],
+        key=_sort_target_by_name_key
+    )
+
+    longest_target_name = len(
+        max(info_targets, key=_sort_target_by_name_key).name
+    )
+
+    newline_header = ('\n ' + (' ' * longest_target_name) + ' # ')
+
+    if len(info_targets) == 0:
+        print("No targets with info strings are present.")
+        return
+
+    if len(default_targets) > 0:
+        print('\n# Default Targets:\n')
+        for i in default_targets:
+            print(i.__name__)
+
+    print('\n# Documented Targets:\n')
+
+    for i in info_targets:
+        print(('{:<' + str(longest_target_name) + '}  {}')
+              .format(i.name, '# ' + newline_header.join(textwrap.wrap(i.info))) + '\n')
+
+
+def _list_targets(default_targets, make):
+    if len(default_targets) > 0:
+        print('\n# Default Targets:\n')
+        for i in default_targets:
+            print(i.__name__)
+    print('\n# All Targets:\n')
+    for i in sorted(make.get_all_targets(), key=_sort_target_by_name_key):
+        print(i.name)
 
 
 def get_subpake_depth():
@@ -161,6 +198,10 @@ def get_subpake_depth():
         return _cur_args.s_depth
     else:
         return 0
+
+
+_cur_args = None
+_init_file_name = ""
 
 
 def init():
@@ -200,10 +241,6 @@ def init():
     return make
 
 
-def _sort_target_by_name_key(target):
-    return target.name.lower()
-
-
 def run(make, default_targets=None):
     """The main entry point into pake, handles program arguments and sets up your :py:class:`pake.make.Make` object for execution.
 
@@ -225,7 +262,6 @@ def run(make, default_targets=None):
 
     default_targets = make.resolve_targets(default_targets)
 
-
     if _cur_args is None:
         raise PakeUninitializedException("pake.init() has not been called yet.")
 
@@ -242,41 +278,11 @@ def run(make, default_targets=None):
         _arg_parser.error('*** No Targets.  Stop.')
 
     if _cur_args.list_targets:
-        if len(default_targets) > 0:
-            print('\n# Default Targets:\n')
-            for i in default_targets:
-                print(i.__name__)
-
-        print('\n# All Targets:\n')
-        for i in sorted(make.get_all_targets(), key=_sort_target_by_name_key):
-            print(i.name)
+        _list_targets(default_targets, make)
         return
 
     if _cur_args.list_targets_info:
-        info_targets = sorted(
-            [x for x in make.get_all_targets() if x.info],
-            key=_sort_target_by_name_key
-        )
-
-        longest_target_name = len(
-            max(info_targets, key=_sort_target_by_name_key).name
-        )
-
-        newline_header = ('\n ' + (' ' * longest_target_name) + ' # ')
-
-        if len(info_targets) == 0:
-            print("No targets with info strings are present.")
-            return
-
-        if len(default_targets) > 0:
-            print('\n# Default Targets:\n')
-            for i in default_targets:
-                print(i.__name__)
-
-        print('\n# Documented Targets:\n')
-        for i in info_targets:
-            print(('{:<' + str(longest_target_name) + '}  {}')
-                  .format(i.name, '# ' + newline_header.join(textwrap.wrap(i.info))) + '\n')
+        _list_targets_info(default_targets, make)
         return
 
     if _cur_args.jobs:
