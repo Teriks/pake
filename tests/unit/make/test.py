@@ -52,6 +52,8 @@ class MakeTests(unittest.TestCase):
 
         make = pake.make.Make()
 
+        make.set_output_level(pake.make.OutputLevel.none)
+
         make.add_target(target_5)
         make.add_target(target_1, depends=[target_5])
         make.add_target(target_2, depends=[target_1])
@@ -66,15 +68,7 @@ class MakeTests(unittest.TestCase):
         # order of target execution.
         make.set_run_targets(["target_4", target_4, target_2])
 
-        # For making pake.make.Make() shut up
-        # need to make that configurable
-
-        save_stdout = sys.stdout
-        sys.stdout = io.StringIO()
-
         make.execute()
-
-        sys.stdout = save_stdout
 
         # 5 and 1 should come in a deterministic order, because they are
         # leaf dependencies that are specified in order in the set_run_targets call
@@ -90,11 +84,8 @@ class MakeTests(unittest.TestCase):
         def visitor(x):
             target_order.append(x.function)
 
-        sys.stdout = io.StringIO()
         # Test visit as well
         make.visit(visitor)
-
-        sys.stdout = save_stdout
 
         self.assertEqual(target_order,
                          [target_5,
@@ -104,8 +95,6 @@ class MakeTests(unittest.TestCase):
                           target_4])
 
         target_order.clear()
-
-        sys.stdout = save_stdout
 
     def test_execute_order(self):
         target_order = []
@@ -134,6 +123,8 @@ class MakeTests(unittest.TestCase):
                 target_order.append(target_5)
 
         make = pake.make.Make()
+        make.set_output_level(pake.make.OutputLevel.none)
+
         make.set_max_jobs(10)
 
         make.add_target(target_5)
@@ -150,15 +141,7 @@ class MakeTests(unittest.TestCase):
         # order of target execution.
         make.set_run_targets(["target_4", target_4, target_2])
 
-        # For making pake.make.Make() shut up
-        # need to make that configurable
-
-        save_stdout = sys.stdout
-        sys.stdout = io.StringIO()
-
         make.execute()
-
-        sys.stdout = save_stdout
 
         # 5 and 1 should come in a deterministic order, because they are
         # leaf dependencies that are specified in order in the set_run_targets call
@@ -174,11 +157,8 @@ class MakeTests(unittest.TestCase):
         def visitor(x):
             target_order.append(x.function)
 
-        sys.stdout = io.StringIO()
         # Test visit as well
         make.visit(visitor)
-
-        sys.stdout = save_stdout
 
         self.assertEqual(target_order,
                          [target_5,
@@ -188,8 +168,6 @@ class MakeTests(unittest.TestCase):
                           target_4])
 
         target_order.clear()
-
-        sys.stdout = save_stdout
 
     def test_get_target(self):
         make = pake.make.Make()

@@ -32,6 +32,36 @@ import pake.exception
 import pake.graph
 import pake.util
 import pake.process
+import enum
+
+
+def _is_input_newer(input_file, output_file):
+    return (os.path.getmtime(input_file) - os.path.getmtime(output_file)) > 0.1
+
+
+def _func_name(reference):
+    if type(reference) is str:
+        return str
+    else:
+        return reference.__name__
+
+
+def _is_str_or_func(reference):
+    if type(reference) is str:
+        return True
+    elif inspect.isfunction(reference):
+        return True
+    return False
+
+
+class OutputLevel(enum.IntEnum):
+    none = 0
+    pake = 1
+    targets = 2
+    pake_and_targets = pake | targets
+
+    def __contains__(self, item):
+        return (self.value & item.value) == item.value
 
 
 class TargetAggregateException(pake.exception.PakeException):
@@ -134,7 +164,8 @@ class Target:
         sys.stdout.write(''.join(self._print_queue))
         self._print_queue.clear()
 
-    def execute(self, args, ignore_stderr=False, ignore_returncode=False, print_command=True, write_output=True, silent=False):
+    def execute(self, args, ignore_stderr=False, ignore_returncode=False, print_command=True, write_output=True,
+                silent=False):
         """Execute a system command, write stdout and stderr to the targets output, also return a list of lines output from the program.
         The command is not passed directly to the shell, so you may not use any shell specific syntax like subshells, redirection, pipes ect..
 
@@ -225,6 +256,12 @@ class Target:
 
     def write(self, data):
         """Write data to stdout in a synchronized fashion."""
+
+        if OutputLevel.targets not in self._make.get_output_level():
+            # Don't collect target output if the Make instances output level
+            # does not contain the targets flag.
+            return
+
         if self._make.get_max_jobs() > 1:
             with self._print_queue_lock:
                 self._print_queue.append(data)
@@ -351,25 +388,6 @@ class Target:
         return False if type(other) != Target else self.function is other.function
 
 
-def _is_input_newer(input_file, output_file):
-    return (os.path.getmtime(input_file) - os.path.getmtime(output_file)) > 0.1
-
-
-def _func_name(reference):
-    if type(reference) is str:
-        return str
-    else:
-        return reference.__name__
-
-
-def _is_str_or_func(reference):
-    if type(reference) is str:
-        return True
-    elif inspect.isfunction(reference):
-        return True
-    return False
-
-
 class Make:
     """The make context class.  Target functions can be registered to an instance of this class
     using the :py:meth:`pake.make.Make.target` python decorator, or manually using the :py:meth:`pake.make.Make.add_target`
@@ -394,6 +412,7 @@ class Make:
         self._task_exceptions_lock = threading.RLock()
         self._task_exceptions = []
         self._target_print_lock = threading.RLock()
+        self._output_level = OutputLevel.pake_and_targets
 
     def __getitem__(self, name):
         """Retrieve the value of a define, returns None if the define does not exist.
@@ -403,6 +422,28 @@ class Make:
         :return: The defines value, or None if the define does not exist.
         """
         return self.get_define(name)
+
+    def set_output_level(self, output_level):
+        """Set the output level for this instance, the default is **pake_and_targets** from the enum :py:class:`pake.make.OutputLevel`.
+
+        The **pake_and_targets** output level prints pake output such as the target execution notice, as well as the output
+        from within targets that have been run.
+
+        Exceptions are always printed.
+
+        :param output_level: The output level
+        :type output_level: pake.Make.OutputLevel enum member
+        """
+
+        self._output_level = output_level
+
+    def get_output_level(self):
+        """Gets the current output level as set by :py:meth:`pake.make.Make.set_output_level`.
+
+        :return: The current output level.
+        :rtype: pake.Make.OutputLevel enum member
+        """
+        return self._output_level
 
     def set_defines(self, defines_dict):
         """Set the available defines for this :py:class:`pake.make.Make` instance.
@@ -546,7 +587,7 @@ class Make:
             if target_function not in self._target_funcs_by_name:
                 raise UndefinedTargetException(
                     'No pake target named "{}" was previously declared.'
-                    .format(target_function))
+                        .format(target_function))
 
             return self._target_graph[self._target_funcs_by_name[target_function]]
 
@@ -557,7 +598,7 @@ class Make:
         if target_function not in self._target_graph:
             raise UndefinedTargetException(
                 'Function "{}" is not a declared pake target.'
-                .format(target_function.__name__))
+                    .format(target_function.__name__))
 
         return self._target_graph[target_function]
 
@@ -640,7 +681,7 @@ class Make:
 
             raise UndefinedTargetException(
                 'Dependency: "{}" of Target: "{}", was not a previously declared pake Target.'
-                .format(
+                    .format(
                     _func_name(target_function),
                     _func_name(i)))
 
@@ -793,8 +834,10 @@ class Make:
                     task.result()
 
         sig = inspect.signature(target.function)
-        target.print('===== Executing target: "{}"'
-                     .format(target.name))
+
+        if OutputLevel.pake in self._output_level:
+            target.print('===== Executing target: "{}"'
+                         .format(target.name))
 
         if len(sig.parameters) > 0:
             target.function(target)
@@ -802,13 +845,13 @@ class Make:
             target.function()
 
     def _run_target(self, thread_pool, target):
-        def done_callback(t):
+        def done_callback(task):
             with self._target_print_lock:
                 target._write_stdout_queue()
-            if t.exception():
+            if task.exception():
                 with self._task_exceptions_lock:
                     self._task_exceptions.append(
-                        (target, t.exception())
+                        (target, task.exception())
                     )
 
         task = thread_pool.submit(self._run_target_task, target)
@@ -860,7 +903,8 @@ class Make:
 
         if not visitor:
             def visitor(target):
-                print("Execute Target: " + target.function.__name__)
+                if OutputLevel.pake in self._output_level:
+                    print("Execute Target: " + target.function.__name__)
 
         self._last_run_count = 0
 
