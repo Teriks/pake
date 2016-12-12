@@ -175,7 +175,7 @@ class Target:
         self._print_queue = []
         self._print_queue_lock = threading.RLock()
 
-    def _write_stdout_queue(self):
+    def _write_output_queue(self):
         self.make.get_output_stream().write(''.join(self._print_queue))
         self._print_queue.clear()
 
@@ -758,8 +758,8 @@ class Make:
                 return True
 
             out_of_date = False
-            for x, i in enumerate(inputs):
-                o = outputs[x]
+            for idx, i in enumerate(inputs):
+                o = outputs[idx]
                 if not os.path.exists(o):
                     target._add_outdated_input_output(i, o)
                     out_of_date = True
@@ -845,10 +845,10 @@ class Make:
         else:
             result = list(target_functions)
 
-        for i, target in enumerate(result):
+        for idx, target in enumerate(result):
             if type(target) is str:
                 if target in self._target_funcs_by_name:
-                    result[i] = self._target_funcs_by_name[target]
+                    result[idx] = self._target_funcs_by_name[target]
                 else:
                     raise UndefinedTargetException('Target "{target}" is not defined.'
                                                    .format(target=target))
@@ -856,7 +856,7 @@ class Make:
                 raise ValueError('Given target "{obj}" was neither a function or a string.'
                                  .format(obj=target))
             else:
-                if not target in self._target_graph:
+                if target not in self._target_graph:
                     raise UndefinedTargetException('Target "{target}" is not defined.'
                                                    .format(target=target))
         return result
@@ -888,7 +888,7 @@ class Make:
     def _run_target(self, thread_pool, target):
         def done_callback(task):
             with self._target_print_lock:
-                target._write_stdout_queue()
+                target._write_output_queue()
             if task.exception():
                 with self._task_exceptions_lock:
                     self._task_exceptions.append(
