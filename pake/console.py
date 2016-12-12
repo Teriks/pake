@@ -35,6 +35,7 @@ def remove_ansi_codes(string):
     """
     return _remove_ansi_codes_regex.sub('', string)
 
+
 def print_error(*objects, sep=' ', end='\n', file=sys.stdout):
     """print_error(\*objects, sep=' ', end='\\\\n', file=sys.stdout)
 
