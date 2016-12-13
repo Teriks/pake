@@ -80,8 +80,7 @@ class OutputLevel(enum.IntEnum):
 
 
 class TargetAggregateException(pake.exception.PakeException):
-    """Raised when an exception that does not derive from
-       :py:class:`pake.exception.PakeException` is raised while a target is executing."""
+    """Raised when one or more exceptions were encountered inside of pake targets that have run."""
 
     def __init__(self, inner_exceptions):
         self._inner_exceptions = inner_exceptions
@@ -95,7 +94,9 @@ class TargetAggregateException(pake.exception.PakeException):
 
     @property
     def inner_trace_str(self):
-        """Returns a formatted stack trace string for the inner exception."""
+        """Returns a formatted error log with a trace of each non :py:class:`pake.exception.PakeException`.
+        Exceptions that inherit :py:class:`pake.exception.PakeException` are instead stringified to display
+        only their exception message."""
         except_str = ['Exception encountered in target "{target}", Info:\n\n{trace}'
                       .format(target=x[0].name, trace=self._get_trace(x)) for x in self._inner_exceptions]
 
@@ -104,7 +105,7 @@ class TargetAggregateException(pake.exception.PakeException):
     @property
     def inner_exceptions(self):
         """Returns a list in the form [(:py:class:`pake.make.Target`, exception_object), ...] representing all
-        exceptions raised inside pake targets which do not derive from :py:class:`pake.exception.PakeException`."""
+        exceptions raised inside pake targets."""
         return self._inner_exceptions
 
 
