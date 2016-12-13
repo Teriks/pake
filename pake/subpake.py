@@ -78,7 +78,7 @@ def export(name, value):
     :type name: str
     :param value: The define value, which can be a int, float, bool, string, list, set, dictionary or tuple
                   (Basically any type that can be expressed as a literal).  Composite literals like lists, tuples (etc..)
-                  must consist only of simple literal values (not variable references of any kind).
+                  must consist only of simple literal values.
     """
     _exports[name] = value
 
