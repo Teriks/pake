@@ -95,7 +95,7 @@ class FileHelper:
         pathlib.Path(file_name).touch(mode=mode, exist_ok=exist_ok)
 
     def copytree(self, src, dst, symlinks=False, ignore=None, copy_function=shutil.copy2, ignore_dangling_symlinks=False, silent=False):
-        """self, src, dst, symlinks=False, ignore=None, copy_function=shutil.copy2, ignore_dangling_symlinks=False, silent=False
+        """copytree(self, src, dst, symlinks=False, ignore=None, copy_function=shutil.copy2, ignore_dangling_symlinks=False, silent=False)
         Recursively copy a directory tree,  See :py:meth:`shutil.copytree`.
 
         The destination directory must not already exist.
