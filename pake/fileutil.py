@@ -31,7 +31,7 @@ class FileHelper:
     inside and outside of pake targets.  Instantiating this class
     with the target parameter set to a :py:class:`pake.make.Target`
     instance will cause it to print information about file system operations
-    that it preforms.  Each available file system functions notice message
+    it performs to the targets output queue.  Each available file system functions notice message
     can be silenced using the **silent** parameter of the function.
     """
 
