@@ -29,16 +29,17 @@ import glob
 class FileHelper:
     """A helper class for dealing with common file operations
     inside and outside of pake targets.  Instantiating this class
-    with the target parameter set to the :py:class:`pake.make.Target`
-    instance that gets passed into a target will cause it to print information about
-    the file operations it is preforming to the targets output, unless it is specified
-    that the function be silent via the silent parameter."""
+    with the target parameter set to a :py:class:`pake.make.Target`
+    instance will cause it to print information about file system operations
+    that it preforms.  Each available file system functions notice message
+    can be silenced using the **silent** parameter of the function.
+    """
 
     def __init__(self, target=None):
         """Build the FileHelper object around the :py:class:`pake.make.Target` instance
         that gets passed into a pake target, or None.
 
-        :param target: A :py:class:`pake.make.Target` instance or None, if target is is set
+        :param target: A :py:class:`pake.make.Target` instance or None.  If **target** is set
                        then information about the file operations that occur using this
                        FileHelper instance will be printed to the targets output, unless
                        the 'silent' parameter is set to True in the function being called.
