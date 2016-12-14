@@ -166,7 +166,7 @@ Writing basic targets
 
 Output from the example above:
 
-.. code-block::
+.. code-block:: bash
 
     ===== Executing target: "bar"
     gcc -c "bar/bar.c" -o "bar/bar.o"
@@ -257,7 +257,7 @@ output queue in a synchronized manner when multiple jobs are running.
 
 Output from the example above:
 
-.. code-block::
+.. code-block:: bash
 
     ***** Running Pake "sometasks/pakefile.py"
     pake[1]: Entering Directory "(REST OF FULL PATH...)\paketest\sometasks"
