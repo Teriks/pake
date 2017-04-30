@@ -121,11 +121,11 @@ class TaskContext:
         self._io.flush()
         if len(args) == 1:
             if is_iterable_not_str(args[0]):
-                args = (str(i) for i in args[0])
+                args = [str(i) for i in args[0]]
             elif type(args[0]) is str:
                 args = shlex.split(args[0])
         else:
-            args = (str(i) for i in args)
+            args = [str(i) for i in args]
 
         call = subprocess.call if ignore_errors else subprocess.check_call
 
@@ -133,9 +133,9 @@ class TaskContext:
             stdout = subprocess.DEVNULL
         else:
             stdout = self._io
-            print(' '.join(args), file=stdout)
+            print(' '.join(list(args)), file=stdout)
             stdout.flush()
-            
+
         return call(list(args),
                     stdout=stdout, stderr=subprocess.STDOUT,
                     stdin=stdin, shell=shell)
