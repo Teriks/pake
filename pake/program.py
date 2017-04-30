@@ -133,7 +133,7 @@ def _coerce_define_value(value_name, value):
                         'Error parsing define value of "{name}": {message}'
                             .format(name=value_name, message=str(syn_err)))
         else:
-            return True
+            return ''
 
         lower = ls.rstrip().lower()
         if lower == 'false':
