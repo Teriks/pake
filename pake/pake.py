@@ -42,7 +42,7 @@ class TaskContext:
        :ivar inputs: All file inputs, or an empty list
        :ivar outputs: All file outputs, or an empty list
        
-       :ivar outdated_inputs: All changed file inputs, or an empty list
+       :ivar outdated_inputs: All changed file inputs (or inputs who's corresponding output is missing), or an empty list
        :ivar outdated_outputs: All out of date file outputs, or an empty list
     """
 
