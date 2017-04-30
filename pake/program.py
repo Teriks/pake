@@ -148,7 +148,7 @@ def _defines_to_dict(defines):
 
     result = {}
     for i in defines:
-        d = i[0].split('=', maxsplit=1)
+        d = i.split('=', maxsplit=1)
         result[d[0].strip()] = True if len(d) == 1 else _coerce_define_value(d[0], d[1])
     return result
 
