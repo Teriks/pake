@@ -11,26 +11,26 @@ sys.path.insert(1,
 
 import pake
 
-make = pake.init()
+pk = pake.init()
 
-print("Import Export TEST 0 = "+str(make["TEST_EXPORT"]))
-print("Import Export TEST 1 = "+str(make["TEST_EXPORT1"]))
-print("Import Export TEST 2 = "+str(make["TEST_EXPORT2"]))
-print("Import Export TEST 3 = "+str(make["TEST_EXPORT3"]))
-print("Import Export TEST 4 = "+str(make["TEST_EXPORT4"]))
-print("Import Export TEST 5 = "+str(make["TEST_EXPORT5"]))
+print("Import Export TEST 0 = " + str(pk["TEST_EXPORT"]))
+print("Import Export TEST 1 = " + str(pk["TEST_EXPORT1"]))
+print("Import Export TEST 2 = " + str(pk["TEST_EXPORT2"]))
+print("Import Export TEST 3 = " + str(pk["TEST_EXPORT3"]))
+print("Import Export TEST 4 = " + str(pk["TEST_EXPORT4"]))
+print("Import Export TEST 5 = " + str(pk["TEST_EXPORT5"]))
 
 
-@make.target(inputs="test.c", outputs="test.o")
+@pk.task(i="test.c", o="test.o")
 def all(target):
     file_helper = pake.FileHelper(target)
     file_helper.touch(target.outputs[0])
     target.print(target.inputs[0])
 
 
-@make.target
+@pk.task
 def clean(target):
     for i in glob.glob("*.o"):
         os.unlink(i)
 
-pake.run(make)
+pake.run(pk)

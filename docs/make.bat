@@ -1,12 +1,14 @@
 @ECHO OFF
 
+pushd %~dp0
+
 REM Command file for Sphinx documentation
 
 if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
 )
-set SOURCEDIR=.
-set BUILDDIR=_build
+set SOURCEDIR=source
+set BUILDDIR=build
 set SPHINXPROJ=pake
 
 if "%1" == "" goto help
@@ -31,3 +33,4 @@ goto end
 %SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
 
 :end
+popd

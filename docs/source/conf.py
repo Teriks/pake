@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # pake documentation build configuration file, created by
-# sphinx-quickstart on Fri Dec  2 08:17:16 2016.
+# sphinx-quickstart on Sun Apr 30 07:59:16 2017.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -19,10 +19,8 @@
 #
 import os
 import sys
-import re
-
-
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../..'))
+import pake
 
 
 # -- General configuration ------------------------------------------------
@@ -34,7 +32,8 @@ sys.path.insert(0, os.path.abspath('..'))
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc',
+    'sphinx.ext.viewcode']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -50,19 +49,15 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'pake'
-copyright = '2016, Teriks'
+copyright = '2017, Teriks'
 author = 'Teriks'
-
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = ''
-with open('../pake/__init__.py') as f:
-    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
-
+version = pake.__version__
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -76,7 +71,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -90,7 +85,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = 'alabaster'
+html_theme = 'default'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

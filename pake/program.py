@@ -1,4 +1,4 @@
-# Copyright (c) 2016, Teriks
+# Copyright (c) 2017, Teriks
 # All rights reserved.
 #
 # pake is distributed under the following BSD 3-Clause License
@@ -20,76 +20,99 @@
 
 import argparse
 import ast
-import atexit
 import inspect
-import os
+import os.path
 import textwrap
 
+import os
 import pake
-import pake.console
-import pake.exception
-import pake.util
+
+from pake.util import is_iterable
+from .pake import Pake
 
 
-class _DefineSyntaxError(SyntaxError):
-    pass
+class PakeUninitializedException(Exception):
+    """
+    Thrown if :py:func:`pake.run` is called without first calling :py:func:`pake.init`
+    """
+
+    def __init__(self):
+        super(PakeUninitializedException, self).__init__("pake.init() has not been called yet.")
 
 
-class PakeUninitializedException(pake.exception.PakeException):
-    """Occurs when calling certain pake functions (that rely on global state)
-    prior to :py:meth:`pake.program.init` being called"""
-    pass
+_arg_parser = argparse.ArgumentParser(prog='pake')
 
 
-_arg_parser = argparse.ArgumentParser(prog="pake",
-                                      description="pake, a (make like) python build utility.")
+def _create_gt_int(less_message):
+    def _gt_zero_int(val):
+        val = int(val)
+        if val < 1:
+            _arg_parser.error(less_message)
+        return val
 
-
-def _validate_gt_one(value):
-    i_value = int(value)
-    if i_value < 1:
-        _arg_parser.error('Max number of parallel jobs cannot be less than 1.')
-    return i_value
-
-
-def _validate_dir(path):
-    if os.path.exists(path):
-        if os.path.isdir(path):
-            return os.path.abspath(path)
-        else:
-            _arg_parser.error('Path "{path}" is not a directory.'.format(path=path))
-    else:
-        _arg_parser.error('Directory "{path}" does not exist.'.format(path=path))
+    return _gt_zero_int
 
 
 _arg_parser.add_argument('-v', '--version', action='version', version='pake ' + pake.__version__)
 
-_arg_parser.add_argument('targets', type=str, nargs='*', help='Build targets.')
+_arg_parser.add_argument('tasks', type=str, nargs='*', help='Build tasks.')
 
-_arg_parser.add_argument('-j', '--jobs',
-                         metavar='NUM_JOBS',
-                         type=_validate_gt_one,
+_arg_parser.add_argument('-D', '--define', action='append', help='Add defined value.')
+
+_arg_parser.add_argument('-j', '--jobs', default=1, type=_create_gt_int('--jobs must be greater than one.'),
                          help='Max number of parallel jobs.  Using this option '
-                              'enables unrelated targets to run in parallel with a '
-                              'max of N targets running at a time.')
+                              'enables unrelated tasks to run in parallel with a '
+                              'max of N tasks running at a time.')
+
+_arg_parser.add_argument('--s_depth', default=0, type=int, help=argparse.SUPPRESS)
 
 _arg_parser.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
-                         help='Use to preform a dry run, lists all targets that '
+                         help='Use to preform a dry run, lists all tasks that '
                               'will be executed in the next actual invocation.')
 
-_arg_parser.add_argument('-t', '--targets', action='store_true', dest='list_targets',
-                         help='List all target names.')
+_arg_parser.add_argument('-C', '--directory', help='Change directory before executing.')
 
-_arg_parser.add_argument('-ti', '--targets-info', action='store_true', dest='list_targets_info',
-                         help='List all targets which have info strings provided, with their info string.')
+_arg_parser.add_argument('-t', '--show-tasks', action='store_true', dest='show_tasks',
+                         help='List all task names.')
 
-_arg_parser.add_argument('-D', '--define', nargs=1, action='append',
-                         help='Add defined value.')
+_arg_parser.add_argument('-ti', '--show-task-info', action='store_true', dest='show_task_info',
+                         help='List all tasks along side their doc string.'
+                              'Only tasks with doc strings present will be shown')
 
-_arg_parser.add_argument('-C', '--directory', type=_validate_dir,
-                         help='Change directory before executing.')
+_parsed_args = None
+_init_file_name = None
 
-_arg_parser.add_argument('--s_depth', type=int, default=0, help=argparse.SUPPRESS)
+
+def get_max_jobs():
+    """
+    Get the max number of jobs passed from the --jobs command line argument.
+    
+    This function can only be called after calling :py:func:`pake.init`
+    
+    The minimum number of jobs allowed is 1.
+    
+    :return: The max number of jobs from the --jobs command line argument. (an integer >= 1)
+    """
+    if _parsed_args is None:
+        raise PakeUninitializedException()
+    return _parsed_args.jobs
+
+
+def get_subpake_depth():
+    """
+    Get the depth of execution, which increases for nested calls to :py:func:`pake.subpake`
+    
+    The depth of execution starts at 0.
+    
+    :return: The current depth of execution (an integer >= 0)
+    """
+    if _parsed_args is None:
+        raise PakeUninitializedException()
+
+    if hasattr(_parsed_args, 's_depth'):
+        return _parsed_args.s_depth
+    else:
+        return 0
 
 
 def _coerce_define_value(value_name, value):
@@ -106,7 +129,7 @@ def _coerce_define_value(value_name, value):
                 try:
                     return ast.literal_eval(ls)
                 except SyntaxError as syn_err:
-                    raise _DefineSyntaxError(
+                    raise RuntimeError(
                         'Error parsing define value of "{name}": {message}'
                             .format(name=value_name, message=str(syn_err)))
         else:
@@ -121,6 +144,8 @@ def _coerce_define_value(value_name, value):
 
 
 def _defines_to_dict(defines):
+    if defines is None: return dict()
+
     result = {}
     for i in defines:
         d = i[0].split('=', maxsplit=1)
@@ -128,195 +153,101 @@ def _defines_to_dict(defines):
     return result
 
 
-def _print_error(message):
-    pake.console.print_error("{}: error: {}".format(_init_file_name, message))
-
-
-def _exit_error(message):
-    _print_error(message)
-    exit(1)
-
-
-def _sort_target_by_name_key(target):
-    return target.name.lower()
-
-
-def _list_targets_info(default_targets, make):
-    info_targets = sorted(
-        [x for x in make.get_all_targets() if x.info],
-        key=_sort_target_by_name_key
-    )
-
-    longest_target_name = len(
-        max(info_targets, key=_sort_target_by_name_key).name
-    )
-
-    newline_header = ('\n ' + (' ' * longest_target_name) + ' # ')
-
-    if len(info_targets) == 0:
-        print("No targets with info strings are present.")
-        return
-
-    if len(default_targets) > 0:
-        print('\n# Default Targets:\n')
-        for i in default_targets:
-            print(i.__name__)
-
-    print('\n# Documented Targets:\n')
-
-    for i in info_targets:
-        print(('{:<' + str(longest_target_name) + '}  {}')
-              .format(i.name, '# ' + newline_header.join(textwrap.wrap(i.info))) + '\n')
-
-
-def _list_targets(default_targets, make):
-    if len(default_targets) > 0:
-        print('\n# Default Targets:\n')
-        for i in default_targets:
-            print(i.__name__)
-    print('\n# All Targets:\n')
-    for i in sorted(make.get_all_targets(), key=_sort_target_by_name_key):
-        print(i.name)
-
-
-def get_subpake_depth():
-    """Get the subpake depth of this script.  The value depends on if another pakefile is executing the script
-    this method is called in.  Successive calls to :py:meth:`pake.subpake.run_pake` in child scripts increase the
-    subpake depth by one.  The initial subpake depth is 0.
-
-    :raises pake.program.PakeUninitializedException: Raised if :py:meth:`pake.program.init`
-            has not been called prior to calling this method.
-
-    :return: The subpake depth
-    :rtype: int
+def init(stdout=None, stderr=None):
+    """
+    Initialize a :py:class:`pake.Pake` object and read command line arguments.
+    
+    :param stdout: The stdout object passed to the :py:class:`pake.Pake` instance. (defaults to sys.stdout)
+    :param stderr: The stderr object passed to the :py:class:`pake.Pake` instance. (defaults to sys.stderr)
+    
+    :return: :py:class:`pake.Pake`
     """
 
-    if _cur_args is None:
-        raise PakeUninitializedException("pake.init() has not been called yet.")
-
-    if hasattr(_cur_args, 's_depth'):
-        return _cur_args.s_depth
-    else:
-        return 0
-
-
-_cur_args = None
-_init_file_name = ""
-
-
-def init():
-    """Init pake (possibly change working directory) and return a :py:class:`pake.make.Make` instance.
-
-    :return: :py:class:`pake.make.Make` instance.
-    :rtype: pake.make.Make
-    """
-
-    global _cur_args
-    global _init_file_name
+    global _parsed_args, _init_file_name
 
     frame = inspect.stack()[1]
-    module = inspect.getmodule(frame[0])
-    _init_file_name = os.path.abspath(module.__file__)
+    module_obj = inspect.getmodule(frame[0])
+    _init_file_name = os.path.abspath(module_obj.__file__)
 
-    _cur_args = _arg_parser.parse_args()
+    p = Pake(stdout=stdout, stderr=stderr)
 
-    if _cur_args.directory and _cur_args.directory != os.getcwd():
-        os.chdir(_cur_args.directory)
-        print('pake[{}]: Entering Directory "{}"'
-              .format(get_subpake_depth(), _cur_args.directory))
+    _parsed_args = _arg_parser.parse_args()
 
-        def _at_exit_chdir():
-            print('pake[{}]: Leaving Directory "{}"'
-                  .format(get_subpake_depth(), _cur_args.directory))
+    p.set_defines_dict(_defines_to_dict(_parsed_args.define))
 
-        atexit.register(_at_exit_chdir)
-
-    make = pake.Make()
-    if _cur_args.define:
-        try:
-            make.set_defines(_defines_to_dict(_cur_args.define))
-        except _DefineSyntaxError as syn_err:
-            _arg_parser.error(str(syn_err))
-
-    return make
+    return p
 
 
-def run(make, default_targets=None):
-    """The main entry point into pake, handles program arguments and sets up your :py:class:`pake.make.Make` object for execution.
+def _format_task_info(task_name, task_doc):
+    task_name_len = len(task_name)
+    lines = textwrap.wrap(task_doc)
 
-    :param make: your :py:class:`pake.make.Make` object, with targets registered.
-    :type make: pake.make.Make
+    for i in range(1, len(lines)):
+        lines[i] = ' ' * (task_name_len + 2) + lines[i]
 
-    :param default_targets: The targets to execute if no targets are specified on the command line.
-                            This can be a single target, or a list.  The elements may be direct function references
-                            or function names as strings.
+    spacing = (os.linesep if len(lines) > 1 else '')
+    return spacing + task_name + ': ' + os.linesep.join(lines) + spacing
 
-    :raises pake.program.PakeUninitializedException: Raised if :py:meth:`pake.program.init`
-            has not been called prior to calling this method.
 
-    :raises pake.make.UndefinedTargetException: If any specified default target is not a target registered
-                                                with the :py:class:`pake.make.Make` instance passed to this function.
-
-    :type default_targets: list or func
+def run(pake_obj, tasks=None):
     """
+    Run pake (the program) given a :py:class:`pake.Pake` instance and options default tasks.
+    
+    :param pake_obj: A :py:class:`pake.Pake` instance, usually created by :py:func:`pake.init`.
+    :param tasks: A list of, or a single default task to run if no tasks are specified on the command line.
+    """
+    if _parsed_args is None:
+        raise PakeUninitializedException()
 
-    default_targets = make.resolve_targets(default_targets)
-
-    if _cur_args is None:
-        raise PakeUninitializedException("pake.init() has not been called yet.")
-
-    if _cur_args.dry_run and _cur_args.jobs:
-        _arg_parser.error("-n/--dry-run and -j/--jobs cannot be used together.")
-
-    if len(_cur_args.targets) > 0 and _cur_args.list_targets:
-        _arg_parser.error("Run targets may not be specified when using the -t/--targets option to list targets.")
-
-    if _cur_args.list_targets and _cur_args.list_targets_info:
-        _arg_parser.error("-t/--targets and -ti/--targets-info cannot be used together.")
-
-    if make.target_count() == 0:
-        _arg_parser.error('*** No Targets.  Stop.')
-
-    if _cur_args.list_targets:
-        _list_targets(default_targets, make)
+    if _parsed_args.show_tasks and _parsed_args.show_task_info:
+        print("-t/--show-tasks and -ti/--show-task-info cannot be used together.", file=pake_obj.stdout)
         return
 
-    if _cur_args.list_targets_info:
-        _list_targets_info(default_targets, make)
+    if _parsed_args.show_tasks:
+        for ctx in pake_obj.task_contexts:
+            print(ctx.name, file=pake_obj.stdout)
         return
 
-    if _cur_args.jobs:
-        make.set_max_jobs(_cur_args.jobs)
+    if _parsed_args.show_task_info:
+        for ctx in (ctx for ctx in pake_obj.task_contexts if ctx.func.__doc__ is not None):
+            print(_format_task_info(ctx.name, ctx.func.__doc__), file=pake_obj.stdout)
+        return
 
-    if len(_cur_args.targets) > 0:
-        run_targets = _cur_args.targets
+    run_tasks = []
+    if _parsed_args.tasks:
+        run_tasks += _parsed_args.tasks
+    elif tasks:
+        if is_iterable(tasks):
+            run_tasks += tasks
+        else:
+            run_tasks.append(tasks)
     else:
-        if default_targets is None:
-            _arg_parser.error(
-                "No targets were provided and no default target "
-                "was specified in the pakefile.")
+        print("No tasks specified.", file=pake_obj.stdout)
+        return
 
-        if pake.util.is_iterable_not_str(default_targets):
-            run_targets = default_targets
-        else:
-            run_targets = [default_targets]
+    if _parsed_args.dry_run:
+        pake_obj.dry_run(run_tasks)
+        return
 
-    try:
-        make.set_run_targets(run_targets)
-    except pake.UndefinedTargetException as target_undef_err:
-        _arg_parser.error(str(target_undef_err))
+    depth = get_subpake_depth()
 
-    try:
-        if _cur_args.dry_run:
-            make.visit()
-        else:
-            make.execute()
-    except pake.TargetInputNotFoundException as input_file_err:
-        _exit_error(str(input_file_err))
-    except pake.SubPakeException as subpake_err:
-        _exit_error(str(subpake_err))
-    except pake.TargetAggregateException as inner_target_err:
-        _exit_error(str(inner_target_err))
+    if depth > 0:
+        print('*** enter subpake[{}]:'.format(depth), file=pake_obj.stdout)
 
-    if make.get_last_run_count() == 0:
-        print("Nothing to do, all targets up to date.")
+    exit_dir = None
+    if _parsed_args.directory:
+        exit_dir = os.getcwd()
+
+        print('pake[{}]: Entering Directory "{}"'.
+              format(depth, _parsed_args.directory), file=pake_obj.stdout)
+
+        os.chdir(_parsed_args.directory)
+
+    pake_obj.run(jobs=_parsed_args.jobs, tasks=run_tasks)
+
+    if exit_dir:
+        print('pake[{}]: Exiting Directory "{}"'.
+              format(depth, _parsed_args.directory), file=pake_obj.stdout)
+
+    if depth > 0:
+        print('*** exit subpake[{}]:'.format(depth), file=pake_obj.stdout)

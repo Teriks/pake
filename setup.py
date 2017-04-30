@@ -22,23 +22,21 @@ setup(name='pake',
       description='A make like build utility using python.',
       long_description=readme,
       include_package_data=True,
-      install_requires=[
-          'colorama>=0.3.7'
-      ],
+      install_requires=[],
       entry_points={
           'console_scripts': [
               'pake = pake.entry_points.pake_command:main'
           ]
       },
       classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
-        'License :: OSI Approved :: BSD 3-Clause License',
-        'Intended Audience :: Developers',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Topic :: Software Development :: Build Tools',
-        'Topic :: Utilities',
+          'Development Status :: 2 - Pre-Alpha',
+          'License :: OSI Approved :: BSD 3-Clause License',
+          'Intended Audience :: Developers',
+          'Natural Language :: English',
+          'Operating System :: OS Independent',
+          'Programming Language :: Python :: 3.4',
+          'Programming Language :: Python :: 3.5',
+          'Topic :: Software Development :: Build Tools',
+          'Topic :: Utilities',
       ]
-)
+      )

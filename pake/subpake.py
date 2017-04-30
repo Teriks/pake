@@ -1,4 +1,4 @@
-# Copyright (c) 2016, Teriks
+# Copyright (c) 2017, Teriks
 # All rights reserved.
 #
 # pake is distributed under the following BSD 3-Clause License
@@ -18,163 +18,62 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import os.path
+import subprocess
+import sys
 
 import os
-import sys
-import pake
-import pake.process
 
+from .program import get_subpake_depth, get_max_jobs, PakeUninitializedException
 
-class SubPakeException(pake.PakeException):
-    """A blanket exception raised when any error occurs during the actual execution
-    of another pakefile while calling :py:meth:`pake.subpake.run_pake`.
-    """
-
-    def __init__(self, script, output, return_code):
-        super().__init__('Error occurred in subpake script "{script}", script output:\n\n'
-                         '{output}\n\n** Script "{script}" Return Code: {return_code}'
-                         .format(script=script,
-                                 output=output.rstrip(),
-                                 return_code=return_code))
-
-        self._script = script
-        self._output = output
-        self._return_code = return_code
-
-    @property
-    def return_code(self):
-        """Return the scripts exit return code"""
-        return self._return_code
-
-    @property
-    def output(self):
-        """Return the output produced by the script as a string."""
-        return self._output
-
-    @property
-    def script(self):
-        """Returns the path of the script that the error ocured in."""
-        return self._script
-
-
-_exports = {}
-
-
-def _exports_to_args():
-    args = []
-    for k, v in _exports.items():
-        args.append("-D")
-        if type(v) is str and len(v.strip()) == 0:
-            args.append(k + '="' + str(v) + '"')
-        else:
-            args.append(k + "=" + str(v))
-    return args
+_exports = dict()
 
 
 def export(name, value):
-    """Export a define which will be passed to sub script invocations when calling :py:func:`pake.subpake.run_pake`
-
+    """
+    Exports a define that can be retrieved in subpake scripts via :py:func:`~pake.Pake.get_define`.
+    
     :param name: The name of the define.
-    :type name: str
-    :param value: The define value, which can be a int, float, bool, string, list, set, dictionary or tuple
-                  (Basically any type that can be expressed as a literal).  Composite literals like lists, tuples (etc..)
-                  must consist only of simple literal values.
+    :param value: The value of the define.
     """
     _exports[name] = value
 
 
-def un_export(name):
-    """Prevent a previously exported value from being exported during new invocations of :py:func:`pake.subpake.run_pake`.
-
-    :param name: The name of the previously exported define.
-    :type name: str
+def subpake(script, *args, stdout=None, silent=False):
     """
-    if name in _exports:
-        del _exports[name]
-
-
-def run_pake(script_path,
-             *args,
-             stdout=sys.stdout,
-             stdout_collect=False,
-             write_execute_header=True,
-             execute_header='***** Running Pake "{}"\n',
-             write_output=True,
-             silent=False):
-    """run_pake(script_path, \*args, stdout=sys.stdout, stdout_collect=False, write_execute_header=True, execute_header='***** Running Pake "{}"\\\\n', write_output=True, silent=False)
-
-    Run another pakefile.py programmatically, changing directories if required.
-    The scripts stderr will be redirected to stdout.
-
-    :param script_path: The path to the pakefile that is going to be ran.
-
-    :param args: Command line arguments to pass the pakefile.
-
-    :param stdout: A file like object to write the scripts output to, default is **sys.stdout**.
-
-    :param stdout_collect: If set to True, the scripts output will be collected and written all at once to the stdout
-                           parameter.  Otherwise the scripts output will be written line by line as it is read from the
-                           stdout pipe.
-
-    :param write_execute_header: Whether or not to execute_header before the standard output of the program.
-
-    :param execute_header: The header to print before the scripts standard output if print_execute_header is True,
-                           the placeholder {} may be used to insert the script_path into the header.
-
-    :param write_output: If set to True, the pake scripts output will be written to the provided stdout object.
-
-    :param silent: If set to True, nothing at all will be written to the provided stdout object.
-
-    :raises FileNotFoundError: Raised if the given pakefile script does not exist.
-    :raises pake.subpake.SubPakeException: Raised if the subpake script exits in a non successful manner.
+    Execute a pakefile.py script, changing directories if necessary.
+    
+    :param script: The path to the pakefile.py script
+    :param args: Additional arguments to pass to the script
+    :param stdout: The stream to write all of the scripts output to. (defaults to sys.stdout)
+    :param silent: Whether or not to silence all output.
     """
 
-    if os.path.exists(script_path):
-        if not os.path.isfile(script_path):
-            raise FileNotFoundError('"{script_path}" is not a file.'
-                                    .format(script_path=script_path))
-    else:
-        raise FileNotFoundError('"{script_path}" does not exist.'
-                                .format(script_path=script_path))
+    stdout = stdout if stdout is not None else sys.stdout
+
+    script_dir = os.path.dirname(os.path.abspath(script))
 
     try:
-        str_filter_args = list(str(a) for a in args)
-        work_dir = os.path.dirname(os.path.abspath(script_path))
+        depth = get_subpake_depth() + 1
+        jobs = get_max_jobs()
+    except PakeUninitializedException:
+        depth = 0
+        jobs = 1
 
-        try:
-            depth = pake.program.get_subpake_depth()
-        except pake.PakeUninitializedException:
-            depth = 0
+    extra_args = []
+    for key, value in _exports.items():
+        extra_args += ['-D', key + '=' + str(value)]
 
-        output = pake.process.execute(
-            [sys.executable, "-u", script_path, "--s_depth", str(depth + 1), "-C", work_dir] +
-            _exports_to_args() + str_filter_args)
+    extra_args += ['--s_depth', str(depth), '--jobs', str(jobs)]
 
-        if not silent and stdout_collect:
-            # Force iteration
-            written_output = ''.join(output)
+    if os.getcwd() != script_dir:
+        extra_args += ['--directory', script_dir]
 
-            if write_execute_header:
-                if write_output:
-                    stdout.write(execute_header.format(script_path) + written_output)
-                else:
-                    stdout.write(execute_header.format(script_path))
-            elif write_output:
-                stdout.write(written_output)
+    if silent:
+        stdout = subprocess.DEVNULL
+    else:
+        stdout.flush()
 
-        elif not silent:
-            if write_execute_header:
-                stdout.write(execute_header.format(script_path))
-
-            if write_output:
-                for line in output:
-                    stdout.write(line)
-            else:
-                # Force iteration
-                list(output)
-        else:
-            # Force iteration when silent
-            list(output)
-
-    except pake.process.ExecuteProcessError as err:
-        raise SubPakeException(script_path, err.output, err.return_code)
+    return subprocess.check_call([sys.executable, script] + extra_args +
+                                 list(str(i) for i in args),
+                                 stdout=stdout, stderr=subprocess.STDOUT)

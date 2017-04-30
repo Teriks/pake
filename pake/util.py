@@ -1,4 +1,4 @@
-# Copyright (c) 2016, Teriks
+# Copyright (c) 2017, Teriks
 # All rights reserved.
 #
 # pake is distributed under the following BSD 3-Clause License
@@ -18,82 +18,51 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import pathlib
 
-class ReadOnlyList:
-    """A read only list wrapper that allows for concatenation and the usual python list comparisons, iteration, etc...
-    but no modifying operations.
+
+def touch(file_name, mode=0o666, exist_ok=True):
     """
+    Create a file at this given path. 
+    If mode is given, it is combined with the process’ umask value to determine the file mode and access flags.
+    If the file already exists, the function succeeds if exist_ok is true (and its modification time is updated to the current time), otherwise *FileExistsError* is raised.
 
-    def __init__(self, base_list):
-        self._l = base_list
-
-    def __getitem__(self, item):
-        return self._l[item]
-
-    def __iter__(self):
-        return self._l.__iter__()
-
-    def __len__(self):
-        return self._l.__len__()
-
-    def __contains__(self, item):
-        return item in self._l
-
-    def __str__(self):
-        return self._l.__str__()
-
-    def __hash__(self):
-        return self._l.__hash__()
-
-    def __eq__(self, other):
-        return self._l.__eq__(other)
-
-    def __radd__(self, other):
-        return other.__add__(self._l)
-
-    def __add__(self, other):
-        return self._l.__add__(other)
-
-    def __ge__(self, other):
-        return self._l.__ge__(other)
-
-    def __le__(self, other):
-        return self._l.__le__(other)
-
-    def __lt__(self, other):
-        return self._l.__lt__(other)
-
-    def __gt__(self, other):
-        return self._l.__gt__(other)
+    
+    :param file_name: The file name.
+    :param mode: The mode.
+    :param exist_ok: Whether or not it is okay for the file to exist when touched, if not a *FileExistsError* is thrown.
+    :return: 
+    """
+    pathlib.Path(file_name).touch(mode=mode, exist_ok=exist_ok)
 
 
 def is_iterable(obj):
-    """Test if an object is iterable.
-
-    :returns: True or False
-    :rtype: bool
     """
-
+    Test if an object is iterable.
+    
+    :param obj: The object to test.
+    :return: True if the object is iterable, False otherwise.
+    """
     try:
         _ = iter(obj)
-    except TypeError:
+        return True
+    except:
         return False
-    return True
 
 
 def is_iterable_not_str(obj):
-    """Test if an object is iterable and not a string.
-
-    :returns: True or False
-    :rtype: bool
+    """
+    Test if an object is iterable, and not a string.
+    
+    :param obj: The object to test.
+    :return: True if the object is an iterable non string, False otherwise.
     """
 
-    return is_iterable(obj) and type(obj) is not str
+    return type(obj) is not str and is_iterable(obj)
 
 
 def str_is_float(s):
     """Test if a string can be parsed into a float.
-
     :returns: True or False
     :rtype: bool
     """
@@ -107,7 +76,6 @@ def str_is_float(s):
 
 def str_is_int(s):
     """Test if a string can be parsed into an integer.
-
     :returns: True or False
     :rtype: bool
     """

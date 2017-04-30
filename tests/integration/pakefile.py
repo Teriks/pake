@@ -11,7 +11,7 @@ sys.path.insert(1,
 import pake
 
 
-make = pake.init()
+pk = pake.init()
 
 pake.export("TEST_EXPORT", "test\"test")
 
@@ -26,7 +26,7 @@ pake.export("TEST_EXPORT4", (1, "te\"st", [3, 4, 'test\'test']))
 pake.export("TEST_EXPORT5", "")
 
 
-@make.target(inputs="do_stuff_first.c", outputs="do_stuff_first.o")
+@pk.task(i="do_stuff_first.c", o="do_stuff_first.o")
 def do_stuff_first(target):
     file_helper = pake.FileHelper(target)
 
@@ -34,7 +34,7 @@ def do_stuff_first(target):
     file_helper.copy(target.inputs[0], target.outputs[0])
 
 
-@make.target(inputs="do_stuff_first_2.c", outputs="do_stuff_first_2.o")
+@pk.task(i="do_stuff_first_2.c", o="do_stuff_first_2.o")
 def do_stuff_first_2(target):
     file_helper = pake.FileHelper(target)
 
@@ -45,7 +45,7 @@ def do_stuff_first_2(target):
 # If there are an un-equal amount of inputs to outputs,
 # rebuild all inputs if any input is newer than any output, or if any output file is missing.
 
-@make.target(inputs=["stuffs_one.c", "stuffs_two.c"], outputs="stuffs_combined.o")
+@pk.task(i=["stuffs_one.c", "stuffs_two.c"], o="stuffs_combined.o")
 def do_multiple_stuffs(target):
     file_helper = pake.FileHelper(target)
 
@@ -61,7 +61,7 @@ def do_multiple_stuffs(target):
 # Rebuild the input on the left that corresponds to the output in the same position
 # on the right when that specific input is out of date, or it's output is missing.
 
-@make.target(inputs=["stuffs_three.c", "stuffs_four.c"], outputs=["stuffs_three.o", "stuffs_four.o"])
+@pk.task(i=["stuffs_three.c", "stuffs_four.c"], o=["stuffs_three.o", "stuffs_four.o"])
 def do_multiple_stuffs_2(target):
     file_helper = pake.FileHelper(target)
     # Only out of date inputs/outputs will be in these collections
@@ -75,8 +75,10 @@ def do_multiple_stuffs_2(target):
         file_helper.touch(i[1])
 
 
-@make.target(inputs="do_stuff.c", outputs="do_stuff.o",
-             depends=[do_stuff_first, do_stuff_first_2, do_multiple_stuffs, do_multiple_stuffs_2])
+@pk.task(
+    do_stuff_first, do_stuff_first_2, do_multiple_stuffs, do_multiple_stuffs_2,
+    i="do_stuff.c", o="do_stuff.o"
+)
 def do_stuff(target):
     file_helper = pake.FileHelper(target)
 
@@ -90,42 +92,47 @@ def do_stuff(target):
 
     # Run a pakefile.py script in a subdirectory, build 'all' target
 
-    target.run_pake("subpake/pakefile.py", "all")
+    target.subpake("subpake/pakefile.py", "all")
 
 
 # Basically a dummy target (if nothing actually depended on it)
 
-@make.target(info="Print Define info test. This is a very long info string "
-                  "which should be text wrapped to look nice on the command line "
-                  "by pythons built in textwrap module.  This long info string"
-                  "should be wrapped at 70 characters, which is the default "
-                  "value used by the textwrap module, and is similar if "
-                  "not the same wrap value used by the argparse module when "
-                  "formatting command help.")
+@pk.task
 def print_define(target):
+    """
+    Print Define info test. This is a very long info string
+    which should be text wrapped to look nice on the command line
+    by pythons built in textwrap module.  This long info string
+    should be wrapped at 70 characters, which is the default
+    value used by the textwrap module, and is similar if
+    not the same wrap value used by the argparse module when
+    formatting command help.
+    """
+
     # Defines are interpreted into python literals.
     # If you pass and integer, you get an int.. string str, (True or False) a bool etc.
     # Defines that are not given a value explicitly are given the value of 'True'
     # Defines that don't exist return 'None'
 
-    if make["SOME_DEFINE"]:
-        target.print(make["SOME_DEFINE"])
+    if pk["SOME_DEFINE"]:
+        target.print(pk["SOME_DEFINE"])
 
-    target.print(make.get_define("SOME_DEFINE2", "SOME_DEFINE2_DEFAULT"))
+    target.print(pk.get_define("SOME_DEFINE2", "SOME_DEFINE2_DEFAULT"))
 
 
 # Always runs, because there are no inputs or outputs to use for file change detection
 
-@make.target(outputs="main", depends=[do_stuff],
-             info="Make all info test.")
+@pk.task(do_stuff, o="main")
 def all(target):
+    """Make all info test."""
+
     file_helper = pake.FileHelper(target)
     file_helper.touch(target.outputs[0])
 
 
 # Clean .o files in the directory
 
-@make.target
+@pk.task
 def clean(target):
     file_helper = pake.FileHelper(target)
 
@@ -136,20 +143,20 @@ def clean(target):
     file_helper.rmtree("test")
     file_helper.remove("test2")
 
-    target.run_pake("subpake/pakefile.py", "clean")
+    target.subpake("subpake/pakefile.py", "clean")
 
-@make.target
+@pk.task
 def one(target):
     target.print("ONE")
 
-@make.target
+@pk.task
 def two(target):
     target.print("TWO")
 
 
-@make.target
+@pk.task
 def three(target):
     target.print("THREE")
 
 
-pake.run(make, default_targets=[one, two, three, print_define, all])
+pake.run(pk, tasks=[one, two, three, print_define, all])

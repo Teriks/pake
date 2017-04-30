@@ -5,7 +5,7 @@ import os
 sys.path.insert(1,
                 os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../')))
 
-import pake.subpake
+import pake
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -13,9 +13,9 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 class IntegrationTest(unittest.TestCase):
     def test_integrated(self):
         try:
-            pake.subpake.run_pake(os.path.join(script_dir, "pakefile.py"), silent=True)
+            pake.subpake(os.path.join(script_dir, "pakefile.py"), silent=True)
         except Exception as e:
-            self.fail("run_pake raised unexpected exception {}".format(e))
+            self.fail("subpake raised unexpected exception {}".format(e))
 
         self.assertTrue(os.path.exists(os.path.join(script_dir, "do_stuff.o")))
         self.assertTrue(os.path.exists(os.path.join(script_dir, "do_stuff_first.o")))
@@ -27,9 +27,9 @@ class IntegrationTest(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(script_dir, os.path.join("subpake","test.o"))))
 
         try:
-            pake.subpake.run_pake(os.path.join(script_dir, "pakefile.py"),"clean", silent=True)
+            pake.subpake(os.path.join(script_dir, "pakefile.py"),"clean", silent=True)
         except Exception as e:
-            self.fail("run_pake raised unexpected exception {}".format(e))
+            self.fail("subpake raised unexpected exception {}".format(e))
 
         self.assertFalse(os.path.exists(os.path.join(script_dir, "do_stuff.o")))
         self.assertFalse(os.path.exists(os.path.join(script_dir, "do_stuff_first.o")))
@@ -42,9 +42,9 @@ class IntegrationTest(unittest.TestCase):
 
     def test_integrated_parallel(self):
         try:
-            pake.subpake.run_pake(os.path.join(script_dir, "pakefile.py"), "-j", 10, silent=True)
+            pake.subpake(os.path.join(script_dir, "pakefile.py"), "-j", 10, silent=True)
         except Exception as e:
-            self.fail("run_pake raised unexpected exception {}".format(e))
+            self.fail("subpake raised unexpected exception {}".format(e))
 
         self.assertTrue(os.path.exists(os.path.join(script_dir, "do_stuff.o")))
         self.assertTrue(os.path.exists(os.path.join(script_dir, "do_stuff_first.o")))
@@ -56,9 +56,9 @@ class IntegrationTest(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(script_dir, os.path.join("subpake","test.o"))))
 
         try:
-            pake.subpake.run_pake(os.path.join(script_dir, "pakefile.py"), "clean", "-j", 10, silent=True)
+            pake.subpake(os.path.join(script_dir, "pakefile.py"), "clean", "-j", 10, silent=True)
         except Exception as e:
-            self.fail("run_pake raised unexpected exception {}".format(e))
+            self.fail("subpake raised unexpected exception {}".format(e))
 
         self.assertFalse(os.path.exists(os.path.join(script_dir, "do_stuff.o")))
         self.assertFalse(os.path.exists(os.path.join(script_dir, "do_stuff_first.o")))
