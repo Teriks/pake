@@ -394,6 +394,7 @@ class Pake:
             op = o[0]
             if not path.isfile(op):
                 outdated_outputs.append(op)
+                outdated_inputs += i
                 return outdated_inputs, outdated_outputs
 
             outdated_output = None
