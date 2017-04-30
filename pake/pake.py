@@ -353,26 +353,32 @@ class Pake:
         if len_i > 0 and len_o == 0:
             raise ValueError('Must have > 0 outputs when specifying input files for change detection.')
 
-        outdated_inputs = set()
-        outdated_outputs = set()
+        outdated_inputs = []
+        outdated_outputs = []
 
         if len_i == 0 and len_o == 0:
-            return set(), set()
+            return [], []
 
         if len_o > 1:
             if len_i == 0:
                 for op in o:
                     if not path.isfile(op):
-                        outdated_outputs.add(op)
+                        outdated_outputs.append(op)
 
             elif len_o != len_i:
+                output_set = set()
+                input_set = set()
+
                 for ip in i:
                     if not path.isfile(ip):
                         raise RuntimeError('Input file "{}" does not exist.'.format(i))
                     for op in o:
                         if not path.isfile(op) or path.getmtime(op) < path.getmtime(ip):
-                            outdated_inputs.add(ip)
-                            outdated_outputs.add(op)
+                            input_set.add(ip)
+                            output_set.add(op)
+
+                outdated_inputs += input_set
+                outdated_outputs += output_set
 
             else:
                 for iopair in zip(i, o):
@@ -381,21 +387,25 @@ class Pake:
                     if not path.isfile(ip):
                         raise RuntimeError('Input file "{}" does not exist.'.format(ip))
                     if not path.isfile(op) or path.getmtime(op) < path.getmtime(ip):
-                        outdated_inputs.add(ip)
-                        outdated_outputs.add(op)
+                        outdated_inputs.append(ip)
+                        outdated_outputs.append(op)
 
         else:
             op = o[0]
             if not path.isfile(op):
-                outdated_outputs.add(op)
-                outdated_inputs.update(i)
+                outdated_outputs.append(op)
                 return outdated_inputs, outdated_outputs
+
+            outdated_output = None
             for ip in i:
                 if not path.isfile(ip):
                     raise RuntimeError('Input file "{}" does not exist.'.format(i))
                 if path.getmtime(op) < path.getmtime(ip):
-                    outdated_inputs.add(ip)
-                    outdated_outputs.add(op)
+                    outdated_inputs.append(ip)
+                    outdated_output = op
+
+            if outdated_output:
+                outdated_outputs.append(outdated_output)
 
         return outdated_inputs, outdated_outputs
 
