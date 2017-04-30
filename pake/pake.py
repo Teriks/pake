@@ -133,8 +133,9 @@ class TaskContext:
             stdout = subprocess.DEVNULL
         else:
             stdout = self._io
+            print(' '.join(args), file=stdout)
             stdout.flush()
-
+            
         return call(list(args),
                     stdout=stdout, stderr=subprocess.STDOUT,
                     stdin=stdin, shell=shell)
