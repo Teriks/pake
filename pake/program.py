@@ -238,6 +238,8 @@ def run(pake_obj, tasks=None):
     """
     Run pake (the program) given a :py:class:`pake.Pake` instance and options default tasks.
     
+    This function will call exit(return_code) upon non exception related errors.
+    
     :param pake_obj: A :py:class:`pake.Pake` instance, usually created by :py:func:`pake.init`.
     :param tasks: A list of, or a single default task to run if no tasks are specified on the command line.
     """
@@ -287,10 +289,12 @@ def run(pake_obj, tasks=None):
 
         os.chdir(_parsed_args.directory)
 
+    return_code = 0
     try:
         pake_obj.run(jobs=_parsed_args.jobs, tasks=run_tasks)
     except pake.UndefinedTaskException as err:
         pake_obj.print_err(str(err))
+        return_code = 1
 
     if exit_dir:
         pake_obj.print('pake[{}]: Exiting Directory "{}"'.
@@ -298,3 +302,6 @@ def run(pake_obj, tasks=None):
 
     if depth > 0:
         pake_obj.print('*** exit subpake[{}]:'.format(depth))
+
+    if return_code != 0:
+        exit(return_code)
