@@ -24,9 +24,10 @@ Uninstall prior to updating.
 # Example project using pake
 
 
-I am using the pake_build branch of libasm_io to help test pake
+I am using libasm_io to help test pake and have included a pakefile
+build along side the makefiles in that project
 
-https://github.com/Teriks/libasm_io/tree/pake_build
+https://github.com/Teriks/libasm_io
 
 
 # Writing basic tasks
