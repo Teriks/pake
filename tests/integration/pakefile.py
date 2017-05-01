@@ -27,34 +27,34 @@ pake.export("TEST_EXPORT5", "")
 
 
 @pk.task(i="do_stuff_first.c", o="do_stuff_first.o")
-def do_stuff_first(target):
-    file_helper = pake.FileHelper(target)
+def do_stuff_first(ctx):
+    file_helper = pake.FileHelper(ctx)
 
-    target.print(target.inputs[0])
-    file_helper.copy(target.inputs[0], target.outputs[0])
+    ctx.print(ctx.inputs[0])
+    file_helper.copy(ctx.inputs[0], ctx.outputs[0])
 
 
 @pk.task(i="do_stuff_first_2.c", o="do_stuff_first_2.o")
-def do_stuff_first_2(target):
-    file_helper = pake.FileHelper(target)
+def do_stuff_first_2(ctx):
+    file_helper = pake.FileHelper(ctx)
 
-    target.print(target.inputs[0])
-    file_helper.copy(target.inputs[0], target.outputs[0],copy_metadata=True)
+    ctx.print(ctx.inputs[0])
+    file_helper.copy(ctx.inputs[0], ctx.outputs[0],copy_metadata=True)
 
 
 # If there are an un-equal amount of inputs to outputs,
 # rebuild all inputs if any input is newer than any output, or if any output file is missing.
 
 @pk.task(i=["stuffs_one.c", "stuffs_two.c"], o="stuffs_combined.o")
-def do_multiple_stuffs(target):
-    file_helper = pake.FileHelper(target)
+def do_multiple_stuffs(ctx):
+    file_helper = pake.FileHelper(ctx)
 
     # All inputs and outputs will be considered out of date
 
-    for i in target.inputs:
-        target.print(i)
+    for i in ctx.inputs:
+        ctx.print(i)
 
-    for o in target.outputs:
+    for o in ctx.outputs:
         file_helper.touch(o)
 
 
@@ -62,16 +62,16 @@ def do_multiple_stuffs(target):
 # on the right when that specific input is out of date, or it's output is missing.
 
 @pk.task(i=["stuffs_three.c", "stuffs_four.c"], o=["stuffs_three.o", "stuffs_four.o"])
-def do_multiple_stuffs_2(target):
-    file_helper = pake.FileHelper(target)
+def do_multiple_stuffs_2(ctx):
+    file_helper = pake.FileHelper(ctx)
     # Only out of date inputs/outputs will be in these collections
 
     # The elements correspond to each other when the number of inputs is the same
-    # as the number of outputs.  target.outdated_input[i] is the input related to
-    # the output: target.outdated_output[i]
+    # as the number of outputs.  ctx.outdated_input[i] is the input related to
+    # the output: ctx.outdated_output[i]
 
-    for i in zip(target.outdated_inputs, target.outdated_outputs):
-        target.print(i[0])
+    for i in zip(ctx.outdated_inputs, ctx.outdated_outputs):
+        ctx.print(i[0])
         file_helper.touch(i[1])
 
 
@@ -79,26 +79,26 @@ def do_multiple_stuffs_2(target):
     do_stuff_first, do_stuff_first_2, do_multiple_stuffs, do_multiple_stuffs_2,
     i="do_stuff.c", o="do_stuff.o"
 )
-def do_stuff(target):
-    file_helper = pake.FileHelper(target)
+def do_stuff(ctx):
+    file_helper = pake.FileHelper(ctx)
 
-    target.print(target.inputs[0])
+    ctx.print(ctx.inputs[0])
 
-    file_helper.touch(target.outputs[0])
+    file_helper.touch(ctx.outputs[0])
 
-    # Print the collective outputs of this targets immediate dependencies
+    # Print the collective outputs of this ctxs immediate dependencies
 
-    target.print("Dependency outputs: " + str(target.dependency_outputs))
+    ctx.print("Dependency outputs: " + str(ctx.dependency_outputs))
 
-    # Run a pakefile.py script in a subdirectory, build 'all' target
+    # Run a pakefile.py script in a subdirectory, build 'all' task
 
-    target.subpake("subpake/pakefile.py", "all")
+    ctx.subpake("subpake/pakefile.py", "all")
 
 
-# Basically a dummy target (if nothing actually depended on it)
+# Basically a dummy task (if nothing actually depended on it)
 
 @pk.task
-def print_define(target):
+def print_define(ctx):
     """
     Print Define info test. This is a very long info string
     which should be text wrapped to look nice on the command line
@@ -115,26 +115,26 @@ def print_define(target):
     # Defines that don't exist return 'None'
 
     if pk["SOME_DEFINE"]:
-        target.print(pk["SOME_DEFINE"])
+        ctx.print(pk["SOME_DEFINE"])
 
-    target.print(pk.get_define("SOME_DEFINE2", "SOME_DEFINE2_DEFAULT"))
+    ctx.print(pk.get_define("SOME_DEFINE2", "SOME_DEFINE2_DEFAULT"))
 
 
 # Always runs, because there are no inputs or outputs to use for file change detection
 
 @pk.task(do_stuff, o="main")
-def all(target):
+def all(ctx):
     """Make all info test."""
 
-    file_helper = pake.FileHelper(target)
-    file_helper.touch(target.outputs[0])
+    file_helper = pake.FileHelper(ctx)
+    file_helper.touch(ctx.outputs[0])
 
 
 # Clean .o files in the directory
 
 @pk.task
-def clean(target):
-    file_helper = pake.FileHelper(target)
+def clean(ctx):
+    file_helper = pake.FileHelper(ctx)
 
     file_helper.glob_remove("*.o")
 
@@ -143,20 +143,20 @@ def clean(target):
     file_helper.rmtree("test")
     file_helper.remove("test2")
 
-    target.subpake("subpake/pakefile.py", "clean")
+    ctx.subpake("subpake/pakefile.py", "clean")
 
 @pk.task
-def one(target):
-    target.print("ONE")
+def one(ctx):
+    ctx.print("ONE")
 
 @pk.task
-def two(target):
-    target.print("TWO")
+def two(ctx):
+    ctx.print("TWO")
 
 
 @pk.task
-def three(target):
-    target.print("THREE")
+def three(ctx):
+    ctx.print("THREE")
 
 
 pake.run(pk, tasks=[one, two, three, print_define, all])

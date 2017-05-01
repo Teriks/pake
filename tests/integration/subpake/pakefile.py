@@ -22,14 +22,14 @@ print("Import Export TEST 5 = " + str(pk["TEST_EXPORT5"]))
 
 
 @pk.task(i="test.c", o="test.o")
-def all(target):
-    file_helper = pake.FileHelper(target)
-    file_helper.touch(target.outputs[0])
-    target.print(target.inputs[0])
+def all(ctx):
+    file_helper = pake.FileHelper(ctx)
+    file_helper.touch(ctx.outputs[0])
+    ctx.print(ctx.inputs[0])
 
 
 @pk.task
-def clean(target):
+def clean(ctx):
     for i in glob.glob("*.o"):
         os.unlink(i)
 
