@@ -76,7 +76,7 @@ _arg_parser.add_argument('-t', '--show-tasks', action='store_true', dest='show_t
                          help='List all task names.')
 
 _arg_parser.add_argument('-ti', '--show-task-info', action='store_true', dest='show_task_info',
-                         help='List all tasks along side their doc string.'
+                         help='List all tasks along side their doc string. '
                               'Only tasks with doc strings present will be shown')
 
 _parsed_args = None
