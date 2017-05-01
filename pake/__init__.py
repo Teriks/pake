@@ -4,7 +4,16 @@ __license__ = 'Three Clause BSD'
 __version__ = '0.2.0.0'
 
 from .fileutil import FileHelper
-from .pake import pattern, glob, Pake, TaskContext, TaskGraph
+
+from .pake import\
+    pattern, \
+    glob, \
+    Pake, \
+    TaskContext, \
+    TaskGraph, \
+    UndefinedTaskException, \
+    RedefinedTaskException
+
 from .program import run, init, get_subpake_depth, get_max_jobs
 from .subpake import subpake, export
 
@@ -20,5 +29,7 @@ __all__ = [
     'Pake',
     'TaskContext',
     'TaskGraph',
-    'FileHelper'
+    'FileHelper',
+    'UndefinedTaskException',
+    'RedefinedTaskException'
 ]

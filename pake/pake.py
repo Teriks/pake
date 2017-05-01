@@ -33,7 +33,28 @@ from concurrent.futures import ThreadPoolExecutor, wait as futures_wait
 from os import path
 
 from .graph import Graph
-from .util import is_iterable_not_str
+from .util import is_iterable_not_str, get_task_arg_name
+
+
+class UndefinedTaskException(Exception):
+    """Raised on attempted lookup/usage of an unregistered task function or task name.
+    
+    :ivar task_name: The name of the referenced task.
+    """
+    def __init__(self, task_name):
+        super(UndefinedTaskException, self).__init__('Task "{}" is undefined.'.format(task_name))
+        self.task_name = task_name
+
+
+class RedefinedTaskException(Exception):
+    """Raised on registering a duplicate task
+    
+    :ivar task_name: The name of the redefined task.
+    """
+    def __init__(self, task_name):
+        super(RedefinedTaskException, self).__init__('Task "{}" has already been defined.'
+                                                     .format(task_name))
+        self.task_name = task_name
 
 
 class TaskContext:
@@ -134,7 +155,7 @@ class TaskContext:
         call = subprocess.call if ignore_errors else subprocess.check_call
 
         if print_cmd:
-            print(' '.join(list(args)), file=self._io)
+            self.print(' '.join(list(args)))
 
         if silent:
             stdout = subprocess.DEVNULL
@@ -515,17 +536,16 @@ class Pake:
         :return: :py:class:`pake.TaskContext`
         """
 
-        if inspect.isfunction(task):
-            task = task.__name__
+        task = get_task_arg_name(task)
 
         context = self._task_contexts.get(task, None)
         if context is None:
-            raise KeyError('Task "{}" not defined.'.format(task))
+            raise UndefinedTaskException(task)
         return context
 
     def _add_task(self, name, func, dependencies=None):
         if name in self._task_contexts:
-            raise KeyError('Task with that name exists.')
+            raise RedefinedTaskException(name)
 
         @wraps(func)
         def func_wrapper(*args, **kwargs):
@@ -533,9 +553,9 @@ class Pake:
             try:
                 ctx._i_io_open()
                 if self._dry_run_mode:
-                    print('Visited Task: "{}"'.format(func.__name__), file=ctx.io)
+                    ctx.print('Visited Task: "{}"'.format(func.__name__))
                 else:
-                    print('===== Executing Task: "{}"'.format(func.__name__), file=ctx.io)
+                    ctx.print('===== Executing Task: "{}"'.format(func.__name__))
                     return func(*args, **kwargs)
             finally:
                 ctx._i_io_close()
@@ -583,6 +603,9 @@ class Pake:
         :param jobs: Maximum number of threads, defaults to 1. (must be >= 1)
         """
 
+        if not is_iterable_not_str(tasks):
+            tasks = [tasks]
+
         if jobs < 1:
             raise ValueError('Job count must be >= to 1.')
 
@@ -612,3 +635,15 @@ class Pake:
         :param dictionary: The dictionary object
         """
         self._defines = dict(dictionary)
+
+    def print(self, *args, **kwargs):
+        """Shorthand for print(..., file=this_instance.stdout)"""
+
+        kwargs.pop('file', None)
+        print(*args, **kwargs, file=self.stdout)
+
+    def print_err(self, *args, **kwargs):
+        """Shorthand for print(..., file=this_instance.stderr)"""
+
+        kwargs.pop('file', None)
+        print(*args, **kwargs, file=self.stderr)

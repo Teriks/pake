@@ -27,7 +27,7 @@ import textwrap
 import os
 import pake
 
-from pake.util import is_iterable
+from pake.util import is_iterable, is_iterable_not_str, get_task_arg_name
 from .pake import Pake
 
 
@@ -37,7 +37,7 @@ class PakeUninitializedException(Exception):
     """
 
     def __init__(self):
-        super(PakeUninitializedException, self).__init__("pake.init() has not been called yet.")
+        super(PakeUninitializedException, self).__init__('pake.init() has not been called yet.')
 
 
 _arg_parser = argparse.ArgumentParser(prog='pake')
@@ -178,15 +178,60 @@ def init(stdout=None, stderr=None):
     return p
 
 
-def _format_task_info(task_name, task_doc):
-    task_name_len = len(task_name)
+def _format_task_info(max_name_width, task_name, task_doc):
+    field_sep = ':  '
+
     lines = textwrap.wrap(task_doc)
 
+    if len(lines):
+        lines[0] = ' ' * (max_name_width - len(task_name)) + lines[0]
+
     for i in range(1, len(lines)):
-        lines[i] = ' ' * (task_name_len + 2) + lines[i]
+        lines[i] = ' ' * (max_name_width + len(field_sep)) + lines[i]
 
     spacing = (os.linesep if len(lines) > 1 else '')
-    return spacing + task_name + ': ' + os.linesep.join(lines) + spacing
+    return spacing + task_name + field_sep + os.linesep.join(lines) + spacing
+
+
+def _list_tasks(pake_obj, default_tasks):
+    if len(default_tasks):
+        pake_obj.print('# Default Tasks' + os.linesep)
+        for task in default_tasks:
+            pake_obj.print(get_task_arg_name(task))
+        pake_obj.stdout.write(os.linesep)
+        pake_obj.stdout.flush()
+
+    pake_obj.print('# All Tasks' + os.linesep)
+
+    if len(pake_obj.task_contexts):
+        for ctx in pake_obj.task_contexts:
+            pake_obj.print(ctx.name)
+    else:
+        pake_obj.print('Not tasks present.')
+
+
+def _list_task_info(pake_obj, default_tasks):
+    if len(default_tasks):
+        pake_obj.print('# Default Tasks' + os.linesep)
+        for task in default_tasks:
+            pake_obj.print(get_task_arg_name(task))
+        pake_obj.stdout.write(os.linesep)
+        pake_obj.stdout.flush()
+
+    documented = [ctx for ctx in pake_obj.task_contexts if ctx.func.__doc__ is not None]
+
+    pake_obj.print('# Documented Tasks' + os.linesep)
+
+    if len(documented):
+        max_name_width = len(max(documented, key=lambda x: len(x.name)).name)
+
+        for ctx in documented:
+            pake_obj.print(_format_task_info(
+                               max_name_width,
+                               ctx.name,
+                               ctx.func.__doc__))
+    else:
+        pake_obj.print('No documented tasks present.')
 
 
 def run(pake_obj, tasks=None):
@@ -196,33 +241,32 @@ def run(pake_obj, tasks=None):
     :param pake_obj: A :py:class:`pake.Pake` instance, usually created by :py:func:`pake.init`.
     :param tasks: A list of, or a single default task to run if no tasks are specified on the command line.
     """
+
+    if not is_iterable_not_str(tasks):
+        tasks = [tasks]
+
     if _parsed_args is None:
         raise PakeUninitializedException()
 
     if _parsed_args.show_tasks and _parsed_args.show_task_info:
-        print("-t/--show-tasks and -ti/--show-task-info cannot be used together.", file=pake_obj.stdout)
+        pake_obj.print('-t/--show-tasks and -ti/--show-task-info cannot be used together.')
         return
 
     if _parsed_args.show_tasks:
-        for ctx in pake_obj.task_contexts:
-            print(ctx.name, file=pake_obj.stdout)
+        _list_tasks(pake_obj, tasks)
         return
 
     if _parsed_args.show_task_info:
-        for ctx in (ctx for ctx in pake_obj.task_contexts if ctx.func.__doc__ is not None):
-            print(_format_task_info(ctx.name, ctx.func.__doc__), file=pake_obj.stdout)
+        _list_task_info(pake_obj, tasks)
         return
 
     run_tasks = []
     if _parsed_args.tasks:
         run_tasks += _parsed_args.tasks
     elif tasks:
-        if is_iterable(tasks):
-            run_tasks += tasks
-        else:
-            run_tasks.append(tasks)
+        run_tasks += tasks
     else:
-        print("No tasks specified.", file=pake_obj.stdout)
+        pake_obj.print("No tasks specified.")
         return
 
     if _parsed_args.dry_run:
@@ -232,22 +276,25 @@ def run(pake_obj, tasks=None):
     depth = get_subpake_depth()
 
     if depth > 0:
-        print('*** enter subpake[{}]:'.format(depth), file=pake_obj.stdout)
+        pake_obj.print('*** enter subpake[{}]:'.format(depth))
 
     exit_dir = None
     if _parsed_args.directory:
         exit_dir = os.getcwd()
 
-        print('pake[{}]: Entering Directory "{}"'.
-              format(depth, _parsed_args.directory), file=pake_obj.stdout)
+        pake_obj.print('pake[{}]: Entering Directory "{}"'.
+                       format(depth, _parsed_args.directory))
 
         os.chdir(_parsed_args.directory)
 
-    pake_obj.run(jobs=_parsed_args.jobs, tasks=run_tasks)
+    try:
+        pake_obj.run(jobs=_parsed_args.jobs, tasks=run_tasks)
+    except pake.UndefinedTaskException as err:
+        pake_obj.print_err(str(err))
 
     if exit_dir:
-        print('pake[{}]: Exiting Directory "{}"'.
-              format(depth, _parsed_args.directory), file=pake_obj.stdout)
+        pake_obj.print('pake[{}]: Exiting Directory "{}"'.
+                       format(depth, _parsed_args.directory))
 
     if depth > 0:
-        print('*** exit subpake[{}]:'.format(depth), file=pake_obj.stdout)
+        pake_obj.print('*** exit subpake[{}]:'.format(depth))
