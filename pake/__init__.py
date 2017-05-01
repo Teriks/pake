@@ -14,7 +14,13 @@ from .pake import\
     UndefinedTaskException, \
     RedefinedTaskException
 
-from .program import run, init, get_subpake_depth, get_max_jobs
+from .program import\
+    run,\
+    init, \
+    get_subpake_depth,\
+    get_max_jobs,\
+    PakeUninitializedException
+
 from .subpake import subpake, export
 
 __all__ = [
@@ -31,5 +37,6 @@ __all__ = [
     'TaskGraph',
     'FileHelper',
     'UndefinedTaskException',
-    'RedefinedTaskException'
+    'RedefinedTaskException',
+    'PakeUninitializedException'
 ]

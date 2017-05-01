@@ -155,7 +155,7 @@ def _defines_to_dict(defines):
 
 def init(stdout=None, stderr=None):
     """
-    Initialize a :py:class:`pake.Pake` object and read command line arguments.
+    Read command line arguments relevant to initialization, and return a :py:class:`pake.Pake` object.
     
     :param stdout: The stdout object passed to the :py:class:`pake.Pake` instance. (defaults to sys.stdout)
     :param stderr: The stderr object passed to the :py:class:`pake.Pake` instance. (defaults to sys.stderr)
