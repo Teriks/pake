@@ -57,7 +57,7 @@ Writing basic tasks
 
     import pake
 
-    # Tasks are registered the the pake.Make object
+    # Tasks are registered the the pake.Pake object
     # returned by pake's initialization call, using the task decorator.
 
     pk = pake.init()
@@ -67,7 +67,7 @@ Writing basic tasks
     # it has been passed on the command line.
     # CC will default to gcc in this case
     #
-    # you can also use the syntax: make["CC"] to
+    # you can also use the syntax: pk["CC"] to
     # attempt to get the defines value, if it is not
     # defined then it will return None.
 
@@ -196,7 +196,7 @@ output queue in a synchronized manner when multiple jobs are running.
 
     # Export the CC variable's value to all invocations
     # of pake.subpake or ctx.subpake as a define that can be
-    # retrieved with make.get_define()
+    # retrieved with pk.get_define()
     #
     pake.export("CC", CC)
 
