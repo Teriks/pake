@@ -25,7 +25,7 @@ Uninstall prior to updating.
 
 
 I am using libasm_io to help test pake and have included a pakefile
-build along side the makefiles in that project
+build along side the makefiles in that project.
 
 https://github.com/Teriks/libasm_io
 
