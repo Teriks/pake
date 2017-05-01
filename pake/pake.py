@@ -84,7 +84,7 @@ class TaskContext:
 
         pake.subpake(script, *args, stdout=self._io, silent=silent)
 
-    def call(self, *args, stdin=None, shell=False, ignore_errors=False, silent=False):
+    def call(self, *args, stdin=None, shell=False, ignore_errors=False, silent=False, print_cmd=True):
         """Calls a sub process, all output is written to the task IO file stream.
         
         Example:
@@ -115,7 +115,8 @@ class TaskContext:
         :param stdin: Set the stdin of the process.
         :param shell: Whether or not to use the system shell for execution.
         :param ignore_errors: Whether or not to raise a :py:class:`subprocess.CalledProcessError` on non 0 exit codes.
-        :param silent: Whether or not to silence all output.
+        :param silent: Whether or not to silence all output from the command.
+        :param print_cmd: Whether or not to print the executed command line to the tasks output.
         
         :raises subprocess.CalledProcessError if *ignore_errors* is *False* and the process exits with a non 0 exit code.
         
@@ -132,11 +133,13 @@ class TaskContext:
 
         call = subprocess.call if ignore_errors else subprocess.check_call
 
+        if print_cmd:
+            print(' '.join(list(args)), file=self._io)
+
         if silent:
             stdout = subprocess.DEVNULL
         else:
             stdout = self._io
-            print(' '.join(list(args)), file=stdout)
             stdout.flush()
 
         return call(list(args),
