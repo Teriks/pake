@@ -209,25 +209,65 @@ class TaskGraph(Graph):
         return self._name
 
 
-class _OutPattern:
-    def __init__(self, pattern):
-        self._pattern = pattern
+class DeferredOutputGenerator:
+    """DeferredOutputGenerators are recognized by the *o* parameter of the :py:func:`~pake.Pake.task` decorator.
+    
+    Subclassing this object and overriding *get_outputs* allows you to create an object that can be passed to a tasks
+    file output parameter, which generates the output file names from the input file names when the task is run.
+    
+    A DeferredOutputGenerator object is returned by :py:func:`pake.pattern` for example.
+    
+    """
+    def get_outputs(self, inputs):
+        """
+        Override me to generate output file names from an input file name array.
+        
+        Returns an empty list by default.
+        
+        :param inputs: Input files for the task.
+        :return: Output files for the task.
+        """
+        return []
 
-    def _do_template(self, input):
-        name = os.path.splitext(os.path.basename(input))[0]
 
+class DeferredInputGenerator:
+    """DeferredInputGenerators are recognized by the *i* parameter of the :py:func:`~pake.Pake.task` decorator.
+    
+    Subclassing this object and overriding *get_inputs* allows you to create an object that can be passed to a tasks
+    file input parameter, which generates the input file names when the task is run.
+    
+    A DeferredInputGenerator object is returned by :py:func:`pake.glob` for example.
+    
+    """
+    def get_inputs(self):
+        """
+        Override me to generate input file names for the task when it runs.
+        
+        Returns an empty list by default.
+        
+        :return: Input files for the task.
+        """
+        return []
+
+
+class _OutPattern(DeferredOutputGenerator):
+    def __init__(self, file_pattern):
+        self._pattern = file_pattern
+
+    def _do_template(self, i):
+        name = os.path.splitext(os.path.basename(i))[0]
         return self._pattern.replace('%', name)
 
-    def template(self, inputs):
+    def get_outputs(self, inputs):
         for i in inputs:
             yield self._do_template(i)
 
 
-class _Glob:
+class _Glob(DeferredInputGenerator):
     def __init__(self, expression):
         self._expression = expression
 
-    def do_glob(self):
+    def get_inputs(self):
         return file_glob(self._expression)
 
 
@@ -248,7 +288,7 @@ def glob(expression):
     return _Glob(expression)
 
 
-def pattern(pattern):
+def pattern(file_pattern):
     """Produce a substitution pattern that can be used in place of an output file.
     
     Example:
@@ -261,7 +301,7 @@ def pattern(pattern):
                 ctx.call(['gcc', '-c', i, '-o', o])
     
     """
-    return _OutPattern(pattern)
+    return _OutPattern(file_pattern)
 
 
 class Pake:
@@ -333,13 +373,13 @@ class Pake:
         if o is None:
             o = []
 
-        if type(i) is _Glob:
-            i = i.do_glob()
+        if issubclass(type(i), DeferredInputGenerator):
+            i = i.get_inputs()
         elif type(i) is str or not is_iterable_not_str(i):
             i = [i]
 
-        if type(o) is _OutPattern:
-            o = list(o.template(i))
+        if issubclass(type(o), DeferredOutputGenerator):
+            o = list(o.get_outputs(i))
         elif type(o) is str or not is_iterable_not_str(o):
             o = [o]
 
