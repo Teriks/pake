@@ -316,7 +316,7 @@ optional arguments:
                         Change directory before executing.
   -t, --show-tasks      List all task names.
   -ti, --show-task-info
-                        List all tasks along side their doc string.Only tasks
+                        List all tasks along side their doc string. Only tasks
                         with doc strings present will be shown
   -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
                         once, all specified pakefiles will be executed in
