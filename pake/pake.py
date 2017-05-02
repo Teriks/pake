@@ -438,7 +438,7 @@ class Pake:
 
                 for ip in i:
                     if not path.isfile(ip):
-                        raise RuntimeError('Input file "{}" does not exist.'.format(i))
+                        raise FileNotFoundError('Input file "{}" does not exist.'.format(i))
                     for op in o:
                         if not path.isfile(op) or path.getmtime(op) < path.getmtime(ip):
                             input_set.add(ip)
@@ -452,7 +452,7 @@ class Pake:
                     ip, op = iopair[0], iopair[1]
 
                     if not path.isfile(ip):
-                        raise RuntimeError('Input file "{}" does not exist.'.format(ip))
+                        raise FileNotFoundError('Input file "{}" does not exist.'.format(ip))
                     if not path.isfile(op) or path.getmtime(op) < path.getmtime(ip):
                         outdated_inputs.append(ip)
                         outdated_outputs.append(op)
@@ -467,7 +467,7 @@ class Pake:
             outdated_output = None
             for ip in i:
                 if not path.isfile(ip):
-                    raise RuntimeError('Input file "{}" does not exist.'.format(i))
+                    raise FileNotFoundError('Input file "{}" does not exist.'.format(i))
                 if path.getmtime(op) < path.getmtime(ip):
                     outdated_inputs.append(ip)
                     outdated_output = op
@@ -483,6 +483,7 @@ class Pake:
         
         Any input files specified must be accompanied by at least one output file.
         
+        :raises: :py:class:`pake.UndefinedTaskException` if a given dependency is not a registered task function.
         :param args: Tasks which this task depends on.
         :param i: Optional input files for change detection.
         :param o: Optional output files for change detection.
@@ -532,6 +533,7 @@ class Pake:
         """
         Get the :py:class:`pake.TaskContext` object for a specific task.
         
+        :raises: :py:class:`pake.UndefinedTaskException` if the task in not registered.
         :param task: Task function or function name as a string
         :return: :py:class:`pake.TaskContext`
         """
@@ -587,6 +589,10 @@ class Pake:
         
         When using change detection, only out of date tasks will be visited.
         
+        :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter 
+        is unregistered. 
+        
+        :raises: :py:class:`FileNotFoundError` if a task references a non existent input file.
         :param tasks: Tasks to run.
         """
         self._dry_run_mode = True
@@ -599,8 +605,12 @@ class Pake:
         """
         Run all given tasks, with an optional level of concurrency.
         
-        :param tasks: Tasks to run.
-        :param jobs: Maximum number of threads, defaults to 1. (must be >= 1)
+        
+        :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter 
+        is unregistered. 
+        
+        :raises: :py:class:`FileNotFoundError` if a task references a non existent input file. 
+        :param tasks: Tasks to run. :param jobs: Maximum number of threads, defaults to 1. (must be >= 1) 
         """
 
         if not is_iterable_not_str(tasks):

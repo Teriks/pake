@@ -87,10 +87,9 @@ def get_max_jobs():
     """
     Get the max number of jobs passed from the --jobs command line argument.
     
-    This function can only be called after calling :py:func:`pake.init`
-    
     The minimum number of jobs allowed is 1.
     
+    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: The max number of jobs from the --jobs command line argument. (an integer >= 1)
     """
     if _parsed_args is None:
@@ -104,6 +103,7 @@ def get_subpake_depth():
     
     The depth of execution starts at 0.
     
+    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: The current depth of execution (an integer >= 0)
     """
     if _parsed_args is None:
@@ -240,6 +240,7 @@ def run(pake_obj, tasks=None):
     
     This function will call exit(return_code) upon non exception related errors.
     
+    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :param pake_obj: A :py:class:`pake.Pake` instance, usually created by :py:func:`pake.init`.
     :param tasks: A list of, or a single default task to run if no tasks are specified on the command line.
     """
@@ -293,6 +294,9 @@ def run(pake_obj, tasks=None):
     try:
         pake_obj.run(jobs=_parsed_args.jobs, tasks=run_tasks)
     except pake.UndefinedTaskException as err:
+        pake_obj.print_err(str(err))
+        return_code = 1
+    except FileNotFoundError as err:
         pake_obj.print_err(str(err))
         return_code = 1
 
