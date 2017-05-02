@@ -42,12 +42,10 @@ Contents
    pake
 
 
-Indices and tables
-------------------
+Module Index
+------------
 
-* :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
 
 
 Writing basic tasks
@@ -85,9 +83,8 @@ Writing basic tasks
 
 
     # Pake can handle file change detection with multiple inputs
-    # and outputs, as long is there is the same amount of inputs as
-    # there are outputs.  If the amount of inputs is different from
-    # the amount of ouputs, the task is considered to be out
+    # and outputs. If the amount of inputs is different from
+    # the amount of outputs, the task is considered to be out
     # of date if any input file is newer than any output file.
     #
     # When the amount of inputs is equal to the amount of outputs,
@@ -312,6 +309,8 @@ in parallel.
 Pakes current options
 ---------------------
 
+.. code-block:: none
+
     usage:
      usage: pake [-h] [-v] [-D DEFINE] [-j JOBS] [-n] [-C DIRECTORY] [-t] [-ti] [-f FILE] [tasks [tasks ...]]
 
@@ -333,7 +332,7 @@ Pakes current options
        -t, --show-tasks      List all task names.
        -ti, --show-task-info
                              List all tasks along side their doc string. Only tasks
-                             with doc strings present will be shown
+                             with doc strings present will be shown.
        -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
                              once, all specified pakefiles will be executed in
                              order.

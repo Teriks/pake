@@ -47,7 +47,7 @@ class UndefinedTaskException(Exception):
 
 
 class RedefinedTaskException(Exception):
-    """Raised on registering a duplicate task
+    """Raised on registering a duplicate task.
     
     :ivar task_name: The name of the redefined task.
     """
@@ -589,8 +589,7 @@ class Pake:
         
         When using change detection, only out of date tasks will be visited.
         
-        :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter 
-        is unregistered. 
+        :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
         
         :raises: :py:class:`FileNotFoundError` if a task references a non existent input file.
         :param tasks: Tasks to run.
@@ -606,8 +605,7 @@ class Pake:
         Run all given tasks, with an optional level of concurrency.
         
         
-        :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter 
-        is unregistered. 
+        :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
         
         :raises: :py:class:`FileNotFoundError` if a task references a non existent input file. 
         :param tasks: Tasks to run. :param jobs: Maximum number of threads, defaults to 1. (must be >= 1) 

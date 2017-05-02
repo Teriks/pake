@@ -33,7 +33,7 @@ from .pake import Pake
 
 class PakeUninitializedException(Exception):
     """
-    Thrown if :py:func:`pake.run` is called without first calling :py:func:`pake.init`
+    Thrown if a function is called which depends on :py:func:`pake.init` being called first.
     """
 
     def __init__(self):
@@ -77,7 +77,7 @@ _arg_parser.add_argument('-t', '--show-tasks', action='store_true', dest='show_t
 
 _arg_parser.add_argument('-ti', '--show-task-info', action='store_true', dest='show_task_info',
                          help='List all tasks along side their doc string. '
-                              'Only tasks with doc strings present will be shown')
+                              'Only tasks with doc strings present will be shown.')
 
 _parsed_args = None
 _init_file_name = None

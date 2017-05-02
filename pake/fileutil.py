@@ -29,29 +29,29 @@ import pake
 
 class FileHelper:
     """A helper class for dealing with common file operations
-    inside and outside of pake targets.  Instantiating this class
-    with the target parameter set to a :py:class:`pake.TaskContext`
+    inside and outside of pake tasks.  Instantiating this class
+    with the *task_ctx* parameter set to a :py:class:`pake.TaskContext`
     instance will cause it to print information about file system operations
-    it performs to the targets output queue.  Each available file system functions notice message
+    it performs to the tasks output queue.  Each available file system functions notice message
     can be silenced using the **silent** parameter of the function.
     """
 
     def __init__(self, task_ctx=None):
         """Build the FileHelper object around the :py:class:`pake.TaskContext` instance
-        that gets passed into a pake target, or None.
+        that gets passed into a pake task, or None.
 
-        :param task_ctx: A :py:class:`pake.TaskContext` instance or None.  If **target** is set
+        :param task_ctx: A :py:class:`pake.TaskContext` instance or None.  If **task_ctx** is set
                        then information about the file operations that occur using this
-                       FileHelper instance will be printed to the targets output, unless
+                       FileHelper instance will be printed to the tasks output, unless
                        the 'silent' parameter is set to True in the function being called.
         """
         if type(task_ctx) is not pake.TaskContext:
-            raise ValueError("target was not a pake.TaskContext object.")
+            raise ValueError("task was not a pake.TaskContext object.")
 
         self._task_ctx = task_ctx
 
     @property
-    def target(self):
+    def task_ctx(self):
         return self._task_ctx
 
     def makedirs(self, path, silent=False, exist_ok=True):
@@ -61,7 +61,7 @@ class FileHelper:
 
         :param path: The directory path/tree.
 
-        :param silent: If True, don't print information to the targets output.
+        :param silent: If True, don't print information to the tasks output.
 
         :param exist_ok: If False, an OSError will be thrown if any directory
                          in the given path already exists.
@@ -90,7 +90,7 @@ class FileHelper:
         :param file_name: The file name.
         :param mode: The umask.
         :param exist_ok: whether or not it is okay for the file to exist already.
-        :param silent: If True, don't print information to the targets output.
+        :param silent: If True, don't print information to the tasks output.
         """
         if not silent and self._task_ctx is not None:
             self._task_ctx.print('Touched File: "{}"'.format(file_name))
@@ -146,7 +146,7 @@ class FileHelper:
         :param ignore_dangling_symlinks: If True, don't throw an exception when the file pointed to
                                          by a symlink does not exist.
 
-        :param silent: If True, Don't print info the the targets output.
+        :param silent: If True, Don't print info the the tasks output.
         """
         if not silent and self._task_ctx is not None:
             self._task_ctx.print('Copied Tree: "{}" -> "{}"'
@@ -187,7 +187,7 @@ class FileHelper:
         :param src: The file.
         :param dest: The destination to move the file to.
         :param copy_function: The copy function to use for copying individual files.
-        :param silent: If True, don't print information to the targets output.
+        :param silent: If True, don't print information to the tasks output.
         """
 
         if not silent and self._task_ctx is not None:
@@ -203,7 +203,7 @@ class FileHelper:
         :param src: The file.
         :param dest: The destination path.
         :param copy_metadata: If True, file metadata like creation time will be copied to the new file.
-        :param silent: If True, Don't print information to the targets output.
+        :param silent: If True, Don't print information to the tasks output.
         """
 
         if copy_metadata:
@@ -224,7 +224,7 @@ class FileHelper:
         :raise OSError: If the path is a directory.
 
         :param path: The path of the file to remove.
-        :param silent: If True, don't print information to the targets output.
+        :param silent: If True, don't print information to the tasks output.
         :param must_exist: If set to True, a FileNotFoundError will be raised if the file does not exist.
         """
         if not silent and self._task_ctx is not None:
@@ -243,7 +243,7 @@ class FileHelper:
 
         :param glob_pattern: The glob pattern to use to search for files to remove.
 
-        :param silent: If True, don't print information to the targets output.
+        :param silent: If True, don't print information to the tasks output.
 
         :raises OSError: Raised if a file is in use (On Windows), or if there is another problem deleting one of the files.
         """
@@ -261,7 +261,7 @@ class FileHelper:
 
         :param glob_pattern: The glob pattern to use to search for directories to remove.
 
-        :param silent: If True, don't print information to the targets output.
+        :param silent: If True, don't print information to the tasks output.
         """
         if not silent and self._task_ctx is not None:
             self._task_ctx.print('Glob Removed Directories: "{}"'.format(glob_pattern))
@@ -279,7 +279,7 @@ class FileHelper:
 
         :param path: The directory path/tree.
 
-        :param silent: If True, don't print information to the targets output.
+        :param silent: If True, don't print information to the tasks output.
 
         :param must_exist: If True, a FileNotFoundError will be raised if the directory
                            does not exist
