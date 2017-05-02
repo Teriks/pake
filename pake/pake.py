@@ -496,8 +496,8 @@ class Pake:
         Any input files specified must be accompanied by at least one output file.
         
         
-        A callable object, or list of callable objects may be passed to i or o in addition to
-        a raw file name or names.  This is how pake.glob and pake.pattern work.
+        A callable object, or list of callable objects may be passed to **i** or **o** in addition to
+        a raw file name or names.  This is how **pake.glob** and **pake.pattern** work.
         
         Input/Output Generation Example:
         
