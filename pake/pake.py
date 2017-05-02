@@ -419,7 +419,7 @@ class Pake:
             if callable(outp):
                 o[idx] = outp(i)
 
-        return i, o
+        return list(itertools.chain.from_iterable(i)), list(itertools.chain.from_iterable(o))
 
     @staticmethod
     def _change_detect(i, o):
