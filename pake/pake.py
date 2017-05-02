@@ -535,6 +535,8 @@ class Pake:
                
         Change Detection Examples:
         
+        .. code-block:: python
+        
            @pk.task(dependent_task_a, dependent_task_b, i='main.c', o='main')
            def my_task(ctx):
                # Do your build task here
