@@ -540,6 +540,7 @@ class Pake:
         
         .. code-block:: python
         
+           # Dependencies come before input and output files.
            @pk.task(dependent_task_a, dependent_task_b, i='main.c', o='main')
            def my_task(ctx):
                # Do your build task here
