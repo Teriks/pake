@@ -5,6 +5,8 @@ __version__ = '0.2.0.0'
 
 from .fileutil import FileHelper
 
+from .graph import CyclicGraphException
+
 from .pake import\
     pattern, \
     glob, \
@@ -38,5 +40,6 @@ __all__ = [
     'FileHelper',
     'UndefinedTaskException',
     'RedefinedTaskException',
-    'PakeUninitializedException'
+    'PakeUninitializedException',
+    'CyclicGraphException'
 ]

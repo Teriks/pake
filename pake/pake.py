@@ -604,10 +604,10 @@ class Pake:
         """
         Run all given tasks, with an optional level of concurrency.
         
-        
+        :raises: :py:class:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
         :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
-        
         :raises: :py:class:`FileNotFoundError` if a task references a non existent input file. 
+        
         :param tasks: Tasks to run. :param jobs: Maximum number of threads, defaults to 1. (must be >= 1) 
         """
 

@@ -79,6 +79,7 @@ class Graph:
         """
         Return a generator object that runs topological sort as it is iterated over.
         
+        :raises: :py:class:`pake.CyclicGraphException` if a cycle is found in the graph.
         :return: A generator that produces :py:class:`pake.graph.Graph` nodes.
         """
 
