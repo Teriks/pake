@@ -6,10 +6,9 @@ import os
 # the directory above tests to the path so pake can be included
 # not needed if module is 'installed'
 sys.path.insert(1,
-    os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../')))
+                os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../')))
 
 import pake
-
 
 pk = pake.init()
 
@@ -39,7 +38,7 @@ def do_stuff_first_2(ctx):
     file_helper = pake.FileHelper(ctx)
 
     ctx.print(ctx.inputs[0])
-    file_helper.copy(ctx.inputs[0], ctx.outputs[0],copy_metadata=True)
+    file_helper.copy(ctx.inputs[0], ctx.outputs[0], copy_metadata=True)
 
 
 # If there are an un-equal amount of inputs to outputs,
@@ -120,16 +119,24 @@ def print_define(ctx):
     ctx.print(pk.get_define("SOME_DEFINE2", "SOME_DEFINE2_DEFAULT"))
 
 
-@pk.task(i=pake.glob('glob_and_pattern_test/*.c'),o=pake.pattern('glob_and_pattern_test/%.o'))
+@pk.task(i=pake.glob('glob_and_pattern_test/*.c'), o=pake.pattern('glob_and_pattern_test/%.o'))
 def glob_and_pattern_test(ctx):
     file_helper = pake.FileHelper(ctx)
-    for i, o in zip(ctx.outdated_inputs, ctx.outdated_inputs):
+    for i, o in zip(ctx.outdated_inputs, ctx.outdated_outputs):
+        file_helper.touch(o)
+
+
+@pk.task(i=[pake.glob('glob_and_pattern_test/src_a/*.c'), pake.glob('glob_and_pattern_test/src_b/*.c')],
+         o=pake.pattern('{dir}/%.o'))
+def glob_and_pattern_test2(ctx):
+    file_helper = pake.FileHelper(ctx)
+    for i, o in zip(ctx.outdated_inputs, ctx.outdated_outputs):
         file_helper.touch(o)
 
 
 # Always runs, because there are no inputs or outputs to use for file change detection
 
-@pk.task(do_stuff, glob_and_pattern_test, o="main")
+@pk.task(do_stuff, glob_and_pattern_test, glob_and_pattern_test2, o="main")
 def all(ctx):
     """Make all info test."""
 
@@ -144,6 +151,8 @@ def clean(ctx):
     file_helper = pake.FileHelper(ctx)
 
     file_helper.glob_remove("glob_and_pattern_test/*.o")
+    file_helper.glob_remove("glob_and_pattern_test/src_a/*.o")
+    file_helper.glob_remove("glob_and_pattern_test/src_b/*.o")
 
     file_helper.glob_remove("*.o")
 
@@ -154,9 +163,11 @@ def clean(ctx):
 
     ctx.subpake("subpake/pakefile.py", "clean")
 
+
 @pk.task
 def one(ctx):
     ctx.print("ONE")
+
 
 @pk.task
 def two(ctx):
@@ -166,9 +177,6 @@ def two(ctx):
 @pk.task
 def three(ctx):
     ctx.print("THREE")
-
-
-
 
 
 pake.run(pk, tasks=[one, two, three, print_define, all])

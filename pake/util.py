@@ -100,3 +100,14 @@ def get_task_arg_name(val):
         return val.__name__
     else:
         return str(val)
+
+
+def flatten_non_str(iterable):
+    """Flatten a nested iterable without effecting strings."""
+
+    for x in iterable:
+        if is_iterable_not_str(x):
+            for y in flatten_non_str(x):
+                yield y
+        else:
+            yield x
