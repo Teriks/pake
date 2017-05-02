@@ -120,9 +120,16 @@ def print_define(ctx):
     ctx.print(pk.get_define("SOME_DEFINE2", "SOME_DEFINE2_DEFAULT"))
 
 
+@pk.task(i=pake.glob('glob_and_pattern_test/*.c'),o=pake.pattern('glob_and_pattern_test/%.o'))
+def glob_and_pattern_test(ctx):
+    file_helper = pake.FileHelper(ctx)
+    for i, o in zip(ctx.outdated_inputs, ctx.outdated_inputs):
+        file_helper.touch(o)
+
+
 # Always runs, because there are no inputs or outputs to use for file change detection
 
-@pk.task(do_stuff, o="main")
+@pk.task(do_stuff, glob_and_pattern_test, o="main")
 def all(ctx):
     """Make all info test."""
 
@@ -130,11 +137,13 @@ def all(ctx):
     file_helper.touch(ctx.outputs[0])
 
 
-# Clean .o files in the directory
+# Clean .o files in directories
 
 @pk.task
 def clean(ctx):
     file_helper = pake.FileHelper(ctx)
+
+    file_helper.glob_remove("glob_and_pattern_test/*.o")
 
     file_helper.glob_remove("*.o")
 
@@ -157,6 +166,9 @@ def two(ctx):
 @pk.task
 def three(ctx):
     ctx.print("THREE")
+
+
+
 
 
 pake.run(pk, tasks=[one, two, three, print_define, all])

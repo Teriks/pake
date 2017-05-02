@@ -28,10 +28,10 @@ from functools import wraps
 from glob import glob as file_glob
 
 import os
-import pake
 from concurrent.futures import ThreadPoolExecutor, wait as futures_wait
 from os import path
 
+import pake
 from .graph import Graph
 from .util import is_iterable_not_str, get_task_arg_name
 
@@ -41,6 +41,7 @@ class UndefinedTaskException(Exception):
     
     :ivar task_name: The name of the referenced task.
     """
+
     def __init__(self, task_name):
         super(UndefinedTaskException, self).__init__('Task "{}" is undefined.'.format(task_name))
         self.task_name = task_name
@@ -51,6 +52,7 @@ class RedefinedTaskException(Exception):
     
     :ivar task_name: The name of the redefined task.
     """
+
     def __init__(self, task_name):
         super(RedefinedTaskException, self).__init__('Task "{}" has already been defined.'
                                                      .format(task_name))
@@ -236,48 +238,7 @@ class TaskGraph(Graph):
         return self._name
 
 
-class DeferredOutputGenerator:
-    """DeferredOutputGenerators are recognized by the *o* parameter of the :py:func:`~pake.Pake.task` decorator.
-    
-    Subclassing this object and overriding *get_outputs* allows you to create an object that can be passed to a tasks
-    file output parameter, which generates the output file names from the input file names when the task is run.
-    
-    A DeferredOutputGenerator object is returned by :py:func:`pake.pattern` for example.
-    
-    """
-    def get_outputs(self, inputs):
-        """
-        Override me to generate output file names from an input file name array.
-        
-        Returns an empty list by default.
-        
-        :param inputs: Input files for the task.
-        :return: Output files for the task.
-        """
-        return []
-
-
-class DeferredInputGenerator:
-    """DeferredInputGenerators are recognized by the *i* parameter of the :py:func:`~pake.Pake.task` decorator.
-    
-    Subclassing this object and overriding *get_inputs* allows you to create an object that can be passed to a tasks
-    file input parameter, which generates the input file names when the task is run.
-    
-    A DeferredInputGenerator object is returned by :py:func:`pake.glob` for example.
-    
-    """
-    def get_inputs(self):
-        """
-        Override me to generate input file names for the task when it runs.
-        
-        Returns an empty list by default.
-        
-        :return: Input files for the task.
-        """
-        return []
-
-
-class _OutPattern(DeferredOutputGenerator):
+class _OutPattern:
     def __init__(self, file_pattern):
         self._pattern = file_pattern
 
@@ -285,21 +246,21 @@ class _OutPattern(DeferredOutputGenerator):
         name = os.path.splitext(os.path.basename(i))[0]
         return self._pattern.replace('%', name)
 
-    def get_outputs(self, inputs):
+    def __call__(self, inputs):
         for i in inputs:
             yield self._do_template(i)
 
 
-class _Glob(DeferredInputGenerator):
+class _Glob:
     def __init__(self, expression):
         self._expression = expression
 
-    def get_inputs(self):
+    def __call__(self):
         return file_glob(self._expression)
 
 
 def glob(expression):
-    """Deferred file input glob.  The glob is not executed until the task executes.
+    """Deferred file input glob,  the glob is not executed until the task executes.
        
     Collects files for input with a unix style glob expression.
     
@@ -310,13 +271,30 @@ def glob(expression):
        @pk.task(build_c, i=pake.glob('obj/*.o'), o='main')
        def build_exe(ctx):
            ctx.call(['gcc'] + ctx.inputs + ['-o'] + ctx.outputs)
+           
+       @pk.task(build_c, i=[pake.glob('obj_a/*.o'), pake.glob('obj_b/*.o')], o='main')
+       def build_exe(ctx):
+           ctx.call(['gcc'] + ctx.inputs + ['-o'] + ctx.outputs)
+           
+    pake.glob returns a function similar to this:
     
+    .. code-block:: python
+    
+       def input_generator():
+           return glob.glob(expression)
     """
-    return _Glob(expression)
+
+    def input_generator():
+        return file_glob(expression)
+
+    return input_generator
 
 
 def pattern(file_pattern):
     """Produce a substitution pattern that can be used in place of an output file.
+    
+    The % character represents the file name, while {dir} and {ext} represent the directory of 
+    the input file, and the input file extension.
     
     Example:
     
@@ -326,9 +304,32 @@ def pattern(file_pattern):
         def build_c(ctx):
             for i, o in zip(ctx.outdated_inputs, ctx.outdated_outputs):
                 ctx.call(['gcc', '-c', i, '-o', o])
+                
+        @pk.task(i=[pake.glob('src_a/*.c'), pake.glob('src_b/*.c')], o=pake.pattern('{dir}/%.o'))
+        def build_c(ctx):
+            for i, o in zip(ctx.outdated_inputs, ctx.outdated_outputs):
+                ctx.call(['gcc', '-c', i, '-o', o])
+                
+                
+    pake.pattern returns function similar to this:
+    
+    .. code-block:: python
+    
+       def output_generator(inputs):
+           for inp in inputs:
+               dir = os.path.dirname(inp)
+               name, ext = os.path.splitext(os.path.basename(inp))
+               yield file_pattern.replace('{dir}', dir).replace('%', name).replace('{ext}', ext)
     
     """
-    return _OutPattern(file_pattern)
+
+    def output_generator(inputs):
+        for inp in inputs:
+            dir = os.path.dirname(inp)
+            name, ext = os.path.splitext(os.path.basename(inp))
+            yield file_pattern.replace('{dir}', dir).replace('%', name).replace('{ext}', ext)
+
+    return output_generator
 
 
 class Pake:
@@ -400,15 +401,23 @@ class Pake:
         if o is None:
             o = []
 
-        if issubclass(type(i), DeferredInputGenerator):
-            i = i.get_inputs()
+        if callable(i):
+            i = list(i())
         elif type(i) is str or not is_iterable_not_str(i):
             i = [i]
 
-        if issubclass(type(o), DeferredOutputGenerator):
-            o = list(o.get_outputs(i))
+        for idx, inp in enumerate(i):
+            if callable(inp):
+                i[idx] = inp()
+
+        if callable(o):
+            o = list(o(i))
         elif type(o) is str or not is_iterable_not_str(o):
             o = [o]
+
+        for idx, outp in enumerate(i):
+            if callable(outp):
+                o[idx] = outp(i)
 
         return i, o
 
@@ -482,6 +491,81 @@ class Pake:
         Decorator for registering pake tasks.
         
         Any input files specified must be accompanied by at least one output file.
+        
+        
+        A callable object, or list of callable objects may be passed to i or o in addition to
+        a raw file name or names.  This is how pake.glob and pake.pattern work.
+        
+        Input/Output Generation Example:
+        
+        .. code-block:: python
+        
+           def gen_inputs(pattern):
+               def input_generator():
+                   return glob.glob(pattern)
+               return input_generator
+               
+           def gen_output(pattern):
+               def output_generator(inputs):
+                   for inp in inputs:
+                       dir = os.path.dirname(inp)
+                       name, ext = os.path.splitext(os.path.basename(inp))
+                       yield pattern.replace('{dir}', dir).replace('%', name).replace('{ext}', ext)
+               return output_generator
+           
+           @pk.task(i=gen_inputs('*.c'), o=gen_outputs('%.o'))
+           def my_task(ctx):
+               # Do your build task here
+               pass
+               
+           
+           @pk.task(i=[gen_inputs('src_a/*.c'), gen_inputs('src_b/*.c'), o=gen_outputs('{dir}/%.o')]
+           def my_task(ctx):
+               # Do your build task here
+               pass
+        
+        Dependencies Only Example:
+        
+        .. code-block:: python
+           
+           @pk.task(dependent_task_a, dependent_task_b)
+           def my_task(ctx):
+               # Do your build task here
+               pass
+               
+        Change Detection Examples:
+        
+           @pk.task(dependent_task_a, dependent_task_b, i='main.c', o='main')
+           def my_task(ctx):
+               # Do your build task here
+               pass
+               
+           @pk.task(i='main.c', o='main')
+           def my_task(ctx):
+               # Do your build task here
+               pass
+               
+           @pk.task(i=['otherstuff.c', 'main.c'], o='main')
+           def my_task(ctx):
+               # Do your build task here
+               pass
+               
+           @pk.task(i=pake.glob('src/*.c', o='main')
+           def my_task(ctx):
+               # Do your build task here
+               pass
+               
+           @pk.task(i=['file_b.c', 'file_b.c'], o=['file_b.o', 'file_b.o'])
+           def my_task(ctx):
+               # Do your build task here
+               pass
+               
+           # Similar to the above, inputs and outputs end up being of the same
+           # length when using pake.glob with pake.pattern
+           @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
+           def my_task(ctx):
+               # Do your build task here
+               pass
         
         :raises: :py:class:`pake.UndefinedTaskException` if a given dependency is not a registered task function.
         :param args: Tasks which this task depends on.
