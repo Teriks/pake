@@ -140,7 +140,7 @@ class TaskContext:
         :param silent: Whether or not to silence all output from the command.
         :param print_cmd: Whether or not to print the executed command line to the tasks output.
         
-        :raises subprocess.CalledProcessError if *ignore_errors* is *False* and the process exits with a non 0 exit code.
+        :raises: subprocess.CalledProcessError if *ignore_errors* is *False* and the process exits with a non 0 exit code.
         
         :return: The process exit code.
         """
