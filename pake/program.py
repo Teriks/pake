@@ -296,8 +296,8 @@ def run(pake_obj, tasks=None):
     except pake.UndefinedTaskException as err:
         pake_obj.print_err(str(err))
         return_code = 1
-    except pake.CyclicGraphException:
-        pake_obj.print_err('A cyclic dependency was detect, check your task dependencies!')
+    except pake.CyclicGraphException as err:
+        pake_obj.print_err(str(err))
         return_code = 1
     except FileNotFoundError as err:
         pake_obj.print_err(str(err))

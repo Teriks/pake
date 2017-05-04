@@ -90,7 +90,7 @@ class Graph:
                 yield from self._topological_sort(i, visited)
             else:
                 raise CyclicGraphException(
-                    'cycle detected, node: "{}" already seen.'.format(i)
+                    'Cyclic graph detected, node: "{}" already seen.'.format(i)
                 )
 
         yield self

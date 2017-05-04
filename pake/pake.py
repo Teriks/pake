@@ -336,7 +336,7 @@ class Pake:
     Pake's main instance.
     
     :ivar stdout: The stream all standard task output gets written to (set-able)
-    :ivar stderr: The stream all errors and exceptions get written to (set-able)
+    :ivar stderr: The stream all errors and responses to critical exceptions get written to (set-able)
     """
 
     def __init__(self, stdout=None, stderr=None):
@@ -377,6 +377,14 @@ class Pake:
            
         This is used to get defines off the command line, as well as retrieve
         values exported from top level pake scripts.
+        
+        If the define is not found, then **None** is returned by default.
+        
+        The indexer operator can also be used on the pake instance to fetch defines, IE:
+          
+        *pk['YOURDEFINE']*
+        
+        Which also produces **None** if the define does not exist.
         
         :param name: Name of the define
         :param default: The default value to return if the define does not exist
