@@ -9,7 +9,7 @@ if not version:
     raise RuntimeError('version is not set')
 
 readme = ''
-with open('README.md') as f:
+with open('README.md', 'r', encoding='utf-8') as f:
     readme = f.read()
 
 
