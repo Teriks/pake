@@ -182,12 +182,13 @@ def _format_task_info(max_name_width, task_name, task_doc):
     field_sep = ':  '
 
     lines = textwrap.wrap(task_doc)
+    lines_len = len(lines)
 
-    if len(lines):
+    if lines_len > 0:
         lines[0] = ' ' * (max_name_width - len(task_name)) + lines[0]
 
-    for i in range(1, len(lines)):
-        lines[i] = ' ' * (max_name_width + len(field_sep)) + lines[i]
+        for i in range(1, lines_len):
+            lines[i] = ' ' * (max_name_width + len(field_sep)) + lines[i]
 
     spacing = (os.linesep if len(lines) > 1 else '')
     return spacing + task_name + field_sep + os.linesep.join(lines) + spacing
