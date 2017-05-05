@@ -237,17 +237,19 @@ Output from the example above:
 
 ```
 
-***** Running Pake "sometasks/pakefile.py"
-pake[1]: Entering Directory "(REST OF FULL PATH...)\paketest\sometasks"
-===== Executing task: "dotasks"
-Doing tasks!
-pake[1]: Leaving Directory "(REST OF FULL PATH...)\paketest\sometasks"
-===== Executing task: "my_phony_task"
-***** Running Pake "library/pakefile.py"
-pake[1]: Entering Directory "(REST OF FULL PATH...)\paketest\library"
-===== Executing task: "foo"
+*** enter subpake[1]:
+pake[1]: Entering Directory "(REST OF PATH...)/paketest/sometasks"
+===== Executing Task: "dotasks"
+Do Tasks
+pake[1]: Exiting Directory "(REST OF PATH...)/paketest/sometasks"
+*** exit subpake[1]:
+===== Executing Task: "my_phony_task"
+*** enter subpake[1]:
+pake[1]: Entering Directory "(REST OF PATH...)/paketest/library"
+===== Executing Task: "foo"
 Foo!
-pake[1]: Leaving Directory "(REST OF FULL PATH...)\paketest\library"
+pake[1]: Exiting Directory "(REST OF PATH...)/paketest/library"
+*** exit subpake[1]:
 
 ```
 
