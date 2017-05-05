@@ -109,7 +109,7 @@ def flatten_non_str(iterable):
     
     Example:
     
-    .. code-block::
+    .. code-block:: python
        
        val = list(flatten_non_str(['this', ['is', ['an'], 'example']]))
        
