@@ -371,7 +371,7 @@ def pattern(file_pattern):
             dir = os.path.dirname(inp)
             name, ext = os.path.splitext(os.path.basename(inp))
             yield file_pattern.replace('{dir}', dir).replace('%', name).replace('{ext}', ext)
-
+            
     return output_generator
 
 
@@ -392,7 +392,7 @@ class MultitaskContext:
         If no thread pool exists, such as in the case of **--jobs 1**, then the submitted
         function is immediately executed in the current thread.
 
-        This function has an identical call syntax to :py:meth:`~concurrent.futures.Executor.submit`.
+        This function has an identical call syntax to **concurrent.futures.Executor.submit**.
 
         Example:
 
