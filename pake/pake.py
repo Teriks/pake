@@ -78,6 +78,49 @@ class TaskContext:
         self.outdated_inputs = []
         self.outdated_outputs = []
 
+    def multitask(self):
+        """Returns a contextual object for submitting work to pake's current thread pool.
+
+           .. code-block:: python
+
+              @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
+              def build_c(ctx):
+                  with ctx.multitask() as mt:
+                      for i, o in ctx.outdated_pairs:
+
+                          # mt.submit returns a "concurrent.futures.Future" object
+
+                          mt.submit(ctx.call, ['gcc', '-c', i, '-o', o])
+
+
+        At the end of the **with** statement, all submitted tasks are simultaneously waited on.
+
+        :returns: :py:class:`pake.MultitaskContext`
+        """
+              
+        return MultitaskContext(self)
+
+    @property
+    def outdated_pairs(self):
+        """Short hand for: zip(ctx.outdated_inputs, ctx.outdated_outputs)
+           
+           Returns a generator object over outdated (input, output) pairs.
+           
+           This is only useful when the task has the same number of inputs as it does outputs.
+
+           Example:
+
+           .. code-block:: python
+              
+              @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
+              def build_c(ctx):
+                  for i, o in ctx.outdated_pairs:
+                      ctx.call(['gcc', '-c', i, '-o', o])
+
+        """
+        return zip(self.outdated_inputs, self.outdated_outputs)
+           
+
     @property
     def func(self):
         """Task function reference."""
@@ -202,6 +245,7 @@ class TaskContext:
 
         # Submit self
         self._future = thread_pool.submit(self.node.func)
+        return self._future
 
     @property
     def node(self):
@@ -301,12 +345,12 @@ def pattern(file_pattern):
     
         @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
         def build_c(ctx):
-            for i, o in zip(ctx.outdated_inputs, ctx.outdated_outputs):
+            for i, o in ctx.outdated_pairs:
                 ctx.call(['gcc', '-c', i, '-o', o])
                 
         @pk.task(i=[pake.glob('src_a/*.c'), pake.glob('src_b/*.c')], o=pake.pattern('{dir}/%.o'))
         def build_c(ctx):
-            for i, o in zip(ctx.outdated_inputs, ctx.outdated_outputs):
+            for i, o in ctx.outdated_pairs:
                 ctx.call(['gcc', '-c', i, '-o', o])
                 
                 
@@ -331,6 +375,45 @@ def pattern(file_pattern):
     return output_generator
 
 
+class MultitaskContext:
+    """Returned by :py:meth:`~pake.TaskContext.multitask` (see for more details).  
+
+    This object is meant to be used in a **with** statement.
+    """
+
+    def __init__(self, ctx):
+        self._ctx = ctx
+        self._threadpool = ctx.pake.threadpool
+        self._pending=[]
+
+    def submit(self, *args, **kwargs):
+        """Submit a task to pakes current threadpool.
+           
+        If no thread pool exists, such as in the case of **--jobs 1**, then the submitted
+        function is immediately executed in the current thread.
+
+        This function has an identical call syntax to :py:meth:`~concurrent.futures.Executor.submit`.
+
+        Example:
+
+        .. code-block:: python
+
+           mt.submit(task_function, arg1, arg2, keyword_arg='arg')
+
+        """
+        if not self._threadpool:
+            args[0](*args[1:], **kwargs)
+        else:
+            self._pending.append(self._threadpool.submit(*args, **kwargs))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, tb):
+        futures_wait(self._pending)
+        self._ctx.io.flush()
+
+    
 class Pake:
     """
     Pake's main instance.
@@ -353,6 +436,13 @@ class Pake:
         self._dry_run_mode = False
         self.stdout = stdout if stdout is not None else sys.stdout
         self.stderr = stderr if stderr is not None else sys.stderr
+        self._threadpool = None
+
+    @property
+    def threadpool(self):
+        """Current execution thread pool, only non **None** while pake is running."""
+        return self._threadpool
+
 
     def set_define(self, name, value):
         """
@@ -729,11 +819,20 @@ class Pake:
                     i()
             return
 
-        with ThreadPoolExecutor(max_workers=jobs) as executor:
+        executor = None
+        pending = []
+        try:
+            executor = ThreadPoolExecutor(max_workers=jobs)
+            self._threadpool = executor
             for graph in graphs:
                 for i in (i for i in graph if i is not self._graph):
                     context = self.get_task_context(i.name)
-                    context._i_submit_self(executor)
+                    pending.append(context._i_submit_self(executor))
+        finally:
+            futures_wait(pending)
+            self._threadpool = None
+            if executor:
+                executor.shutdown(wait=False)
 
     def set_defines_dict(self, dictionary):
         """

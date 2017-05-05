@@ -12,6 +12,7 @@ from .pake import\
     glob, \
     Pake, \
     TaskContext, \
+    MultitaskContext, \
     TaskGraph, \
     UndefinedTaskException, \
     RedefinedTaskException
@@ -41,5 +42,6 @@ __all__ = [
     'UndefinedTaskException',
     'RedefinedTaskException',
     'PakeUninitializedException',
-    'CyclicGraphException'
+    'CyclicGraphException',
+    'MultitaskContext'
 ]

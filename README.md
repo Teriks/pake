@@ -72,7 +72,9 @@ def foo(ctx):
 # When the amount of inputs is equal to the amount of outputs,
 # pake will compare each input to its corresponding output
 # and collect out of date input/outputs into ctx.outdated_inputs
-# and ctx.outdated_outputs respectively
+# and ctx.outdated_outputs respectively.  ctx.outdated_pairs
+# can be used to get a generator over (input, output) pairs,
+# it is shorthand for zip(ctx.outdated_inputs, ctx.outdated_outputs)
 @pk.task(i=pake.glob("bar/*.c"), o=pake.pattern('bar/%.o'))
 def bar(ctx):
 
@@ -80,7 +82,7 @@ def bar(ctx):
     # correspond to each other, this iterates of a sequence of python
     # tuple objects in the form ("input", "output")
 
-    for i, o in zip(ctx.outdated_inputs, ctx.outdated_outputs):
+    for i, o in ctx.outdated_pairs:
         ctx.call('gcc -c "{}" -o "{}"'.format(i, o))
 
 # This task depends on the foo and bar tasks, as

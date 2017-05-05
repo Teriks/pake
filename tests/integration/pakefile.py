@@ -68,10 +68,10 @@ def do_multiple_stuffs_2(ctx):
     # The elements correspond to each other when the number of inputs is the same
     # as the number of outputs.  ctx.outdated_input[i] is the input related to
     # the output: ctx.outdated_output[i]
+    with ctx.multitask() as mt:
+        for i in zip(ctx.outdated_inputs, ctx.outdated_outputs):
+            mt.submit(file_helper.touch, i[1])
 
-    for i in zip(ctx.outdated_inputs, ctx.outdated_outputs):
-        ctx.print(i[0])
-        file_helper.touch(i[1])
 
 
 @pk.task(
@@ -130,8 +130,9 @@ def glob_and_pattern_test(ctx):
          o=pake.pattern('{dir}/%.o'))
 def glob_and_pattern_test2(ctx):
     file_helper = pake.FileHelper(ctx)
-    for i, o in zip(ctx.outdated_inputs, ctx.outdated_outputs):
-        file_helper.touch(o)
+    with ctx.multitask() as mt:
+        for i, o in zip(ctx.outdated_inputs, ctx.outdated_outputs):
+            mt.submit(file_helper.touch, o)
 
 
 # Always runs, because there are no inputs or outputs to use for file change detection

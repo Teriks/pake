@@ -37,10 +37,8 @@ class IntegrationTest(unittest.TestCase):
         fun(os.path.exists(os.path.join(script_dir, "glob_and_pattern_test", "c.o")))
 
     def test_integrated(self):
-        try:
-            pake.subpake(os.path.join(script_dir, "pakefile.py"), silent=True)
-        except Exception as e:
-            self.fail("subpake raised unexpected exception {}".format(e))
+        pake.subpake(os.path.join(script_dir, "pakefile.py"), silent=True)
+
 
         self._check_outputs()
 
@@ -52,10 +50,7 @@ class IntegrationTest(unittest.TestCase):
         self._check_outputs(exist=False)
 
     def test_integrated_parallel(self):
-        try:
-            pake.subpake(os.path.join(script_dir, "pakefile.py"), "-j", 10, silent=True)
-        except Exception as e:
-            self.fail("subpake raised unexpected exception {}".format(e))
+        pake.subpake(os.path.join(script_dir, "pakefile.py"), "-j", 10, silent=True)
 
         self._check_outputs()
 
