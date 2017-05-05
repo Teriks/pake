@@ -27,6 +27,13 @@ import os
 import pake
 
 
+class _DummyCtx:
+    def print(*args, **kwargs):
+        pass
+    def print_err(*args, **kwargs):
+        pass
+
+
 class FileHelper:
     """A helper class for dealing with common file operations
     inside and outside of pake tasks.  Instantiating this class
@@ -38,20 +45,25 @@ class FileHelper:
 
     def __init__(self, task_ctx=None):
         """Build the FileHelper object around the :py:class:`pake.TaskContext` instance
-        that gets passed into a pake task, or None.
+        that gets passed into a pake task.
 
         :param task_ctx: A :py:class:`pake.TaskContext` instance or None.  If **task_ctx** is set
                        then information about the file operations that occur using this
                        FileHelper instance will be printed to the tasks output, unless
                        the 'silent' parameter is set to True in the function being called.
         """
-        if type(task_ctx) is not pake.TaskContext:
-            raise ValueError("task was not a pake.TaskContext object.")
+        if task_ctx:
+            if type(task_ctx) is not pake.TaskContext:
+                raise ValueError("task_ctx was not a pake.TaskContext object.")
 
-        self._task_ctx = task_ctx
+            self._task_ctx = task_ctx
+        else:
+            self._task_ctx = _DummyCtx()
 
     @property
     def task_ctx(self):
+        if type(self._task_ctx) is _DummyCtx:
+            return None
         return self._task_ctx
 
     def makedirs(self, path, silent=False, exist_ok=True):

@@ -99,7 +99,7 @@ class TaskContext:
     def print(self, *args, **kwargs):
         """Prints to the task IO file stream using the builtin print function."""
         kwargs.pop('file', None)
-        print(*args, **kwargs, file=self._io)
+        print(*args, file=self._io, **kwargs)
 
     def subpake(self, script, *args, silent=False):
         """Run :py:func:`pake.subpake` and direct all output to the task IO file stream."""
@@ -747,10 +747,10 @@ class Pake:
         """Shorthand for print(..., file=this_instance.stdout)"""
 
         kwargs.pop('file', None)
-        print(*args, **kwargs, file=self.stdout)
+        print(*args, file=self.stdout, **kwargs)
 
     def print_err(self, *args, **kwargs):
         """Shorthand for print(..., file=this_instance.stderr)"""
 
         kwargs.pop('file', None)
-        print(*args, **kwargs, file=self.stderr)
+        print(*args, file=self.stderr, **kwargs)
