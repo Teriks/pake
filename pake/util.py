@@ -63,6 +63,7 @@ def is_iterable_not_str(obj):
 
 def str_is_float(s):
     """Test if a string can be parsed into a float.
+    
     :returns: True or False
     :rtype: bool
     """
@@ -76,6 +77,7 @@ def str_is_float(s):
 
 def str_is_int(s):
     """Test if a string can be parsed into an integer.
+    
     :returns: True or False
     :rtype: bool
     """
@@ -91,7 +93,7 @@ def get_task_arg_name(val):
     """Get the name of task reference that may be either a function or a
     string referencing a function name.  Mostly for internal usage.
     
-    If you pass a function, fun.__name__ is returned.  Otherwise str(val) is returned.
+    If you pass a function, **fun.__name__** is returned.  Otherwise **str(val)** is returned.
     
     :param val: Argument value
     :return: The name of the passed function object, or a stringified version of whatever object was passed in.
@@ -103,7 +105,19 @@ def get_task_arg_name(val):
 
 
 def flatten_non_str(iterable):
-    """Flatten a nested iterable without effecting strings."""
+    """Flatten a nested iterable without affecting strings.
+    
+    Example:
+    
+    .. code-block::
+       
+       val = list(flatten_non_str(['this', ['is', ['an'], 'example']]))
+       
+       # val == ['this', 'is', 'an', 'example']
+    
+    :returns: A generator that iterates over the flattened iterable.
+    
+    """
 
     for x in iterable:
         if is_iterable_not_str(x):
