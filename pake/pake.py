@@ -386,7 +386,7 @@ class MultitaskContext:
         self._threadpool = ctx.pake.threadpool
         self._pending=[]
 
-    def submit(self, *args, **kwargs):
+    def submit(self, fn, *args, **kwargs):
         """Submit a task to pakes current threadpool.
            
         If no thread pool exists, such as in the case of **--jobs 1**, then the submitted
@@ -394,23 +394,26 @@ class MultitaskContext:
 
         This function has an identical call syntax to **concurrent.futures.Executor.submit**.
 
+        It does not return a Future, all waiting is currently handled by the context object.
+
         Example:
 
         .. code-block:: python
 
-           mt.submit(task_function, arg1, arg2, keyword_arg='arg')
+           mt.submit(work_function, arg1, arg2, keyword_arg='arg')
 
         """
         if not self._threadpool:
-            args[0](*args[1:], **kwargs)
+            fn(*args, **kwargs)
         else:
-            self._pending.append(self._threadpool.submit(*args, **kwargs))
+            self._pending.append(self._threadpool.submit(fn, *args, **kwargs))
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, tb):
-        futures_wait(self._pending)
+        if len(self._pending):
+            futures_wait(self._pending)
         self._ctx.io.flush()
 
     
@@ -440,7 +443,10 @@ class Pake:
 
     @property
     def threadpool(self):
-        """Current execution thread pool, only non **None** while pake is running."""
+        """Current execution thread pool, is only ever not **None** while pake is running.
+        
+        If pake is running with a job count of 1, no threadpool is used so this property will be **None**.
+        """
         return self._threadpool
 
 
