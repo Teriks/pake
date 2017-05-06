@@ -376,7 +376,7 @@ def pattern(file_pattern):
 
 
 class MultitaskContext:
-    """Returned by :py:meth:`~pake.TaskContext.multitask` (see for more details).  
+    """Returned by :py:meth:`pake.TaskContext.multitask` (see for more details).  
 
     This object is meant to be used in a **with** statement.
     """
