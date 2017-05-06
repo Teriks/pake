@@ -423,6 +423,12 @@ class MultitaskContext(Executor):
         return self
         
     def shutdown(self, wait=True):
+        """Shutdown multitasking and free resources, optionally wait on all submitted tasks.
+    
+    It is not necessary to call this function if you are using the context in a **with** statement. 
+    
+    :param wait: Whether or not to wait on all submitted tasks, default is true.
+        """
         if wait and len(self._pending):
             futures_wait(self._pending)
 
