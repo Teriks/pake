@@ -122,7 +122,7 @@ def print_define(ctx):
 @pk.task(i=pake.glob('glob_and_pattern_test/*.c'), o=pake.pattern('glob_and_pattern_test/%.o'))
 def glob_and_pattern_test(ctx):
     file_helper = pake.FileHelper(ctx)
-    for i, o in zip(ctx.outdated_inputs, ctx.outdated_outputs):
+    for i, o in ctx.outdated_pairs:
         file_helper.touch(o)
 
 
@@ -131,7 +131,7 @@ def glob_and_pattern_test(ctx):
 def glob_and_pattern_test2(ctx):
     file_helper = pake.FileHelper(ctx)
     with ctx.multitask() as mt:
-        list(mt.map(file_helper.touch, (o for i, o in ctx.outdated_pairs)))
+        list(mt.map(file_helper.touch, ctx.outdated_outputs))
 
 
 # Always runs, because there are no inputs or outputs to use for file change detection
