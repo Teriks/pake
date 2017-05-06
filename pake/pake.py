@@ -791,7 +791,9 @@ class Pake:
     def run(self, tasks=None, jobs=1):
         """
         Run all given tasks, with an optional level of concurrency.
-        
+
+
+        :raises: :py:class:`ValueError` if **jobs** is less than 1.
         :raises: :py:class:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
         :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
         :raises: :py:class:`FileNotFoundError` if a task references a non existent input file. 
