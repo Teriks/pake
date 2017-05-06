@@ -192,13 +192,13 @@ argument or the *jobs* parameter of **pake.Pake.run**.
    @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
    def build_c(ctx)
 
-   # Start multitasking
+       # Start multitasking
 
-    with ctx.multitask() as mt:
-        for i, o in ctx.outdated_pairs:
-            # Submit a work function with arguments to the threadpool
+       with ctx.multitask() as mt:
+           for i, o in ctx.outdated_pairs:
+               # Submit a work function with arguments to the threadpool
 
-            mt.submit(ctx.call, ['gcc', '-c', i, '-o', o])
+               mt.submit(ctx.call, ['gcc', '-c', i, '-o', o])
 
 
    @pk.task(build_c, i=pake.glob('obj/*.o'), o='main')
