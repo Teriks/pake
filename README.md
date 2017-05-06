@@ -160,7 +160,7 @@ gcc -o bin/baz main.c foo/foo.o bar/bar.o
 
 ```
 
-# Parallism inside tasks
+# Parallelism inside tasks
 
 Work can be submitted to the threadpool pake is running
 it's tasks on in order to achieve a predictable level
