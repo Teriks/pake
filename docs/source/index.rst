@@ -49,7 +49,7 @@ Module Index
 
 
 Writing basic tasks
----------------------
+-------------------
 
 .. code-block:: python
 
@@ -172,6 +172,41 @@ Output from the example above:
     ===== Executing task: "baz"
     Created Directory(s): "bin"
     gcc -o bin/baz main.c foo/foo.o bar/bar.o
+
+
+Parallism inside tasks
+----------------------
+
+Work can be submitted to the threadpool pake is running
+it's tasks on in order to achieve a predictable level
+of parallism that is limited by the **--jobs** command line
+argument or the *jobs* parameter of **pake.Pake.run**.
+
+
+.. code-block:: python
+
+   import pake
+
+   pk=pake.init()
+
+   @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
+   def build_c(ctx)
+
+   # Start multitasking
+
+    with ctx.multitask() as mt:
+        for i, o in ctx.outdated_pairs:
+            # Submit a work function with arguments to the threadpool
+
+            mt.submit(ctx.call, ['gcc', '-c', i, '-o', o])
+
+
+   @pk.task(build_c, i=pake.glob('obj/*.o'), o='main')
+   def build(ctx):
+       ctx.call(['gcc'] + ctx.inputs + ['-o'] + ctx.outputs)
+
+
+   pake.run(pk, tasks=build)
 
 
 Running pake scripts in pake
