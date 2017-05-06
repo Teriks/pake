@@ -27,7 +27,7 @@ from functools import wraps
 from glob import glob as file_glob
 
 import os
-from concurrent.futures import ThreadPoolExecutor, wait as futures_wait
+from concurrent.futures import ThreadPoolExecutor, wait as futures_wait, Executor, Future
 from os import path
 
 import pake
@@ -372,7 +372,7 @@ def pattern(file_pattern):
     return output_generator
 
 
-class MultitaskContext:
+class MultitaskContext(Executor):
     """Returned by :py:meth:`pake.TaskContext.multitask` (see for more details).  
 
     This object is meant to be used in a **with** statement.
@@ -382,6 +382,18 @@ class MultitaskContext:
         self._ctx = ctx
         self._threadpool = ctx.pake.threadpool
         self._pending=[]
+        
+    def _submit_this_thread(self, fn, *args, **kwargs):
+        future = Future()
+        if not future.set_running_or_notify_cancel():
+            return future
+        try:
+            result = fn(*args, **kwargs)
+        except BaseException as err:
+            future.set_exception(err)
+        else:
+            future.set_result(result)
+        return future
 
     def submit(self, fn, *args, **kwargs):
         """Submit a task to pakes current threadpool.
@@ -391,27 +403,31 @@ class MultitaskContext:
 
         This function has an identical call syntax to **concurrent.futures.Executor.submit**.
 
-        It does not return a Future, all waiting is currently handled by the context object.
-
         Example:
 
         .. code-block:: python
 
            mt.submit(work_function, arg1, arg2, keyword_arg='arg')
+        
+        :returns: :py:class:`concurrent.futures.Future`
 
         """
         if not self._threadpool:
-            fn(*args, **kwargs)
+            return self._submit_this_thread(fn, *args, **kwargs)
         else:
-            self._pending.append(self._threadpool.submit(fn, *args, **kwargs))
+            future = self._threadpool.submit(fn, *args, **kwargs)
+            self._pending.append(future)
+            return future
 
     def __enter__(self):
         return self
+        
+    def shutdown(self, wait=True):
+        if wait and len(self._pending):
+            futures_wait(self._pending)
 
     def __exit__(self, exc_type, exc_value, tb):
-        if len(self._pending):
-            futures_wait(self._pending)
-        self._ctx.io.flush()
+        self.shutdown()
 
     
 class Pake:

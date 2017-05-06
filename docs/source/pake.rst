@@ -7,6 +7,7 @@ Module Contents
 .. automodule:: pake
     :members:
     :show-inheritance:
+    :inherited-members:
 
 
 Submodules
