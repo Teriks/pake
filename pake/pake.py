@@ -87,9 +87,6 @@ class TaskContext:
               def build_c(ctx):
                   with ctx.multitask() as mt:
                       for i, o in ctx.outdated_pairs:
-
-                          # mt.submit returns a "concurrent.futures.Future" object
-
                           mt.submit(ctx.call, ['gcc', '-c', i, '-o', o])
 
 
