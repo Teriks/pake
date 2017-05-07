@@ -140,10 +140,10 @@ class TaskContext:
         kwargs.pop('file', None)
         print(*args, file=self._io, **kwargs)
 
-    def subpake(self, script, *args, silent=False):
+    def subpake(self, *args, silent=False):
         """Run :py:func:`pake.subpake` and direct all output to the task IO file stream."""
 
-        pake.subpake(script, *args, stdout=self._io, silent=silent)
+        pake.subpake(*args, stdout=self._io, silent=silent)
 
     def call(self, *args, stdin=None, shell=False, ignore_errors=False, silent=False, print_cmd=True):
         """Calls a sub process, all output is written to the task IO file stream.
@@ -165,6 +165,12 @@ class TaskContext:
            # pass the same command using the variadic argument *args
            
            ctx.call('gcc', '-c', 'test.c', '-o', 'test.o')
+           
+           # non string iterables in command lists will be flattened, 
+           # allowing for this syntax to work.  ctx.inputs and ctx.outputs
+           # are both list objects, but anything that is iterable will work
+           
+           ctx.call(['gcc', '-c', ctx.inputs, '-o', ctx.outputs])
            
         
         When *ignore_errors* is False, :py:func:`subprocess.check_call` is used to execute the process.

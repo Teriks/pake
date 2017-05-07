@@ -41,7 +41,7 @@ def export(name, value):
     _exports[name] = value
 
 
-def subpake(script, *args, stdout=None, silent=False):
+def subpake(*args, stdout=None, silent=False):
     """
     Execute a pakefile.py script, changing directories if necessary.
     
@@ -56,18 +56,32 @@ def subpake(script, *args, stdout=None, silent=False):
     
        pake.subpake('dir/pakefile.py', 'task_a', '-C', 'some_dir')
     
-       pake.subpake('dir/pakefile.py', ['task_a', '-C', 'some_dir'])
+       pake.subpake(['dir/pakefile.py', 'task_a', '-C', 'some_dir'])
        
-       pake.subpake('dir/pakefile.py', 'task_a -C some_dir')
+       # note the nested iterable containing string arguments
+       
+       pake.subpake(['dir/pakefile.py', 'task_a', ['-C', 'some_dir']])
+       
+       pake.subpake('dir/pakefile.py task_a -C some_dir')
     
     
-    :param script: The path to the pakefile.py script
-    :param args: Additional arguments to pass to the script
+    :raises: :py:class:`ValueError` if no arguments are provided.
+    :raises: :py:class:`FileNotFoundError` if the first argument (the pakefile) is not found.
+    
+    :param args: The script, and additional arguments to pass to the script
     :param stdout: The stream to write all of the scripts output to. (defaults to sys.stdout)
     :param silent: Whether or not to silence all output.
     """
 
     args = handle_shell_args(args)
+
+    if len(args) < 1:
+        raise ValueError('Not enough arguments provided, '
+                         'must at least provide a pakefile.py script path as the first argument.')
+
+    script = args.pop(0)
+    if not os.path.isfile(script):
+        raise FileNotFoundError('pakefile: "{}" does not exist.'.format(script))
 
     stdout = stdout if stdout is not None else sys.stdout
 
