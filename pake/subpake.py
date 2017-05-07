@@ -50,7 +50,7 @@ def subpake(script, *args, stdout=None, silent=False):
     
     Example:
     
-    .. code-block::
+    .. code-block:: python
     
        # These are all equivalent
     
