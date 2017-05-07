@@ -19,6 +19,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import inspect
 import pathlib
+import shlex
 
 
 def touch(file_name, mode=0o666, exist_ok=True):
@@ -125,3 +126,22 @@ def flatten_non_str(iterable):
                 yield y
         else:
             yield x
+
+
+def handle_shell_args(args):
+    """Handles parsing the **\*args** parameter of :py:meth:`pake.TaskContext.call` and :py:meth:`pake.subpake`.
+    
+    It allows shell arguments to be passed as a list object, variadic parameters, or a single string.
+    
+    :returns: A list of shell argument strings.
+    """
+
+    if len(args) == 1:
+        if is_iterable_not_str(args[0]):
+            args = [str(i) for i in args[0]]
+        elif type(args[0]) is str:
+            args = shlex.split(args[0])
+        else:
+            args = [str(i) for i in args]
+
+    return args

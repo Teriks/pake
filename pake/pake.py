@@ -19,7 +19,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import inspect
-import shlex
 import subprocess
 import sys
 import tempfile
@@ -32,7 +31,7 @@ from os import path
 
 import pake
 from .graph import Graph
-from .util import is_iterable_not_str, get_task_arg_name, flatten_non_str
+from .util import is_iterable_not_str, get_task_arg_name, flatten_non_str, handle_shell_args
 
 
 class UndefinedTaskException(Exception):
@@ -184,14 +183,9 @@ class TaskContext:
         
         :return: The process exit code.
         """
+        args = handle_shell_args(args)
+
         self._io.flush()
-        if len(args) == 1:
-            if is_iterable_not_str(args[0]):
-                args = [str(i) for i in args[0]]
-            elif type(args[0]) is str:
-                args = shlex.split(args[0])
-        else:
-            args = [str(i) for i in args]
 
         call = subprocess.call if ignore_errors else subprocess.check_call
 

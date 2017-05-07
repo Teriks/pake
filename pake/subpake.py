@@ -22,6 +22,8 @@ import os.path
 import subprocess
 import sys
 
+from pake.util import handle_shell_args
+
 import os
 
 from .program import get_subpake_depth, get_max_jobs, PakeUninitializedException
@@ -43,11 +45,29 @@ def subpake(script, *args, stdout=None, silent=False):
     """
     Execute a pakefile.py script, changing directories if necessary.
     
+    :py:meth:`pake.subpake` allows similar syntax to :py:meth:`pake.TaskContext.call`
+    for its **\*args** parameter.
+    
+    Example:
+    
+    .. code-block::
+    
+       # These are all equivalent
+    
+       pake.subpake('dir/pakefile', 'task_a', '-C', 'some_dir')
+    
+       pake.subpake('dir/pakefile', ['task_a', '-C', 'some_dir'])
+       
+       pake.subpake('dir/pakefile', 'task_a -C some_dir')
+    
+    
     :param script: The path to the pakefile.py script
     :param args: Additional arguments to pass to the script
     :param stdout: The stream to write all of the scripts output to. (defaults to sys.stdout)
     :param silent: Whether or not to silence all output.
     """
+
+    args = handle_shell_args(args)
 
     stdout = stdout if stdout is not None else sys.stdout
 
