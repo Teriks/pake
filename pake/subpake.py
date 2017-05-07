@@ -54,11 +54,11 @@ def subpake(script, *args, stdout=None, silent=False):
     
        # These are all equivalent
     
-       pake.subpake('dir/pakefile', 'task_a', '-C', 'some_dir')
+       pake.subpake('dir/pakefile.py', 'task_a', '-C', 'some_dir')
     
-       pake.subpake('dir/pakefile', ['task_a', '-C', 'some_dir'])
+       pake.subpake('dir/pakefile.py', ['task_a', '-C', 'some_dir'])
        
-       pake.subpake('dir/pakefile', 'task_a -C some_dir')
+       pake.subpake('dir/pakefile.py', 'task_a -C some_dir')
     
     
     :param script: The path to the pakefile.py script
