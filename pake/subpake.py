@@ -46,7 +46,7 @@ def subpake(script, *args, stdout=None, silent=False):
     Execute a pakefile.py script, changing directories if necessary.
     
     :py:meth:`pake.subpake` allows similar syntax to :py:meth:`pake.TaskContext.call`
-    for its **\*args** parameter.
+    for it's **\*args** parameter.
     
     Example:
     
