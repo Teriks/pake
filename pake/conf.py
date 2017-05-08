@@ -57,7 +57,7 @@ def get_init_file():
 def get_init_dir():
     """Gets the full path to the directory pake started running in.
     
-    If pake preformed any directory changes, this returns the working path before
+    If pake preformed any directory changes, this returns the working path before that happened.
     
     Returns **None** if :py:meth:`pake.init` has not been called.
     
