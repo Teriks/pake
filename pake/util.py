@@ -143,7 +143,7 @@ def handle_shell_args(args):
         if is_iterable_not_str(args[0]):
             args = [str(i) for i in flatten_non_str(args[0])]
         elif type(args[0]) is str:
-            args = shlex.split(args[0])
+            args = shlex.split(args[0], posix=not os.name == 'nt')
     else:
         args = [str(i) for i in flatten_non_str(args)]
 

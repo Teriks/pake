@@ -39,3 +39,15 @@ import sys
 
 stderr = sys.stderr
 stdout = sys.stdout
+
+_init_file = ''
+
+
+def get_init_file():
+    """Gets the full path to the file :py:meth:`pake.init` was called in."""
+    return _init_file
+
+
+def set_init_file(file_path):
+    global _init_file
+    _init_file = file_path

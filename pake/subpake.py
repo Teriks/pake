@@ -87,6 +87,7 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
                          'must at least provide a pakefile.py script path as the first argument.')
 
     script = args.pop(0)
+
     if not os.path.isfile(script):
         raise FileNotFoundError('pakefile: "{}" does not exist.'.format(script))
 
