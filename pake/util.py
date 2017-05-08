@@ -174,7 +174,7 @@ def get_pakefile_caller_detail():
     function call in the current call tree which exists inside of a pakefile.
        
     This function traverses up the stack frame looking for the first occurrence of
-    of a source file with the same path that :py:meth:`pake.conf.get_init_file` returns.
+    a source file with the same path that :py:meth:`pake.conf.get_init_file` returns.
        
     If a pakefile is not found in the call tree, this function returns **None**.
        
