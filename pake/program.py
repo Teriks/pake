@@ -30,7 +30,7 @@ from collections import namedtuple
 
 from pake.util import is_iterable, is_iterable_not_str, get_task_arg_name
 from .pake import Pake
-from .conf import set_init_file
+from .conf import _i_set_init_file, _i_set_init_dir
 
 
 class PakeUninitializedException(Exception):
@@ -182,6 +182,8 @@ def init(stdout=None):
 
     global _parsed_args
 
+    _i_set_init_dir(os.getcwd())
+
     p = Pake(stdout=stdout)
 
     _parsed_args = _arg_parser.parse_args()
@@ -191,7 +193,7 @@ def init(stdout=None):
     cur_frame = inspect.currentframe()
     try:
         frame, filename, line_number, function_name, lines, index = inspect.getouterframes(cur_frame)[1]
-        set_init_file(os.path.abspath(filename))
+        _i_set_init_file(os.path.abspath(filename))
     finally:
         del cur_frame
 

@@ -24,6 +24,8 @@ import shlex
 import os
 from collections import namedtuple
 
+import pake.conf
+
 
 def touch(file_name, mode=0o666, exist_ok=True):
     """
@@ -172,9 +174,9 @@ def get_pakefile_caller_detail():
        function call in the current call tree which exists inside of a pakefile.
        
        This function traverses up the stack frame looking for the first occurrence of
-       of a source file with the name containing 'pakefile' (case insensitive).
+       of a source file with the same path that :py:meth:`pake.conf.get_init_file` returns.
        
-       If a 'pakefile' is not found in the call tree, this function returns **None**.
+       If a pakefile is not found in the call tree, this function returns **None**.
        
     :returns: A named tuple: :py:class:`pake.util.CallerDetail` or **None**.
     """
@@ -182,6 +184,13 @@ def get_pakefile_caller_detail():
     last = None
 
     cur_frame = inspect.currentframe()
+
+    init_file = pake.conf.get_init_file()
+    init_dir = pake.conf.get_init_dir()
+
+    if init_file is None:
+        return None
+
     try:
         for frame_detail in inspect.getouterframes(cur_frame):
 
@@ -189,18 +198,18 @@ def get_pakefile_caller_detail():
             # This should be compatible if it is just a normal tuple instead.
 
             frame, filename, line_number, function_name, lines, index = frame_detail
-            if "pakefile" in os.path.basename(filename).lower():
+
+            frame_file = os.path.normpath(os.path.join(init_dir, filename))
+
+            if init_file == frame_file:
                 return CallerDetail(
-                    filename=filename,
+                    filename=frame_file,
                     function_name=last[3],
                     line_number=line_number)
 
             last = frame_detail
 
-        return CallerDetail(
-            filename=None,
-            function_name=None,
-            line_number=None)
+        return None
 
     finally:
         del cur_frame
