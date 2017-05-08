@@ -146,8 +146,8 @@ class TaskContext:
         All out of date file outputs, or an empty list
     """
 
-    def __init__(self, pake, node):
-        self._pake = pake
+    def __init__(self, pake_instance, node):
+        self._pake = pake_instance
         self._node = node
         self._future = None
         self._io = None
@@ -449,9 +449,9 @@ def pattern(file_pattern):
 
     def output_generator(inputs):
         for inp in inputs:
-            dir = os.path.dirname(inp)
+            dirname = os.path.dirname(inp)
             name, ext = os.path.splitext(os.path.basename(inp))
-            yield file_pattern.replace('{dir}', dir).replace('%', name).replace('{ext}', ext)
+            yield file_pattern.replace('{dir}', dirname).replace('%', name).replace('{ext}', ext)
 
     return output_generator
 
