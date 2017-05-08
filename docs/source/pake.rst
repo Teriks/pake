@@ -25,4 +25,10 @@ Module: pake.util
  
 .. automodule:: pake.util
     :members:
-    :show-inheritance:
+
+
+Module: pake.conf
+-----------------
+
+.. automodule:: pake.conf
+    :members:

@@ -171,12 +171,12 @@ class CallerDetail(namedtuple('CallerDetail', ['filename', 'function_name', 'lin
 
 def get_pakefile_caller_detail():
     """Get the full pakefile path, called function name and function call line number of the first
-       function call in the current call tree which exists inside of a pakefile.
+    function call in the current call tree which exists inside of a pakefile.
        
-       This function traverses up the stack frame looking for the first occurrence of
-       of a source file with the same path that :py:meth:`pake.conf.get_init_file` returns.
+    This function traverses up the stack frame looking for the first occurrence of
+    of a source file with the same path that :py:meth:`pake.conf.get_init_file` returns.
        
-       If a pakefile is not found in the call tree, this function returns **None**.
+    If a pakefile is not found in the call tree, this function returns **None**.
        
     :returns: A named tuple: :py:class:`pake.util.CallerDetail` or **None**.
     """
