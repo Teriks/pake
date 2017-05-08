@@ -45,6 +45,8 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
     """
     Execute a pakefile.py script, changing directories if necessary.
     
+    This function should not be used inside tasks, use: :py:meth:`pake.TaskContext.subpake` instead.
+    
     :py:meth:`pake.subpake` allows similar syntax to :py:meth:`pake.TaskContext.call`
     for it's **\*args** parameter.
     
