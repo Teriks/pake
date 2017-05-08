@@ -20,24 +20,63 @@
 
 import inspect
 import subprocess
-import sys
 import tempfile
+import traceback
 from functools import wraps
 from glob import glob as file_glob
 
 import os
+import pake
 from concurrent.futures import ThreadPoolExecutor, wait as futures_wait, Executor, Future
 from os import path
 
-import pake
+import pake.conf
 from .graph import Graph
-from .util import is_iterable_not_str, get_task_arg_name, flatten_non_str, handle_shell_args
+from .process import SubprocessException
+from .util import \
+    is_iterable_not_str, \
+    get_task_arg_name, \
+    flatten_non_str, \
+    handle_shell_args
+
+
+class TaskException(Exception):
+    """
+    Raised by :py:meth:`pake.Pake.run` and :py:meth:`pake.Pake.dry_run` if an exception is 
+    encountered running/visiting a task.
+    
+    .. py:attribute:: exception
+    
+        The exception raised.
+    """
+
+    def __init__(self, exception):
+        """
+        :param exception: The exception raised.
+        """
+        self.exception = exception
+
+
+class InputFileNotFoundException(Exception):
+    """Raised if a task with input files declared cannot find an input file on disk.
+    
+    This exception is raised inside the task, and will propagate out of
+    :py:meth:`pake.Pake.run` and :py:meth:`pake.Pake.dry_run` by being wrapped in a 
+    :py:class:`pake.TaskException` and rethrown.
+    """
+
+    def __init__(self, task_name, file_name):
+        super(InputFileNotFoundException, self).__init__(
+            'Could not find input file "{}" used by task "{}".'.format(file_name, task_name)
+        )
 
 
 class UndefinedTaskException(Exception):
     """Raised on attempted lookup/usage of an unregistered task function or task name.
     
-    :ivar task_name: The name of the referenced task.
+    .. py:attribute:: task_name
+    
+        The name of the referenced task.
     """
 
     def __init__(self, task_name):
@@ -48,7 +87,9 @@ class UndefinedTaskException(Exception):
 class RedefinedTaskException(Exception):
     """Raised on registering a duplicate task.
     
-    :ivar task_name: The name of the redefined task.
+    .. py:attribute:: task_name
+    
+        The name of the redefined task.
     """
 
     def __init__(self, task_name):
@@ -57,14 +98,52 @@ class RedefinedTaskException(Exception):
         self.task_name = task_name
 
 
+def _handle_task_exception(ctx, exception):
+    if isinstance(exception, SubprocessException):
+        # SubprocessException provides detailed information
+        # about the call site of the subprocess in the pakefile
+        # on its own
+        ctx.print(str(exception))
+        raise TaskException(exception)
+
+    if isinstance(exception, InputFileNotFoundException):
+        # InputFileNotFoundException is raised inside the task when
+        # the task runs and does file detection, it provides information
+        # which includes the task name the exception occurred in as well
+        # as the name of the file that was missing.
+        ctx.print(str(exception))
+        raise TaskException(exception)
+
+    # For everything else, print a standard trace
+    # to the tasks IO before raising TaskException
+
+    traceback.print_exception(
+        type(exception),
+        exception,
+        exception.__traceback__,
+        file=ctx.io)
+
+    raise TaskException(exception)
+
+
 class TaskContext:
     """Contextual object passed to each task.
     
-       :ivar inputs: All file inputs, or an empty list
-       :ivar outputs: All file outputs, or an empty list
+    .. py:attribute:: inputs
+    
+        All file inputs, or an empty list
+        
+    .. py:attribute:: outputs
+    
+        All file outputs, or an empty list
        
-       :ivar outdated_inputs: All changed file inputs (or inputs who's corresponding output is missing), or an empty list
-       :ivar outdated_outputs: All out of date file outputs, or an empty list
+    .. py:attribute:: outdated_inputs
+    
+        All changed file inputs (or inputs who's corresponding output is missing), or an empty list.
+        
+    .. py:attribute:: oudated_outputs
+    
+        All out of date file outputs, or an empty list
     """
 
     def __init__(self, pake, node):
@@ -93,7 +172,7 @@ class TaskContext:
 
         :returns: :py:class:`pake.MultitaskContext`
         """
-              
+
         return MultitaskContext(self)
 
     @property
@@ -115,7 +194,6 @@ class TaskContext:
 
         """
         return zip(self.outdated_inputs, self.outdated_outputs)
-           
 
     @property
     def func(self):
@@ -143,7 +221,7 @@ class TaskContext:
     def subpake(self, *args, silent=False):
         """Run :py:func:`pake.subpake` and direct all output to the task IO file stream."""
 
-        pake.subpake(*args, stdout=self._io, silent=silent)
+        pake.subpake(*args, stdout=self._io, silent=silent, exit_on_error=False)
 
     def call(self, *args, stdin=None, shell=False, ignore_errors=False, silent=False, print_cmd=True):
         """Calls a sub process, all output is written to the task IO file stream.
@@ -171,42 +249,46 @@ class TaskContext:
            # are both list objects, but anything that is iterable will work
            
            ctx.call(['gcc', '-c', ctx.inputs, '-o', ctx.outputs])
-           
-        
-        When *ignore_errors* is False, :py:func:`subprocess.check_call` is used to execute the process.
-        
-        When *ignore_errors* is True, :py:func:`subprocess.call` is used to execute the process.
         
         
         :param args: Process and arguments.
         :param stdin: Set the stdin of the process.
         :param shell: Whether or not to use the system shell for execution.
-        :param ignore_errors: Whether or not to raise a :py:class:`subprocess.CalledProcessError` on non 0 exit codes.
+        :param ignore_errors: Whether or not to raise a :py:class:`pake.SubprocessException` on non 0 exit codes.
         :param silent: Whether or not to silence all output from the command.
         :param print_cmd: Whether or not to print the executed command line to the tasks output.
         
-        :raises: subprocess.CalledProcessError if *ignore_errors* is *False* and the process exits with a non 0 exit code.
-        
-        :return: The process exit code.
+        :raises: :py:class:`pake.SubprocessException` if *ignore_errors* is *False* and the process exits with a non 0 exit code.
         """
         args = handle_shell_args(args)
 
         self._io.flush()
 
-        call = subprocess.call if ignore_errors else subprocess.check_call
-
         if print_cmd:
-            self.print(' '.join(list(args)))
+            self.print(' '.join(args))
 
-        if silent:
-            stdout = subprocess.DEVNULL
+        if ignore_errors:
+            if silent:
+                stdout = subprocess.DEVNULL
+            else:
+                stdout = self._io
+                stdout.flush()
+
+            subprocess.call(args,
+                            stdout=stdout, stderr=subprocess.STDOUT,
+                            stdin=stdin, shell=shell)
         else:
-            stdout = self._io
-            stdout.flush()
+            try:
+                output = subprocess.check_output(args, stderr=subprocess.STDOUT,
+                                                 stdin=stdin, shell=shell)
+                if not silent:
+                    self._io.flush()
+                    self._io.write(output.decode())
 
-        return call(list(args),
-                    stdout=stdout, stderr=subprocess.STDOUT,
-                    stdin=stdin, shell=shell)
+            except subprocess.CalledProcessError as err:
+                raise SubprocessException(cmd=args,
+                                          returncode=err.returncode,
+                                          output=err.output)
 
     @property
     def dependencies(self):
@@ -258,7 +340,9 @@ class TaskContext:
 class TaskGraph(Graph):
     """Task graph node.
     
-       :ivar func: The task function associated with the node
+    .. py:attribute:: func
+    
+        The task function associated with the node
     """
 
     def __init__(self, name, func):
@@ -368,7 +452,7 @@ def pattern(file_pattern):
             dir = os.path.dirname(inp)
             name, ext = os.path.splitext(os.path.basename(inp))
             yield file_pattern.replace('{dir}', dir).replace('%', name).replace('{ext}', ext)
-            
+
     return output_generator
 
 
@@ -381,8 +465,8 @@ class MultitaskContext(Executor):
     def __init__(self, ctx):
         self._ctx = ctx
         self._threadpool = ctx.pake.threadpool
-        self._pending=[]
-        
+        self._pending = []
+
     def _submit_this_thread(self, fn, *args, **kwargs):
         future = Future()
         if not future.set_running_or_notify_cancel():
@@ -421,7 +505,7 @@ class MultitaskContext(Executor):
 
     def __enter__(self):
         return self
-        
+
     def shutdown(self, wait=True):
         """Shutdown multitasking and free resources, optionally wait on all submitted tasks.
     
@@ -435,29 +519,33 @@ class MultitaskContext(Executor):
     def __exit__(self, exc_type, exc_value, tb):
         self.shutdown()
 
-    
+
 class Pake:
     """
-    Pake's main instance.
+    Pake's main instance, which should not be initialized directly.
     
-    :ivar stdout: The stream all standard task output gets written to (set-able)
-    :ivar stderr: The stream all errors and responses to critical exceptions get written to (set-able)
+    Use: :py:meth:`pake.init` to create a :py:class:`pake.Pake` object
+    and initialize the pake module.
+    
+    .. py:attribute:: stdout
+    
+        (set-able) The stream all standard task output gets written to.
+    
     """
 
-    def __init__(self, stdout=None, stderr=None):
+    def __init__(self, stdout=None):
         """
-        Create a pake object, optionally set stdout and stderr for the instance.
+        Create a pake object, optionally set stdout for the instance.
         
-        :param stdout: The stream all standard task output gets written to. (defaults to sys.stdout)
-        :param stderr: The stream all errors and exceptions get written to. (defaults to sys.stderr)
+        :param stdout: The stream all standard task output gets written to, \
+                       this includes exceptions encountered inside tasks for simplicity. (defaults to pake.conf.stdout)
         """
 
         self._graph = TaskGraph("_", lambda: None)
         self._task_contexts = dict()
         self._defines = dict()
         self._dry_run_mode = False
-        self.stdout = stdout if stdout is not None else sys.stdout
-        self.stderr = stderr if stderr is not None else sys.stderr
+        self.stdout = stdout if stdout is not None else pake.conf.stdout
         self._threadpool = None
 
     @property
@@ -467,7 +555,6 @@ class Pake:
         If pake is running with a job count of 1, no threadpool is used so this property will be **None**.
         """
         return self._threadpool
-
 
     def set_define(self, name, value):
         """
@@ -548,7 +635,7 @@ class Pake:
         return i, o
 
     @staticmethod
-    def _change_detect(i, o):
+    def _change_detect(task_name, i, o):
         len_i = len(i)
         len_o = len(o)
 
@@ -573,7 +660,7 @@ class Pake:
 
                 for ip in i:
                     if not path.isfile(ip):
-                        raise FileNotFoundError('Input file "{}" does not exist.'.format(i))
+                        raise InputFileNotFoundException(task_name, ip)
                     for op in o:
                         if not path.isfile(op) or path.getmtime(op) < path.getmtime(ip):
                             input_set.add(ip)
@@ -587,7 +674,7 @@ class Pake:
                     ip, op = iopair[0], iopair[1]
 
                     if not path.isfile(ip):
-                        raise FileNotFoundError('Input file "{}" does not exist.'.format(ip))
+                        raise InputFileNotFoundException(task_name, ip)
                     if not path.isfile(op) or path.getmtime(op) < path.getmtime(ip):
                         outdated_inputs.append(ip)
                         outdated_outputs.append(op)
@@ -595,14 +682,20 @@ class Pake:
         else:
             op = o[0]
             if not path.isfile(op):
+
+                for ip in i:
+                    if not path.isfile(ip):
+                        raise InputFileNotFoundException(task_name, ip)
+
                 outdated_outputs.append(op)
                 outdated_inputs += i
+
                 return outdated_inputs, outdated_outputs
 
             outdated_output = None
             for ip in i:
                 if not path.isfile(ip):
-                    raise FileNotFoundError('Input file "{}" does not exist.'.format(i))
+                    raise InputFileNotFoundException(task_name, ip)
                 if path.getmtime(op) < path.getmtime(ip):
                     outdated_inputs.append(ip)
                     outdated_output = op
@@ -723,7 +816,7 @@ class Pake:
             @wraps(ctx_func)
             def inner(*args, **kwargs):
                 i, o = Pake._process_i_o_params(inputs, outputs)
-                outdated_inputs, outdated_outputs = Pake._change_detect(i, o)
+                outdated_inputs, outdated_outputs = Pake._change_detect(func.__name__, i, o)
 
                 ctx.inputs = list(i)
                 ctx.outputs = list(o)
@@ -772,6 +865,8 @@ class Pake:
                 else:
                     ctx.print('===== Executing Task: "{}"'.format(func.__name__))
                     return func(*args, **kwargs)
+            except Exception as err:
+                _handle_task_exception(ctx, err)
             finally:
                 ctx._i_io_close()
 
@@ -802,9 +897,13 @@ class Pake:
         
         When using change detection, only out of date tasks will be visited.
         
+        :raises: :py:class:`pake.TaskException` if an exception occurred visiting a task, information will have already been printed to \
+                 the :py:attr:`pake.TaskContext.io` file object which belongs to the given task. The only exception that can occur \
+                 in a task during a dry run is currently :py:class:`pake.InputFileNotFoundException`.
+                 
+        :raises: :py:class:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
         :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
         
-        :raises: :py:class:`FileNotFoundError` if a task references a non existent input file.
         :param tasks: Tasks to run.
         """
         self._dry_run_mode = True
@@ -817,11 +916,13 @@ class Pake:
         """
         Run all given tasks, with an optional level of concurrency.
 
-
         :raises: :py:class:`ValueError` if **jobs** is less than 1.
+        
+        :raises: :py:class:`pake.TaskException` if an exception occurred visiting a task, information will have already been printed to \
+                 the :py:attr:`pake.TaskContext.io` file object which belongs to the given task.
+                 
         :raises: :py:class:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
         :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
-        :raises: :py:class:`FileNotFoundError` if a task references a non existent input file. 
         
         :param tasks: Tasks to run. 
         :param jobs: Maximum number of threads, defaults to 1. (must be >= 1)
@@ -874,9 +975,3 @@ class Pake:
 
         kwargs.pop('file', None)
         print(*args, file=self.stdout, **kwargs)
-
-    def print_err(self, *args, **kwargs):
-        """Shorthand for print(..., file=this_instance.stderr)"""
-
-        kwargs.pop('file', None)
-        print(*args, file=self.stderr, **kwargs)

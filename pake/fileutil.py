@@ -30,6 +30,7 @@ import pake
 class _DummyCtx:
     def print(*args, **kwargs):
         pass
+
     def print_err(*args, **kwargs):
         pass
 

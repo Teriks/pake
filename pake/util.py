@@ -21,6 +21,9 @@ import inspect
 import pathlib
 import shlex
 
+import os
+from collections import namedtuple
+
 
 def touch(file_name, mode=0o666, exist_ok=True):
     """
@@ -145,3 +148,59 @@ def handle_shell_args(args):
         args = [str(i) for i in flatten_non_str(args)]
 
     return args
+
+
+class CallerDetail(namedtuple('CallerDetail', ['filename', 'function_name', 'line_number'])):
+    """
+    .. py:attribute:: filename
+    
+        Source file name.
+        
+    .. py:attribute:: function_name
+    
+        Function call name.
+    
+    .. py:attribute:: line_number
+    
+        Line number of function call.
+    """
+    pass
+
+
+def get_pakefile_caller_detail():
+    """Get the full pakefile path, called function name and function call line number of the first
+       function call in the current call tree which exists inside of a pakefile.
+       
+       This function traverses up the stack frame looking for the first occurrence of
+       of a source file with the name containing 'pakefile' (case insensitive).
+       
+       If a 'pakefile' is not found in the call tree, this function returns **None**.
+       
+    :returns: A named tuple: :py:class:`pake.util.CallerDetail` or **None**.
+    """
+
+    last = None
+
+    cur_frame = inspect.currentframe()
+    try:
+        for frame_detail in inspect.getouterframes(cur_frame):
+
+            # In newer versions of python, this is a namedtuple.
+            # This should be compatible if it is just a normal tuple instead.
+
+            frame, filename, line_number, function_name, lines, index = frame_detail
+            if "pakefile" in os.path.basename(filename).lower():
+                return CallerDetail(
+                    filename=filename,
+                    function_name=last[3],
+                    line_number=line_number)
+
+            last = frame_detail
+
+        return CallerDetail(
+            filename=None,
+            function_name=None,
+            line_number=None)
+
+    finally:
+        del cur_frame

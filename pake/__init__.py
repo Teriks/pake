@@ -7,7 +7,7 @@ from .fileutil import FileHelper
 
 from .graph import CyclicGraphException
 
-from .pake import\
+from .pake import \
     pattern, \
     glob, \
     Pake, \
@@ -15,13 +15,17 @@ from .pake import\
     MultitaskContext, \
     TaskGraph, \
     UndefinedTaskException, \
-    RedefinedTaskException
+    RedefinedTaskException, \
+    TaskException, \
+    InputFileNotFoundException
 
-from .program import\
-    run,\
+from .process import SubprocessException
+
+from .program import \
+    run, \
     init, \
-    get_subpake_depth,\
-    get_max_jobs,\
+    get_subpake_depth, \
+    get_max_jobs, \
     PakeUninitializedException
 
 from .subpake import subpake, export
@@ -39,9 +43,12 @@ __all__ = [
     'TaskContext',
     'TaskGraph',
     'FileHelper',
+    'TaskException',
+    'InputFileNotFoundException',
     'UndefinedTaskException',
     'RedefinedTaskException',
     'PakeUninitializedException',
     'CyclicGraphException',
-    'MultitaskContext'
+    'MultitaskContext',
+    'SubprocessException'
 ]

@@ -17,15 +17,15 @@
 # LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 import os.path
 import subprocess
 import sys
 
-from pake.util import handle_shell_args
-
 import os
 
+import pake.conf
+from pake.util import handle_shell_args
+from .process import SubprocessException
 from .program import get_subpake_depth, get_max_jobs, PakeUninitializedException
 
 _exports = dict()
@@ -41,7 +41,7 @@ def export(name, value):
     _exports[name] = value
 
 
-def subpake(*args, stdout=None, silent=False):
+def subpake(*args, stdout=None, silent=False, exit_on_error=True):
     """
     Execute a pakefile.py script, changing directories if necessary.
     
@@ -67,11 +67,14 @@ def subpake(*args, stdout=None, silent=False):
     
     :raises: :py:class:`ValueError` if no arguments are provided.
     :raises: :py:class:`FileNotFoundError` if the first argument (the pakefile) is not found.
-    :raises: :py:class:`subprocess.CalledProcessError` if the called pakefile script encounters an error.
+    :raises: :py:class:`pake.SubprocessException` if the called pakefile script encounters an error and **exit_on_error** is **False**.
     
     :param args: The script, and additional arguments to pass to the script
-    :param stdout: The stream to write all of the scripts output to. (defaults to sys.stdout)
+    :param stdout: The stream to write all of the scripts output to. (defaults to pake.conf.stdout)
     :param silent: Whether or not to silence all output.
+    
+    :param exit_on_error: Whether or not to print to **pake.conf.stderr** and immediately \
+                          **exit(1)** if the pakefile script encounters an error.
     """
 
     args = handle_shell_args(args)
@@ -84,7 +87,7 @@ def subpake(*args, stdout=None, silent=False):
     if not os.path.isfile(script):
         raise FileNotFoundError('pakefile: "{}" does not exist.'.format(script))
 
-    stdout = stdout if stdout is not None else sys.stdout
+    stdout = stdout if stdout is not None else pake.conf.stdout
 
     script_dir = os.path.dirname(os.path.abspath(script))
 
@@ -104,11 +107,21 @@ def subpake(*args, stdout=None, silent=False):
     if os.getcwd() != script_dir:
         extra_args += ['--directory', script_dir]
 
-    if silent:
-        stdout = subprocess.DEVNULL
-    else:
-        stdout.flush()
+    args = [sys.executable, script] + extra_args + list(str(i) for i in args)
 
-    return subprocess.check_call([sys.executable, script] + extra_args +
-                                 list(str(i) for i in args),
-                                 stdout=stdout, stderr=subprocess.STDOUT)
+    try:
+        output = subprocess.check_output(args,
+                                         stderr=subprocess.STDOUT)
+        if not silent:
+            stdout.flush()
+            stdout.write(output.decode())
+
+    except subprocess.CalledProcessError as err:
+        ex = SubprocessException(cmd=args,
+                                 returncode=err.returncode,
+                                 output=err.output)
+        if exit_on_error:
+            print(str(ex), file=pake.conf.stderr)
+            exit(1)
+        else:
+            raise ex

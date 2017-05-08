@@ -26,6 +26,7 @@ import textwrap
 
 import os
 import pake
+from collections import namedtuple
 
 from pake.util import is_iterable, is_iterable_not_str, get_task_arg_name
 from .pake import Pake
@@ -80,7 +81,6 @@ _arg_parser.add_argument('-ti', '--show-task-info', action='store_true', dest='s
                               'Only tasks with doc strings present will be shown.')
 
 _parsed_args = None
-_init_file_name = None
 
 
 def get_max_jobs():
@@ -113,6 +113,23 @@ def get_subpake_depth():
         return _parsed_args.s_depth
     else:
         return 0
+
+
+class CallerDetail(namedtuple('CallerDetail', ['filename', 'function_name', 'line_number'])):
+    """
+    .. py:attribute:: filename
+    
+        Source file name.
+        
+    .. py:attribute:: function_name
+    
+        Function call name.
+    
+    .. py:attribute:: line_number
+    
+        Line number of function call.
+    """
+    pass
 
 
 def _coerce_define_value(value_name, value):
@@ -153,23 +170,18 @@ def _defines_to_dict(defines):
     return result
 
 
-def init(stdout=None, stderr=None):
+def init(stdout=None):
     """
     Read command line arguments relevant to initialization, and return a :py:class:`pake.Pake` object.
     
-    :param stdout: The stdout object passed to the :py:class:`pake.Pake` instance. (defaults to sys.stdout)
-    :param stderr: The stderr object passed to the :py:class:`pake.Pake` instance. (defaults to sys.stderr)
+    :param stdout: The stdout object passed to the :py:class:`pake.Pake` instance. (defaults to pake.conf.stdout)
     
     :return: :py:class:`pake.Pake`
     """
 
-    global _parsed_args, _init_file_name
+    global _parsed_args
 
-    frame = inspect.stack()[1]
-    module_obj = inspect.getmodule(frame[0])
-    _init_file_name = os.path.abspath(module_obj.__file__)
-
-    p = Pake(stdout=stdout, stderr=stderr)
+    p = Pake(stdout=stdout)
 
     _parsed_args = _arg_parser.parse_args()
 
@@ -228,9 +240,9 @@ def _list_task_info(pake_obj, default_tasks):
 
         for ctx in documented:
             pake_obj.print(_format_task_info(
-                               max_name_width,
-                               ctx.name,
-                               ctx.func.__doc__))
+                max_name_width,
+                ctx.name,
+                ctx.func.__doc__))
     else:
         pake_obj.print('No documented tasks present.')
 
@@ -239,7 +251,9 @@ def run(pake_obj, tasks=None):
     """
     Run pake (the program) given a :py:class:`pake.Pake` instance and options default tasks.
     
-    This function will call exit(return_code) upon non exception related errors.
+    This function will call **exit(1)** upon handling any exceptions from :py:meth:`pake.Pake.run`
+    or :py:meth:`pake.Pake.dry_run`, and print information to :py:attr:`pake.Pake.stderr` if
+    necessary.
     
     :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :param pake_obj: A :py:class:`pake.Pake` instance, usually created by :py:func:`pake.init`.
@@ -295,13 +309,13 @@ def run(pake_obj, tasks=None):
     try:
         pake_obj.run(jobs=_parsed_args.jobs, tasks=run_tasks)
     except pake.UndefinedTaskException as err:
-        pake_obj.print_err(str(err))
+        print(str(err), file=pake.conf.stderr)
         return_code = 1
     except pake.CyclicGraphException as err:
-        pake_obj.print_err(str(err))
+        print(str(err), file=pake.conf.stderr)
         return_code = 1
-    except FileNotFoundError as err:
-        pake_obj.print_err(str(err))
+    except pake.TaskException:
+        # Information has already been printed to Pake.stderr
         return_code = 1
 
     if exit_dir:

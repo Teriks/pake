@@ -25,6 +25,7 @@ import os.path
 import subprocess
 import sys
 
+import pake.conf
 import pake.program
 
 # Inherit pakes normal help output
@@ -78,12 +79,12 @@ def main(args=None):
             exit(1)
 
         os.chdir(os.path.dirname(file))
-        exit(subprocess.call([sys.executable, file] + actual_args, stdout=sys.stdout, stderr=sys.stderr))
+        exit(subprocess.call([sys.executable, file] + actual_args, stdout=pake.conf.stdout, stderr=pake.conf.stderr))
 
     exit_code = 0
     for file in (os.path.abspath(f) for f in itertools.chain.from_iterable(args.file)):
         os.chdir(os.path.dirname(file))
-        code = subprocess.call([sys.executable, file] + actual_args, stdout=sys.stdout, stderr=sys.stderr)
+        code = subprocess.call([sys.executable, file] + actual_args, stdout=pake.conf.stdout, stderr=pake.conf.stderr)
         if code != 0:
             exit_code = 1
 
