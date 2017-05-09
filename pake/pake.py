@@ -21,6 +21,7 @@
 import inspect
 import subprocess
 import tempfile
+import threading
 import traceback
 from functools import wraps
 from glob import glob as file_glob
@@ -552,8 +553,10 @@ class Pake:
         self._task_contexts = dict()
         self._defines = dict()
         self._dry_run_mode = False
-        self.stdout = stdout if stdout is not None else pake.conf.stdout
         self._threadpool = None
+        self.stdout = stdout if stdout is not None else pake.conf.stdout
+        self._run_count_lock = threading.Lock()
+        self._cur_job_count = 0
 
     @property
     def threadpool(self):
@@ -813,32 +816,9 @@ class Pake:
         else:
             dependencies = args
 
-        def outer(func):
-            inputs, outputs = i, o
-
-            ctx = self._add_task(func.__name__, func, dependencies)
-
-            ctx_func = ctx.node.func
-
-            @wraps(ctx_func)
-            def inner(*args, **kwargs):
-                i, o = Pake._process_i_o_params(inputs, outputs)
-                outdated_inputs, outdated_outputs = Pake._change_detect(func.__name__, i, o)
-
-                ctx.inputs = list(i)
-                ctx.outputs = list(o)
-                ctx.outdated_inputs = list(outdated_inputs)
-                ctx.outdated_outputs = list(outdated_outputs)
-
-                if len(i) > 0 or len(o) > 0:
-                    if len(outdated_inputs) > 0 or len(outdated_outputs) > 0:
-                        return ctx_func(*args, **kwargs)
-                else:
-                    return ctx_func(*args, **kwargs)
-
-            ctx.node.func = inner
-
-            return inner
+        def outer(task_func):
+            self._add_task(task_func.__name__, task_func, dependencies, i, o)
+            return task_func
 
         return outer
 
@@ -858,7 +838,7 @@ class Pake:
             raise UndefinedTaskException(task)
         return context
 
-    def _add_task(self, name, func, dependencies=None):
+    def _add_task(self, name, func, dependencies=None, inputs=None, outputs=None):
         if name in self._task_contexts:
             raise RedefinedTaskException(name)
 
@@ -871,20 +851,37 @@ class Pake:
                     ctx.print('Visited Task: "{}"'.format(func.__name__))
                 else:
                     ctx.print('===== Executing Task: "{}"'.format(func.__name__))
-                    return func(*args, **kwargs)
+
+                    i, o = Pake._process_i_o_params(inputs, outputs)
+                    outdated_inputs, outdated_outputs = Pake._change_detect(func.__name__, i, o)
+
+                    ctx.inputs = list(i)
+                    ctx.outputs = list(o)
+                    ctx.outdated_inputs = list(outdated_inputs)
+                    ctx.outdated_outputs = list(outdated_outputs)
+
+                    if len(i) > 0 or len(o) > 0:
+                        if len(outdated_inputs) > 0 or len(outdated_outputs) > 0:
+                            return func(*args, **kwargs)
+                    else:
+                        return func(*args, **kwargs)
+
             except Exception as err:
                 _handle_task_exception(ctx, err)
             finally:
                 ctx._i_io_close()
-
-        task_context = TaskContext(self, TaskGraph(name, func_wrapper))
 
         if len(inspect.signature(func).parameters) == 1:
             @wraps(func_wrapper)
             def _add_ctx_param_stub():
                 func_wrapper(task_context)
 
-            task_context.node.func = _add_ctx_param_stub
+            # functools.partial will not work for this, __doc__ needs to be maintained on the wrapper.
+            # @wraps does this
+
+            task_context = TaskContext(self, TaskGraph(name, _add_ctx_param_stub))
+        else:
+            task_context = TaskContext(self, TaskGraph(name, func_wrapper))
 
         self._task_contexts[name] = task_context
 
@@ -940,6 +937,8 @@ class Pake:
 
         if jobs < 1:
             raise ValueError('Job count must be >= to 1.')
+
+        self._cur_job_count = jobs
 
         graphs = []
         if tasks:
