@@ -17,6 +17,7 @@
 # LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import inspect
 import pathlib
 import shlex
@@ -24,7 +25,20 @@ import shlex
 import os
 from collections import namedtuple
 
-import pake.conf
+import pake.program
+
+__all__ = [
+    'touch',
+    'is_iterable',
+    'is_iterable_not_str',
+    'str_is_float',
+    'str_is_int',
+    'get_task_arg_name',
+    'flatten_non_str',
+    'handle_shell_args',
+    'CallerDetail',
+    'get_pakefile_caller_detail'
+]
 
 
 def touch(file_name, mode=0o666, exist_ok=True):
@@ -174,7 +188,7 @@ def get_pakefile_caller_detail():
     function call in the current call tree which exists inside of a pakefile.
        
     This function traverses up the stack frame looking for the first occurrence of
-    a source file with the same path that :py:meth:`pake.conf.get_init_file` returns.
+    a source file with the same path that :py:meth:`pake.get_init_file` returns.
        
     If a pakefile is not found in the call tree, this function returns **None**.
        
@@ -185,8 +199,12 @@ def get_pakefile_caller_detail():
 
     cur_frame = inspect.currentframe()
 
-    init_file = pake.conf.get_init_file()
-    init_dir = pake.conf.get_init_dir()
+    try:
+        init_file = pake.program.get_init_file()
+        init_dir = pake.program.get_init_dir()
+    except pake.program.PakeUninitializedException:
+        init_file = None
+        init_dir = None
 
     if init_file is None:
         return None

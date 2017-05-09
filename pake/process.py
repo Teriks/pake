@@ -22,6 +22,8 @@ import os
 
 from .util import get_pakefile_caller_detail
 
+__all__ = ['SubprocessException']
+
 
 class SubprocessException(Exception):
     """

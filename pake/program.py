@@ -18,7 +18,6 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import argparse
 import ast
 import inspect
 import os.path
@@ -26,11 +25,20 @@ import textwrap
 
 import os
 import pake
-from collections import namedtuple
 
-from pake.util import is_iterable, is_iterable_not_str, get_task_arg_name
-from .pake import Pake
-from .conf import _i_set_init_file, _i_set_init_dir
+import pake.arguments
+import pake.conf
+import pake.util
+
+__all__ = [
+    'PakeUninitializedException',
+    'run',
+    'init',
+    'get_max_jobs',
+    'get_subpake_depth',
+    'get_init_file',
+    'get_init_dir'
+]
 
 
 class PakeUninitializedException(Exception):
@@ -40,97 +48,6 @@ class PakeUninitializedException(Exception):
 
     def __init__(self):
         super(PakeUninitializedException, self).__init__('pake.init() has not been called yet.')
-
-
-_arg_parser = argparse.ArgumentParser(prog='pake')
-
-
-def _create_gt_int(less_message):
-    def _gt_zero_int(val):
-        val = int(val)
-        if val < 1:
-            _arg_parser.error(less_message)
-        return val
-
-    return _gt_zero_int
-
-
-_arg_parser.add_argument('-v', '--version', action='version', version='pake ' + pake.__version__)
-
-_arg_parser.add_argument('tasks', type=str, nargs='*', help='Build tasks.')
-
-_arg_parser.add_argument('-D', '--define', action='append', help='Add defined value.')
-
-_arg_parser.add_argument('-j', '--jobs', default=1, type=_create_gt_int('--jobs must be greater than one.'),
-                         help='Max number of parallel jobs.  Using this option '
-                              'enables unrelated tasks to run in parallel with a '
-                              'max of N tasks running at a time.')
-
-_arg_parser.add_argument('--s_depth', default=0, type=int, help=argparse.SUPPRESS)
-
-_arg_parser.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
-                         help='Use to preform a dry run, lists all tasks that '
-                              'will be executed in the next actual invocation.')
-
-_arg_parser.add_argument('-C', '--directory', help='Change directory before executing.')
-
-_arg_parser.add_argument('-t', '--show-tasks', action='store_true', dest='show_tasks',
-                         help='List all task names.')
-
-_arg_parser.add_argument('-ti', '--show-task-info', action='store_true', dest='show_task_info',
-                         help='List all tasks along side their doc string. '
-                              'Only tasks with doc strings present will be shown.')
-
-_parsed_args = None
-
-
-def get_max_jobs():
-    """
-    Get the max number of jobs passed from the --jobs command line argument.
-    
-    The minimum number of jobs allowed is 1.
-    
-    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
-    :return: The max number of jobs from the --jobs command line argument. (an integer >= 1)
-    """
-    if _parsed_args is None:
-        raise PakeUninitializedException()
-    return _parsed_args.jobs
-
-
-def get_subpake_depth():
-    """
-    Get the depth of execution, which increases for nested calls to :py:func:`pake.subpake`
-    
-    The depth of execution starts at 0.
-    
-    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
-    :return: The current depth of execution (an integer >= 0)
-    """
-    if _parsed_args is None:
-        raise PakeUninitializedException()
-
-    if hasattr(_parsed_args, 's_depth'):
-        return _parsed_args.s_depth
-    else:
-        return 0
-
-
-class CallerDetail(namedtuple('CallerDetail', ['filename', 'function_name', 'line_number'])):
-    """
-    .. py:attribute:: filename
-    
-        Source file name.
-        
-    .. py:attribute:: function_name
-    
-        Function call name.
-    
-    .. py:attribute:: line_number
-    
-        Line number of function call.
-    """
-    pass
 
 
 def _coerce_define_value(value_name, value):
@@ -171,6 +88,10 @@ def _defines_to_dict(defines):
     return result
 
 
+_init_file = None
+_init_dir = None
+
+
 def init(stdout=None):
     """
     Read command line arguments relevant to initialization, and return a :py:class:`pake.Pake` object.
@@ -180,24 +101,86 @@ def init(stdout=None):
     :return: :py:class:`pake.Pake`
     """
 
-    global _parsed_args
+    global _init_file, _init_dir
 
-    _i_set_init_dir(os.getcwd())
+    _init_dir = os.getcwd()
 
-    p = Pake(stdout=stdout)
+    pk = pake.Pake(stdout=stdout)
 
-    _parsed_args = _arg_parser.parse_args()
+    _parsed_args = pake.arguments.parse_args()
 
-    p.set_defines_dict(_defines_to_dict(_parsed_args.define))
+    pk.set_defines_dict(_defines_to_dict(_parsed_args.define))
 
     cur_frame = inspect.currentframe()
     try:
         frame, filename, line_number, function_name, lines, index = inspect.getouterframes(cur_frame)[1]
-        _i_set_init_file(os.path.abspath(filename))
+        _init_file = os.path.abspath(filename)
     finally:
         del cur_frame
 
-    return p
+    return pk
+
+
+def get_max_jobs():
+    """
+    Get the max number of jobs passed from the --jobs command line argument.
+    
+    The minimum number of jobs allowed is 1.
+    
+    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
+    :return: The max number of jobs from the --jobs command line argument. (an integer >= 1)
+    """
+    if not pake.arguments.args_are_parsed():
+        raise PakeUninitializedException()
+    return pake.arguments.get_args().jobs
+
+
+def get_subpake_depth():
+    """
+    Get the depth of execution, which increases for nested calls to :py:func:`pake.subpake`
+    
+    The depth of execution starts at 0.
+    
+    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
+    :return: The current depth of execution (an integer >= 0)
+    """
+    if not pake.arguments.args_are_parsed():
+        raise PakeUninitializedException()
+
+    args = pake.arguments.get_args()
+
+    if hasattr(args, 's_depth'):
+        return args.s_depth
+    else:
+        return 0
+
+
+def get_init_file():
+    """Gets the full path to the file :py:meth:`pake.init` was called in.
+    
+    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
+    :return: Full path to pakes entrypoint file, or **None** 
+    """
+
+    if _init_file is None:
+        raise PakeUninitializedException()
+
+    return _init_file
+
+
+def get_init_dir():
+    """Gets the full path to the directory pake started running in.
+    
+    If pake preformed any directory changes, this returns the working path before that happened.
+    
+    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
+    :return: Full path to init dir, or **None**
+    """
+
+    if _init_file is None:
+        raise PakeUninitializedException()
+
+    return _init_dir
 
 
 def _format_task_info(max_name_width, task_name, task_doc):
@@ -220,7 +203,7 @@ def _list_tasks(pake_obj, default_tasks):
     if len(default_tasks):
         pake_obj.print('# Default Tasks' + os.linesep)
         for task in default_tasks:
-            pake_obj.print(get_task_arg_name(task))
+            pake_obj.print(pake.util.get_task_arg_name(task))
         pake_obj.stdout.write(os.linesep)
         pake_obj.stdout.flush()
 
@@ -237,7 +220,7 @@ def _list_task_info(pake_obj, default_tasks):
     if len(default_tasks):
         pake_obj.print('# Default Tasks' + os.linesep)
         for task in default_tasks:
-            pake_obj.print(get_task_arg_name(task))
+            pake_obj.print(pake.util.get_task_arg_name(task))
         pake_obj.stdout.write(os.linesep)
         pake_obj.stdout.flush()
 
@@ -270,34 +253,36 @@ def run(pake_obj, tasks=None):
     :param tasks: A list of, or a single default task to run if no tasks are specified on the command line.
     """
 
-    if not is_iterable_not_str(tasks):
+    if not pake.util.is_iterable_not_str(tasks):
         tasks = [tasks]
 
-    if _parsed_args is None:
-        raise PakeUninitializedException()
+    if not pake.arguments.args_are_parsed():
+        raise pake.PakeUninitializedException()
 
-    if _parsed_args.show_tasks and _parsed_args.show_task_info:
+    parsed_args = pake.arguments.get_args()
+
+    if parsed_args.show_tasks and parsed_args.show_task_info:
         pake_obj.print('-t/--show-tasks and -ti/--show-task-info cannot be used together.')
         return
 
-    if _parsed_args.show_tasks:
+    if parsed_args.show_tasks:
         _list_tasks(pake_obj, tasks)
         return
 
-    if _parsed_args.show_task_info:
+    if parsed_args.show_task_info:
         _list_task_info(pake_obj, tasks)
         return
 
     run_tasks = []
-    if _parsed_args.tasks:
-        run_tasks += _parsed_args.tasks
+    if parsed_args.tasks:
+        run_tasks += parsed_args.tasks
     elif tasks:
         run_tasks += tasks
     else:
         pake_obj.print("No tasks specified.")
         return
 
-    if _parsed_args.dry_run:
+    if parsed_args.dry_run:
         pake_obj.dry_run(run_tasks)
         return
 
@@ -307,17 +292,17 @@ def run(pake_obj, tasks=None):
         pake_obj.print('*** enter subpake[{}]:'.format(depth))
 
     exit_dir = None
-    if _parsed_args.directory:
+    if parsed_args.directory:
         exit_dir = os.getcwd()
 
         pake_obj.print('pake[{}]: Entering Directory "{}"'.
-                       format(depth, _parsed_args.directory))
+                       format(depth, parsed_args.directory))
 
-        os.chdir(_parsed_args.directory)
+        os.chdir(parsed_args.directory)
 
     return_code = 0
     try:
-        pake_obj.run(jobs=_parsed_args.jobs, tasks=run_tasks)
+        pake_obj.run(jobs=parsed_args.jobs, tasks=run_tasks)
     except pake.UndefinedTaskException as err:
         print(str(err), file=pake.conf.stderr)
         return_code = 1
@@ -330,7 +315,7 @@ def run(pake_obj, tasks=None):
 
     if exit_dir:
         pake_obj.print('pake[{}]: Exiting Directory "{}"'.
-                       format(depth, _parsed_args.directory))
+                       format(depth, parsed_args.directory))
 
     if depth > 0:
         pake_obj.print('*** exit subpake[{}]:'.format(depth))

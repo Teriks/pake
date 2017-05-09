@@ -26,6 +26,8 @@ import shutil
 import os
 import pake
 
+__all__ = ['FileHelper']
+
 
 class _DummyCtx:
     def print(*args, **kwargs):

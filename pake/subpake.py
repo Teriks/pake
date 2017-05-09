@@ -17,16 +17,18 @@
 # LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import os.path
 import subprocess
 import sys
 
 import os
 
-import pake.conf
-from pake.util import handle_shell_args
-from .process import SubprocessException
-from .program import get_subpake_depth, get_max_jobs, PakeUninitializedException
+import pake.process
+import pake.program
+import pake.util
+
+__all__ = ['export', 'subpake']
 
 _exports = dict()
 
@@ -80,7 +82,7 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
                           **exit(1)** if the pakefile script encounters an error.
     """
 
-    args = handle_shell_args(args)
+    args = pake.util.handle_shell_args(args)
 
     if len(args) < 1:
         raise ValueError('Not enough arguments provided, '
@@ -96,9 +98,9 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
     script_dir = os.path.dirname(os.path.abspath(script))
 
     try:
-        depth = get_subpake_depth() + 1
-        jobs = get_max_jobs()
-    except PakeUninitializedException:
+        depth = pake.program.get_subpake_depth() + 1
+        jobs = pake.program.get_max_jobs()
+    except pake.program.PakeUninitializedException:
         depth = 0
         jobs = 1
 
@@ -121,9 +123,9 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
             stdout.write(output.decode())
 
     except subprocess.CalledProcessError as err:
-        ex = SubprocessException(cmd=args,
-                                 returncode=err.returncode,
-                                 output=err.output)
+        ex = pake.process.SubprocessException(cmd=args,
+                                              returncode=err.returncode,
+                                              output=err.output)
         if exit_on_error:
             print(str(ex), file=pake.conf.stderr)
             exit(1)

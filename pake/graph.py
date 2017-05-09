@@ -19,6 +19,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+__all__ = ['CyclicGraphException', 'Graph']
+
+
 class CyclicGraphException(Exception):
     """
     Thrown if a graph is determined to be cyclic upon running topological sort on it.

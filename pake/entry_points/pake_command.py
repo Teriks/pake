@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # Copyright (c) 2017, Teriks
 # All rights reserved.
 #
@@ -25,12 +23,12 @@ import os.path
 import subprocess
 import sys
 
+import pake.arguments
 import pake.conf
-import pake.program
 
 # Inherit pakes normal help output
 
-parser = pake.program._arg_parser
+parser = pake.arguments.get_parser()
 
 
 def _verify_file_exists(in_file):
