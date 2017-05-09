@@ -99,16 +99,14 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
 
     try:
         depth = pake.program.get_subpake_depth() + 1
-        jobs = pake.program.get_max_jobs()
     except pake.program.PakeUninitializedException:
         depth = 0
-        jobs = 1
 
     extra_args = []
     for key, value in _exports.items():
         extra_args += ['-D', key + '=' + str(value)]
 
-    extra_args += ['--s_depth', str(depth), '--jobs', str(jobs)]
+    extra_args += ['--s_depth', str(depth)]
 
     if os.getcwd() != script_dir:
         extra_args += ['--directory', script_dir]
