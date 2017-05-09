@@ -860,6 +860,9 @@ class Pake:
 
     @staticmethod
     def _should_run_task(ctx, inputs, outputs):
+        if inputs is None and outputs is None:
+            return True
+
         i, o = Pake._process_i_o_params(inputs, outputs)
         outdated_inputs, outdated_outputs = Pake._change_detect(ctx.name, i, o)
 
@@ -871,8 +874,6 @@ class Pake:
         if len(i) > 0 or len(o) > 0:
             if len(outdated_inputs) > 0 or len(outdated_outputs) > 0:
                 return True
-        else:
-            return True
 
         return False
 
