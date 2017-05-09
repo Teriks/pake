@@ -38,8 +38,8 @@ in parallel.
 
     pake task unrelated_task order_independent_task
 
-Pakes Current Options
----------------------
+Command Line Options
+--------------------
 
 .. code-block:: none
 
