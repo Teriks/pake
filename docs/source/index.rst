@@ -22,15 +22,11 @@ pake requires python3.4+
 Installing
 ----------
 
-Do not use me I am still in the kiln
-
-How to use me anyway:
+Note: pake is Alpha and likely to change some.
 
 .. code-block:: bash
 
-    pip install git+git://github.com/Teriks/pake.git@master
-
-Uninstall prior to updating.
+    pip install git+git://github.com/Teriks/pake.git@0.4.0.0
 
 
 Module Doc
