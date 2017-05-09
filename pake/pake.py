@@ -134,6 +134,14 @@ def _handle_task_exception(ctx, exception):
     raise TaskException(exception)
 
 
+def _wait_futures_and_raise(futures):
+    futures_wait(futures)
+    for i in futures:
+        err = i.exception()
+        if err:
+            raise err
+
+
 class TaskContext:
     """Contextual object passed to each task.
     
@@ -322,16 +330,12 @@ class TaskContext:
     def _i_submit_self(self, thread_pool):
         futures = [self.pake.get_task_context(i.name)._future for i in self.node.edges]
 
-        # Wait dependents
-        futures_wait(futures)
-
-        # Raise pending exceptions
-        for err in (i.exception() for i in futures):
-            if err:
-                raise err
+        # Wait dependents, Raise pending exceptions
+        _wait_futures_and_raise(futures)
 
         # Submit self
         self._future = thread_pool.submit(self.node.func)
+
         return self._future
 
     @property
@@ -522,7 +526,7 @@ class MultitaskContext(Executor):
     :param wait: Whether or not to wait on all submitted tasks, default is true.
         """
         if wait and len(self._pending):
-            futures_wait(self._pending)
+            _wait_futures_and_raise(self._pending)
 
     def __exit__(self, exc_type, exc_value, tb):
         self.shutdown()
@@ -996,7 +1000,7 @@ class Pake:
                     context = self.get_task_context(i.name)
                     pending.append(context._i_submit_self(executor))
         finally:
-            futures_wait(pending)
+            _wait_futures_and_raise(pending)
             self._threadpool = None
             if executor:
                 executor.shutdown(wait=False)
