@@ -34,6 +34,7 @@ __all__ = [
     'PakeUninitializedException',
     'run',
     'init',
+    'is_init',
     'get_max_jobs',
     'get_subpake_depth',
     'get_init_file',
@@ -121,6 +122,14 @@ def init(stdout=None):
     return pk
 
 
+def is_init():
+    """
+    Check if :py:meth:`pake.init` has been called.
+    :return: True if :py:meth:`pake.init` has been called. 
+    """
+    return _init_file is not None
+
+
 def get_max_jobs():
     """
     Get the max number of jobs passed from the --jobs command line argument.
@@ -130,8 +139,10 @@ def get_max_jobs():
     :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: The max number of jobs from the --jobs command line argument. (an integer >= 1)
     """
-    if not pake.arguments.args_are_parsed():
+
+    if not is_init():
         raise PakeUninitializedException()
+
     return pake.arguments.get_args().jobs
 
 
@@ -144,7 +155,8 @@ def get_subpake_depth():
     :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: The current depth of execution (an integer >= 0)
     """
-    if not pake.arguments.args_are_parsed():
+
+    if not is_init():
         raise PakeUninitializedException()
 
     args = pake.arguments.get_args()
@@ -162,7 +174,7 @@ def get_init_file():
     :return: Full path to pakes entrypoint file, or **None** 
     """
 
-    if _init_file is None:
+    if not is_init():
         raise PakeUninitializedException()
 
     return _init_file
@@ -177,7 +189,7 @@ def get_init_dir():
     :return: Full path to init dir, or **None**
     """
 
-    if _init_file is None:
+    if not is_init():
         raise PakeUninitializedException()
 
     return _init_dir

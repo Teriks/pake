@@ -44,6 +44,7 @@ from .process import SubprocessException
 from .program import \
     run, \
     init, \
+    is_init, \
     PakeUninitializedException, \
     get_subpake_depth, \
     get_max_jobs, \
@@ -54,6 +55,7 @@ from .subpake import subpake, export
 
 __all__ = [
     'init',
+    'is_init',
     'run',
     'get_subpake_depth',
     'get_max_jobs',
