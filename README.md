@@ -60,8 +60,8 @@ CC = pk.get_define("CC", "gcc")
 @pk.task(i="foo/foo.c", o="foo/foo.o")
 def foo(ctx):
     # Execute a program (gcc) and print its stdout/stderr to the tasks output.
-    ctx.call('gcc -c "{}" -o "{}"'
-             .format(ctx.inputs[0], ctx.outputs[0]))
+    ctx.call('{} -c "{}" -o "{}"'
+             .format(CC, ctx.inputs[0], ctx.outputs[0]))
 
 
 # Pake can handle file change detection with multiple inputs
@@ -83,14 +83,14 @@ def bar(ctx):
     # tuple objects in the form ("input", "output")
 
     for i, o in ctx.outdated_pairs:
-        ctx.call('gcc -c "{}" -o "{}"'.format(i, o))
+        ctx.call('{} -c "{}" -o "{}"'.format(CC, i, o))
 
 # This task depends on the foo and bar tasks, as
 # specified with the decorators leading parameters,
 # And only outputs "bin/baz" by taking the input "main.c"
 # and linking it to the object files produced in the other tasks.
 
-# Documentation strings can be viewed by running 'pake -ti' in 
+# Documentation strings can be viewed by running 'pake -ti' in
 # the directory the pakefile exists in, it will list all documented
 # tasks with their python doc strings.
 #
@@ -101,7 +101,7 @@ def bar(ctx):
 @pk.task(foo, bar, o="bin/baz", i="main.c")
 def baz(ctx):
     """Use this to build baz"""
-    
+
     # see: pake.fileutil.FileHelper
     file_helper = pake.FileHelper(ctx)
 
@@ -115,13 +115,13 @@ def baz(ctx):
     # ctx.dependency_outputs contains a list of all outputs that this
     # tasks immediate dependencies produce
     #
-    ctx.call(["gcc", "-o", ctx.outputs[0]] + ctx.inputs + ctx.dependency_outputs)
+    ctx.call([CC, "-o", ctx.outputs[0]] + ctx.inputs + ctx.dependency_outputs)
 
 
 @pk.task
 def clean(ctx):
     """Clean binaries"""
-    
+
     # see: pake.fileutil.FileHelper
     file_helper = pake.FileHelper(ctx)
 
