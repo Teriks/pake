@@ -316,6 +316,10 @@ def run(pake_obj, tasks=None):
     return_code = 0
     try:
         pake_obj.run(jobs=parsed_args.jobs, tasks=run_tasks)
+
+        if pake_obj.run_count == 0:
+            pake_obj.print('Nothing to do, all tasks up to date.')
+
     except pake.UndefinedTaskException as err:
         print(str(err), file=pake.conf.stderr)
         return_code = 1

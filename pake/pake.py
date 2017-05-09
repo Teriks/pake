@@ -556,7 +556,20 @@ class Pake:
         self._threadpool = None
         self.stdout = stdout if stdout is not None else pake.conf.stdout
         self._run_count_lock = threading.Lock()
+        self._run_count = 0
         self._cur_job_count = 0
+
+    @property
+    def run_count(self):
+        """Contains the number of tasks ran/visited by the last invocation of :py:meth:`pake.Pake.run` or :py:meth:`pake.Pake.dry_run`
+        
+        If a task did not run because change detection on input/output files decided it did not need to, then it does 
+        not count towards this total.  This also applies when doing a dry run with :py:meth:`pake.Pake.dry_run`
+        
+        :returns: Number of tasks last run.
+        """
+
+        return self._run_count
 
     @property
     def threadpool(self):
@@ -643,6 +656,13 @@ class Pake:
         o = list(pake.util.flatten_non_str(o))
 
         return i, o
+
+    def _increment_run_count(self):
+        if self._cur_job_count > 1:
+            with self._run_count_lock:
+                self._run_count += 1
+        else:
+            self._run_count += 1
 
     @staticmethod
     def _change_detect(task_name, i, o):
@@ -838,6 +858,24 @@ class Pake:
             raise UndefinedTaskException(task)
         return context
 
+    @staticmethod
+    def _should_run_task(ctx, inputs, outputs):
+        i, o = Pake._process_i_o_params(inputs, outputs)
+        outdated_inputs, outdated_outputs = Pake._change_detect(ctx.name, i, o)
+
+        ctx.inputs = list(i)
+        ctx.outputs = list(o)
+        ctx.outdated_inputs = list(outdated_inputs)
+        ctx.outdated_outputs = list(outdated_outputs)
+
+        if len(i) > 0 or len(o) > 0:
+            if len(outdated_inputs) > 0 or len(outdated_outputs) > 0:
+                return True
+        else:
+            return True
+
+        return False
+
     def _add_task(self, name, func, dependencies=None, inputs=None, outputs=None):
         if name in self._task_contexts:
             raise RedefinedTaskException(name)
@@ -845,26 +883,19 @@ class Pake:
         @wraps(func)
         def func_wrapper(*args, **kwargs):
             ctx = self.get_task_context(func)
+
+            if not Pake._should_run_task(ctx, inputs, outputs):
+                return None
+
+            self._increment_run_count()
+
             try:
                 ctx._i_io_open()
                 if self._dry_run_mode:
                     ctx.print('Visited Task: "{}"'.format(func.__name__))
                 else:
                     ctx.print('===== Executing Task: "{}"'.format(func.__name__))
-
-                    i, o = Pake._process_i_o_params(inputs, outputs)
-                    outdated_inputs, outdated_outputs = Pake._change_detect(func.__name__, i, o)
-
-                    ctx.inputs = list(i)
-                    ctx.outputs = list(o)
-                    ctx.outdated_inputs = list(outdated_inputs)
-                    ctx.outdated_outputs = list(outdated_outputs)
-
-                    if len(i) > 0 or len(o) > 0:
-                        if len(outdated_inputs) > 0 or len(outdated_outputs) > 0:
-                            return func(*args, **kwargs)
-                    else:
-                        return func(*args, **kwargs)
+                    return func(*args, **kwargs)
 
             except Exception as err:
                 _handle_task_exception(ctx, err)
@@ -939,6 +970,7 @@ class Pake:
             raise ValueError('Job count must be >= to 1.')
 
         self._cur_job_count = jobs
+        self._run_count = 0
 
         graphs = []
         if tasks:
