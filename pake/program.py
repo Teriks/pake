@@ -269,7 +269,7 @@ def run(pake_obj, tasks=None):
     if not pake.util.is_iterable_not_str(tasks):
         tasks = [tasks]
 
-    if not pake.arguments.args_are_parsed():
+    if not is_init():
         raise pake.PakeUninitializedException()
 
     parsed_args = pake.arguments.get_args()
