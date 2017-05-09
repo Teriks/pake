@@ -1,8 +1,7 @@
 Writing Basic Tasks
 ===================
 
-
-Note:
+*Note:*
 
 each registered task receives a :py:class:`TaskContext` instance as a single argument when run.
 
