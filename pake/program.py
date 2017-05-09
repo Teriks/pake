@@ -125,6 +125,7 @@ def init(stdout=None):
 def is_init():
     """
     Check if :py:meth:`pake.init` has been called.
+    
     :return: True if :py:meth:`pake.init` has been called. 
     """
     return _init_file is not None
