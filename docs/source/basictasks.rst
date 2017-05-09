@@ -28,8 +28,8 @@ Writing Basic Tasks
     @pk.task(i="foo/foo.c", o="foo/foo.o")
     def foo(ctx):
         # Execute a program (gcc) and print its stdout/stderr to the tasks output.
-        ctx.call('gcc -c "{}" -o "{}"'
-                 .format(ctx.inputs[0], ctx.outputs[0]))
+        ctx.call('{} -c "{}" -o "{}"'
+                 .format(CC, ctx.inputs[0], ctx.outputs[0]))
 
 
     # Pake can handle file change detection with multiple inputs
@@ -51,7 +51,7 @@ Writing Basic Tasks
         # tuple objects in the form ("input", "output")
 
         for i, o in ctx.outdated_pairs:
-            ctx.call('gcc -c "{}" -o "{}"'.format(i, o))
+            ctx.call('{} -c "{}" -o "{}"'.format(CC, i, o))
 
     # This task depends on the foo and bar tasks, as
     # specified with the decorators leading parameters,
@@ -83,7 +83,7 @@ Writing Basic Tasks
         # ctx.dependency_outputs contains a list of all outputs that this
         # tasks immediate dependencies produce
         #
-        ctx.call(["gcc", "-o", ctx.outputs[0]] + ctx.inputs + ctx.dependency_outputs)
+        ctx.call([CC, "-o", ctx.outputs[0]] + ctx.inputs + ctx.dependency_outputs)
 
 
     @pk.task
