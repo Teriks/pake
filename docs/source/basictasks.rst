@@ -1,6 +1,16 @@
 Writing Basic Tasks
 ===================
 
+
+Note:
+
+each registered task receives a :py:class:`TaskContext` instance as a single argument when run.
+
+In this example the argument is named **ctx**, but it can be named however you like.
+
+It is not an error to leave this argument undefined, but you will most likely be using it.
+
+
 .. code-block:: python
 
     import pake
