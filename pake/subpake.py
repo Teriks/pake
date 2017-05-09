@@ -53,6 +53,9 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
     :py:meth:`pake.subpake` allows similar syntax to :py:meth:`pake.TaskContext.call`
     for it's **\*args** parameter.
     
+    Subpake scripts do not inherit the **--jobs** argument from the parent script, if you want
+    to run them with multithreading enabled you need to pass your own **--jobs** argument manually.
+    
     Example:
     
     .. code-block:: python
