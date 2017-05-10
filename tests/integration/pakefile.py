@@ -1,12 +1,13 @@
 #!/usr/bin/python3
 
 import sys
+
 import os
 
-# the directory above tests to the path so pake can be included
-# not needed if module is 'installed'
 sys.path.insert(1,
-                os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../')))
+                os.path.abspath(
+                    os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                 os.path.join('..', '..'))))
 
 import pake
 
@@ -71,7 +72,6 @@ def do_multiple_stuffs_2(ctx):
     with ctx.multitask() as mt:
         for i in zip(ctx.outdated_inputs, ctx.outdated_outputs):
             mt.submit(file_helper.touch, i[1])
-
 
 
 @pk.task(

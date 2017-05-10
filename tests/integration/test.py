@@ -1,7 +1,7 @@
-import unittest
 import sys
+import unittest
+
 import os
-import subprocess
 
 sys.path.insert(1,
                 os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../')))
@@ -12,7 +12,6 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 
 
 class IntegrationTest(unittest.TestCase):
-
     def _check_outputs(self, exist=True):
         fun = self.assertTrue if exist else self.assertFalse
 
@@ -23,7 +22,7 @@ class IntegrationTest(unittest.TestCase):
         fun(os.path.exists(os.path.join(script_dir, "stuffs_combined.o")))
         fun(os.path.exists(os.path.join(script_dir, "stuffs_four.o")))
         fun(os.path.exists(os.path.join(script_dir, "stuffs_three.o")))
-        fun(os.path.exists(os.path.join(script_dir, os.path.join("subpake","test.o"))))
+        fun(os.path.exists(os.path.join(script_dir, os.path.join("subpake", "test.o"))))
 
         fun(os.path.exists(os.path.join(script_dir, "glob_and_pattern_test", "src_a", "a.o")))
         fun(os.path.exists(os.path.join(script_dir, "glob_and_pattern_test", "src_a", "b.o")))
@@ -42,7 +41,7 @@ class IntegrationTest(unittest.TestCase):
 
         self._check_outputs()
 
-        pake.subpake(os.path.join(script_dir, "pakefile.py"),"clean", silent=True)
+        pake.subpake(os.path.join(script_dir, "pakefile.py"), "clean", silent=True)
 
         self._check_outputs(exist=False)
 
@@ -55,15 +54,6 @@ class IntegrationTest(unittest.TestCase):
 
         self._check_outputs(exist=False)
 
-    def test_task_exceptions(self):
-
-        try:
-            output = subprocess.check_output([sys.executable, os.path.join(script_dir, 'task_exceptions_test', 'pakefile.py')]).decode()
-        except subprocess.CalledProcessError as err:
-            print(err.output.decode())
-            raise
-
-        self.assertTrue(output.strip()=='passpass')
 
 if __name__ == 'main':
     unittest.main()

@@ -1,13 +1,14 @@
 #!/usr/bin/python3
 
-import sys
-import os
 import glob
+import sys
+
+import os
 
 # the directory above tests to the path so pake can be included
 # not needed if module is 'installed'
 sys.path.insert(1,
-    os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../../')))
+                os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../../')))
 
 import pake
 
@@ -32,5 +33,6 @@ def all(ctx):
 def clean(ctx):
     for i in glob.glob("*.o"):
         os.unlink(i)
+
 
 pake.run(pk)

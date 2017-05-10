@@ -1,10 +1,12 @@
+import sys
 import unittest
 
-import sys
 import os
 
 sys.path.insert(1,
-                os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../../')))
+                os.path.abspath(
+                    os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                 os.path.join('..', '..'))))
 
 import pake.graph
 
@@ -30,7 +32,6 @@ class GraphTest(unittest.TestCase):
 
         with self.assertRaises(pake.graph.CyclicGraphException):
             list(graph.topological_sort())
-
 
         graph = pake.graph.Graph()
 
