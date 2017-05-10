@@ -14,9 +14,10 @@ pake requires python3.4+
 
 Note: pake is Alpha and likely to change some.
 
-.. code-block:: bash
 
-    pip install git+git://github.com/Teriks/pake.git@0.4.0.0
+```
+pip install git+git://github.com/Teriks/pake.git@0.4.0.0
+```
 
 
 # Example project using pake
