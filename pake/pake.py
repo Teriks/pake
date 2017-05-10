@@ -509,11 +509,13 @@ class MultitaskContext(Executor):
 
         """
         if not self._threadpool:
-            return self._submit_this_thread(fn, *args, **kwargs)
+            future = self._submit_this_thread(fn, *args, **kwargs)
+            self._pending.append(future)
         else:
             future = self._threadpool.submit(fn, *args, **kwargs)
             self._pending.append(future)
-            return future
+
+        return future
 
     def __enter__(self):
         return self

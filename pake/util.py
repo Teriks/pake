@@ -219,6 +219,8 @@ def get_pakefile_caller_detail():
 
             frame_file = os.path.normpath(os.path.join(init_dir, filename))
 
+            print(init_file, frame_file)
+
             if init_file == frame_file:
                 return CallerDetail(
                     filename=frame_file,
