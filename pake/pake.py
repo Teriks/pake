@@ -304,7 +304,9 @@ class TaskContext:
             except subprocess.CalledProcessError as err:
                 raise pake.process.SubprocessException(cmd=args,
                                                        returncode=err.returncode,
-                                                       output=err.output)
+                                                       output=err.output,
+                                                       message='An error occurred while executing a system '
+                                                               'command inside a pake task.')
 
     @property
     def dependencies(self):

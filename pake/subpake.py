@@ -126,7 +126,9 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
     except subprocess.CalledProcessError as err:
         ex = pake.process.SubprocessException(cmd=args,
                                               returncode=err.returncode,
-                                              output=err.output)
+                                              output=err.output,
+                                              message='An exceptional condition occurred '
+                                                      'inside a pakefile ran by subpake.')
         if exit_on_error:
             print(str(ex), file=pake.conf.stderr)
             exit(1)

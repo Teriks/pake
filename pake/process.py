@@ -42,6 +42,10 @@ class SubprocessException(Exception):
     
         Process output as bytes.
         
+    .. py:attribute:: message
+    
+        Optional message from the raising function, may be **None**
+        
     .. py:attribute:: filename
     
         Filename describing the file from which the process call was initiated. (might be None)
@@ -55,15 +59,18 @@ class SubprocessException(Exception):
         Line Number describing the line where the process call was initiated. (might be None)
     """
 
-    def __init__(self, cmd, returncode, output):
+    def __init__(self, cmd, returncode, output,
+                 message=None):
         """
         :param cmd: Command in list form.
         :param returncode: The command's returncode.
         :param output: All output from the command as bytes.
+        :param message: Option information.
         """
 
         c_detail = get_pakefile_caller_detail()
 
+        self.message = message
         self.returncode = returncode
         self.output = output
         self.cmd = cmd
@@ -93,7 +100,10 @@ class SubprocessException(Exception):
             msg += 'pake.SubprocessException({sep}\t{template}{sep}){sep}{sep}'. \
                 format(template=(',' + os.linesep + '\t').join(template), sep=os.linesep)
         else:
-            msg += 'pake.SubprocessException(){sep}'.format(sep=os.linesep)
+            msg += 'pake.SubprocessException(){sep}{sep}'.format(sep=os.linesep)
+
+        if self.message:
+            msg += 'Message: '+self.message+(os.linesep*2)
 
         msg += 'The following command exited with return code: {code}{sep}{sep}{cmd}' \
             .format(code=self.returncode, sep=os.linesep, cmd=' '.join(self.cmd))
