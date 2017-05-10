@@ -86,11 +86,15 @@ class IntegrationTest(unittest.TestCase):
         def a_task(ctx):
             pass
 
-        with self.assertRaises(pake.TaskException):
+        with self.assertRaises(pake.TaskException) as cm:
             pk.run(tasks=a_task)
 
-        with self.assertRaises(pake.TaskException):
+        self.assertTrue(type(cm.exception.exception) == Exception)
+
+        with self.assertRaises(pake.TaskException) as cm:
             pk.run(tasks=a_task, jobs=10)
+
+        self.assertTrue(type(cm.exception.exception) == Exception)
 
 
 if __name__ == 'main':
