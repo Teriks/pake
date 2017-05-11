@@ -353,10 +353,23 @@ def run(pake_obj, tasks=None):
         return
 
     if parsed_args.dry_run:
-        pake_obj.dry_run(run_tasks)
-        if pake_obj.run_count == 0:
-            pake_obj.print('Nothing to do, all tasks up to date.')
-        return
+        try:
+            pake_obj.dry_run(run_tasks)
+            if pake_obj.run_count == 0:
+                pake_obj.print('Nothing to do, all tasks up to date.')
+            return
+        except pake.InputFileNotFoundException as err:
+            print(str(err), file=pake.conf.stderr)
+            exit(1)
+        except pake.MissingOutputFilesException as err:
+            print(str(err), file=pake.conf.stderr)
+            exit(1)
+        except pake.UndefinedTaskException as err:
+            print(str(err), file=pake.conf.stderr)
+            exit(1)
+        except pake.CyclicGraphException as err:
+            print(str(err), file=pake.conf.stderr)
+            exit(1)
 
     depth = get_subpake_depth()
 
