@@ -886,6 +886,7 @@ class Pake:
                # I will never run!
                pass
            
+           
            # If an input generator produces no results (IE, something like pake.glob returns no files)
            # and the tasks outputs also end up being empty such as in this case,
            # then the task will never run.
