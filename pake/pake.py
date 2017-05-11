@@ -76,7 +76,7 @@ class MissingOutputFilesException(Exception):
 
     def __init__(self, task_name):
         super(MissingOutputFilesException, self).__init__(
-            'Task "{}" defines inputs with no outputs, this is not allowed.'.format(task_name)
+            'Error: Task "{}" defines inputs with no outputs, this is not allowed.'.format(task_name)
         )
 
 
@@ -88,7 +88,7 @@ class InputFileNotFoundException(Exception):
 
     def __init__(self, task_name, file_name):
         super(InputFileNotFoundException, self).__init__(
-            'Could not find input file "{}" used by task "{}".'.format(file_name, task_name)
+            'Error: Could not find input file "{}" used by task "{}".'.format(file_name, task_name)
         )
 
 
@@ -101,7 +101,7 @@ class UndefinedTaskException(Exception):
     """
 
     def __init__(self, task_name):
-        super(UndefinedTaskException, self).__init__('Task "{}" is undefined.'.format(task_name))
+        super(UndefinedTaskException, self).__init__('Error: Task "{}" is undefined.'.format(task_name))
         self.task_name = task_name
 
 
@@ -114,7 +114,7 @@ class RedefinedTaskException(Exception):
     """
 
     def __init__(self, task_name):
-        super(RedefinedTaskException, self).__init__('Task "{}" has already been defined.'
+        super(RedefinedTaskException, self).__init__('Error: Task "{}" has already been defined.'
                                                      .format(task_name))
         self.task_name = task_name
 
