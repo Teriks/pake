@@ -819,9 +819,27 @@ class Pake:
         .. code-block:: python
         
            # Dependencies come before input and output files.
+           
            @pk.task(dependent_task_a, dependent_task_b, i='main.c', o='main')
            def my_task(ctx):
                # Do your build task here
+               pass
+               
+           
+           # Tasks without input or output files will always run when specified.
+           
+           @pk.task
+           def my_task(ctx):
+               # I will always run when specified!
+               pass
+               
+               
+           # Tasks with dependencies but no input or output files will also
+           # always run when specified.
+           
+           @pk.task(dependent_task_a, dependent_task_b)
+           def my_task(ctx):
+               # I will always run when specified!
                pass
             
             
@@ -833,7 +851,8 @@ class Pake:
            def my_task(ctx):
                # Do your build task here
                pass
-            
+        
+        
            # Single input and single output, 'main.c' has it's creation time checked
            # against 'main'
            
@@ -841,6 +860,7 @@ class Pake:
            def my_task(ctx):
                # Do your build task here
                pass
+               
                
            # When multiple input files exist and there is only one output file, each input file
            # has it's creation time checked against the output files creation time.
@@ -860,14 +880,15 @@ class Pake:
                
                
            # each input file has its creation date checked against its corresponding
-           # output file in this case.  Out of date file names can be found in ctx.outdated_inputs
-           # and ctx.outdated_outputs.  ctx.outdated_pairs is a convenience property
-           # which returns: zip(ctx.outdated_inputs, ctx.outdated_outputs)
+           # output file in this case.  Out of date file names can be found in 
+           # ctx.outdated_inputs and ctx.outdated_outputs.  ctx.outdated_pairs is a
+           # convenience property which returns: zip(ctx.outdated_inputs, ctx.outdated_outputs)
            
            @pk.task(i=['file_b.c', 'file_b.c'], o=['file_b.o', 'file_b.o'])
            def my_task(ctx):
                # Do your build task here
                pass
+               
                
            # Similar to the above, inputs and outputs end up being of the same
            # length when using pake.glob with pake.pattern
@@ -896,10 +917,11 @@ class Pake:
                pass
            
            
-           # If an input generator produces no results (IE, something like pake.glob returns no files)
-           # and the tasks outputs also end up being empty such as in this case,
+           # If an input generator produces no results 
+           # (IE, something like pake.glob returns no files) and the tasks 
+           # outputs also end up being empty such as in this case, 
            # then the task will never run.
-           
+        
            @pk.task(i=pake.glob('*.some_extension_that_no_file_has'), o=pake.pattern('%.o'))
            def my_task(ctx):
                # I will never run!
