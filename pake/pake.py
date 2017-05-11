@@ -951,34 +951,14 @@ class Pake:
 
         return task_context
 
-    def dry_run(self, tasks=None):
-        """
-        Dry run over task, print a 'visited' message for each visited task.
-        
-        When using change detection, only out of date tasks will be visited.
-        
-
-        :raises: :py:class:`pake.MissingOutputFilesException` if a task defines input files without specifying any output files.
-        :raises: :py:class:`pake.InputFileNotFoundException` if a task defines input files but one of them was not found on disk.
-        :raises: :py:class:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
-        :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
-        
-        :param tasks: Tasks to run.
-        """
-        self._dry_run_mode = True
-        try:
-            self.run(tasks=tasks, jobs=1)
-        finally:
-            self._dry_run_mode = False
-
     def run(self, tasks=None, jobs=1):
         """
         Run all given tasks, with an optional level of concurrency.
 
         :raises: :py:class:`ValueError` if **jobs** is less than 1.
         
-        :raises: :py:class:`pake.TaskException` if an exception occurred visiting a task, information will have already been printed to \
-                 the :py:attr:`pake.TaskContext.io` file object which belongs to the given task.
+        :raises: :py:class:`pake.TaskException` if an exception occurred while running a task, information will have \
+                 already been printed to the :py:attr:`pake.TaskContext.io` file object which belongs to the given task.
         
         :raises: :py:class:`pake.MissingOutputFilesException` if a task defines input files without specifying any output files.
         :raises: :py:class:`pake.InputFileNotFoundException` if a task defines input files but one of them was not found on disk.
@@ -1025,6 +1005,26 @@ class Pake:
             self._threadpool = None
             if executor:
                 executor.shutdown(wait=False)
+
+    def dry_run(self, tasks=None):
+        """
+        Dry run over task, print a 'visited' message for each visited task.
+        
+        When using change detection, only out of date tasks will be visited.
+        
+
+        :raises: :py:class:`pake.MissingOutputFilesException` if a task defines input files without specifying any output files.
+        :raises: :py:class:`pake.InputFileNotFoundException` if a task defines input files but one of them was not found on disk.
+        :raises: :py:class:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
+        :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
+        
+        :param tasks: Tasks to run.
+        """
+        self._dry_run_mode = True
+        try:
+            self.run(tasks=tasks, jobs=1)
+        finally:
+            self._dry_run_mode = False
 
     def set_defines_dict(self, dictionary):
         """
