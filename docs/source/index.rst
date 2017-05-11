@@ -26,7 +26,7 @@ Note: pake is Alpha and likely to change some.
 
 .. code-block:: bash
 
-    pip install git+git://github.com/Teriks/pake.git@0.4.0.0
+    pip install git+git://github.com/Teriks/pake.git@0.4.0.0a1
 
 
 Module Doc

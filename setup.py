@@ -8,6 +8,9 @@ with open('pake/__init__.py') as f:
 if not version:
     raise RuntimeError('version is not set')
 
+# alpha 1
+version += 'a1'
+
 readme = ''
 with open('README.md', 'r', encoding='utf-8') as f:
     readme = f.read()
@@ -29,7 +32,7 @@ setup(name='pake',
           ]
       },
       classifiers=[
-          'Development Status :: 2 - Pre-Alpha',
+          'Development Status :: 3 - Alpha',
           'License :: OSI Approved :: BSD 3-Clause License',
           'Intended Audience :: Developers',
           'Natural Language :: English',
