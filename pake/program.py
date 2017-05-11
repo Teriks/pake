@@ -297,8 +297,8 @@ def run(pake_obj, tasks=None):
             exit(1)
             return
 
-        if parsed_args.show_tasks:
-            print("-n/--dry-run and the -t/--show-task-info option cannot be used together.",
+        if parsed_args.show_task_info:
+            print("-n/--dry-run and the -ti/--show-task-info option cannot be used together.",
                   file=pake.conf.stderr)
             exit(1)
             return
