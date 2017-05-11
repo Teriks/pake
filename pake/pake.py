@@ -814,22 +814,38 @@ class Pake:
            def my_task(ctx):
                # Do your build task here
                pass
-               
+            
+            
+           # Single input and single output, 'main.c' has it's creation time checked
+           # against 'main'
+           
            @pk.task(i='main.c', o='main')
            def my_task(ctx):
                # Do your build task here
                pass
                
+           # When multiple input files exist and there is only one output file, each input file
+           # has it's creation time checked against the output files creation time.
+           
            @pk.task(i=['otherstuff.c', 'main.c'], o='main')
            def my_task(ctx):
                # Do your build task here
                pass
                
-           @pk.task(i=pake.glob('src/*.c', o='main')
+               
+           # all files in 'src/*.c' have their creation date checked against 'main' 
+           
+           @pk.task(i=pake.glob('src/*.c'), o='main')
            def my_task(ctx):
                # Do your build task here
                pass
                
+               
+           # each input file has its creation date checked against its corresponding
+           # output file in this case.  Out of date file names can be found in ctx.outdated_inputs
+           # and ctx.outdated_outputs.  ctx.outdated_pairs is a convenience property
+           # which returns: zip(ctx.outdated_inputs, ctx.outdated_outputs)
+           
            @pk.task(i=['file_b.c', 'file_b.c'], o=['file_b.o', 'file_b.o'])
            def my_task(ctx):
                # Do your build task here
@@ -837,7 +853,17 @@ class Pake:
                
            # Similar to the above, inputs and outputs end up being of the same
            # length when using pake.glob with pake.pattern
+           
            @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
+           def my_task(ctx):
+               # Do your build task here
+               pass
+               
+    
+           # All input files have their creation date checked against all output files
+           # if there are more inputs than outputs, in general.
+           
+           @pk.task(i=['a.c', 'b.c', 'c.c'], o=['main', 'what_are_you_planning'])
            def my_task(ctx):
                # Do your build task here
                pass
