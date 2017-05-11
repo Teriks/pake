@@ -816,6 +816,15 @@ class Pake:
                pass
             
             
+           # Having an output with no input is allowed, this task
+           # will always run.  The opposite (having an input file with no output file)
+           # will cause an error.  ctx.outdated_outputs is populated with 'main' in this case.
+           
+           @pk.task(o='main')
+           def my_task(ctx):
+               # Do your build task here
+               pass
+            
            # Single input and single output, 'main.c' has it's creation time checked
            # against 'main'
            
@@ -866,6 +875,24 @@ class Pake:
            @pk.task(i=['a.c', 'b.c', 'c.c'], o=['main', 'what_are_you_planning'])
            def my_task(ctx):
                # Do your build task here
+               pass
+               
+               
+           # Leaving the inputs and outputs as empty list will cause the task
+           # to never run.
+           
+           @pk.task(i=[], o=[])
+           def my_task(ctx):
+               # I will never run!
+               pass
+           
+           # If an input generator produces no results (IE, something like pake.glob returns no files)
+           # and the tasks outputs also end up being empty such as in this case,
+           # then the task will never run.
+           
+           @pk.task(i=pake.glob('*.some_extension_that_no_file_has'), o=pake.pattern('%.o'))
+           def my_task(ctx):
+               # I will never run!
                pass
         
         :raises: :py:class:`pake.UndefinedTaskException` if a given dependency is not a registered task function.
