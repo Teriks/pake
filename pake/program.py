@@ -297,6 +297,8 @@ def run(pake_obj, tasks=None):
 
     if parsed_args.dry_run:
         pake_obj.dry_run(run_tasks)
+        if pake_obj.run_count == 0:
+            pake_obj.print('Nothing to do, all tasks up to date.')
         return
 
     depth = get_subpake_depth()
