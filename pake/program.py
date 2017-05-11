@@ -144,7 +144,11 @@ def get_max_jobs():
     if not is_init():
         raise PakeUninitializedException()
 
-    return pake.arguments.get_args().jobs
+    jobs = pake.arguments.get_args().jobs
+    if jobs is None:
+        return 1
+    else:
+        return jobs
 
 
 def get_subpake_depth():
@@ -280,17 +284,37 @@ def run(pake_obj, tasks=None):
         exit(1)
         return
 
-    if parsed_args.dry_run and parsed_args.jobs:
-        print("-n/--dry-run and -j/--jobs cannot be used together.",
-              file=pake.conf.stderr)
-        exit(1)
-        return
+    if parsed_args.dry_run:
+        if parsed_args.jobs:
+            print("-n/--dry-run and -j/--jobs cannot be used together.",
+                  file=pake.conf.stderr)
+            exit(1)
+            return
 
-    if parsed_args.tasks and len(parsed_args.tasks) > 0 and parsed_args.show_tasks:
-        print("Run tasks may not be specified when using the -t/--show-tasks option.",
-              file=pake.conf.stderr)
-        exit(1)
-        return
+        if parsed_args.show_tasks:
+            print("-n/--dry-run and the -t/--show-tasks option cannot be used together.",
+                  file=pake.conf.stderr)
+            exit(1)
+            return
+
+        if parsed_args.show_tasks:
+            print("-n/--dry-run and the -t/--show-task-info option cannot be used together.",
+                  file=pake.conf.stderr)
+            exit(1)
+            return
+
+    if parsed_args.tasks and len(parsed_args.tasks) > 0:
+        if parsed_args.show_tasks:
+            print("Run tasks may not be specified when using the -t/--show-tasks option.",
+                  file=pake.conf.stderr)
+            exit(1)
+            return
+
+        if parsed_args.show_task_info:
+            print("Run tasks may not be specified when using the -ti/--show-task-info option.",
+                  file=pake.conf.stderr)
+            exit(1)
+            return
 
     if pake_obj.task_count == 0:
         print('*** No Tasks.  Stop.',
@@ -336,8 +360,10 @@ def run(pake_obj, tasks=None):
         os.chdir(parsed_args.directory)
 
     return_code = 0
+    jobs = 1 if parsed_args.jobs is None else parsed_args.jobs
+
     try:
-        pake_obj.run(jobs=parsed_args.jobs, tasks=run_tasks)
+        pake_obj.run(jobs=jobs, tasks=run_tasks)
 
         if pake_obj.run_count == 0:
             pake_obj.print('Nothing to do, all tasks up to date.')

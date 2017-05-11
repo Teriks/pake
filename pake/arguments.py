@@ -42,7 +42,7 @@ _arg_parser.add_argument('tasks', type=str, nargs='*', help='Build tasks.')
 
 _arg_parser.add_argument('-D', '--define', action='append', help='Add defined value.')
 
-_arg_parser.add_argument('-j', '--jobs', default=1, type=_create_gt_int('--jobs must be greater than one.'),
+_arg_parser.add_argument('-j', '--jobs', type=_create_gt_int('--jobs must be greater than one.'),
                          help='Max number of parallel jobs.  Using this option '
                               'enables unrelated tasks to run in parallel with a '
                               'max of N tasks running at a time.')
