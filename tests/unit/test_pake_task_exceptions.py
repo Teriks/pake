@@ -19,6 +19,8 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 
 class IntegrationTest(unittest.TestCase):
     def test_task_exceptions(self):
+        # =============================
+
         pk = pake.init()
 
         @pk.task
@@ -46,6 +48,8 @@ class IntegrationTest(unittest.TestCase):
         def raise_exception(*args):
             raise Exception()
 
+        # =============================
+
         pk = pake.init()
 
         @pk.task
@@ -70,6 +74,8 @@ class IntegrationTest(unittest.TestCase):
             pk.run(tasks=a_task, jobs=10)
 
         self.assertTrue(type(cm.exception.exception) == Exception)
+
+        # =============================
 
         pk = pake.init()
 

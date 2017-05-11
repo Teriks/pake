@@ -64,13 +64,26 @@ class TaskException(Exception):
         """
         self.exception = exception
 
+    def __str__(self):
+        return str(self.exception)
+
+
+class MissingOutputFilesException(Exception):
+    """
+    Raised by :py:meth:`pake.Pake.run` and :py:meth:`pake.Pake.dry_run` if a task declares input files without
+    specifying any output files.
+    """
+
+    def __init__(self, task_name):
+        super(MissingOutputFilesException, self).__init__(
+            'Task "{}" defines inputs with no outputs, this is not allowed.'.format(task_name)
+        )
+
 
 class InputFileNotFoundException(Exception):
-    """Raised if a task with input files declared cannot find an input file on disk.
-    
-    This exception is raised inside the task, and will propagate out of
-    :py:meth:`pake.Pake.run` and :py:meth:`pake.Pake.dry_run` by being wrapped in a 
-    :py:class:`pake.TaskException` and rethrown.
+    """
+    Raised by :py:meth:`pake.Pake.run` and :py:meth:`pake.Pake.dry_run` if a task with input files 
+    declared cannot find an input file on disk.
     """
 
     def __init__(self, task_name, file_name):
@@ -110,17 +123,19 @@ def _handle_task_exception(ctx, exception):
     if isinstance(exception, pake.process.SubprocessException):
         # SubprocessException provides detailed information
         # about the call site of the subprocess in the pakefile
-        # on its own
+        # on its own, print and wrap as it is better for this information
+        # to be printed to the task's output.
         ctx.print(str(exception))
         raise TaskException(exception)
 
-    if isinstance(exception, InputFileNotFoundException):
-        # InputFileNotFoundException is raised inside the task when
-        # the task runs and does file detection, it provides information
+    if isinstance(exception, InputFileNotFoundException) or isinstance(exception, MissingOutputFilesException):
+        # These are raised inside the task when
+        # the task runs and does file detection, they provides information
         # which includes the task name the exception occurred in as well
-        # as the name of the file that was missing.
-        ctx.print(str(exception))
-        raise TaskException(exception)
+        # as the name of the file that was missing.  These are handled by pake.run(...) (the library method)
+        # which displays the error to the user, these exceptions will come directly out of
+        # Pake.run(...) (the object method) as they are.
+        raise exception
 
     # For everything else, print a standard trace
     # to the tasks IO before raising TaskException
@@ -678,7 +693,7 @@ class Pake:
         len_o = len(o)
 
         if len_i > 0 and len_o == 0:
-            raise ValueError('Must have > 0 outputs when specifying input files for change detection.')
+            raise MissingOutputFilesException(task_name)
 
         outdated_inputs = []
         outdated_outputs = []
@@ -893,13 +908,14 @@ class Pake:
         def func_wrapper(*args, **kwargs):
             ctx = self.get_task_context(func)
 
-            if not Pake._should_run_task(ctx, inputs, outputs):
-                return None
-
-            self._increment_run_count()
-
             try:
                 ctx._i_io_open()
+
+                if not Pake._should_run_task(ctx, inputs, outputs):
+                    return None
+
+                self._increment_run_count()
+
                 if self._dry_run_mode:
                     ctx.print('Visited Task: "{}"'.format(func.__name__))
                 else:
@@ -941,10 +957,9 @@ class Pake:
         
         When using change detection, only out of date tasks will be visited.
         
-        :raises: :py:class:`pake.TaskException` if an exception occurred visiting a task, information will have already been printed to \
-                 the :py:attr:`pake.TaskContext.io` file object which belongs to the given task. The only exception that can occur \
-                 in a task during a dry run is currently :py:class:`pake.InputFileNotFoundException`.
-                 
+
+        :raises: :py:class:`pake.MissingOutputFilesException` if a task defines input files without specifying any output files.
+        :raises: :py:class:`pake.InputFileNotFoundException` if a task defines input files but one of them was not found on disk.
         :raises: :py:class:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
         :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
         
@@ -964,7 +979,9 @@ class Pake:
         
         :raises: :py:class:`pake.TaskException` if an exception occurred visiting a task, information will have already been printed to \
                  the :py:attr:`pake.TaskContext.io` file object which belongs to the given task.
-                 
+        
+        :raises: :py:class:`pake.MissingOutputFilesException` if a task defines input files without specifying any output files.
+        :raises: :py:class:`pake.InputFileNotFoundException` if a task defines input files but one of them was not found on disk.
         :raises: :py:class:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
         :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
         

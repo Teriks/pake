@@ -37,7 +37,8 @@ from .pake import \
     UndefinedTaskException, \
     RedefinedTaskException, \
     TaskException, \
-    InputFileNotFoundException
+    InputFileNotFoundException, \
+    MissingOutputFilesException
 
 from .process import SubprocessException
 
@@ -72,6 +73,7 @@ __all__ = [
     'FileHelper',
     'TaskException',
     'InputFileNotFoundException',
+    'MissingOutputFilesException',
     'UndefinedTaskException',
     'RedefinedTaskException',
     'PakeUninitializedException',
