@@ -800,7 +800,7 @@ class Pake:
                pass
                
            
-           @pk.task(i=[gen_inputs('src_a/*.c'), gen_inputs('src_b/*.c'), o=gen_outputs('{dir}/%.o')]
+           @pk.task(i=[gen_inputs('src_a/*.c'), gen_inputs('src_b/*.c')], o=gen_outputs('{dir}/%.o')
            def my_task(ctx):
                # Do your build task here
                pass
