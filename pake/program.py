@@ -316,6 +316,19 @@ def run(pake_obj, tasks=None):
             exit(1)
             return
 
+    if parsed_args.jobs:
+        if parsed_args.show_tasks:
+            print('-t/--show-tasks and -j/--jobs cannot be used together.',
+                  file=pake.conf.stderr)
+            exit(1)
+            return
+
+        if parsed_args.show_task_info:
+            print('-ti/--show-task-info and -j/--jobs cannot be used together.',
+                  file=pake.conf.stderr)
+            exit(1)
+            return
+
     if pake_obj.task_count == 0:
         print('*** No Tasks.  Stop.',
               file=pake.conf.stderr)
