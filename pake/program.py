@@ -275,7 +275,27 @@ def run(pake_obj, tasks=None):
     parsed_args = pake.arguments.get_args()
 
     if parsed_args.show_tasks and parsed_args.show_task_info:
-        pake_obj.print('-t/--show-tasks and -ti/--show-task-info cannot be used together.')
+        print('-t/--show-tasks and -ti/--show-task-info cannot be used together.',
+              file=pake.conf.stderr)
+        exit(1)
+        return
+
+    if parsed_args.dry_run and parsed_args.jobs:
+        print("-n/--dry-run and -j/--jobs cannot be used together.",
+              file=pake.conf.stderr)
+        exit(1)
+        return
+
+    if parsed_args.tasks and len(parsed_args.tasks) > 0 and parsed_args.show_tasks:
+        print("Run tasks may not be specified when using the -t/--show-tasks option.",
+              file=pake.conf.stderr)
+        exit(1)
+        return
+
+    if pake_obj.task_count == 0:
+        print('*** No Tasks.  Stop.',
+              file=pake.conf.stderr)
+        exit(1)
         return
 
     if parsed_args.show_tasks:

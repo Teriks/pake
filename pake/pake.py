@@ -583,6 +583,15 @@ class Pake:
         self._cur_job_count = 0
 
     @property
+    def task_count(self):
+        """Returns the number of registered tasks.
+        
+        :returns: Number of tasks registered to the :py:class:`pake.Pake` instance.
+        """
+
+        return len(self._task_contexts)
+
+    @property
     def run_count(self):
         """Contains the number of tasks ran/visited by the last invocation of :py:meth:`pake.Pake.run` or :py:meth:`pake.Pake.dry_run`
         
