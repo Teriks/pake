@@ -282,58 +282,49 @@ def run(pake_obj, tasks=None):
         print('-t/--show-tasks and -ti/--show-task-info cannot be used together.',
               file=pake.conf.stderr)
         exit(1)
-        return
 
     if parsed_args.dry_run:
         if parsed_args.jobs:
             print("-n/--dry-run and -j/--jobs cannot be used together.",
                   file=pake.conf.stderr)
             exit(1)
-            return
 
         if parsed_args.show_tasks:
             print("-n/--dry-run and the -t/--show-tasks option cannot be used together.",
                   file=pake.conf.stderr)
             exit(1)
-            return
 
         if parsed_args.show_task_info:
             print("-n/--dry-run and the -ti/--show-task-info option cannot be used together.",
                   file=pake.conf.stderr)
             exit(1)
-            return
 
     if parsed_args.tasks and len(parsed_args.tasks) > 0:
         if parsed_args.show_tasks:
             print("Run tasks may not be specified when using the -t/--show-tasks option.",
                   file=pake.conf.stderr)
             exit(1)
-            return
 
         if parsed_args.show_task_info:
             print("Run tasks may not be specified when using the -ti/--show-task-info option.",
                   file=pake.conf.stderr)
             exit(1)
-            return
 
     if parsed_args.jobs:
         if parsed_args.show_tasks:
             print('-t/--show-tasks and -j/--jobs cannot be used together.',
                   file=pake.conf.stderr)
             exit(1)
-            return
 
         if parsed_args.show_task_info:
             print('-ti/--show-task-info and -j/--jobs cannot be used together.',
                   file=pake.conf.stderr)
             exit(1)
-            return
 
     if pake_obj.task_count == 0:
         print('*** No Tasks.  Stop.',
               file=pake.conf.stderr)
         exit(1)
-        return
 
     if parsed_args.show_tasks:
         _list_tasks(pake_obj, tasks)
