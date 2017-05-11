@@ -45,7 +45,8 @@ __all__ = ['pattern',
            'UndefinedTaskException',
            'RedefinedTaskException',
            'TaskException',
-           'InputFileNotFoundException']
+           'InputFileNotFoundException',
+           'MissingOutputFilesException']
 
 
 class TaskException(Exception):
