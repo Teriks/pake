@@ -1014,7 +1014,7 @@ class Pake:
 
         return task_context
 
-    def run(self, tasks=None, jobs=1):
+    def run(self, tasks, jobs=1):
         """
         Run all given tasks, with an optional level of concurrency.
 
