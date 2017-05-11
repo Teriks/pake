@@ -16,7 +16,7 @@ Note: pake is Alpha and likely to change some.
 
 
 ```
-pip install git+git://github.com/Teriks/pake.git@0.4.0.2a1
+pip install git+git://github.com/Teriks/pake.git@0.4.0.3a1
 ```
 
 
