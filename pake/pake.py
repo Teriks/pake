@@ -1069,7 +1069,7 @@ class Pake:
             if executor:
                 executor.shutdown(wait=False)
 
-    def dry_run(self, tasks=None):
+    def dry_run(self, tasks):
         """
         Dry run over task, print a 'visited' message for each visited task.
         
