@@ -1028,7 +1028,7 @@ class Pake:
         :raises: :py:class:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
         :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
         
-        :param tasks: Iterable of tasks to run. 
+        :param tasks: Single task, or Iterable of task functions to run (by ref or name).
         :param jobs: Maximum number of threads, defaults to 1. (must be >= 1)
         """
 
@@ -1081,7 +1081,7 @@ class Pake:
         :raises: :py:class:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
         :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
         
-        :param tasks: Iterable of tasks to run.
+        :param tasks: Single task, or Iterable of task functions to run (by ref or name).
         """
         self._dry_run_mode = True
         try:
