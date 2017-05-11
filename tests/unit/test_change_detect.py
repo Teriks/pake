@@ -18,8 +18,8 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 
 
 class GraphTest(unittest.TestCase):
-    def test_exceptions(self):
 
+    def _exceptions_test(self, jobs):
         test_case = self
 
         pk = pake.init()
@@ -35,7 +35,7 @@ class GraphTest(unittest.TestCase):
             test_case.assertTrue(len(ctx.outdated_outputs) == 1)
             test_case.assertTrue(ctx.outdated_outputs[0] == 'test')
 
-        pk.run(tasks=task_a)
+        pk.run(tasks=task_a, jobs=jobs)
 
         self.assertTrue(ran)
 
@@ -56,7 +56,7 @@ class GraphTest(unittest.TestCase):
             test_case.assertTrue(len(ctx.outdated_outputs) == 1)
             test_case.assertTrue(ctx.outdated_outputs[0] == 'test')
 
-        pk.run(tasks=task_a)
+        pk.run(tasks=task_a, jobs=jobs)
 
         self.assertTrue(ran)
 
@@ -76,7 +76,7 @@ class GraphTest(unittest.TestCase):
             self.assertTrue(len(ctx.outdated_inputs) == 0)
             ran = True
 
-        pk.run(tasks=task_a)
+        pk.run(tasks=task_a, jobs=jobs)
 
         self.assertTrue(ran)
 
@@ -97,7 +97,7 @@ class GraphTest(unittest.TestCase):
             self.assertTrue(len(ctx.outdated_inputs) == 0)
             ran = True
 
-        pk.run(tasks=task_a)
+        pk.run(tasks=task_a, jobs=jobs)
 
         self.assertTrue(ran)
 
@@ -111,7 +111,7 @@ class GraphTest(unittest.TestCase):
             pass
 
         with self.assertRaises(pake.MissingOutputFilesException):
-            pk.run(tasks=task_a)
+            pk.run(tasks=task_a, jobs=jobs)
 
         # ================
 
@@ -123,7 +123,7 @@ class GraphTest(unittest.TestCase):
             pass
 
         with self.assertRaises(pake.MissingOutputFilesException):
-            pk.run(tasks=task_a)
+            pk.run(tasks=task_a, jobs=jobs)
 
         # ================
 
@@ -135,5 +135,12 @@ class GraphTest(unittest.TestCase):
             pass
 
         with self.assertRaises(pake.InputFileNotFoundException):
-            pk.run(tasks=task_a)
+            pk.run(tasks=task_a, jobs=jobs)
+
+    def test_exceptions(self):
+
+        self._exceptions_test(jobs=1)
+        self._exceptions_test(jobs=10)
+
+
 
