@@ -19,7 +19,7 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 
 class GraphTest(unittest.TestCase):
 
-    def _exceptions_test(self, jobs):
+    def _behavior_test(self, jobs):
         test_case = self
 
         pk = pake.init()
@@ -80,7 +80,6 @@ class GraphTest(unittest.TestCase):
 
         self.assertTrue(ran)
 
-
         # ================
 
         pk = pake.init()
@@ -102,6 +101,39 @@ class GraphTest(unittest.TestCase):
         self.assertTrue(ran)
 
         # ================
+
+        pk = pake.init()
+
+        ran = False
+
+        # Wont ever run
+        @pk.task(i=[], o=[])
+        def task_a(ctx):
+            nonlocal ran
+            ran = True
+
+        pk.run(tasks=task_a, jobs=jobs)
+
+        self.assertFalse(ran)
+
+        # ================
+
+        pk = pake.init()
+
+        ran = False
+
+        # Wont ever run
+        @pk.task(i=pake.glob('*.theres_nothing_named_this_in_the_directory'), o=pake.pattern('%.o'))
+        def task_a(ctx):
+            nonlocal ran
+            ran = True
+
+        pk.run(tasks=task_a, jobs=jobs)
+
+        self.assertFalse(ran)
+
+    def _exceptions_test(self, jobs):
+        test_case = self
 
         pk = pake.init()
 
@@ -137,8 +169,11 @@ class GraphTest(unittest.TestCase):
         with self.assertRaises(pake.InputFileNotFoundException):
             pk.run(tasks=task_a, jobs=jobs)
 
-    def test_exceptions(self):
+    def test_behaviour(self):
+        self._behavior_test(jobs=1)
+        self._behavior_test(jobs=10)
 
+    def test_exceptions(self):
         self._exceptions_test(jobs=1)
         self._exceptions_test(jobs=10)
 
