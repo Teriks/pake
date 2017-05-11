@@ -1,6 +1,10 @@
 Writing Basic Tasks
 ===================
 
+Additional information about change detection is available in the form of examples in
+the documentation for the :py:meth:`pake.Pake.task` function decorator.
+
+
 *Note:*
 
 each registered task receives a :py:class:`pake.TaskContext` instance as a single argument when run.
