@@ -270,8 +270,11 @@ def run(pake_obj, tasks=None):
     :param tasks: A list of, or a single default task to run if no tasks are specified on the command line.
     """
 
-    if not pake.util.is_iterable_not_str(tasks):
+    if tasks and not pake.util.is_iterable_not_str(tasks):
         tasks = [tasks]
+
+    if tasks is None:
+        tasks = []
 
     if not is_init():
         raise pake.PakeUninitializedException()
@@ -337,7 +340,7 @@ def run(pake_obj, tasks=None):
     run_tasks = []
     if parsed_args.tasks:
         run_tasks += parsed_args.tasks
-    elif tasks:
+    elif len(tasks):
         run_tasks += tasks
     else:
         pake_obj.print("No tasks specified.")
