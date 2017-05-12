@@ -31,7 +31,11 @@ Example:
 
    @pk.task(build_c, i=pake.glob('obj/*.o'), o='main')
    def build(ctx):
-       ctx.call(['gcc'] + ctx.inputs + ['-o'] + ctx.outputs)
+
+       # Utilizing the automatic non string iterable
+       # flattening here to pass ctx.inputs and ctx.outputs
+
+       ctx.call(['gcc', ctx.inputs, '-o', ctx.outputs])
 
 
    pake.run(pk, tasks=build)
