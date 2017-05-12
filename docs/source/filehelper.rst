@@ -1,7 +1,7 @@
 Manipulating Files / Dirs With FileHelper
 =========================================
 
-:py:class:`pake.FileHelper` contains several useful file system manipulating
+:py:class:`pake.FileHelper` contains several useful filesystem manipulation
 methods that are common in software builds.  Operations include creating full
 directory trees, glob removal of files and directories, file touch etc..
 
