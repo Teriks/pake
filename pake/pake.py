@@ -254,6 +254,61 @@ class TaskContext:
 
         pake.subpake(*args, stdout=self._io, silent=silent, exit_on_error=False)
 
+    def check_call(*args, stdin=None, shell=False, ignore_errors=False):
+        """
+        Return the return code of an executed system command.
+        
+        :raises: :py:class:`pake.SubprocessException` if **ignore_errors** is False
+                 and the process exits with a non zero return code.
+        
+        :param args: Command arguments, same syntax as :py:meth:`pake.TaskContext.call`
+        :param stdin: Optional stdin to pipe into the called process.
+        :param shell: Whether to execute in shell mode or not.
+        :param ignore_errors: Whether to ignore non zero return codes and return the return code anyway.
+        :return: Integer return code.
+        """
+
+        args = pake.util.handle_shell_args(args)
+
+        try:
+            return subprocess.check_call(args, stdin=stdin, shell=shell)
+        except subprocess.CalledProcessError as err:
+            if ignore_errors:
+                return err.returncode
+            raise pake.process.SubprocessException(cmd=args,
+                                                   returncode=err.returncode,
+                                                   output=err.output,
+                                                   message='An error occurred while executing a system '
+                                                           'command inside a pake task.')
+
+    @staticmethod
+    def check_output(*args, stdin=None, shell=False, ignore_errors=False):
+        """
+        Return the output of a system command as a bytes object.
+        
+        :raises: :py:class:`pake.SubprocessException` if **ignore_errors** is False
+                 and the process exits with a non zero return code.
+        
+        :param args: Command arguments, same syntax as :py:meth:`pake.TaskContext.call`
+        :param stdin: Optional stdin to pipe into the called process.
+        :param shell: Whether to execute in shell mode or not.
+        :param ignore_errors: Whether to ignore non zero return codes and return the output anyway.
+        :return: Bytes object (program output data)
+        """
+
+        args = pake.util.handle_shell_args(args)
+
+        try:
+            return subprocess.check_output(args, shell=shell, stdin=stdin)
+        except subprocess.CalledProcessError as err:
+            if ignore_errors:
+                return err.output
+            raise pake.process.SubprocessException(cmd=args,
+                                                   returncode=err.returncode,
+                                                   output=err.output,
+                                                   message='An error occurred while executing a system '
+                                                           'command inside a pake task.')
+
     def call(self, *args, stdin=None, shell=False, ignore_errors=False, silent=False, print_cmd=True):
         """Calls a sub process, all output is written to the task IO file stream.
         
