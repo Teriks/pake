@@ -87,11 +87,6 @@ File Removal / Clean Related Methods:
        fh.glob_remove_files('obj/*.o')
 
 
-       # Glob delete all files under the 'bin' directory
-
-       fh.glob_remove_files('bin/*')
-
-
        # Delete all sub directories of 'stuff'
 
        fh.glob_remove_dirs('stuff/*')
