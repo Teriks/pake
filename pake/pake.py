@@ -272,7 +272,8 @@ class TaskContext:
         args = pake.util.handle_shell_args(args)
 
         try:
-            return subprocess.check_call(args, stdin=stdin, shell=shell)
+            return subprocess.check_call(args, stdin=stdin, shell=shell,
+                                         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as err:
             if ignore_errors:
                 return err.returncode
@@ -287,6 +288,8 @@ class TaskContext:
         """
         Return the output of a system command as a bytes object.
         
+        Output will include stdout and stderr.
+        
         :raises: :py:class:`pake.SubprocessException` if **ignore_errors** is False
                  and the process exits with a non zero return code.
         
@@ -300,7 +303,7 @@ class TaskContext:
         args = pake.util.handle_shell_args(args)
 
         try:
-            return subprocess.check_output(args, shell=shell, stdin=stdin)
+            return subprocess.check_output(args, shell=shell, stdin=stdin, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as err:
             if ignore_errors:
                 return err.output
