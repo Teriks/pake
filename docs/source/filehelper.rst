@@ -7,8 +7,8 @@ directory trees, glob removal of files and directories, file touch etc..
 
 The :py:class:`pake.FileHelper` class takes a single optional argument named **task_ctx**.
 
-If you pass it the :py:class:`pake.TaskContext` from your tasks single argument, it will
-print information about file system operations as they are being performed.
+If you pass it a :py:class:`pake.TaskContext` instance from your tasks single argument, it will
+print information about file system operations to the tasks IO queue as they are being performed.
 
 Each method can turn off this printing by using a **silent** option argument that is common
 to all class methods.
