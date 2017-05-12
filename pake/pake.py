@@ -261,6 +261,9 @@ class TaskContext:
         
         :raises: :py:class:`pake.SubprocessException` if **ignore_errors** is False
                  and the process exits with a non zero return code.
+                 
+        :raises: :py:class:`OSError` (commonly) if a the executed command or file does not exist.
+                 This exception will still be raised even if **ignore_errors** is **True**.
         
         :param args: Command arguments, same syntax as :py:meth:`pake.TaskContext.call`
         :param stdin: Optional stdin to pipe into the called process.
@@ -292,6 +295,9 @@ class TaskContext:
         
         :raises: :py:class:`pake.SubprocessException` if **ignore_errors** is False
                  and the process exits with a non zero return code.
+
+        :raises: :py:class:`OSError` (commonly) if a the executed command or file does not exist.
+                 This exception will still be raised even if **ignore_errors** is **True**.
         
         :param args: Command arguments, same syntax as :py:meth:`pake.TaskContext.call`
         :param stdin: Optional stdin to pipe into the called process.
@@ -349,6 +355,9 @@ class TaskContext:
         :param print_cmd: Whether or not to print the executed command line to the tasks output.
         
         :raises: :py:class:`pake.SubprocessException` if *ignore_errors* is *False* and the process exits with a non 0 exit code.
+        
+        :raises: :py:class:`OSError` (commonly) if a the executed command or file does not exist.
+         This exception will still be raised even if **ignore_errors** is **True**.
         """
         args = pake.util.handle_shell_args(args)
 
