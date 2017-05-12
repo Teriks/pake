@@ -99,6 +99,10 @@ Examples:
 
 .. code-block:: python
 
+    # 'which' is a unix command that returns the full path of a command's binary.
+    # The exit code is non zero if the command given does not exist.  So
+    # it will be easy enough to use for this example.
+
     @pk.task
     def my_task(ctx):
         # Print the full path of the default C compiler on linux
@@ -111,6 +115,15 @@ Examples:
                             ignore_errors=True).decode().strip() != '':
 
             ctx.print('some_command exists')
+
+        # Using an exception handler
+
+        try:
+            path = ctx.check_output(['which', 'gcc']).decode()
+            ctx.print('gcc exists!, path:', path)
+        except pake.SubprocessException:
+            pass
+
 
 
 TaskContext.check_call
@@ -133,6 +146,8 @@ Examples:
 
 .. code-block:: python
 
+    # using the 'which' command here again for this example...
+
     @pk.task
     def my_task(ctx):
 
@@ -142,4 +157,12 @@ Examples:
                            ignore_errors=True) == 0:
 
             ctx.print('some_command exists')
+
+        # Using an exception handler
+
+        try:
+            ctx.check_call(['which', 'gcc'])
+            ctx.print('gcc exists!')
+        except pake.SubprocessException:
+            pass
 
