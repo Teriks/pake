@@ -47,6 +47,7 @@ Guides / Help
    Running Pake <runningpake>
    Writing Basic Tasks <basictasks>
    Parallelism Inside Tasks <multitasking>
+   Manipulating Files / Dirs With FileHelper <filehelper>
    Running Commands / Subprocess's <subprocess>
    Running Sub Pakefiles <subpake>
 
