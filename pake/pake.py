@@ -264,6 +264,8 @@ class TaskContext:
                  
         :raises: :py:class:`OSError` (commonly) if a the executed command or file does not exist.
                  This exception will still be raised even if **ignore_errors** is **True**.
+                 
+        :raises: :py:class:`ValueError` if no command + optional arguments are provided.
         
         :param args: Command arguments, same syntax as :py:meth:`pake.TaskContext.call`
         :param stdin: Optional stdin to pipe into the called process.
@@ -273,6 +275,10 @@ class TaskContext:
         """
 
         args = pake.util.handle_shell_args(args)
+
+        if len(args) < 1:
+            raise ValueError('Not enough arguments provided.  '
+                             'Must provide at least one argument, IE. the command.')
 
         try:
             return subprocess.check_call(args, stdin=stdin, shell=shell,
@@ -298,6 +304,8 @@ class TaskContext:
 
         :raises: :py:class:`OSError` (commonly) if a the executed command or file does not exist.
                  This exception will still be raised even if **ignore_errors** is **True**.
+                 
+        :raises: :py:class:`ValueError` if no command + optional arguments are provided.
         
         :param args: Command arguments, same syntax as :py:meth:`pake.TaskContext.call`
         :param stdin: Optional stdin to pipe into the called process.
@@ -307,6 +315,10 @@ class TaskContext:
         """
 
         args = pake.util.handle_shell_args(args)
+
+        if len(args) < 1:
+            raise ValueError('Not enough arguments provided.  '
+                             'Must provide at least one argument, IE. the command.')
 
         try:
             return subprocess.check_output(args, shell=shell, stdin=stdin, stderr=subprocess.STDOUT)
@@ -358,8 +370,14 @@ class TaskContext:
         
         :raises: :py:class:`OSError` (commonly) if a the executed command or file does not exist.
          This exception will still be raised even if **ignore_errors** is **True**.
+         
+        :raises: :py:class:`ValueError` if no command + optional arguments are provided.
         """
         args = pake.util.handle_shell_args(args)
+
+        if len(args) < 1:
+            raise ValueError('Not enough arguments provided.  '
+                             'Must provide at least one argument, IE. the command.')
 
         self._io.flush()
 
