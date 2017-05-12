@@ -69,12 +69,14 @@ class FileHelper:
             return None
         return self._task_ctx
 
-    def makedirs(self, path, silent=False, exist_ok=True):
+    def makedirs(self, path, mode=0o777, silent=False, exist_ok=True):
         """Create a directory tree if it does not exist, if the directory tree exists already this function does nothing.
 
         This uses :py:meth:`os.makedirs`.
 
         :param path: The directory path/tree.
+        
+        :param mode: The permissions umask to use for the directories.
 
         :param silent: If True, don't print information to the tasks output.
 
@@ -88,7 +90,7 @@ class FileHelper:
             self._task_ctx.print('Created Directory(s): "{}"'.format(path))
 
         try:
-            os.makedirs(path)
+            os.makedirs(path, mode=mode)
         except OSError as exception:
             if not exist_ok and exception.args[0] != errno.EEXIST:
                 raise
@@ -103,7 +105,7 @@ class FileHelper:
         :raises FileExistsError: Raised if exist_ok is False and the file already exists.
 
         :param file_name: The file name.
-        :param mode: The umask.
+        :param mode: The permissions umask.
         :param exist_ok: whether or not it is okay for the file to exist already.
         :param silent: If True, don't print information to the tasks output.
         """
