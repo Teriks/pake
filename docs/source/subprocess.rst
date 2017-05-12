@@ -94,6 +94,9 @@ without having to handle an exception to get the output.
 :py:meth:`pake.TaskContext.check_output` returns a **bytes** object, which means you need
 to call **decode** on it if you want the output as a string.
 
+
+Examples:
+
 .. code-block:: python
 
     @pk.task
@@ -125,6 +128,8 @@ In addition if an exception is thrown, pake will be able to print comprehensible
 about the location of the exception to the task IO queue same as the other functions dealing
 with processes in the task context;  Without printing a huge stack trace.
 
+
+Examples:
 
 .. code-block:: python
 
