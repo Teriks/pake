@@ -41,8 +41,10 @@ Examples:
         ctx.call('echo "goodbye!"')
 
         # Try some command and ignore any errors (non zero return codes)
+        # Otherwise, 'call' raises a 'pake.SubprocessException' on non zero
+        # return codes.
 
-        ctx.call(['do_something'], ignore_errors=True)
+        ctx.call(['do_something_bad'], ignore_errors=True)
 
 
     # A realistic example for compiling objects from C
