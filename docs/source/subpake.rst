@@ -1,5 +1,5 @@
-Running Sub Pakefiles / Scripts
-===============================
+Running Sub Pakefiles
+=====================
 
 Pake is able to run itself through the use of :py:meth:`pake.TaskContext.subpake`
 or even :py:meth:`pake.subpake`.

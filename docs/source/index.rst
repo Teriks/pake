@@ -48,7 +48,7 @@ Guides / Help
    Writing Basic Tasks <basictasks>
    Parallelism Inside Tasks <multitasking>
    Running Commands / Subprocess's <subprocess>
-   Running Sub Pakefiles / Scripts <subpake>
+   Running Sub Pakefiles <subpake>
 
 
 Module Index
