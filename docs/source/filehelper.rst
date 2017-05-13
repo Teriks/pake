@@ -38,7 +38,7 @@ File / Folder Creation Methods
 
 Output:
 
-.. code-block:: none
+.. code-block:: bash
 
    ===== Executing Task: "my_build"
    Created Directory(s): "dist/bin"
@@ -91,7 +91,7 @@ Copy / Move Methods
 
 Output:
 
-.. code-block:: none
+.. code-block:: bash
 
    ===== Executing Task: "my_build"
    Copied Tree: "bin" -> "dist/bin"
@@ -137,7 +137,7 @@ Removal / Clean Related Methods
 
 Output:
 
-.. code-block:: none
+.. code-block:: bash
 
    ===== Executing Task: "my_clean"
    Glob Removed Files: "obj/*.o"
