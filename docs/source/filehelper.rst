@@ -45,8 +45,8 @@ Output:
    Touched File: "somefile.txt"
 
 
-File Copy / Move Methods:
--------------------------
+Copy / Move Methods
+-------------------
 
 .. code-block:: python
 
@@ -57,10 +57,18 @@ File Copy / Move Methods:
        fh = pake.FileHelper(ctx)
 
        # Recursively copy and entire directory tree.
-       # In this case, 'bin' will be copied as a subfolder
-       # into 'dist'.
+       # In this case, 'bin' will be copied into 'dist'
+       # as a subfolder.
 
        fh.copytree('bin', 'dist/bin')
+
+
+       # Recursively move an entire directory tree
+       # and it's contents.  In this case, 'lib' will
+       # be moved into 'dist' as a subfolder.
+
+       fh.move('lib', 'dist/lib')
+
 
        # Copy a file to a directory without
        # renaming it.
@@ -87,14 +95,15 @@ Output:
 
    ===== Executing Task: "my_build"
    Copied Tree: "bin" -> "dist/bin"
+   Moved File: "lib" -> "dist/lib"
    Copied File: "LICENCE.txt" -> "dist"
    Copied File: "LICENCE.txt" -> "dist/licence.txt"
    Moved File: "README.txt" -> "dist"
    Moved File: "README.rtf" -> "dist/readme.rtf"
 
 
-File Removal / Clean Related Methods
-------------------------------------
+Removal / Clean Related Methods
+-------------------------------
 
 .. code-block:: python
 
