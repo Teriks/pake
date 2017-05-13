@@ -95,7 +95,7 @@ Output:
 
    ===== Executing Task: "my_build"
    Copied Tree: "bin" -> "dist/bin"
-   Moved File: "lib" -> "dist/lib"
+   Moved Tree: "lib" -> "dist/lib"
    Copied File: "LICENCE.txt" -> "dist"
    Copied File: "LICENCE.txt" -> "dist/licence.txt"
    Moved File: "README.txt" -> "dist"

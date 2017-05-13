@@ -208,8 +208,11 @@ class FileHelper:
         """
 
         if not silent and self._task_ctx is not None:
-            self._task_ctx.print('Moved File: "{}" -> "{}"'
-                                 .format(src, dest))
+            moved_what = 'Tree' if os.path.isdir(src) else 'File'
+
+            self._task_ctx.print('Moved {}: "{}" -> "{}"'
+                                 .format(moved_what, src, dest))
+
         shutil.move(src, dest, copy_function=copy_function)
 
     def copy(self, src, dest, copy_metadata=False, silent=False):
