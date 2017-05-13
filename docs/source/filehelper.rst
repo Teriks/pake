@@ -17,7 +17,8 @@ If you construct :py:class:`pake.FileHelper` without an argument, all operations
 silently.
 
 
-File / Folder Creation Methods:
+File / Folder Creation Methods
+------------------------------
 
 .. code-block:: python
 
@@ -45,6 +46,7 @@ Output:
 
 
 File Copy / Move Methods:
+-------------------------
 
 .. code-block:: python
 
@@ -54,7 +56,7 @@ File Copy / Move Methods:
 
        fh = pake.FileHelper(ctx)
 
-       # Recursively copy and entire directory tree
+       # Recursively copy and entire directory tree.
        # In this case, 'bin' will be copied as a subfolder
        # into 'dist'.
 
@@ -91,7 +93,8 @@ Output:
    Moved File: "README.rtf" -> "dist/readme.rtf"
 
 
-File Removal / Clean Related Methods:
+File Removal / Clean Related Methods
+------------------------------------
 
 .. code-block:: python
 
