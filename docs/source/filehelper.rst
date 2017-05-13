@@ -35,6 +35,14 @@ File / Folder Creation Methods:
 
        fh.touch('somefile.txt')
 
+Output:
+
+.. code-block:: none
+
+   ===== Executing Task: "my_build"
+   Created Directory(s): "dist/bin"
+   Touched File: "somefile.txt"
+
 
 File Copy / Move Methods:
 
@@ -50,7 +58,7 @@ File Copy / Move Methods:
        # In this case, 'bin' will be copied as a subfolder
        # into 'dist'.
 
-       fh.copytree('bin', 'dist')
+       fh.copytree('bin', 'dist/bin')
 
        # Copy a file to a directory without
        # renaming it.
@@ -65,11 +73,22 @@ File Copy / Move Methods:
        # Move a file to a directory without
        # renaming it.
 
-       fh.move('LICENCE.txt', 'dist')
+       fh.move('README.txt', 'dist')
 
        # Move with rename
 
-       fh.move('LICENCE.txt', 'dist/licence.txt')
+       fh.move('README.rtf', 'dist/readme.rtf')
+
+Output:
+
+.. code-block:: none
+
+   ===== Executing Task: "my_build"
+   Copied Tree: "bin" -> "dist/bin"
+   Copied File: "LICENCE.txt" -> "dist"
+   Copied File: "LICENCE.txt" -> "dist/licence.txt"
+   Moved File: "README.txt" -> "dist"
+   Moved File: "README.rtf" -> "dist/readme.rtf"
 
 
 File Removal / Clean Related Methods:
@@ -84,7 +103,7 @@ File Removal / Clean Related Methods:
 
        # Glob delete all files under the 'obj' directory
 
-       fh.glob_remove_files('obj/*.o')
+       fh.glob_remove('obj/*.o')
 
 
        # Delete all sub directories of 'stuff'
@@ -103,3 +122,13 @@ File Removal / Clean Related Methods:
        # exist.  Unless the must_exist argument is set to True
 
        fh.remove('main.exe')
+
+Output:
+
+.. code-block:: none
+
+   ===== Executing Task: "my_clean"
+   Glob Removed Files: "obj/*.o"
+   Glob Removed Directories: "stuff/*"
+   Removed Directory(s): "build_dir"
+   Removed File: "main.exe"
