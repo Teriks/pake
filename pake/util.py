@@ -49,7 +49,7 @@ def touch(file_name, mode=0o666, exist_ok=True):
 
     
     :param file_name: The file name.
-    :param mode: The mode (octal perms mask).
+    :param mode: The mode (octal perms mask) defaults to **0o666**.
     :param exist_ok: Whether or not it is okay for the file to exist when touched, if not a *FileExistsError* is thrown.
     :return: 
     """
