@@ -69,7 +69,11 @@ Examples:
     @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
     def compile_c(ctx):
         with ctx.multitask() as mt:
-            ctx.map(ctx.call, (['gcc', '-c', i, '-o', o] for i, o in ctx.outdated_pairs))
+
+            # Force enumeration over the returned generator by constructing a temporary list..
+            # the 'ctx.map' function yields 'Future' instances
+
+            list(ctx.map(ctx.call, (['gcc', '-c', i, '-o', o] for i, o in ctx.outdated_pairs)))
 
 
 TaskContext.check_output
