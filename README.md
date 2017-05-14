@@ -230,7 +230,7 @@ pake.export("CC_FLAGS", ['-Wextra', '-Wall'])
 
 # Nesting works with composite literals,
 # as long as everything is a pure literal or something
-# that str()'s or repr()'s into a literal.
+# that str()'s  into a literal.
 
 pake.export("STUFF",
             ['you',
