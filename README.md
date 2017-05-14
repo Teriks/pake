@@ -163,7 +163,7 @@ gcc -o bin/baz main.c foo/foo.o bar/bar.o
 
 Work can be submitted to the threadpool pake is running
 it's tasks on in order to achieve a predictable level
-of parallism that is limited by the **--jobs** command line
+of parallelism that is limited by the **--jobs** command line
 argument or the *jobs* parameter of **pake.Pake.run**.
 
 
