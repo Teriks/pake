@@ -16,7 +16,7 @@ Note: pake is Alpha and likely to change some.
 
 
 ```
-sudo pip3 install git+git://github.com/Teriks/pake.git@0.5.0.2a1
+sudo pip3 install git+git://github.com/Teriks/pake.git@0.5.0.3a1
 ```
 
 
