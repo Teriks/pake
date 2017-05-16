@@ -782,6 +782,8 @@ class Pake:
         else:
             self._run_count += 1
 
+
+
     @staticmethod
     def _change_detect(task_name, i, o):
         len_i = len(i)
@@ -797,61 +799,73 @@ class Pake:
             return [], []
 
         if len_o > 1:
-            if len_i == 0:
-                for op in o:
-                    if not path.isfile(op):
-                        outdated_outputs.append(op)
-
-            elif len_o != len_i:
-                output_set = set()
-                input_set = set()
-
-                for ip in i:
-                    if not path.isfile(ip):
-                        raise InputFileNotFoundException(task_name, ip)
-                    for op in o:
-                        if not path.isfile(op) or path.getmtime(op) < path.getmtime(ip):
-                            input_set.add(ip)
-                            output_set.add(op)
-
-                outdated_inputs += input_set
-                outdated_outputs += output_set
-
-            else:
-                for iopair in zip(i, o):
-                    ip, op = iopair[0], iopair[1]
-
-                    if not path.isfile(ip):
-                        raise InputFileNotFoundException(task_name, ip)
-                    if not path.isfile(op) or path.getmtime(op) < path.getmtime(ip):
-                        outdated_inputs.append(ip)
-                        outdated_outputs.append(op)
+            Pake._change_detect_multiple_outputs(task_name, i, o,
+                                                 outdated_inputs,
+                                                 outdated_outputs)
 
         else:
-            op = o[0]
-            if not path.isfile(op):
+            Pake._change_detect_single_output(task_name, i, o,
+                                              outdated_inputs,
+                                              outdated_outputs)
 
-                for ip in i:
-                    if not path.isfile(ip):
-                        raise InputFileNotFoundException(task_name, ip)
+        return outdated_inputs, outdated_outputs
 
-                outdated_outputs.append(op)
-                outdated_inputs += i
+    @staticmethod
+    def _change_detect_single_output(task_name, i, o, outdated_inputs, outdated_outputs):
+        op_f = o[0]
 
-                return outdated_inputs, outdated_outputs
+        if not path.isfile(op_f):
+            for ip_f in i:
+                if not path.isfile(ip_f):
+                    raise InputFileNotFoundException(task_name, ip_f)
 
+            outdated_outputs.append(op_f)
+            outdated_inputs += i
+        else:
             outdated_output = None
-            for ip in i:
-                if not path.isfile(ip):
-                    raise InputFileNotFoundException(task_name, ip)
-                if path.getmtime(op) < path.getmtime(ip):
-                    outdated_inputs.append(ip)
-                    outdated_output = op
+            for ip_f in i:
+                if not path.isfile(ip_f):
+                    raise InputFileNotFoundException(task_name, ip_f)
+                if path.getmtime(op_f) < path.getmtime(ip_f):
+                    outdated_inputs.append(ip_f)
+                    outdated_output = op_f
 
             if outdated_output:
                 outdated_outputs.append(outdated_output)
+        return outdated_inputs
 
-        return outdated_inputs, outdated_outputs
+    @staticmethod
+    def _change_detect_multiple_outputs(task_name, i, o, outdated_inputs, outdated_outputs):
+        len_i = len(i)
+        len_o = len(o)
+
+        if len_i == 0:
+            for op_f in o:
+                if not path.isfile(op_f):
+                    outdated_outputs.append(op_f)
+
+        elif len_o != len_i:
+            output_set = set()
+            input_set = set()
+
+            for ip_f in i:
+                if not path.isfile(ip_f):
+                    raise InputFileNotFoundException(task_name, ip_f)
+                for op_f in o:
+                    if not path.isfile(op_f) or path.getmtime(op_f) < path.getmtime(ip_f):
+                        input_set.add(ip_f)
+                        output_set.add(op_f)
+
+            outdated_inputs += input_set
+            outdated_outputs += output_set
+
+        else:
+            for ip_f, op_f in zip(i, o):
+                if not path.isfile(ip_f):
+                    raise InputFileNotFoundException(task_name, ip_f)
+                if not path.isfile(op_f) or path.getmtime(op_f) < path.getmtime(ip_f):
+                    outdated_inputs.append(ip_f)
+                    outdated_outputs.append(op_f)
 
     def task(self, *args, i=None, o=None):
         """
