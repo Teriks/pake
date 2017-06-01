@@ -1,3 +1,6 @@
+Adding Tasks Programmatically
+=============================
+
 Pake tasks may be programmatically added using the :py:meth:`pake.Pake.add_task` method of the pake instance.
 
 When adding tasks programmatically, you may specify a callable class instance or a function as your task entry point.
