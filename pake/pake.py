@@ -1080,6 +1080,10 @@ class Pake:
            pk.get_task_name(different_name) # -> "my_task2"
         
         :param task: Task name string, or registered task callable.
+        
+        :raises: :py:class:`pake.UndefinedTaskException` if the task function/callable is not registered to the pake context.
+        :raises: :py:class:`ValueError` if the **task** parameter is not a string or a callable function/object.
+        
         :return: Task name string
         """
         if type(task) is str:
