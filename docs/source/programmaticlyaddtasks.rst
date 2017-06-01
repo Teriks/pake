@@ -31,7 +31,7 @@ Basic C to Object Compilation Task Example:
 Callable Class Example:
 
 
-.. code-block::python
+.. code-block:: python
 
    import pake
 
