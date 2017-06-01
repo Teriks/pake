@@ -659,7 +659,13 @@ class Pake:
         """
 
         self._graph = TaskGraph("_", lambda: None)
+
+        # maps task name to TaskContext
         self._task_contexts = dict()
+
+        # maps task functions to their task name
+        self._task_func_names = dict()
+
         self._defines = dict()
         self._dry_run_mode = False
         self._threadpool = None
@@ -832,7 +838,6 @@ class Pake:
 
             if outdated_output:
                 outdated_outputs.append(outdated_output)
-        return outdated_inputs
 
     @staticmethod
     def _change_detect_multiple_outputs(task_name, i, o, outdated_inputs, outdated_outputs):
@@ -1036,7 +1041,7 @@ class Pake:
         if len(args) == 1 and inspect.isfunction(args[0]):
             if args[0].__name__ not in self._task_contexts:
                 func = args[0]
-                self._add_task(func.__name__, func)
+                self.add_task(func.__name__, func)
                 return func
 
         if len(args) > 1 and pake.util.is_iterable_not_str(args[0]):
@@ -1045,10 +1050,20 @@ class Pake:
             dependencies = args
 
         def outer(task_func):
-            self._add_task(task_func.__name__, task_func, dependencies, i, o)
+            self.add_task(task_func.__name__, task_func, dependencies, i, o)
             return task_func
 
         return outer
+
+    def get_task_name(self, task):
+        if type(task) is str:
+            return task
+        elif callable(task):
+            name = self._task_func_names.get(task, None)
+            if name is None:
+                raise UndefinedTaskException(task.__name__)
+            return name
+        raise ValueError('Task was neither a string or callable.')
 
     def get_task_context(self, task):
         """
@@ -1059,7 +1074,7 @@ class Pake:
         :return: :py:class:`pake.TaskContext`
         """
 
-        task = pake.util.get_task_arg_name(task)
+        task = self.get_task_name(task)
 
         context = self._task_contexts.get(task, None)
         if context is None:
@@ -1085,7 +1100,7 @@ class Pake:
 
         return False
 
-    def _add_task(self, name, func, dependencies=None, inputs=None, outputs=None):
+    def add_task(self, name, func, dependencies=None, inputs=None, outputs=None):
         if name in self._task_contexts:
             raise RedefinedTaskException(name)
 
@@ -1102,9 +1117,9 @@ class Pake:
                 self._increment_run_count()
 
                 if self._dry_run_mode:
-                    ctx.print('Visited Task: "{}"'.format(func.__name__))
+                    ctx.print('Visited Task: "{}"'.format(ctx.name))
                 else:
-                    ctx.print('===== Executing Task: "{}"'.format(func.__name__))
+                    ctx.print('===== Executing Task: "{}"'.format(ctx.name))
                     return func(*args, **kwargs)
 
             except Exception as err:
@@ -1125,6 +1140,13 @@ class Pake:
             task_context = TaskContext(self, TaskGraph(name, func_wrapper))
 
         self._task_contexts[name] = task_context
+
+        # alias for the unwrapped function
+        self._task_func_names[func] = name
+
+        if func is not task_context.func:
+            # alias for the wrapped function (for internal usage)
+            self._task_func_names[task_context.func] = name
 
         if dependencies:
             for dependency in dependencies:

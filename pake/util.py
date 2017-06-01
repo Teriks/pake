@@ -33,7 +33,6 @@ __all__ = [
     'is_iterable_not_str',
     'str_is_float',
     'str_is_int',
-    'get_task_arg_name',
     'flatten_non_str',
     'handle_shell_args',
     'CallerDetail',
@@ -107,21 +106,6 @@ def str_is_int(s):
         return True
     except ValueError:
         return False
-
-
-def get_task_arg_name(val):
-    """Get the name of task reference that may be either a function or a
-    string referencing a function name.  Mostly for internal usage.
-    
-    If you pass a function, **fun.__name__** is returned.  Otherwise **str(val)** is returned.
-    
-    :param val: Argument value
-    :return: The name of the passed function object, or a stringified version of whatever object was passed in.
-    """
-    if inspect.isfunction(val):
-        return val.__name__
-    else:
-        return str(val)
 
 
 def flatten_non_str(iterable):

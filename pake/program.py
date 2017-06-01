@@ -220,7 +220,7 @@ def _list_tasks(pake_obj, default_tasks):
     if len(default_tasks):
         pake_obj.print('# Default Tasks' + os.linesep)
         for task in default_tasks:
-            pake_obj.print(pake.util.get_task_arg_name(task))
+            pake_obj.print(pake_obj.get_task_name(task))
         pake_obj.stdout.write(os.linesep)
         pake_obj.stdout.flush()
 
@@ -237,7 +237,7 @@ def _list_task_info(pake_obj, default_tasks):
     if len(default_tasks):
         pake_obj.print('# Default Tasks' + os.linesep)
         for task in default_tasks:
-            pake_obj.print(pake.util.get_task_arg_name(task))
+            pake_obj.print(pake_obj.get_task_name(task))
         pake_obj.stdout.write(os.linesep)
         pake_obj.stdout.flush()
 
