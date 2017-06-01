@@ -22,7 +22,9 @@ Basic C to Object Compilation Task Example:
 
    # The task name may differ from the function name.
 
-   pk.add_task('compile_c_to_objects', compile_c, inputs=pake.glob('src/*.c'), outputs=pake.pattern('obj/%.o'))
+   pk.add_task('compile_c_to_objects', compile_c,
+               inputs=pake.glob('src/*.c'),
+               outputs=pake.pattern('obj/%.o'))
 
    pake.run(pk, tasks='compile_c_to_objects')
 
