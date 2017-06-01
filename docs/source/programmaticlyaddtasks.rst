@@ -43,6 +43,8 @@ Callable Class Example:
    pk = pake.init()
 
    class MessagePrinter:
+       """Task documentation goes here."""
+
        def __init__(self, message):
            self._message = message
 
