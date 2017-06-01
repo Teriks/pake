@@ -22,6 +22,10 @@ class IntegrationTest(unittest.TestCase):
         fun(os.path.exists(os.path.join(script_dir, "stuffs_combined.o")))
         fun(os.path.exists(os.path.join(script_dir, "stuffs_four.o")))
         fun(os.path.exists(os.path.join(script_dir, "stuffs_three.o")))
+        fun(os.path.exists(os.path.join(script_dir, "toucher_class_file_1.o")))
+        fun(os.path.exists(os.path.join(script_dir, "toucher_class_file_2.o")))
+        fun(os.path.exists(os.path.join(script_dir, "toucher_class_file_3.o")))
+        fun(os.path.exists(os.path.join(script_dir, "toucher_func_file_4.o")))
         fun(os.path.exists(os.path.join(script_dir, os.path.join("subpake", "test.o"))))
 
         fun(os.path.exists(os.path.join(script_dir, "glob_and_pattern_test", "src_a", "a.o")))

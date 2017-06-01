@@ -134,9 +134,39 @@ def glob_and_pattern_test2(ctx):
         list(mt.map(file_helper.touch, ctx.outdated_outputs))
 
 
+class FileToucher:
+    def __init__(self, tag):
+        self._tag = tag
+
+    def __call__(self, ctx):
+        ctx.print('Toucher {}'.format(self._tag))
+
+        fp = pake.FileHelper(ctx)
+
+        for i in ctx.outputs:
+            fp.touch(i)
+
+
+toucher_instance_a = FileToucher('A')
+toucher_instance_b = FileToucher('B')
+
+pk.add_task('toucher_class_task_a', toucher_instance_a, outputs=['toucher_class_file_1.o', 'toucher_class_file_2.o'])
+pk.add_task('toucher_class_task_b', toucher_instance_b, dependencies=toucher_instance_a, outputs='toucher_class_file_3.o')
+
+
+def toucher_task_func(ctx):
+    fp = pake.FileHelper(ctx)
+
+    for i in ctx.outputs:
+        fp.touch(i)
+
+
+pk.add_task('toucher_func_task_c', toucher_task_func, dependencies='toucher_class_task_b', outputs=['toucher_func_file_4.o'])
+
+
 # Always runs, because there are no inputs or outputs to use for file change detection
 
-@pk.task(do_stuff, glob_and_pattern_test, glob_and_pattern_test2, o="main")
+@pk.task(do_stuff, glob_and_pattern_test, glob_and_pattern_test2, "toucher_func_task_c", o="main")
 def all(ctx):
     """Make all info test."""
 

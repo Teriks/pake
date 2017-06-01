@@ -788,8 +788,6 @@ class Pake:
         else:
             self._run_count += 1
 
-
-
     @staticmethod
     def _change_detect(task_name, i, o):
         len_i = len(i)
@@ -1129,6 +1127,71 @@ class Pake:
         return False
 
     def add_task(self, name, func, dependencies=None, inputs=None, outputs=None):
+        """
+        Method for programmatically registering pake tasks.
+        
+        
+        This method expects for the most part the same argument types as the :py:meth:`pake.Pake.task` decorator.
+        
+        
+        Example:
+        
+        .. code-block:: python
+           
+           # A contrived example using a callable class
+           
+           class FileToucher:
+               \"\"\"Task Documentation Here\"\"\"
+               
+               def __init__(self, tag):
+                   self._tag = tag
+               
+               def __call__(self, ctx):
+                   ctx.print('Toucher {}'.format(self._tag))
+                   
+                   fp = pake.FileHelper(ctx)
+                   
+                   for i in ctx.outputs:
+                       fp.touch(i)
+                   
+                   
+          task_instance_a = FileToucher('A')
+          task_instance_b = FileToucher('B')
+          
+          pk.add_task('task_a', task_instance_a, outputs=['file_1', 'file_2'])
+          
+          pk.add_task('task_b', task_instance_b, dependencies=task_instance_a, outputs='file_3')
+          
+          # Note: you can refer to dependencies by name (by string) as well as reference.
+          
+          # Equivalent calls:
+          
+          # pk.add_task('task_b', task_instance_b, dependencies='task_a', outputs='file_3')
+          # pk.add_task('task_b', task_instance_b, dependencies=['task_a'], outputs='file_3')
+          # pk.add_task('task_b', task_instance_b, dependencies=[task_instance_a], outputs='file_3')
+          
+          
+          # Example using a function
+          
+          def my_task_func_c(ctx):
+              ctx.print('my_task_func_c')
+              
+          pk.add_task('task_c', my_task_func_c, dependencies='task_b')
+          
+          pake.run(pk, tasks=my_task_func_c)
+          
+          # Or equivalently:
+          
+          # pake.run(pk, tasks='task_c')
+        
+        :param name: The name of the task
+        :param func: The task function (or callable class)
+        :param dependencies: List of dependent tasks or single task, by name or by reference
+        :param inputs: List of input files, or a single input
+        :param outputs: List of output files, or a single output
+        :return: The :py:class:`pake.TaskContext` for the new task.
+        """
+
         if name in self._task_contexts:
             raise RedefinedTaskException(name)
 
@@ -1177,8 +1240,13 @@ class Pake:
             self._task_func_names[task_context.func] = name
 
         if dependencies:
-            for dependency in dependencies:
-                dep_task = self.get_task_context(dependency)
+            if pake.util.is_iterable_not_str(dependencies):
+                for dependency in dependencies:
+                    dep_task = self.get_task_context(dependency)
+                    task_context.node.add_edge(dep_task.node)
+                    self._graph.remove_edge(dep_task.node)
+            else:
+                dep_task = self.get_task_context(dependencies)
                 task_context.node.add_edge(dep_task.node)
                 self._graph.remove_edge(dep_task.node)
 
