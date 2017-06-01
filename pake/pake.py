@@ -1187,8 +1187,8 @@ class Pake:
         :param name: The name of the task
         :param func: The task function (or callable class)
         :param dependencies: List of dependent tasks or single task, by name or by reference
-        :param inputs: List of input files, or a single input
-        :param outputs: List of output files, or a single output
+        :param inputs: List of input files, or a single input (accepts input file generators like :py:meth:`pake.glob`)
+        :param outputs: List of output files, or a single output (accepts output file generators like :py:meth:`pake.pattern`)
         :return: The :py:class:`pake.TaskContext` for the new task.
         """
 
