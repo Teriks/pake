@@ -1056,6 +1056,34 @@ class Pake:
         return outer
 
     def get_task_name(self, task):
+        """
+        Returns the name of a task by the task function or callable reference used to define it.
+        
+        The name of the task may be different than the name of the task function/callable when
+        :py:meth:`pake.Pake.add_task` is used to register the task.
+        
+        If a string is passed, the string is returned unmodified.
+        
+        Example:
+        
+        .. code-block:: python
+           
+           @pk.task
+           def my_task(ctx):
+               pass
+               
+           def different_name(ctx):
+               pass
+               
+           pk.add_task("my_task2", different_name)
+               
+           pk.get_task_name(my_task) # -> "my_task"
+           
+           pk.get_task_name(different_name) # -> "my_task2"
+        
+        :param task: Task name string, or registered task callable.
+        :return: Task name string
+        """
         if type(task) is str:
             return task
         elif callable(task):
@@ -1063,7 +1091,7 @@ class Pake:
             if name is None:
                 raise UndefinedTaskException(task.__name__)
             return name
-        raise ValueError('Task was neither a string or callable.')
+        raise ValueError('Task was neither a string task name reference or callable.')
 
     def get_task_context(self, task):
         """
