@@ -59,8 +59,7 @@ CC = pk.get_define("CC", "gcc")
 @pk.task(i="foo/foo.c", o="foo/foo.o")
 def foo(ctx):
     # Execute a program (gcc) and print its stdout/stderr to the tasks output.
-    ctx.call('{} -c "{}" -o "{}"'
-             .format(CC, ctx.inputs[0], ctx.outputs[0]))
+    ctx.call(CC, '-c', ctx.inputs, '-o', ctx.outputs)
 
 
 # Pake can handle file change detection with multiple inputs
@@ -82,7 +81,7 @@ def bar(ctx):
     # tuple objects in the form ("input", "output")
 
     for i, o in ctx.outdated_pairs:
-        ctx.call('{} -c "{}" -o "{}"'.format(CC, i, o))
+        ctx.call(CC, '-c', i, '-o', o)
 
 # This task depends on the foo and bar tasks, as
 # specified with the decorators leading parameters,
@@ -114,7 +113,7 @@ def baz(ctx):
     # ctx.dependency_outputs contains a list of all outputs that this
     # tasks immediate dependencies produce
     #
-    ctx.call([CC, "-o", ctx.outputs[0]] + ctx.inputs + ctx.dependency_outputs)
+    ctx.call(CC, '-o', ctx.outputs, ctx.inputs, ctx.dependency_outputs)
 
 
 @pk.task
@@ -174,7 +173,7 @@ import pake
 pk=pake.init()
 
 @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
-def build_c(ctx)
+def build_c(ctx):
 
     # Start multitasking
 
@@ -187,7 +186,7 @@ def build_c(ctx)
 
 @pk.task(build_c, i=pake.glob('obj/*.o'), o='main')
 def build(ctx):
-    ctx.call(['gcc'] + ctx.inputs + ['-o'] + ctx.outputs)
+    ctx.call('gcc', ctx.inputs, '-o', ctx.outputs)
 
 
 pake.run(pk, tasks=build)

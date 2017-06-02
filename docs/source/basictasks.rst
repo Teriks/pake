@@ -41,8 +41,7 @@ It is not an error to leave this argument undefined, but you will most likely be
     @pk.task(i="foo/foo.c", o="foo/foo.o")
     def foo(ctx):
         # Execute a program (gcc) and print its stdout/stderr to the tasks output.
-        ctx.call('{} -c "{}" -o "{}"'
-                 .format(CC, ctx.inputs[0], ctx.outputs[0]))
+        ctx.call(CC, '-c', ctx.inputs, '-o', ctx.outputs)
 
 
     # Pake can handle file change detection with multiple inputs
@@ -64,7 +63,7 @@ It is not an error to leave this argument undefined, but you will most likely be
         # tuple objects in the form ("input", "output")
 
         for i, o in ctx.outdated_pairs:
-            ctx.call('{} -c "{}" -o "{}"'.format(CC, i, o))
+            ctx.call(CC, '-c', i, '-o', o)
 
     # This task depends on the foo and bar tasks, as
     # specified with the decorators leading parameters,
@@ -96,7 +95,7 @@ It is not an error to leave this argument undefined, but you will most likely be
         # ctx.dependency_outputs contains a list of all outputs that this
         # tasks immediate dependencies produce
         #
-        ctx.call([CC, "-o", ctx.outputs[0]] + ctx.inputs + ctx.dependency_outputs)
+        ctx.call(CC, '-o', ctx.outputs, ctx.inputs, ctx.dependency_outputs)
 
 
     @pk.task

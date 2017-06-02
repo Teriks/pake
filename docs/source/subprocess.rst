@@ -36,6 +36,11 @@ Examples:
         ctx.call(['touch', ctx.outputs]) # We know there is only one output
 
 
+        # The above will also work when using varargs
+
+        ctx.call('touch', ctx.outputs)
+
+
         # Command line passed as a string
 
         ctx.call('echo "goodbye!"')
@@ -52,7 +57,7 @@ Examples:
     @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
     def compile_c(ctx):
         for i, o in ctx.outdated_pairs:
-            ctx.call(['gcc', '-c', i, '-o', o])
+            ctx.call('gcc', '-c', i, '-o', o)
 
 
     # And with multitasking, the simple way
@@ -113,7 +118,7 @@ Examples:
     def my_task(ctx):
         # Print the full path of the default C compiler on linux
 
-        ctx.print(ctx.check_output(['which', 'cc']).decode())
+        ctx.print(ctx.check_output('which', 'cc').decode())
 
         # Check if some command exists
 
@@ -125,7 +130,7 @@ Examples:
         # Using an exception handler
 
         try:
-            path = ctx.check_output(['which', 'gcc']).decode()
+            path = ctx.check_output('which', 'gcc').decode()
             ctx.print('gcc exists!, path:', path)
         except pake.SubprocessException:
             pass
@@ -167,7 +172,7 @@ Examples:
         # Using an exception handler
 
         try:
-            ctx.check_call(['which', 'gcc'])
+            ctx.check_call('which', 'gcc')
             ctx.print('gcc exists!')
         except pake.SubprocessException:
             pass
