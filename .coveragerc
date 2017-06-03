@@ -1,0 +1,6 @@
+# coverage run run_tests.py
+# coverage report
+
+[run]
+source = pake
+omit = pake/entry_points/*
