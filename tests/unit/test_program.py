@@ -50,19 +50,19 @@ class ProgramTest(unittest.TestCase):
 
         self.assertTrue(pake.is_init())
 
-        self.assertTrue(pake.get_subpake_depth() == 0)
+        self.assertEqual(pake.get_subpake_depth(), 0)
 
-        self.assertTrue(pake.get_max_jobs() == 1)
+        self.assertEqual(pake.get_max_jobs(), 1)
 
-        self.assertTrue(pk.task_count == 0)
+        self.assertEqual(pk.task_count, 0)
 
-        self.assertTrue(len(pk.task_contexts) == 0)
+        self.assertEqual(len(pk.task_contexts), 0)
 
         this_file = os.path.abspath(__file__)
 
-        self.assertTrue(pake.get_init_file() == this_file)
+        self.assertEqual(pake.get_init_file(), this_file)
 
-        self.assertTrue(pake.get_init_dir() == os.getcwd())
+        self.assertEqual(pake.get_init_dir(), os.getcwd())
 
         with self.assertRaises(ValueError):
             pake.program.run(None)
@@ -71,7 +71,7 @@ class ProgramTest(unittest.TestCase):
 
         pk = pake.init(args=['--jobs', '10'])
 
-        self.assertTrue(pake.get_max_jobs() == 10)
+        self.assertEqual(pake.get_max_jobs(), 10)
 
     def test_run(self):
 
@@ -91,13 +91,13 @@ class ProgramTest(unittest.TestCase):
             nonlocal run_count
             run_count += 1
 
-        self.assertTrue(pk.task_count == 2)
+        self.assertEqual(pk.task_count, 2)
 
         pake.run(pk, tasks=[task_one, 'task_two'])
 
-        self.assertTrue(pk.task_count == 2)
+        self.assertEqual(pk.task_count, 2)
 
-        self.assertTrue(pk.run_count == run_count)
+        self.assertEqual(pk.run_count, run_count)
 
         # ===========
 
@@ -112,35 +112,35 @@ class ProgramTest(unittest.TestCase):
                 pk = pake.init()
 
             # No tasks defined
-            self.assertTrue(pake.run(pk, call_exit=False) == 4)
+            self.assertEqual(pake.run(pk, call_exit=False), 4)
 
             @pk.task
             def task_one():
                 raise Exception()
 
             # No tasks specified
-            self.assertTrue(pake.run(pk, call_exit=False) == 5)
+            self.assertEqual(pake.run(pk, call_exit=False), 5)
 
             # Undefined task
-            self.assertTrue(pake.run(pk, tasks='undefined', call_exit=False) == 8)
+            self.assertEqual(pake.run(pk, tasks='undefined', call_exit=False), 8)
 
             if not dry_run:
                 # Exception in task
-                self.assertTrue(pake.run(pk, tasks='task_one', call_exit=False) == 10)
+                self.assertEqual(pake.run(pk, tasks='task_one', call_exit=False), 10)
 
             @pk.task(i='IDontExist.nope', o='nada')
             def task_two():
                 pass
 
             # Input file not found
-            self.assertTrue(pake.run(pk, tasks='task_two', call_exit=False) == 6)
+            self.assertEqual(pake.run(pk, tasks='task_two', call_exit=False), 6)
 
             @pk.task(i='IDontExist.nope')
             def task_three():
                 pass
 
             # Missing output file
-            self.assertTrue(pake.run(pk, tasks='task_three', call_exit=False) == 7)
+            self.assertEqual(pake.run(pk, tasks='task_three', call_exit=False), 7)
 
         test_run_helper()
         test_run_helper(True)
@@ -158,7 +158,7 @@ class ProgramTest(unittest.TestCase):
                 pass
 
             # Invalid argument combination
-            self.assertTrue(pake.run(pk, call_exit=False) == 3)
+            self.assertEqual(pake.run(pk, call_exit=False), 3)
 
         # No multitasking in dry run mode.
         assert_bad_args('--dry-run', '--jobs', '2')

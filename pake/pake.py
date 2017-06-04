@@ -163,19 +163,27 @@ class TaskContext:
     
     .. py:attribute:: inputs
     
-        All file inputs, or an empty list
+        All file inputs, or an empty list.  
+        
+        Note: Not available until the task runs.
         
     .. py:attribute:: outputs
     
-        All file outputs, or an empty list
+        All file outputs, or an empty list.
+        
+        Note: Not available until the task runs.
        
     .. py:attribute:: outdated_inputs
     
         All changed file inputs (or inputs who's corresponding output is missing), or an empty list.
         
+        Note: Not available until the task runs.
+        
     .. py:attribute:: oudated_outputs
     
         All out of date file outputs, or an empty list
+        
+        Note: Not available until the task runs.
     """
 
     def __init__(self, pake_instance, node):
@@ -223,6 +231,9 @@ class TaskContext:
               def build_c(ctx):
                   for i, o in ctx.outdated_pairs:
                       ctx.call(['gcc', '-c', i, '-o', o])
+                      
+                 
+           Note: Not available until the task runs.
 
         """
         return zip(self.outdated_inputs, self.outdated_outputs)
