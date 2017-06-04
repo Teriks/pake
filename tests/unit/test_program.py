@@ -144,3 +144,38 @@ class ProgramTest(unittest.TestCase):
 
         test_run_helper()
         test_run_helper(True)
+
+        # =====
+
+        # Test bad argument combinations, return code 3
+
+        def assert_bad_args(*args):
+            pake.program.shutdown()
+            pk = pake.init(args=list(args))
+
+            @pk.task
+            def dummy(ctx):
+                pass
+
+            # Invalid argument combination
+            self.assertTrue(pake.run(pk, call_exit=False) == 3)
+
+        # No multitasking in dry run mode.
+        assert_bad_args('--dry-run', '--jobs', '2')
+
+        # Cant run tasks when listing task info anyway.
+        assert_bad_args('--dry-run', '--show-tasks')
+        assert_bad_args('--dry-run', '--show-task-info')
+
+        # Cant do both at once.
+        assert_bad_args('--show-tasks', '--show-task-info')
+
+        # Cant specify jobs with --show-task*
+        assert_bad_args('--show-tasks', '--jobs', '2')
+        assert_bad_args('--show-task-info', '--jobs', '2')
+
+        # Cant show info and run a target.
+        assert_bad_args('--show-task-info', 'dummy')
+        assert_bad_args('--show-tasks', 'dummy')
+
+

@@ -2,5 +2,6 @@
 # coverage report
 
 [run]
+branch = True
 source = pake
 omit = pake/entry_points/*
