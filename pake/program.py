@@ -296,7 +296,7 @@ def run(pake_obj, tasks=None, call_exit=True):
     :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :param pake_obj: A :py:class:`pake.Pake` instance, usually created by :py:func:`pake.init`.
     :param tasks: A list of, or a single default task to run if no tasks are specified on the command line.
-    :param call_exit: Whether or not exit(return_code) should be called by this function on error.
+    :param call_exit: Whether or not **exit(return_code)** should be called by this function on error.
                       This defaults to **True**, when set to **False** the return code is instead returned
                       to the caller.
     """
