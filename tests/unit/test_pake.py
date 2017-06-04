@@ -39,10 +39,20 @@ class PakeTest(unittest.TestCase):
             self.assertListEqual(ctx.inputs, [in1])
             self.assertListEqual(ctx.outputs, [out1])
 
+            self.assertListEqual(ctx.outdated_inputs, [in1])
+            self.assertListEqual(ctx.outdated_outputs, [out1])
+
+            self.assertListEqual(list(ctx.outdated_pairs), [(in1, out1)])
+
         def other_task(ctx):
             nonlocal self
             self.assertListEqual(ctx.inputs, [in2])
             self.assertListEqual(ctx.outputs, [out2])
+
+            self.assertListEqual(ctx.outdated_inputs, [in2])
+            self.assertListEqual(ctx.outdated_outputs, [out2])
+
+            self.assertListEqual(list(ctx.outdated_pairs), [(in2, out2)])
 
         ctx = pk.add_task('task_two', other_task, inputs=in2, outputs=out2, dependencies=task_one)
 
@@ -58,6 +68,18 @@ class PakeTest(unittest.TestCase):
 
         self.assertEqual(pk.task_count, 2)
         self.assertEqual(len(pk.task_contexts), 2)
+
+        with self.assertRaises(pake.UndefinedTaskException):
+            pk.get_task_context('undefined')
+
+        with self.assertRaises(pake.UndefinedTaskException):
+            pk.get_task_name('undefined')
+
+        with self.assertRaises(pake.RedefinedTaskException):
+            pk.add_task('task_one', task_one)
+
+        with self.assertRaises(pake.RedefinedTaskException):
+            pk.add_task('task_two', other_task)
 
         self.assertEqual(pake.run(pk, tasks=['task_two'], call_exit=False), 0)
 

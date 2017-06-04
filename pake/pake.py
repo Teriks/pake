@@ -49,7 +49,7 @@ __all__ = ['pattern',
            'MissingOutputFilesException']
 
 
-class TaskException(Exception):
+class TaskException(Exception):  # pragma: no cover
     """
     Raised by :py:meth:`pake.Pake.run` and :py:meth:`pake.Pake.dry_run` if an exception is 
     encountered running/visiting a task.
@@ -69,7 +69,7 @@ class TaskException(Exception):
         return str(self.exception)
 
 
-class MissingOutputFilesException(Exception):
+class MissingOutputFilesException(Exception):  # pragma: no cover
     """
     Raised by :py:meth:`pake.Pake.run` and :py:meth:`pake.Pake.dry_run` if a task declares input files without
     specifying any output files.
@@ -81,7 +81,7 @@ class MissingOutputFilesException(Exception):
         )
 
 
-class InputFileNotFoundException(Exception):
+class InputFileNotFoundException(Exception):  # pragma: no cover
     """
     Raised by :py:meth:`pake.Pake.run` and :py:meth:`pake.Pake.dry_run` if a task with input files 
     declared cannot find an input file on disk.
@@ -1071,7 +1071,8 @@ class Pake:
         The name of the task may be different than the name of the task function/callable when
         :py:meth:`pake.Pake.add_task` is used to register the task.
         
-        If a string is passed, the string is returned unmodified.
+        If a string is passed it is returned unmodified as long as the task exists, otherwise
+        a :py:class:`pake.UndefinedTaskException` is raised.
         
         Example:
         
@@ -1098,7 +1099,11 @@ class Pake:
         :return: Task name string
         """
         if type(task) is str:
+            ctx = self._task_contexts.get(task, None)
+            if ctx is None:
+                raise UndefinedTaskException(task)
             return task
+
         elif callable(task):
             name = self._task_func_names.get(task, None)
             if name is None:
