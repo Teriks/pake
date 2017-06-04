@@ -33,7 +33,7 @@ __all__ = ['export', 'subpake']
 _exports = dict()
 
 
-def export(name, value):
+def export(name, value):  # pragma: no cover
     """
     Exports a define that can be retrieved in subpake scripts via :py:func:`~pake.Pake.get_define`.
     

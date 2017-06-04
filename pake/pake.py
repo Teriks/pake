@@ -1349,7 +1349,7 @@ class Pake:
         finally:
             self._dry_run_mode = False
 
-    def set_defines_dict(self, dictionary):
+    def set_defines_dict(self, dictionary):  # pragma: no cover
         """
         Set an overwrite all defines with a dictionary object.
         
@@ -1357,7 +1357,7 @@ class Pake:
         """
         self._defines = dict(dictionary)
 
-    def print(self, *args, **kwargs):
+    def print(self, *args, **kwargs):  # pragma: no cover
         """Shorthand for print(..., file=this_instance.stdout)"""
 
         kwargs.pop('file', None)
