@@ -13,20 +13,20 @@ import pake
 
 pk = pake.init()
 
-pake.export("TEST_EXPORT", "test\"test")
+pake.export('TEST_EXPORT', 'test"test')
 
-pake.export("TEST_EXPORT1", [1, "te\"st", [3, 4, 'test\'test']])
+pake.export('TEST_EXPORT1', [1, 'te"st', [3, 4, "test'test"]])
 
-pake.export("TEST_EXPORT2", {0: 1, 1: "te\"st", 2: [3, 4, 'test\'test']})
+pake.export('TEST_EXPORT2', {0: 1, 1: 'te"st', 2: [3, 4, "test'test"]})
 
-pake.export("TEST_EXPORT3", {1, "te\"st", 3, 4, 'test\'test'})
+pake.export('TEST_EXPORT3', {1, 'te"st', 3, 4, "test'test"})
 
-pake.export("TEST_EXPORT4", (1, "te\"st", [3, 4, 'test\'test']))
+pake.export('TEST_EXPORT4', (1, 'te"st', [3, 4, "test'test"]))
 
-pake.export("TEST_EXPORT5", "")
+pake.export('TEST_EXPORT5', '')
 
 
-@pk.task(i="do_stuff_first.c", o="do_stuff_first.o")
+@pk.task(i='test_data/do_stuff_first.c', o='test_data/do_stuff_first.o')
 def do_stuff_first(ctx):
     file_helper = pake.FileHelper(ctx)
 
@@ -34,7 +34,7 @@ def do_stuff_first(ctx):
     file_helper.copy(ctx.inputs[0], ctx.outputs[0])
 
 
-@pk.task(i="do_stuff_first_2.c", o="do_stuff_first_2.o")
+@pk.task(i='test_data/do_stuff_first_2.c', o='test_data/do_stuff_first_2.o')
 def do_stuff_first_2(ctx):
     file_helper = pake.FileHelper(ctx)
 
@@ -45,7 +45,7 @@ def do_stuff_first_2(ctx):
 # If there are an un-equal amount of inputs to outputs,
 # rebuild all inputs if any input is newer than any output, or if any output file is missing.
 
-@pk.task(i=["stuffs_one.c", "stuffs_two.c"], o="stuffs_combined.o")
+@pk.task(i=['test_data/stuffs_one.c', 'test_data/stuffs_two.c'], o='test_data/stuffs_combined.o')
 def do_multiple_stuffs(ctx):
     file_helper = pake.FileHelper(ctx)
 
@@ -61,7 +61,7 @@ def do_multiple_stuffs(ctx):
 # Rebuild the input on the left that corresponds to the output in the same position
 # on the right when that specific input is out of date, or it's output is missing.
 
-@pk.task(i=["stuffs_three.c", "stuffs_four.c"], o=["stuffs_three.o", "stuffs_four.o"])
+@pk.task(i=['test_data/stuffs_three.c', 'test_data/stuffs_four.c'], o=['test_data/stuffs_three.o', 'test_data/stuffs_four.o'])
 def do_multiple_stuffs_2(ctx):
     file_helper = pake.FileHelper(ctx)
     # Only out of date inputs/outputs will be in these collections
@@ -76,7 +76,7 @@ def do_multiple_stuffs_2(ctx):
 
 @pk.task(
     do_stuff_first, do_stuff_first_2, do_multiple_stuffs, do_multiple_stuffs_2,
-    i="do_stuff.c", o="do_stuff.o"
+    i='test_data/do_stuff.c', o='test_data/do_stuff.o'
 )
 def do_stuff(ctx):
     file_helper = pake.FileHelper(ctx)
@@ -87,11 +87,11 @@ def do_stuff(ctx):
 
     # Print the collective outputs of this ctxs immediate dependencies
 
-    ctx.print("Dependency outputs: " + str(ctx.dependency_outputs))
+    ctx.print('Dependency outputs: ' + str(ctx.dependency_outputs))
 
     # Run a pakefile.py script in a subdirectory, build 'all' task
 
-    ctx.subpake("subpake/pakefile.py", "all")
+    ctx.subpake('test_data/subpake/pakefile.py', 'all')
 
 
 # Basically a dummy task (if nothing actually depended on it)
@@ -113,20 +113,20 @@ def print_define(ctx):
     # Defines that are not given a value explicitly are given the value of 'True'
     # Defines that don't exist return 'None'
 
-    if pk["SOME_DEFINE"]:
-        ctx.print(pk["SOME_DEFINE"])
+    if pk['SOME_DEFINE']:
+        ctx.print(pk['SOME_DEFINE'])
 
-    ctx.print(pk.get_define("SOME_DEFINE2", "SOME_DEFINE2_DEFAULT"))
+    ctx.print(pk.get_define('SOME_DEFINE2', 'SOME_DEFINE2_DEFAULT'))
 
 
-@pk.task(i=pake.glob('glob_and_pattern_test/*.c'), o=pake.pattern('glob_and_pattern_test/%.o'))
+@pk.task(i=pake.glob('test_data/glob_and_pattern/*.c'), o=pake.pattern('test_data/glob_and_pattern/%.o'))
 def glob_and_pattern_test(ctx):
     file_helper = pake.FileHelper(ctx)
     for i, o in ctx.outdated_pairs:
         file_helper.touch(o)
 
 
-@pk.task(i=[pake.glob('glob_and_pattern_test/src_a/*.c'), pake.glob('glob_and_pattern_test/src_b/*.c')],
+@pk.task(i=[pake.glob('test_data/glob_and_pattern/src_a/*.c'), pake.glob('test_data/glob_and_pattern/src_b/*.c')],
          o=pake.pattern('{dir}/%.o'))
 def glob_and_pattern_test2(ctx):
     file_helper = pake.FileHelper(ctx)
@@ -150,8 +150,8 @@ class FileToucher:
 toucher_instance_a = FileToucher('A')
 toucher_instance_b = FileToucher('B')
 
-pk.add_task('toucher_class_task_a', toucher_instance_a, outputs=['toucher_class_file_1.o', 'toucher_class_file_2.o'])
-pk.add_task('toucher_class_task_b', toucher_instance_b, dependencies=toucher_instance_a, outputs='toucher_class_file_3.o')
+pk.add_task('toucher_class_task_a', toucher_instance_a, outputs=['test_data/toucher_class_file_1.o', 'test_data/toucher_class_file_2.o'])
+pk.add_task('toucher_class_task_b', toucher_instance_b, dependencies=toucher_instance_a, outputs='test_data/toucher_class_file_3.o')
 
 
 def toucher_task_func(ctx):
@@ -161,12 +161,12 @@ def toucher_task_func(ctx):
         fp.touch(i)
 
 
-pk.add_task('toucher_func_task_c', toucher_task_func, dependencies='toucher_class_task_b', outputs=['toucher_func_file_4.o'])
+pk.add_task('toucher_func_task_c', toucher_task_func, dependencies='toucher_class_task_b', outputs=['test_data/toucher_func_file_4.o'])
 
 
 # Always runs, because there are no inputs or outputs to use for file change detection
 
-@pk.task(do_stuff, glob_and_pattern_test, glob_and_pattern_test2, "toucher_func_task_c", o="main")
+@pk.task(do_stuff, glob_and_pattern_test, glob_and_pattern_test2, 'toucher_func_task_c', o='test_data/main')
 def all(ctx):
     """Make all info test."""
 
@@ -180,33 +180,33 @@ def all(ctx):
 def clean(ctx):
     file_helper = pake.FileHelper(ctx)
 
-    file_helper.glob_remove("glob_and_pattern_test/*.o")
-    file_helper.glob_remove("glob_and_pattern_test/src_a/*.o")
-    file_helper.glob_remove("glob_and_pattern_test/src_b/*.o")
+    file_helper.glob_remove('test_data/glob_and_pattern/*.o')
+    file_helper.glob_remove('test_data/glob_and_pattern/src_a/*.o')
+    file_helper.glob_remove('test_data/glob_and_pattern/src_b/*.o')
 
-    file_helper.glob_remove("*.o")
+    file_helper.glob_remove('test_data/*.o')
 
-    file_helper.remove("main")
+    file_helper.remove('test_data/main')
 
-    file_helper.rmtree("test")
-    file_helper.remove("test2")
+    file_helper.rmtree('test_data/test')
+    file_helper.remove('test_data/test2')
 
-    ctx.subpake("subpake/pakefile.py", "clean")
+    ctx.subpake('test_data/subpake/pakefile.py', 'clean')
 
 
 @pk.task
 def one(ctx):
-    ctx.print("ONE")
+    ctx.print('ONE')
 
 
 @pk.task
 def two(ctx):
-    ctx.print("TWO")
+    ctx.print('TWO')
 
 
 @pk.task
 def three(ctx):
-    ctx.print("THREE")
+    ctx.print('THREE')
 
 
 pake.run(pk, tasks=[one, two, three, print_define, all])

@@ -9,10 +9,6 @@ sys.path.insert(1,
                                  os.path.join('..', '..'))))
 
 import pake
-import pake.conf
-
-pake.conf.stdout = open(os.devnull, 'w')
-pake.conf.stderr = open(os.devnull, 'w')
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 

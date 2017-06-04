@@ -65,9 +65,9 @@ _arg_parser.add_argument('-ti', '--show-task-info', action='store_true', dest='s
 _parsed_args = None
 
 
-def parse_args():
+def parse_args(args=None):
     global _parsed_args
-    _parsed_args = _arg_parser.parse_args()
+    _parsed_args = _arg_parser.parse_args(args=args)
     return _parsed_args
 
 
@@ -81,3 +81,8 @@ def args_are_parsed():
 
 def get_args():
     return _parsed_args
+
+
+def clear_args():
+    global _parsed_args
+    _parsed_args = None

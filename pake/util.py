@@ -40,7 +40,7 @@ __all__ = [
 ]
 
 
-def touch(file_name, mode=0o666, exist_ok=True):
+def touch(file_name, mode=0o666, exist_ok=True):  # pragma: no cover
     """
     Create a file at this given path. 
     If mode is given, it is combined with the process’ umask value to determine the file mode and access flags.
@@ -167,7 +167,7 @@ class CallerDetail(namedtuple('CallerDetail', ['filename', 'function_name', 'lin
     pass
 
 
-def get_pakefile_caller_detail():
+def get_pakefile_caller_detail():  # pragma: no cover
     """Get the full pakefile path, called function name and function call line number of the first
     function call in the current call tree which exists inside of a pakefile.
        

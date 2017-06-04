@@ -25,7 +25,7 @@ from .util import get_pakefile_caller_detail
 __all__ = ['SubprocessException']
 
 
-class SubprocessException(Exception):
+class SubprocessException(Exception):  # pragma: no cover
     """
     Raised upon encountering a non-zero return code from a subprocess,
     when it is not specified that non-zero return codes should be ignored.
