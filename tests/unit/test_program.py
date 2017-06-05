@@ -80,6 +80,9 @@ class ProgramTest(unittest.TestCase):
 
         pk = pake.init()
 
+        # should still be parsed and the object available, even with no arguments passed
+        self.assertTrue(pake.arguments.args_are_parsed())
+
         run_count = 0
 
         @pk.task
@@ -163,6 +166,10 @@ class ProgramTest(unittest.TestCase):
 
         # No multitasking in dry run mode.
         assert_bad_args('--dry-run', '--jobs', '2')
+
+        with self.assertRaises(BaseException):
+            # calls exit(2) because --jobs < 1
+            assert_bad_args( '--jobs', '0')
 
         # Cant run tasks when listing task info anyway.
         assert_bad_args('--dry-run', '--show-tasks')

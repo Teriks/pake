@@ -217,7 +217,7 @@ def get_init_dir():
     return _init_dir
 
 
-def _format_task_info(max_name_width, task_name, task_doc):
+def _format_task_info(max_name_width, task_name, task_doc):  # pragma: no cover
     field_sep = ':  '
 
     lines = textwrap.wrap(task_doc)
@@ -233,7 +233,7 @@ def _format_task_info(max_name_width, task_name, task_doc):
     return spacing + task_name + field_sep + os.linesep.join(lines) + spacing
 
 
-def _list_tasks(pake_obj, default_tasks):
+def _list_tasks(pake_obj, default_tasks):  # pragma: no cover
     if len(default_tasks):
         pake_obj.print('# Default Tasks' + os.linesep)
         for task in default_tasks:
@@ -250,7 +250,7 @@ def _list_tasks(pake_obj, default_tasks):
         pake_obj.print('Not tasks present.')
 
 
-def _list_task_info(pake_obj, default_tasks):
+def _list_task_info(pake_obj, default_tasks):  # pragma: no cover
     if len(default_tasks):
         pake_obj.print('# Default Tasks' + os.linesep)
         for task in default_tasks:

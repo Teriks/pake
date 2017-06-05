@@ -26,6 +26,27 @@ class UtilTest(unittest.TestCase):
         def tester_func(*args):
             return pake.util.handle_shell_args(args)
 
+        class StringableArgument:
+            def __init__(self, data):
+                self.data = data
+
+            def __str__(self):
+                return self.data
+
+        val = tester_func(StringableArgument('this'),
+                          StringableArgument('is'),
+                          StringableArgument('an'),
+                          StringableArgument('example'))
+
+        self.assertListEqual(val, ['this', 'is', 'an', 'example'])
+
+        val = tester_func(StringableArgument('this is an example'))
+        # Stringable arguments are always interpreted as a single argument word
+        self.assertListEqual(val, ['this is an example'])
+
+        val = tester_func('this is an example')
+        self.assertListEqual(val, ['this', 'is', 'an', 'example'])
+
         val = tester_func(['this', ['is', ('an', ), 'example']])
         self.assertListEqual(val, ['this', 'is', 'an', 'example'])
 
@@ -52,6 +73,22 @@ class UtilTest(unittest.TestCase):
         self.assertFalse(pake.util.str_is_int(''))
 
         self.assertFalse(pake.util.str_is_int('test'))
+
+    def test_str_is_float(self):
+
+        self.assertTrue(pake.util.str_is_float('10'))
+
+        self.assertTrue(pake.util.str_is_float('10.0'))
+
+        self.assertTrue(pake.util.str_is_float('.0'))
+
+        self.assertTrue(pake.util.str_is_float('0.0'))
+
+        self.assertTrue(pake.util.str_is_float('0.'))
+
+        self.assertFalse(pake.util.str_is_float(''))
+
+        self.assertFalse(pake.util.str_is_float('test'))
 
     def test_is_iterable(self):
 

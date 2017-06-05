@@ -91,7 +91,7 @@ class Graph:
         for i in self.edges:
             if i not in visited:
                 yield from self._topological_sort(i, visited)
-            else:
+            else:  # pragma: no cover
                 raise CyclicGraphException(
                     'Cyclic graph detected, node: "{}" already seen.'.format(i)
                 )

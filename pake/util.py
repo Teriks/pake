@@ -142,13 +142,11 @@ def handle_shell_args(args):
 
     if len(args) == 1:
         if is_iterable_not_str(args[0]):
-            args = [str(i) for i in flatten_non_str(args[0])]
-        elif type(args[0]) is str:
-            args = shlex.split(args[0], posix=not os.name == 'nt')
-    else:
-        args = [str(i) for i in flatten_non_str(args)]
+            return [str(i) for i in flatten_non_str(args[0])]
+        if type(args[0]) is str:
+            return shlex.split(args[0], posix=not os.name == 'nt')
 
-    return args
+    return [str(i) for i in flatten_non_str(args)]
 
 
 class CallerDetail(namedtuple('CallerDetail', ['filename', 'function_name', 'line_number'])):

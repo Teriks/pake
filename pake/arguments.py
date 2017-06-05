@@ -71,7 +71,7 @@ def parse_args(args=None):
     return _parsed_args
 
 
-def get_parser():
+def get_parser():  # pragma: no cover
     return _arg_parser
 
 
