@@ -22,6 +22,19 @@ print("Import Export TEST 4 = " + str(pk["TEST_EXPORT4"]))
 print("Import Export TEST 5 = " + str(pk["TEST_EXPORT5"]))
 
 
+assert pk.get_define('TEST_EXPORT') == 'test"test'
+
+assert pk.get_define('TEST_EXPORT1') == [1, 'te"st', [3, 4, "test'test"]]
+
+assert pk.get_define('TEST_EXPORT2') == {0: 1, 1: 'te"st', 2: [3, 4, "test'test"]}
+
+assert pk.get_define('TEST_EXPORT3') == {1, 'te"st', 3, 4, "test'test"}
+
+assert pk.get_define('TEST_EXPORT4') == (1, 'te"st', [3, 4, "test'test"])
+
+assert pk.get_define('TEST_EXPORT5') == ''
+
+
 @pk.task(i="test.c", o="test.o")
 def all(ctx):
     file_helper = pake.FileHelper(ctx)

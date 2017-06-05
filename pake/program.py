@@ -25,7 +25,6 @@ import textwrap
 
 import os
 import pake
-import sys
 
 import pake.arguments
 import pake.conf
@@ -368,11 +367,11 @@ def run(pake_obj, tasks=None, call_exit=True):
               file=pake.conf.stderr)
         return m_exit(4)
 
-    if parsed_args.show_tasks:
+    if parsed_args.show_tasks:  # pragma: no cover
         _list_tasks(pake_obj, tasks)
         return 0
 
-    if parsed_args.show_task_info:
+    if parsed_args.show_task_info:  # pragma: no cover
         _list_task_info(pake_obj, tasks)
         return 0
 

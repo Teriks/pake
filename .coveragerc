@@ -4,4 +4,4 @@
 [run]
 branch = True
 source = pake
-omit = pake/entry_points/*
+omit = pake/entry_points/*, pake/__init__.py
