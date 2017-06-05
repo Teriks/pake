@@ -82,4 +82,4 @@ See: :py:mod:`pake.returncodes`
 6. A task declares input files but no output files.
 7. An undefined task was referenced.
 8. A cyclic dependency was detected.
-9. An error occurred inside of a task.
+9. An unhandled exception occurred inside of a task.
