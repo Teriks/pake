@@ -29,6 +29,7 @@ import pake
 import pake.arguments
 import pake.conf
 import pake.util
+import pake.returncodes as returncodes
 
 __all__ = [
     'PakeUninitializedException',
@@ -281,16 +282,18 @@ def run(pake_obj, tasks=None, call_exit=True):
     or :py:meth:`pake.Pake.dry_run` (if **call_exit** is **True**), and print information to :py:attr:`pake.Pake.stderr` if
     necessary.
     
-    Return Codes:
+    Possible Return Codes:
     
-    3. Invalid parameter combination.
-    4. No tasks defined.
-    5. No tasks specified.
-    6. Task input file not found.
-    7. Task defines input files with no output files.
-    8. Reference made to an undefined task.
-    9. Cyclic dependency detected.
-    10. Unhandled exception inside of task.
+    2. Invalid parameter combination.
+    3. No tasks defined.
+    4. No tasks specified.
+    5. Task input file not found.
+    6. Task defines input files with no output files.
+    7. Reference made to an undefined task.
+    8. Cyclic dependency detected.
+    9. Unhandled exception inside of task.
+    
+    See: :py:mod:`pake.returncodes`
     
     :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :param pake_obj: A :py:class:`pake.Pake` instance, usually created by :py:func:`pake.init`.
@@ -322,50 +325,50 @@ def run(pake_obj, tasks=None, call_exit=True):
     if parsed_args.show_tasks and parsed_args.show_task_info:
         print('-t/--show-tasks and -ti/--show-task-info cannot be used together.',
               file=pake.conf.stderr)
-        return m_exit(3)
+        return m_exit(returncodes.BAD_ARGUMENTS)
 
     if parsed_args.dry_run:
         if parsed_args.jobs:
             print("-n/--dry-run and -j/--jobs cannot be used together.",
                   file=pake.conf.stderr)
-            return m_exit(3)
+            return m_exit(returncodes.BAD_ARGUMENTS)
 
         if parsed_args.show_tasks:
             print("-n/--dry-run and the -t/--show-tasks option cannot be used together.",
                   file=pake.conf.stderr)
-            return m_exit(3)
+            return m_exit(returncodes.BAD_ARGUMENTS)
 
         if parsed_args.show_task_info:
             print("-n/--dry-run and the -ti/--show-task-info option cannot be used together.",
                   file=pake.conf.stderr)
-            return m_exit(3)
+            return m_exit(returncodes.BAD_ARGUMENTS)
 
     if parsed_args.tasks and len(parsed_args.tasks) > 0:
         if parsed_args.show_tasks:
             print("Run tasks may not be specified when using the -t/--show-tasks option.",
                   file=pake.conf.stderr)
-            return m_exit(3)
+            return m_exit(returncodes.BAD_ARGUMENTS)
 
         if parsed_args.show_task_info:
             print("Run tasks may not be specified when using the -ti/--show-task-info option.",
                   file=pake.conf.stderr)
-            return m_exit(3)
+            return m_exit(returncodes.BAD_ARGUMENTS)
 
     if parsed_args.jobs:
         if parsed_args.show_tasks:
             print('-t/--show-tasks and -j/--jobs cannot be used together.',
                   file=pake.conf.stderr)
-            return m_exit(3)
+            return m_exit(returncodes.BAD_ARGUMENTS)
 
         if parsed_args.show_task_info:
             print('-ti/--show-task-info and -j/--jobs cannot be used together.',
                   file=pake.conf.stderr)
-            return m_exit(3)
+            return m_exit(returncodes.BAD_ARGUMENTS)
 
     if pake_obj.task_count == 0:
         print('*** No Tasks.  Stop.',
               file=pake.conf.stderr)
-        return m_exit(4)
+        return m_exit(returncodes.NO_TASKS_DEFINED)
 
     if parsed_args.show_tasks:  # pragma: no cover
         _list_tasks(pake_obj, tasks)
@@ -382,7 +385,7 @@ def run(pake_obj, tasks=None, call_exit=True):
         run_tasks += tasks
     else:
         pake_obj.print("No tasks specified.")
-        return m_exit(5)
+        return m_exit(returncodes.NO_TASKS_SPECIFIED)
 
     if parsed_args.dry_run:
         try:
@@ -392,16 +395,16 @@ def run(pake_obj, tasks=None, call_exit=True):
             return 0
         except pake.InputFileNotFoundException as err:
             print(str(err), file=pake.conf.stderr)
-            return m_exit(6)
+            return m_exit(returncodes.TASK_INPUT_NOT_FOUND)
         except pake.MissingOutputFilesException as err:
             print(str(err), file=pake.conf.stderr)
-            return m_exit(7)
+            return m_exit(returncodes.TASK_OUTPUT_MISSING)
         except pake.UndefinedTaskException as err:
             print(str(err), file=pake.conf.stderr)
-            return m_exit(8)
+            return m_exit(returncodes.UNDEFINED_TASK)
         except pake.CyclicGraphException as err:
             print(str(err), file=pake.conf.stderr)
-            return m_exit(9)
+            return m_exit(returncodes.CYCLIC_DEPENDENCY)
 
     depth = get_subpake_depth()
 
@@ -428,19 +431,19 @@ def run(pake_obj, tasks=None, call_exit=True):
 
     except pake.InputFileNotFoundException as err:
         print(str(err), file=pake.conf.stderr)
-        return_code = 6
+        return_code = returncodes.TASK_INPUT_NOT_FOUND
     except pake.MissingOutputFilesException as err:
         print(str(err), file=pake.conf.stderr)
-        return_code = 7
+        return_code = returncodes.TASK_OUTPUT_MISSING
     except pake.UndefinedTaskException as err:
         print(str(err), file=pake.conf.stderr)
-        return_code = 8
+        return_code = returncodes.UNDEFINED_TASK
     except pake.CyclicGraphException as err:
         print(str(err), file=pake.conf.stderr)
-        return_code = 9
+        return_code = returncodes.CYCLIC_DEPENDENCY
     except pake.TaskException:
         # Information has already been printed to Pake.stderr
-        return_code = 10
+        return_code = returncodes.TASK_EXCEPTION
 
     if exit_dir:
         pake_obj.print('pake[{}]: Exiting Directory "{}"'.

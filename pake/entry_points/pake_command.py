@@ -25,6 +25,7 @@ import sys
 
 import pake.arguments
 import pake.conf
+import pake.returncodes as returncodes
 
 # Inherit pakes normal help output
 
@@ -74,7 +75,7 @@ def main(args=None):
             file = os.path.abspath("pakefile")
         else:
             print("No pakefile.py or pakefile was found in this directory.")
-            exit(1)
+            exit(returncodes.PAKEFILE_NOT_FOUND)
 
         os.chdir(os.path.dirname(file))
         exit(subprocess.call([sys.executable, file] + actual_args, stdout=pake.conf.stdout, stderr=pake.conf.stderr))

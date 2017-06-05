@@ -11,6 +11,7 @@ import pake
 import pake.program
 import pake.conf
 import pake.arguments
+import pake.returncodes as returncodes
 
 
 class ProgramTest(unittest.TestCase):
@@ -112,35 +113,35 @@ class ProgramTest(unittest.TestCase):
                 pk = pake.init()
 
             # No tasks defined
-            self.assertEqual(pake.run(pk, call_exit=False), 4)
+            self.assertEqual(pake.run(pk, call_exit=False), returncodes.NO_TASKS_DEFINED)
 
             @pk.task
             def task_one():
                 raise Exception()
 
             # No tasks specified
-            self.assertEqual(pake.run(pk, call_exit=False), 5)
+            self.assertEqual(pake.run(pk, call_exit=False), returncodes.NO_TASKS_SPECIFIED)
 
             # Undefined task
-            self.assertEqual(pake.run(pk, tasks='undefined', call_exit=False), 8)
+            self.assertEqual(pake.run(pk, tasks='undefined', call_exit=False), returncodes.UNDEFINED_TASK)
 
             if not dry_run:
                 # Exception in task
-                self.assertEqual(pake.run(pk, tasks='task_one', call_exit=False), 10)
+                self.assertEqual(pake.run(pk, tasks='task_one', call_exit=False), returncodes.TASK_EXCEPTION)
 
             @pk.task(i='IDontExist.nope', o='nada')
             def task_two():
                 pass
 
             # Input file not found
-            self.assertEqual(pake.run(pk, tasks='task_two', call_exit=False), 6)
+            self.assertEqual(pake.run(pk, tasks='task_two', call_exit=False), returncodes.TASK_INPUT_NOT_FOUND)
 
             @pk.task(i='IDontExist.nope')
             def task_three():
                 pass
 
             # Missing output file
-            self.assertEqual(pake.run(pk, tasks='task_three', call_exit=False), 7)
+            self.assertEqual(pake.run(pk, tasks='task_three', call_exit=False), returncodes.TASK_OUTPUT_MISSING)
 
         test_run_helper()
         test_run_helper(True)
@@ -158,7 +159,7 @@ class ProgramTest(unittest.TestCase):
                 pass
 
             # Invalid argument combination
-            self.assertEqual(pake.run(pk, call_exit=False), 3)
+            self.assertEqual(pake.run(pk, call_exit=False), returncodes.BAD_ARGUMENTS)
 
         # No multitasking in dry run mode.
         assert_bad_args('--dry-run', '--jobs', '2')

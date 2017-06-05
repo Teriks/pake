@@ -32,3 +32,10 @@ Module: pake.conf
 
 .. automodule:: pake.conf
     :members:
+
+
+Module: pake.returncodes
+------------------------
+
+.. automodule:: pake.returncodes
+    :members:

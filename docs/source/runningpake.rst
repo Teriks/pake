@@ -68,3 +68,18 @@ Command Line Options
        -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
                              once, all specified pakefiles will be executed in
                              order.
+
+Return Codes
+------------
+
+See: :py:mod:`pake.returncodes`
+
+1. Pakefile not found in directory, or specified pakefile does not exist.
+2. Bad combination of command line arguments.
+3. No tasks defined in pakefile.
+4. No tasks specified to run, no default tasks exist.
+5. A task's input file is missing.
+6. A task declares input files but no output files.
+7. An undefined task was referenced.
+8. A cyclic dependency was detected.
+9. An error occurred inside of a task.
