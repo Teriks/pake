@@ -56,7 +56,7 @@ Pake return codes.
     
 .. data:: TASK_EXCEPTION
 
-    9. An error occurred inside of a task.
+    9. An unhandled exception occurred inside a task.
 """
 
 
