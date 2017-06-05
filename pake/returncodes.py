@@ -19,29 +19,53 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-#: 1. Pakefile not found in directory, or specified pakefile does not exist.
+"""
+Pake return codes.
+
+.. data:: PAKEFILE_NOT_FOUND
+
+    1. Pakefile not found in directory, or specified pakefile does not exist.
+
+.. data:: BAD_ARGUMENTS
+
+    2. Bad combination of command line arguments.
+
+.. data:: NO_TASKS_DEFINED
+
+    3. No tasks defined in pakefile.
+    
+.. data:: NO_TASKS_SPECIFIED
+
+    4. No tasks specified to run, no default tasks exist.
+    
+.. data:: TASK_INPUT_NOT_FOUND
+
+    5. A task's input file is missing.
+    
+.. data:: TASK_OUTPUT_MISSING
+
+    6. A task declares input files but no output files.
+    
+.. data:: UNDEFINED_TASK
+
+    7. An undefined task was referenced.
+    
+.. data:: CYCLIC_DEPENDENCY
+
+    8. A cyclic dependency was detected.
+    
+.. data:: TASK_EXCEPTION
+
+    9. An error occurred inside of a task.
+"""
+
+
 PAKEFILE_NOT_FOUND = 1
-
-#: 2. Bad combination of command line arguments.
 BAD_ARGUMENTS = 2
-
-#: 3. No tasks defined in pakefile.
 NO_TASKS_DEFINED = 3
-
-#: 4. No tasks specified to run, no default tasks exist.
 NO_TASKS_SPECIFIED = 4
-
-#: 5. A task's input file is missing.
 TASK_INPUT_NOT_FOUND = 5
-
-#: 6. A task declares input files but no output files.
 TASK_OUTPUT_MISSING = 6
-
-#: 7. An undefined task was referenced.
 UNDEFINED_TASK = 7
-
-#: 8. A cyclic dependency was detected.
 CYCLIC_DEPENDENCY = 8
-
-#: 9. An error occurred inside of a task.
 TASK_EXCEPTION = 9
