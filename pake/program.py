@@ -67,7 +67,7 @@ def _coerce_define_value(value_name, value):
                 except SyntaxError as syn_err:
                     raise RuntimeError(
                         'Error parsing define value of "{name}": {message}'
-                            .format(name=value_name, message=str(syn_err)))
+                        .format(name=value_name, message=str(syn_err)))
         else:
             return ''
 

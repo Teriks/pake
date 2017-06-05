@@ -79,14 +79,11 @@ def main(args=None):
         os.chdir(os.path.dirname(file))
         exit(subprocess.call([sys.executable, file] + actual_args, stdout=pake.conf.stdout, stderr=pake.conf.stderr))
 
-    exit_code = 0
     for file in (os.path.abspath(f) for f in itertools.chain.from_iterable(args.file)):
         os.chdir(os.path.dirname(file))
         code = subprocess.call([sys.executable, file] + actual_args, stdout=pake.conf.stdout, stderr=pake.conf.stderr)
         if code != 0:
-            exit_code = 1
-
-    exit(exit_code)
+            exit(code)
 
 
 if __name__ == "__main__":

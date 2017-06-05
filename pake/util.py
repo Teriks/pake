@@ -62,6 +62,7 @@ def is_iterable(obj):
     :param obj: The object to test.
     :return: True if the object is iterable, False otherwise.
     """
+    # noinspection PyBroadException
     try:
         _ = iter(obj)
         return True
