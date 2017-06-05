@@ -27,6 +27,7 @@ import os
 import pake.process
 import pake.program
 import pake.util
+import pake.returncodes as returncodes
 
 __all__ = ['export', 'subpake']
 
@@ -131,6 +132,6 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
                                                       'inside a pakefile ran by subpake.')
         if exit_on_error:
             print(str(ex), file=pake.conf.stderr)
-            exit(1)
+            exit(returncodes.SUBPAKE_EXCEPTION)
         else:
             raise ex

@@ -714,7 +714,7 @@ class Pake:
         """
         return self._threadpool
 
-    def set_define(self, name, value):
+    def set_define(self, name, value):  # pragma: no cover
         """
         Set a defined value.
         
@@ -723,7 +723,7 @@ class Pake:
         """
         self._defines[name] = value
 
-    def __getitem__(self, item):
+    def __getitem__(self, item):  # pragma: no cover
         """
         Access a define using the indexing operator []
         
@@ -732,7 +732,7 @@ class Pake:
         """
         return self.get_define(item)
 
-    def get_define(self, name, default=None):
+    def get_define(self, name, default=None):  # pragma: no cover
         """Get a defined value.
            
         This is used to get defines off the command line, as well as retrieve

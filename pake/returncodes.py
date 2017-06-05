@@ -57,6 +57,13 @@ Pake return codes.
 .. data:: TASK_EXCEPTION
 
     9. An unhandled exception occurred inside a task.
+    
+.. data:: SUBPAKE_EXCEPTION
+
+    10. An exceptional condition occurred running a subpake script.
+    
+    Occurs if :py:meth:`pake.subpake` encounters a :py:class:`pake.SubprocessException` and
+    it's **exit_on_error** parameter is set to **True**.
 """
 
 
@@ -69,3 +76,4 @@ TASK_OUTPUT_MISSING = 6
 UNDEFINED_TASK = 7
 CYCLIC_DEPENDENCY = 8
 TASK_EXCEPTION = 9
+SUBPAKE_EXCEPTION = 10

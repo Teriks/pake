@@ -83,3 +83,7 @@ See: :py:mod:`pake.returncodes`
 7. An undefined task was referenced.
 8. A cyclic dependency was detected.
 9. An unhandled exception occurred inside of a task.
+10. An exceptional condition occurred running a subpake script.
+
+Error 10 occurs if :py:meth:`pake.subpake` encounters a :py:class:`pake.SubprocessException` and
+it's **exit_on_error** parameter is set to **True**.
