@@ -8,7 +8,7 @@ can be expressed entirely in python, similar to ruby rake.
 pake supports automatic file change detection when dealing with inputs and outputs and also
 parallel builds.
 
-pake requires python3.4+
+pake requires python3.5+
 
 # Installing
 
