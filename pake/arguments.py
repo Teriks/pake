@@ -33,8 +33,8 @@ def _create_gt_int(less_message):
         val = int(val)
         if val < 1:
             _arg_parser.print_usage(pake.conf.stderr)
-            args = {'prog': _arg_parser.prog, 'message': less_message}
-            _arg_parser.exit(2, _('%(prog)s: error: %(message)s\n') % args)
+            print(_('{}: error: {}').format(_arg_parser.prog, less_message), file=pake.conf.stderr)
+            exit(2)
         return val
 
     return _gt_zero_int
