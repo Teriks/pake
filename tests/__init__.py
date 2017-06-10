@@ -6,7 +6,13 @@ sys.path.insert(1,
                 os.path.abspath(
                     os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')))
 
-import pake.conf
+_dev_null = None
 
-pake.conf.stdout = open(os.devnull, 'w')
-pake.conf.stderr = open(os.devnull, 'w')
+
+def open_devnull():
+    global _dev_null
+    if _dev_null is None:
+        _dev_null = open(os.devnull, 'w')
+        return _dev_null
+    else:
+        return _dev_null

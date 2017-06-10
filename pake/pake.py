@@ -266,6 +266,7 @@ class TaskContext:
 
         pake.subpake(*args, stdout=self._io, silent=silent, exit_on_error=False)
 
+    @staticmethod
     def check_call(*args, stdin=None, shell=False, ignore_errors=False):
         """
         Return the return code of an executed system command.
@@ -510,7 +511,9 @@ class _Glob:
 
 
 def glob(expression):
-    """Deferred file input glob,  the glob is not executed until the task executes.
+    """Deferred file input glob, the glob is not executed until the task executes.
+
+    This input generator handles recursive directory globs by default.
        
     Collects files for input with a unix style glob expression.
     
@@ -535,7 +538,7 @@ def glob(expression):
     """
 
     def input_generator():
-        return file_glob(expression)
+        return file_glob(expression, recursive=True)
 
     return input_generator
 

@@ -291,7 +291,9 @@ def run(pake_obj, tasks=None, call_exit=True):
     6. Task defines input files with no output files.
     7. Reference made to an undefined task.
     8. Cyclic dependency detected.
-    9. Unhandled exception inside of task.
+    9. Unhandled :py:class:`pake.SubprocessException` was raised inside a task.
+    10. An exceptional condition occurred running a subpake script.
+    11. Other unhandled exception inside of task.
     
     See: :py:mod:`pake.returncodes`
     
@@ -441,9 +443,16 @@ def run(pake_obj, tasks=None, call_exit=True):
     except pake.CyclicGraphException as err:
         print(str(err), file=pake.conf.stderr)
         return_code = returncodes.CYCLIC_DEPENDENCY
-    except pake.TaskException:
+    except pake.TaskException as err:
+        err = err.exception
         # Information has already been printed to Pake.stderr
-        return_code = returncodes.TASK_EXCEPTION
+        if isinstance(err, pake.SubpakeException):
+            # SubpakeException derives from SubprocessException, it needs to come first
+            return_code = returncodes.SUBPAKE_EXCEPTION
+        elif isinstance(err, pake.SubprocessException):
+            return_code = returncodes.TASK_SUBPROCESS_EXCEPTION
+        else:
+            return_code = returncodes.TASK_EXCEPTION
 
     if exit_dir:
         pake_obj.print('pake[{}]: Exiting Directory "{}"'.

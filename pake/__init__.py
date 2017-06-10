@@ -52,7 +52,7 @@ from .program import \
     get_init_file, \
     get_init_dir
 
-from .subpake import subpake, export
+from .subpake import subpake, export, SubpakeException
 
 __all__ = [
     'init',
@@ -78,5 +78,6 @@ __all__ = [
     'RedefinedTaskException',
     'PakeUninitializedException',
     'CyclicGraphException',
-    'SubprocessException'
+    'SubprocessException',
+    'SubpakeException'
 ]

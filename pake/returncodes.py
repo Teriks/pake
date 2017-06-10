@@ -53,17 +53,22 @@ Pake return codes.
 .. data:: CYCLIC_DEPENDENCY
 
     8. A cyclic dependency was detected.
-    
-.. data:: TASK_EXCEPTION
 
-    9. An unhandled exception occurred inside a task.
+.. data:: TASK_SUBPROCESS_EXCEPTION
+
+    9. An unhandled :py:class:`pake.SubprocessException` was raised inside a task.
     
 .. data:: SUBPAKE_EXCEPTION
 
     10. An exceptional condition occurred running a subpake script.
     
-    Occurs if :py:meth:`pake.subpake` encounters a :py:class:`pake.SubprocessException` and
-    it's **exit_on_error** parameter is set to **True**.
+    Occurs if :py:meth:`pake.TaskContext.subpake` encounters a :py:class:`pake.SubprocessException` inside a task.
+
+    Or if a pakefile invoked with :py:meth:`pake.subpake` returns non zero and the subpake parameter  **exit_on_error** is set to **True**.
+
+.. data:: TASK_EXCEPTION
+
+    11. An unhandled exception occurred inside a task.
 """
 
 
@@ -75,5 +80,7 @@ TASK_INPUT_NOT_FOUND = 5
 TASK_OUTPUT_MISSING = 6
 UNDEFINED_TASK = 7
 CYCLIC_DEPENDENCY = 8
-TASK_EXCEPTION = 9
+TASK_SUBPROCESS_EXCEPTION = 9
 SUBPAKE_EXCEPTION = 10
+TASK_EXCEPTION = 11
+

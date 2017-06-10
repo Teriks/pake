@@ -259,6 +259,8 @@ class FileHelper:
     def glob_remove(self, glob_pattern, silent=False):
         """Remove files using a glob pattern, this makes use of pythons built in glob module.
 
+        This function handles recursive directory globing patterns by default.
+
         Files are removed using :py:meth:`os.remove`.
 
         :param glob_pattern: The glob pattern to use to search for files to remove.
@@ -269,11 +271,13 @@ class FileHelper:
         """
         if not silent and self._task_ctx is not None:
             self._task_ctx.print('Glob Removed Files: "{}"'.format(glob_pattern))
-        for i in (f for f in glob.iglob(glob_pattern) if os.path.isfile(f)):
+        for i in (f for f in glob.iglob(glob_pattern, recursive=True) if os.path.isfile(f)):
             os.remove(i)
 
     def glob_remove_dirs(self, glob_pattern, silent=False):
         """Remove directories using a glob pattern, this makes use of pythons built in glob module.
+
+        This function handles recursive directory globing patterns by default.
 
         This uses :py:meth:`shutil.rmtree` to remove directories.
 
@@ -285,7 +289,7 @@ class FileHelper:
         """
         if not silent and self._task_ctx is not None:
             self._task_ctx.print('Glob Removed Directories: "{}"'.format(glob_pattern))
-        for i in (d for d in glob.iglob(glob_pattern) if os.path.isdir(d)):
+        for i in (d for d in glob.iglob(glob_pattern, recursive=True) if os.path.isdir(d)):
             shutil.rmtree(i, ignore_errors=True)
 
     def rmtree(self, path, silent=False, must_exist=False):

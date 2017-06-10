@@ -13,8 +13,16 @@ import pake.conf
 import pake.arguments
 import pake.returncodes as returncodes
 
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
+
+from tests import open_devnull
+pake.conf.stdout = open_devnull() if pake.conf.stdout is sys.stdout else pake.conf.stdout
+pake.conf.stderr = open_devnull() if pake.conf.stderr is sys.stderr else pake.conf.stderr
+
 
 class ProgramTest(unittest.TestCase):
+
     def test_exceptions(self):
 
         pake.program.shutdown()
@@ -145,6 +153,24 @@ class ProgramTest(unittest.TestCase):
 
             # Missing output file
             self.assertEqual(pake.run(pk, tasks='task_three', call_exit=False), returncodes.TASK_OUTPUT_MISSING)
+
+            # ======== Cover Subpake and Call exception propagation
+
+            @pk.task
+            def task_four(ctx):
+                ctx.subpake(os.path.join(script_dir, 'throw.py'))
+
+            @pk.task
+            def task_five(ctx):
+                # execute with the current interpreter
+                ctx.call(sys.executable, os.path.join(script_dir,'throw.py'))
+
+            if not dry_run:
+                # Because 'throw.py' runs but throws an exception
+                self.assertEqual(pake.run(pk, tasks='task_four', call_exit=False), returncodes.SUBPAKE_EXCEPTION)
+
+                # Same thing, except differentiate as a task subprocess exception
+                self.assertEqual(pake.run(pk, tasks=task_five, call_exit=False), returncodes.TASK_SUBPROCESS_EXCEPTION)
 
         test_run_helper()
         test_run_helper(True)

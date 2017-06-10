@@ -20,6 +20,8 @@
 
 import argparse
 import pake
+import pake.conf
+from gettext import gettext as _
 
 __all__ = ['parse_args', 'get_parser', 'args_are_parsed', 'get_args']
 
@@ -30,7 +32,9 @@ def _create_gt_int(less_message):
     def _gt_zero_int(val):
         val = int(val)
         if val < 1:
-            _arg_parser.error(less_message)
+            _arg_parser.print_usage(pake.conf.stderr)
+            args = {'prog': _arg_parser.prog, 'message': less_message}
+            _arg_parser.exit(2, _('%(prog)s: error: %(message)s\n') % args)
         return val
 
     return _gt_zero_int

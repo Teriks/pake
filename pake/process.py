@@ -86,6 +86,8 @@ class SubprocessException(Exception):  # pragma: no cover
 
     def __str__(self):
 
+        class_name = self.__module__ + "." + self.__class__.__name__
+
         msg = ''
 
         template = []
@@ -97,10 +99,10 @@ class SubprocessException(Exception):  # pragma: no cover
             template.append('line_number={}'.format(self.line_number))
 
         if len(template):
-            msg += 'pake.SubprocessException({sep}\t{template}{sep}){sep}{sep}'. \
-                format(template=(',' + os.linesep + '\t').join(template), sep=os.linesep)
+            msg += '{myname}({sep}\t{template}{sep}){sep}{sep}'. \
+                format(myname=class_name, template=(',' + os.linesep + '\t').join(template), sep=os.linesep)
         else:
-            msg += 'pake.SubprocessException(){sep}{sep}'.format(sep=os.linesep)
+            msg += '{myname}(){sep}{sep}'.format(myname=class_name, sep=os.linesep)
 
         if self.message:
             msg += 'Message: '+self.message+(os.linesep*2)

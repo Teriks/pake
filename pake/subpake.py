@@ -29,9 +29,45 @@ import pake.program
 import pake.util
 import pake.returncodes as returncodes
 
-__all__ = ['export', 'subpake']
+__all__ = ['export', 'subpake', 'SubpakeException']
 
 _exports = dict()
+
+
+class SubpakeException(pake.process.SubprocessException):
+    """
+    Raised upon encountering a non-zero return code from a subpake invocation.
+
+    .. py:attribute:: cmd
+
+        Executed subpake command in list form.
+
+    .. py:attribute:: returncode
+
+        Process returncode.
+
+    .. py:attribute:: output
+
+        Process output as bytes.
+
+    .. py:attribute:: message
+
+        Optional message from the raising function, may be **None**
+
+    .. py:attribute:: filename
+
+        Filename describing the file from which the process call was initiated. (might be None)
+
+    .. py:attribute:: function_name
+
+        Function name describing the function which initiated the process call. (might be None)
+
+    .. py:attribute:: line_number
+
+        Line Number describing the line where the process call was initiated. (might be None)
+    """
+    def __init__(self, *args, **kwargs):
+        super(SubpakeException, self).__init__(*args, **kwargs)
 
 
 def export(name, value):  # pragma: no cover
@@ -125,11 +161,11 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
             stdout.write(output.decode())
 
     except subprocess.CalledProcessError as err:
-        ex = pake.process.SubprocessException(cmd=args,
-                                              returncode=err.returncode,
-                                              output=err.output,
-                                              message='An exceptional condition occurred '
-                                                      'inside a pakefile ran by subpake.')
+        ex = SubpakeException(cmd=args,
+                              returncode=err.returncode,
+                              output=err.output,
+                              message='An exceptional condition occurred '
+                                      'inside a pakefile ran by subpake.')
         if exit_on_error:
             print(str(ex), file=pake.conf.stderr)
             exit(returncodes.SUBPAKE_EXCEPTION)

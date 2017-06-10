@@ -11,13 +11,15 @@ sys.path.insert(1,
 import pake
 import pake.conf
 
-pake.conf.stdout = open(os.devnull, 'w')
-pake.conf.stderr = open(os.devnull, 'w')
-
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 
-class IntegrationTest(unittest.TestCase):
+from tests import open_devnull
+pake.conf.stdout = open_devnull() if pake.conf.stdout is sys.stdout else pake.conf.stdout
+pake.conf.stderr = open_devnull() if pake.conf.stderr is sys.stderr else pake.conf.stderr
+
+
+class TaskExceptionsTest(unittest.TestCase):
     def test_task_exceptions(self):
         # =============================
 
@@ -38,12 +40,12 @@ class IntegrationTest(unittest.TestCase):
         with self.assertRaises(pake.TaskException) as cm:
             pk.run(tasks=a_task)
 
-        self.assertTrue(type(cm.exception.exception) == Exception)
+        self.assertEqual(type(cm.exception.exception), Exception)
 
         with self.assertRaises(pake.TaskException) as cm:
             pk.run(tasks=a_task, jobs=10)
 
-        self.assertTrue(type(cm.exception.exception) == Exception)
+        self.assertEqual(type(cm.exception.exception), Exception)
 
         def raise_exception(*args):
             raise Exception()
@@ -68,12 +70,12 @@ class IntegrationTest(unittest.TestCase):
         with self.assertRaises(pake.TaskException) as cm:
             pk.run(tasks=a_task)
 
-        self.assertTrue(type(cm.exception.exception) == Exception)
+        self.assertEqual(type(cm.exception.exception), Exception)
 
         with self.assertRaises(pake.TaskException) as cm:
             pk.run(tasks=a_task, jobs=10)
 
-        self.assertTrue(type(cm.exception.exception) == Exception)
+        self.assertEqual(type(cm.exception.exception), Exception)
 
         # =============================
 
@@ -95,12 +97,82 @@ class IntegrationTest(unittest.TestCase):
         with self.assertRaises(pake.TaskException) as cm:
             pk.run(tasks=a_task)
 
-        self.assertTrue(type(cm.exception.exception) == Exception)
+        self.assertEqual(type(cm.exception.exception), Exception)
 
         with self.assertRaises(pake.TaskException) as cm:
             pk.run(tasks=a_task, jobs=10)
 
-        self.assertTrue(type(cm.exception.exception) == Exception)
+        self.assertEqual(type(cm.exception.exception), Exception)
+
+    def test_subprocess_task_exceptions(self):
+        # =============================
+
+        pk = pake.init()
+
+        @pk.task
+        def subpake1(ctx):
+            ctx.subpake()  # ValueError
+
+        @pk.task
+        def subpake2(ctx):
+            ctx.subpake('missing file')  # FileNotFound
+
+        with self.assertRaises(pake.TaskException) as cm:
+            pk.run(tasks=subpake1)
+
+        self.assertEqual(type(cm.exception.exception), ValueError)
+
+        with self.assertRaises(pake.TaskException) as cm:
+            pk.run(tasks=subpake1, jobs=10)
+
+        self.assertEqual(type(cm.exception.exception), ValueError)
+
+        with self.assertRaises(pake.TaskException) as cm:
+            pk.run(tasks=subpake2)
+
+            self.assertEqual(type(cm.exception.exception), FileNotFoundError)
+
+        with self.assertRaises(pake.TaskException) as cm:
+            pk.run(tasks=subpake2, jobs=10)
+
+        self.assertEqual(type(cm.exception.exception), FileNotFoundError)
+
+        # =============================
+
+        def subprocess_test_helper(method):
+            pk = pake.init()
+
+            @pk.task
+            def call1(ctx):
+                getattr(ctx, method)()  # ValueError
+
+            @pk.task
+            def call2(ctx):
+                getattr(ctx, method)('missing file')  # FileNotFound
+
+            with self.assertRaises(pake.TaskException) as cm:
+                pk.run(tasks=call1)
+
+            self.assertEqual(type(cm.exception.exception), ValueError)
+
+            with self.assertRaises(pake.TaskException) as cm:
+                pk.run(tasks=call1, jobs=10)
+
+            self.assertEqual(type(cm.exception.exception), ValueError)
+
+            with self.assertRaises(pake.TaskException) as cm:
+                pk.run(tasks=call2)
+
+            self.assertEqual(type(cm.exception.exception), FileNotFoundError)
+
+            with self.assertRaises(pake.TaskException) as cm:
+                pk.run(tasks=call2, jobs=10)
+
+            self.assertEqual(type(cm.exception.exception), FileNotFoundError)
+
+        subprocess_test_helper('call')
+        subprocess_test_helper('check_call')
+        subprocess_test_helper('check_output')
 
 
 if __name__ == 'main':

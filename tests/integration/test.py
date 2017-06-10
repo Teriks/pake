@@ -10,6 +10,8 @@ import pake
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
+fh = pake.FileHelper()
+
 
 class IntegrationTest(unittest.TestCase):
     def _check_outputs(self, exist=True):
@@ -40,6 +42,9 @@ class IntegrationTest(unittest.TestCase):
         fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "c.o")))
 
     def test_integrated(self):
+        fh.glob_remove(os.path.join(script_dir, '**', '*.o'))
+        fh.remove(os.path.join(script_dir, 'test_data', 'main'))
+
         pake.subpake(os.path.join(script_dir, "pakefile.py"), silent=True)
 
         self._check_outputs()
@@ -49,6 +54,9 @@ class IntegrationTest(unittest.TestCase):
         self._check_outputs(exist=False)
 
     def test_integrated_parallel(self):
+        fh.glob_remove(os.path.join(script_dir, '**', '*.o'))
+        fh.remove(os.path.join(script_dir, 'test_data', 'main'))
+
         pake.subpake(os.path.join(script_dir, "pakefile.py"), "-j", 10, silent=True)
 
         self._check_outputs()
