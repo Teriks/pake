@@ -884,7 +884,7 @@ class Pake:
                     outdated_inputs.append(ip_f)
                     outdated_outputs.append(op_f)
 
-    def task(self, *args, i=None, o=None):
+    def task(self, *args, i=None, o=None, no_header=False):
         """
         Decorator for registering pake tasks.
         
@@ -1048,12 +1048,14 @@ class Pake:
         :param args: Tasks which this task depends on.
         :param i: Optional input files for change detection.
         :param o: Optional output files for change detection.
+        :param no_header: Whether or not to avoid printing a task header when the task begins executing, defaults to **False** (Header is printed).
+                  This does not apply to dry run visits, the task header will still be printed during dry runs.
         """
 
         if len(args) == 1 and inspect.isfunction(args[0]):
             if args[0].__name__ not in self._task_contexts:
                 func = args[0]
-                self.add_task(func.__name__, func)
+                self.add_task(func.__name__, func, no_header=no_header)
                 return func
 
         if len(args) > 1 and pake.util.is_iterable_not_str(args[0]):
@@ -1062,7 +1064,7 @@ class Pake:
             dependencies = args
 
         def outer(task_func):
-            self.add_task(task_func.__name__, task_func, dependencies, i, o)
+            self.add_task(task_func.__name__, task_func, dependencies, i, o, no_header=no_header)
             return task_func
 
         return outer
@@ -1149,7 +1151,7 @@ class Pake:
 
         return False
 
-    def add_task(self, name, func, dependencies=None, inputs=None, outputs=None):
+    def add_task(self, name, func, dependencies=None, inputs=None, outputs=None, no_header=False):
         """
         Method for programmatically registering pake tasks.
         
@@ -1212,6 +1214,8 @@ class Pake:
         :param dependencies: List of dependent tasks or single task, by name or by reference
         :param inputs: List of input files, or a single input (accepts input file generators like :py:meth:`pake.glob`)
         :param outputs: List of output files, or a single output (accepts output file generators like :py:meth:`pake.pattern`)
+        :param no_header: Whether or not to avoid printing a task header when the task begins executing, defaults to **False** (Header is printed).
+                          This does not apply to dry run visits, the task header will still be printed during dry runs.
         :return: The :py:class:`pake.TaskContext` for the new task.
         """
 
@@ -1233,7 +1237,8 @@ class Pake:
                 if self._dry_run_mode:
                     ctx.print('Visited Task: "{}"'.format(ctx.name))
                 else:
-                    ctx.print('===== Executing Task: "{}"'.format(ctx.name))
+                    if not no_header:
+                        ctx.print('===== Executing Task: "{}"'.format(ctx.name))
                     return func(*args, **kwargs)
 
             except Exception as err:
