@@ -1267,11 +1267,17 @@ class Pake:
                 for dependency in dependencies:
                     dep_task = self.get_task_context(dependency)
                     task_context.node.add_edge(dep_task.node)
-                    self._graph.remove_edge(dep_task.node)
+                    try:
+                        self._graph.remove_edge(dep_task.node)
+                    except KeyError:
+                        pass
             else:
                 dep_task = self.get_task_context(dependencies)
                 task_context.node.add_edge(dep_task.node)
-                self._graph.remove_edge(dep_task.node)
+                try:
+                    self._graph.remove_edge(dep_task.node)
+                except KeyError:
+                    pass
 
         self._graph.add_edge(task_context.node)
 
