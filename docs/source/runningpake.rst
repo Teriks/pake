@@ -85,7 +85,3 @@ See: :py:mod:`pake.returncodes`
 9. An unhandled :py:class:`pake.SubprocessException` was raised inside a task.
 10. An exceptional condition occurred running a subpake script.
 11. An unhandled exception occurred inside of a task.
-
-
-Error 10 occurs if :py:meth:`pake.subpake` encounters a :py:class:`pake.SubprocessException` and
-it's **exit_on_error** parameter is set to **True**.
