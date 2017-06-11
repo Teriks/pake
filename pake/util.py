@@ -231,6 +231,7 @@ def parse_define_value(value):
     is not a True or False value, Integer, or Float, is considered to be a raw string.
 
     :raises: :py:exc:`SyntaxError` if an attempt is made to parse a literal such as an integer, float, list etc.. and it fails.
+    :raises: :py:exc:`ValueError` if the **value** parameter is **None**.
 
     :param value: String representing the defines value.
     :return: Python literal representing the defines values.
