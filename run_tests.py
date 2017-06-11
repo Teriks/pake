@@ -1,4 +1,4 @@
 import unittest
 
 runner = unittest.TextTestRunner()
-runner.run(unittest.defaultTestLoader.discover("tests"))
+exit(not runner.run(unittest.defaultTestLoader.discover("tests")).wasSuccessful())

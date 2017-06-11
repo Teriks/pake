@@ -26,7 +26,7 @@ Note: pake is Alpha and likely to change some.
 
 .. code-block:: bash
 
-    sudo pip3 install git+git://github.com/Teriks/pake.git@0.9.0.2a1
+    sudo pip3 install git+git://github.com/Teriks/pake.git@0.9.0.3a1
 
 
 Module Doc
