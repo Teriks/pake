@@ -235,6 +235,10 @@ def parse_define_value(value):
     :param value: String representing the defines value.
     :return: Python literal representing the defines values.
     """
+
+    if value is None:
+        raise ValueError('value parameter may not be None')
+
     literal_eval_triggers = {"'", '"', "(", "{", "["}
 
     if pake.util.str_is_int(value):
@@ -254,4 +258,6 @@ def parse_define_value(value):
             return False
         if lower == 'true':
             return True
+        if lower == 'none':
+            return None
     return value

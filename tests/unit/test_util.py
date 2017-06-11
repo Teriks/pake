@@ -136,6 +136,34 @@ class UtilTest(unittest.TestCase):
         self.assertEqual(pake.util.parse_define_value('False'), False)
         self.assertEqual(pake.util.parse_define_value('faLse'), False)
 
+        self.assertEqual(pake.util.parse_define_value('None'), None)
+        self.assertEqual(pake.util.parse_define_value('none'), None)
+        self.assertEqual(pake.util.parse_define_value('noNe'), None)
+
+        self.assertEqual(pake.util.parse_define_value(' true'), True)
+        self.assertEqual(pake.util.parse_define_value(' True'), True)
+        self.assertEqual(pake.util.parse_define_value(' tRue'), True)
+
+        self.assertEqual(pake.util.parse_define_value(' false'), False)
+        self.assertEqual(pake.util.parse_define_value(' False'), False)
+        self.assertEqual(pake.util.parse_define_value(' faLse'), False)
+
+        self.assertEqual(pake.util.parse_define_value(' None'), None)
+        self.assertEqual(pake.util.parse_define_value(' none'), None)
+        self.assertEqual(pake.util.parse_define_value(' noNe'), None)
+
+        self.assertEqual(pake.util.parse_define_value(' true '), True)
+        self.assertEqual(pake.util.parse_define_value(' True '), True)
+        self.assertEqual(pake.util.parse_define_value(' tRue '), True)
+
+        self.assertEqual(pake.util.parse_define_value(' false '), False)
+        self.assertEqual(pake.util.parse_define_value(' False '), False)
+        self.assertEqual(pake.util.parse_define_value(' faLse '), False)
+
+        self.assertEqual(pake.util.parse_define_value(' None '), None)
+        self.assertEqual(pake.util.parse_define_value(' none '), None)
+        self.assertEqual(pake.util.parse_define_value(' noNe '), None)
+
         self.assertEqual(pake.util.parse_define_value('1'), 1)
         self.assertEqual(type(pake.util.parse_define_value('1')), int)
 
@@ -162,6 +190,11 @@ class UtilTest(unittest.TestCase):
         self.assertEqual(pake.util.parse_define_value('("Tuples are cool",)'), ('Tuples are cool',))
 
         self.assertEqual(pake.util.parse_define_value('("Tuples are cool", \'yup\')'), ('Tuples are cool', 'yup'))
+
+        self.assertEqual(pake.util.parse_define_value(''), '')
+
+        with self.assertRaises(ValueError):
+            pake.util.parse_define_value(None)
 
         with self.assertRaises(SyntaxError):
             pake.util.parse_define_value(' { Im not a full literal ')
