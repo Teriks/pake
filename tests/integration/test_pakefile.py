@@ -1,15 +1,26 @@
 #!/usr/bin/python3
 
 import sys
+import unittest
 
 import os
 
 sys.path.insert(1,
-                os.path.abspath(
-                    os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                 os.path.join('..', '..'))))
+                os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../')))
 
 import pake
+
+from tests import open_devnull
+
+pake.conf.stdout = open_devnull() if pake.conf.stdout is sys.stdout else pake.conf.stdout
+pake.conf.stderr = open_devnull() if pake.conf.stderr is sys.stderr else pake.conf.stderr
+
+
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
+# Force the test to occur in the correct place
+os.chdir(script_dir)
+
 
 pk = pake.init()
 
@@ -89,8 +100,7 @@ def do_stuff(ctx):
 
     ctx.print('Dependency outputs: ' + str(ctx.dependency_outputs))
 
-    # Run a pakefile.py script in a subdirectory, build 'all' task
-
+    # Run a test pakefile.py script in a subdirectory, build 'all' task
     ctx.subpake('test_data/subpake/pakefile.py', 'all')
 
 
@@ -164,12 +174,22 @@ def toucher_task_func(ctx):
 pk.add_task('toucher_func_task_c', toucher_task_func, dependencies='toucher_class_task_b', outputs=['test_data/toucher_func_file_4.o'])
 
 
-# Always runs, because there are no inputs or outputs to use for file change detection
+@pk.task(glob_and_pattern_test, i='test_data/glob_and_pattern', o='test_data/dir_cmp_test.o')
+def directory_compare_test(ctx):
+    # glob_and_pattern_test modifies the input folder, so this should run
+    file_helper = pake.FileHelper(ctx)
+    file_helper.touch(ctx.outputs[0])
 
-@pk.task(do_stuff, glob_and_pattern_test, glob_and_pattern_test2, 'toucher_func_task_c', o='test_data/main')
+
+@pk.task(o='test_data/directory_create_test')
+def directory_create_test(ctx):
+    # Create the above directory if it does not exist (directory compare test)
+    file_helper = pake.FileHelper(ctx)
+    file_helper.makedirs(ctx.outputs[0])
+
+
+@pk.task(do_stuff, directory_compare_test, directory_create_test, glob_and_pattern_test2, 'toucher_func_task_c', o='test_data/main')
 def all(ctx):
-    """Make all info test."""
-
     file_helper = pake.FileHelper(ctx)
     file_helper.touch(ctx.outputs[0])
 
@@ -208,5 +228,63 @@ def two(ctx):
 def three(ctx):
     ctx.print('THREE')
 
+if __name__ == '__main__':
+    pake.run(pk, tasks=[one, two, three, print_define, all])
+    exit(0)
 
-pake.run(pk, tasks=[one, two, three, print_define, all])
+
+class IntegrationTest(unittest.TestCase):
+    def _check_outputs(self, exist=True):
+        fun = self.assertTrue if exist else self.assertFalse
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "do_stuff.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "do_stuff_first.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "do_stuff_first_2.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "main")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "stuffs_combined.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "stuffs_four.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "stuffs_three.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "toucher_class_file_1.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "toucher_class_file_2.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "toucher_class_file_3.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "toucher_func_file_4.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "subpake", "test.o")))
+
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "src_a", "a.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "src_a", "b.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "src_a", "c.o")))
+
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "src_b", "a.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "src_b", "b.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "src_b", "c.o")))
+
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "a.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "b.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "c.o")))
+
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "dir_cmp_test.o")))
+
+    def test_integrated(self):
+        fh = pake.FileHelper()
+        fh.glob_remove(os.path.join(script_dir, '**', '*.o'))
+        fh.remove(os.path.join(script_dir, 'test_data', 'main'))
+
+        self.assertEqual(pake.run(pk, tasks=[one, two, three, print_define, all], call_exit=False), 0)
+
+        self._check_outputs()
+
+        self.assertEqual(pake.run(pk, tasks=[clean], call_exit=False), 0)
+
+        self._check_outputs(exist=False)
+
+    def test_integrated_parallel(self):
+        fh = pake.FileHelper()
+        fh.glob_remove(os.path.join(script_dir, '**', '*.o'))
+        fh.remove(os.path.join(script_dir, 'test_data', 'main'))
+
+        self.assertEqual(pake.run(pk, tasks=[one, two, three, print_define, all], jobs=10, call_exit=False), 0)
+
+        self._check_outputs()
+
+        self.assertEqual(pake.run(pk, tasks=clean, jobs=10, call_exit=False), 0)
+
+        self._check_outputs(exist=False)

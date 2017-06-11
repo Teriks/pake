@@ -45,8 +45,8 @@ __all__ = ['pattern',
            'UndefinedTaskException',
            'RedefinedTaskException',
            'TaskException',
-           'InputFileNotFoundException',
-           'MissingOutputFilesException']
+           'InputNotFoundException',
+           'MissingOutputsException']
 
 
 class TaskException(Exception):  # pragma: no cover
@@ -69,27 +69,27 @@ class TaskException(Exception):  # pragma: no cover
         return str(self.exception)
 
 
-class MissingOutputFilesException(Exception):  # pragma: no cover
+class MissingOutputsException(Exception):  # pragma: no cover
     """
     Raised by :py:meth:`pake.Pake.run` and :py:meth:`pake.Pake.dry_run` if a task declares input files without
-    specifying any output files.
+    specifying any output files/directories.
     """
 
     def __init__(self, task_name):
-        super(MissingOutputFilesException, self).__init__(
+        super(MissingOutputsException, self).__init__(
             'Error: Task "{}" defines inputs with no outputs, this is not allowed.'.format(task_name)
         )
 
 
-class InputFileNotFoundException(Exception):  # pragma: no cover
+class InputNotFoundException(Exception):  # pragma: no cover
     """
-    Raised by :py:meth:`pake.Pake.run` and :py:meth:`pake.Pake.dry_run` if a task with input files 
-    declared cannot find an input file on disk.
+    Raised by :py:meth:`pake.Pake.run` and :py:meth:`pake.Pake.dry_run` if a task with inputs
+    declared cannot find an input file/directory on disk.
     """
 
-    def __init__(self, task_name, file_name):
-        super(InputFileNotFoundException, self).__init__(
-            'Error: Could not find input file "{}" used by task "{}".'.format(file_name, task_name)
+    def __init__(self, task_name, output_name):
+        super(InputNotFoundException, self).__init__(
+            'Error: Could not find input file/directory "{}" used by task "{}".'.format(output_name, task_name)
         )
 
 
@@ -129,7 +129,7 @@ def _handle_task_exception(ctx, exception):
         ctx.print(str(exception))
         raise TaskException(exception)
 
-    if isinstance(exception, InputFileNotFoundException) or isinstance(exception, MissingOutputFilesException):
+    if isinstance(exception, InputNotFoundException) or isinstance(exception, MissingOutputsException):
         # These are raised inside the task when
         # the task runs and does file detection, they provides information
         # which includes the task name the exception occurred in as well
@@ -808,7 +808,7 @@ class Pake:
         len_o = len(o)
 
         if len_i > 0 and len_o == 0:
-            raise MissingOutputFilesException(task_name)
+            raise MissingOutputsException(task_name)
 
         outdated_inputs = []
         outdated_outputs = []
@@ -830,23 +830,23 @@ class Pake:
 
     @staticmethod
     def _change_detect_single_output(task_name, i, o, outdated_inputs, outdated_outputs):
-        op_f = o[0]
+        output_object = o[0]
 
-        if not path.isfile(op_f):
-            for ip_f in i:
-                if not path.isfile(ip_f):
-                    raise InputFileNotFoundException(task_name, ip_f)
+        if not path.exists(output_object):
+            for input_object in i:
+                if not path.exists(input_object):
+                    raise InputNotFoundException(task_name, input_object)
 
-            outdated_outputs.append(op_f)
+            outdated_outputs.append(output_object)
             outdated_inputs += i
         else:
             outdated_output = None
-            for ip_f in i:
-                if not path.isfile(ip_f):
-                    raise InputFileNotFoundException(task_name, ip_f)
-                if path.getmtime(op_f) < path.getmtime(ip_f):
-                    outdated_inputs.append(ip_f)
-                    outdated_output = op_f
+            for input_object in i:
+                if not path.exists(input_object):
+                    raise InputNotFoundException(task_name, input_object)
+                if path.getmtime(output_object) < path.getmtime(input_object):
+                    outdated_inputs.append(input_object)
+                    outdated_output = output_object
 
             if outdated_output:
                 outdated_outputs.append(outdated_output)
@@ -857,42 +857,41 @@ class Pake:
         len_o = len(o)
 
         if len_i == 0:
-            for op_f in o:
-                if not path.isfile(op_f):
-                    outdated_outputs.append(op_f)
+            for output_object in o:
+                if not path.exists(output_object):
+                    outdated_outputs.append(output_object)
 
         elif len_o != len_i:
             output_set = set()
             input_set = set()
 
-            for ip_f in i:
-                if not path.isfile(ip_f):
-                    raise InputFileNotFoundException(task_name, ip_f)
-                for op_f in o:
-                    if not path.isfile(op_f) or path.getmtime(op_f) < path.getmtime(ip_f):
-                        input_set.add(ip_f)
-                        output_set.add(op_f)
+            for input_object in i:
+                if not path.exists(input_object):
+                    raise InputNotFoundException(task_name, input_object)
+                for output_object in o:
+                    if not path.exists(output_object) or path.getmtime(output_object) < path.getmtime(input_object):
+                        input_set.add(input_object)
+                        output_set.add(output_object)
 
             outdated_inputs += input_set
             outdated_outputs += output_set
 
         else:
-            for ip_f, op_f in zip(i, o):
-                if not path.isfile(ip_f):
-                    raise InputFileNotFoundException(task_name, ip_f)
-                if not path.isfile(op_f) or path.getmtime(op_f) < path.getmtime(ip_f):
-                    outdated_inputs.append(ip_f)
-                    outdated_outputs.append(op_f)
+            for input_object, output_object in zip(i, o):
+                if not path.exists(input_object):
+                    raise InputNotFoundException(task_name, input_object)
+                if not path.exists(output_object) or path.getmtime(output_object) < path.getmtime(input_object):
+                    outdated_inputs.append(input_object)
+                    outdated_outputs.append(output_object)
 
     def task(self, *args, i=None, o=None, no_header=False):
         """
         Decorator for registering pake tasks.
         
         Any input files specified must be accompanied by at least one output file.
-        
-        
+
         A callable object, or list of callable objects may be passed to **i** or **o** in addition to
-        a raw file name or names.  This is how **pake.glob** and **pake.pattern** work.
+        a raw file/directory name or names.  This is how **pake.glob** and **pake.pattern** work.
         
         Input/Output Generation Example:
         
@@ -1212,8 +1211,8 @@ class Pake:
         :param name: The name of the task
         :param func: The task function (or callable class)
         :param dependencies: List of dependent tasks or single task, by name or by reference
-        :param inputs: List of input files, or a single input (accepts input file generators like :py:meth:`pake.glob`)
-        :param outputs: List of output files, or a single output (accepts output file generators like :py:meth:`pake.pattern`)
+        :param inputs: List of input files/directories, or a single input (accepts input file generators like :py:meth:`pake.glob`)
+        :param outputs: List of output files/directories, or a single output (accepts output file generators like :py:meth:`pake.pattern`)
         :param no_header: Whether or not to avoid printing a task header when the task begins executing, defaults to **False** (Header is printed).
                           This does not apply to dry run visits, the task header will still be printed during dry runs.
         :return: The :py:class:`pake.TaskContext` for the new task.
@@ -1297,8 +1296,8 @@ class Pake:
         :raises: :py:class:`pake.TaskException` if an exception occurred while running a task, information will have \
                  already been printed to the :py:attr:`pake.TaskContext.io` file object which belongs to the given task.
         
-        :raises: :py:class:`pake.MissingOutputFilesException` if a task defines input files without specifying any output files.
-        :raises: :py:class:`pake.InputFileNotFoundException` if a task defines input files but one of them was not found on disk.
+        :raises: :py:class:`pake.MissingOutputsException` if a task defines input files/directories without specifying any output files/directories.
+        :raises: :py:class:`pake.InputNotFoundException` if a task defines input files/directories but one of them was not found on disk.
         :raises: :py:class:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
         :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
         
@@ -1350,8 +1349,8 @@ class Pake:
         When using change detection, only out of date tasks will be visited.
         
 
-        :raises: :py:class:`pake.MissingOutputFilesException` if a task defines input files without specifying any output files.
-        :raises: :py:class:`pake.InputFileNotFoundException` if a task defines input files but one of them was not found on disk.
+        :raises: :py:class:`pake.MissingOutputsException` if a task defines input files/directories without specifying any output files/directories.
+        :raises: :py:class:`pake.InputNotFoundException` if a task defines input files/directories but one of them was not found on disk.
         :raises: :py:class:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
         :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
         

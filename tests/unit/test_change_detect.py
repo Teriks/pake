@@ -138,7 +138,7 @@ class GraphTest(unittest.TestCase):
         def task_a(ctx):
             pass
 
-        with self.assertRaises(pake.MissingOutputFilesException):
+        with self.assertRaises(pake.MissingOutputsException):
             pk.run(tasks=task_a, jobs=jobs)
 
         # ================
@@ -150,7 +150,7 @@ class GraphTest(unittest.TestCase):
         def task_a(ctx):
             pass
 
-        with self.assertRaises(pake.MissingOutputFilesException):
+        with self.assertRaises(pake.MissingOutputsException):
             pk.run(tasks=task_a, jobs=jobs)
 
         # ================
@@ -162,7 +162,7 @@ class GraphTest(unittest.TestCase):
         def task_a(ctx):
             pass
 
-        with self.assertRaises(pake.InputFileNotFoundException):
+        with self.assertRaises(pake.InputNotFoundException):
             pk.run(tasks=task_a, jobs=jobs)
 
     def test_behaviour(self):

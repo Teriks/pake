@@ -274,7 +274,7 @@ def _list_task_info(pake_obj, default_tasks):  # pragma: no cover
         pake_obj.print('No documented tasks present.')
 
 
-def run(pake_obj, tasks=None, call_exit=True):
+def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     """
     Run pake (the program) given a :py:class:`pake.Pake` instance and options default tasks.
     
@@ -298,8 +298,12 @@ def run(pake_obj, tasks=None, call_exit=True):
     See: :py:mod:`pake.returncodes`
     
     :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
+    :raises: :py:class:`ValueError` if the **jobs** parameter is used, and is set less than 1.
+
     :param pake_obj: A :py:class:`pake.Pake` instance, usually created by :py:func:`pake.init`.
     :param tasks: A list of, or a single default task to run if no tasks are specified on the command line.
+    :param jobs: Call with an arbitrary number of max jobs, overriding the command line value of **--jobs**.
+                 The default value of this parameter is **None**, which means the command line value or default of 1 is not overridden.
     :param call_exit: Whether or not **exit(return_code)** should be called by this function on error.
                       This defaults to **True**, when set to **False** the return code is instead returned
                       to the caller.
@@ -395,10 +399,10 @@ def run(pake_obj, tasks=None, call_exit=True):
             if pake_obj.run_count == 0:
                 pake_obj.print('Nothing to do, all tasks up to date.')
             return 0
-        except pake.InputFileNotFoundException as err:
+        except pake.InputNotFoundException as err:
             print(str(err), file=pake.conf.stderr)
             return m_exit(returncodes.TASK_INPUT_NOT_FOUND)
-        except pake.MissingOutputFilesException as err:
+        except pake.MissingOutputsException as err:
             print(str(err), file=pake.conf.stderr)
             return m_exit(returncodes.TASK_OUTPUT_MISSING)
         except pake.UndefinedTaskException as err:
@@ -423,18 +427,25 @@ def run(pake_obj, tasks=None, call_exit=True):
         os.chdir(parsed_args.directory)
 
     return_code = 0
-    jobs = 1 if parsed_args.jobs is None else parsed_args.jobs
+
+    if jobs is None:
+        max_jobs = 1 if parsed_args.jobs is None else parsed_args.jobs
+    else:
+        if jobs < 1:
+            raise ValueError('jobs parameter may not be less than 1.')
+        else:
+            max_jobs = jobs
 
     try:
-        pake_obj.run(jobs=jobs, tasks=run_tasks)
+        pake_obj.run(jobs=max_jobs, tasks=run_tasks)
 
         if pake_obj.run_count == 0:
             pake_obj.print('Nothing to do, all tasks up to date.')
 
-    except pake.InputFileNotFoundException as err:
+    except pake.InputNotFoundException as err:
         print(str(err), file=pake.conf.stderr)
         return_code = returncodes.TASK_INPUT_NOT_FOUND
-    except pake.MissingOutputFilesException as err:
+    except pake.MissingOutputsException as err:
         print(str(err), file=pake.conf.stderr)
         return_code = returncodes.TASK_OUTPUT_MISSING
     except pake.UndefinedTaskException as err:

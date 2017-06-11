@@ -1,6 +1,8 @@
 # About pake
 
-[![Documentation Status](https://readthedocs.org/projects/pake/badge/?version=latest)](http://pake.readthedocs.io/en/latest/?badge=latest)
+[![Master Documentation Status](https://readthedocs.org/projects/pake/badge/?version=latest)](http://pake.readthedocs.io/en/latest/?badge=latest)
+[![Develop Documentation Status](https://readthedocs.org/projects/pake/badge/?version=develop)](http://pake.readthedocs.io/en/latest/?badge=develop)
+![Coverage](coverage-badge.svg)
 
 pake is a make like python build utility where tasks, dependencies and build commands
 can be expressed entirely in python, similar to ruby rake.
@@ -16,7 +18,7 @@ Note: pake is Alpha and likely to change some.
 
 
 ```
-sudo pip3 install git+git://github.com/Teriks/pake.git@0.7.0.0a1
+sudo pip3 install git+git://github.com/Teriks/pake.git@0.8.0.0a1
 ```
 
 

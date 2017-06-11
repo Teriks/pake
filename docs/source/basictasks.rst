@@ -4,6 +4,9 @@ Writing Basic Tasks
 Additional information about change detection is available in the form of examples in
 the documentation for the :py:meth:`pake.Pake.task` function decorator.
 
+Pake is capable of handling change detection against both files and directories, and the two can be used
+as inputs or outputs interchangeably and in combination.
+
 
 *Note:*
 

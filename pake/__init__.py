@@ -21,7 +21,7 @@
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '0.7.0.0'
+__version__ = '0.8.0.0'
 
 from .filehelper import FileHelper
 
@@ -37,8 +37,8 @@ from .pake import \
     UndefinedTaskException, \
     RedefinedTaskException, \
     TaskException, \
-    InputFileNotFoundException, \
-    MissingOutputFilesException
+    InputNotFoundException, \
+    MissingOutputsException
 
 from .process import SubprocessException
 
@@ -72,8 +72,8 @@ __all__ = [
     'glob',
     'FileHelper',
     'TaskException',
-    'InputFileNotFoundException',
-    'MissingOutputFilesException',
+    'InputNotFoundException',
+    'MissingOutputsException',
     'UndefinedTaskException',
     'RedefinedTaskException',
     'PakeUninitializedException',
