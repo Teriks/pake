@@ -10,12 +10,6 @@ sys.path.insert(1,
 
 import pake
 
-from tests import open_devnull
-
-#pake.conf.stdout = open_devnull() if pake.conf.stdout is sys.stdout else pake.conf.stdout
-#pake.conf.stderr = open_devnull() if pake.conf.stderr is sys.stderr else pake.conf.stderr
-
-
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 # Force the test to occur in the correct place
@@ -264,6 +258,8 @@ class IntegrationTest(unittest.TestCase):
         fun(os.path.exists(os.path.join(script_dir, "test_data", "dir_cmp_test.o")))
 
     def test_integrated(self):
+        print('===== STARTING INTEGRATION TEST =====')
+
         fh = pake.FileHelper()
         fh.glob_remove(os.path.join(script_dir, '**', '*.o'))
         fh.remove(os.path.join(script_dir, 'test_data', 'main'))
@@ -276,7 +272,11 @@ class IntegrationTest(unittest.TestCase):
 
         self._check_outputs(exist=False)
 
+        print('===== FINISHED INTEGRATION TEST =====')
+
     def test_integrated_parallel(self):
+        print('===== STARTING PARALLEL INTEGRATION TEST ====='+os.linesep)
+
         fh = pake.FileHelper()
         fh.glob_remove(os.path.join(script_dir, '**', '*.o'))
         fh.remove(os.path.join(script_dir, 'test_data', 'main'))
@@ -288,3 +288,5 @@ class IntegrationTest(unittest.TestCase):
         self.assertEqual(pake.run(pk, tasks=clean, jobs=10, call_exit=False), 0)
 
         self._check_outputs(exist=False)
+
+        print('===== FINISHED PARALLEL INTEGRATION TEST =====')
