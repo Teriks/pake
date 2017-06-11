@@ -2,6 +2,7 @@
 
 [![Master Documentation Status](https://readthedocs.org/projects/pake/badge/?version=latest)](http://pake.readthedocs.io/en/latest/?badge=latest)
 [![Develop Documentation Status](https://readthedocs.org/projects/pake/badge/?version=develop)](http://pake.readthedocs.io/en/latest/?badge=develop)
+[![codecov](https://codecov.io/gh/Teriks/pake/branch/master/graph/badge.svg)](https://codecov.io/gh/Teriks/pake)
 
 pake is a make like python build utility where tasks, dependencies and build commands
 can be expressed entirely in python, similar to ruby rake.
