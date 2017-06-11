@@ -2,7 +2,7 @@
 
 [![Master Documentation Status](https://readthedocs.org/projects/pake/badge/?version=latest)](http://pake.readthedocs.io/en/latest/?badge=latest)
 [![Develop Documentation Status](https://readthedocs.org/projects/pake/badge/?version=develop)](http://pake.readthedocs.io/en/latest/?badge=develop)
-![Coverage](coverage-badge.svg)
+![Coverage](https://cdn.rawgit.com/Teriks/pake/master/coverage-badge.svg)
 
 pake is a make like python build utility where tasks, dependencies and build commands
 can be expressed entirely in python, similar to ruby rake.
