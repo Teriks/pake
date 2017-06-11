@@ -226,13 +226,13 @@ def parse_define_value(value):
 
     This function can parse strings, integers, floats, lists, tuples, dictionaries and sets.
 
-    True and False values are case insensitive.
+    'True', 'False' and 'None' values are case insensitive.
 
     Anything that does not start with a python literal quoting character (such as " or even [ ) and
     is not a True or False value, Integer, or Float, is considered to be a raw string.
 
     :raises: :py:exc:`SyntaxError` if an attempt is made to parse a literal such as an integer, float, list etc.. and it fails.
-    :raises: :py:exc:`ValueError` if the **value** parameter is **None**.
+    :raises: :py:exc:`ValueError` if the **value** parameter is passed **None**.
 
     :param value: String representing the defines value.
     :return: Python literal representing the defines values.
