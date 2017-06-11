@@ -18,6 +18,7 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import ast
 import inspect
 import pathlib
 import shlex
@@ -214,3 +215,43 @@ def get_pakefile_caller_detail():  # pragma: no cover
 
     finally:
         del cur_frame
+
+
+def parse_define_value(value):
+    """
+    Used to interpret the value of a define declared on the command line with the -D/--define option.
+
+    -D excepts all forms of python literal as define values.
+
+    This function can parse strings, integers, floats, lists, tuples, dictionaries and sets.
+
+    True and False values are case insensitive.
+
+    Anything that does not start with a python literal quoting character (such as " or even [ ) and
+    is not a True or False value, Integer, or Float, is considered to be a raw string.
+
+    :raises: :py:exc:`SyntaxError` if an attempt is made to parse a literal such as an integer, float, list etc.. and it fails.
+
+    :param value: String representing the defines value.
+    :return: Python literal representing the defines values.
+    """
+    literal_eval_triggers = {"'", '"', "(", "{", "["}
+
+    if pake.util.str_is_int(value):
+        return int(value)
+    elif pake.util.str_is_float(value):
+        return float(value)
+    else:
+        literal = value.lstrip()
+        if len(literal) > 0:
+            if literal[0] in literal_eval_triggers:
+                return ast.literal_eval(literal)
+        else:
+            return ''
+
+        lower = literal.rstrip().lower()
+        if lower == 'false':
+            return False
+        if lower == 'true':
+            return True
+    return value

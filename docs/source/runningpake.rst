@@ -74,14 +74,16 @@ Return Codes
 
 See: :py:mod:`pake.returncodes`
 
+0. Pake ran successfully.
 1. Pakefile not found in directory, or specified pakefile does not exist.
 2. Bad combination of command line arguments.
-3. No tasks defined in pakefile.
-4. No tasks specified to run, no default tasks exist.
-5. A task's input file is missing.
-6. A task declares input files but no output files.
-7. An undefined task was referenced.
-8. A cyclic dependency was detected.
-9. An unhandled :py:class:`pake.SubprocessException` was raised inside a task.
-10. An exceptional condition occurred running a subpake script.
-11. An unhandled exception occurred inside of a task.
+3. Syntax error while parsing a define value from the **-D/--define** option.
+4. No tasks defined in pakefile.
+5. No tasks specified to run, no default tasks exist.
+6. A task's input file/directory is missing.
+7. A task declares input files/directories but no output files.
+8. An undefined task was referenced.
+9. A cyclic dependency was detected.
+10. An unhandled :py:class:`pake.SubprocessException` was raised inside a task.
+11. An exceptional condition occurred running a subpake script.
+12. An unhandled exception occurred inside of a task.

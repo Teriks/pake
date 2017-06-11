@@ -82,6 +82,16 @@ class ProgramTest(unittest.TestCase):
 
         self.assertEqual(pake.get_max_jobs(), 10)
 
+        pake.program.shutdown()
+
+        with self.assertRaises(SystemExit) as cm:
+            pake.init(args=['-D', 'TEST={ I am a bad define'])
+
+        self.assertEqual(cm.exception.code, returncodes.BAD_DEFINE_VALUE)
+
+        pake.program.shutdown()
+
+
     def test_run(self):
 
         pake.program.shutdown()

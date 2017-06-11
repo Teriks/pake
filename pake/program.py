@@ -18,7 +18,6 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import ast
 import inspect
 import os.path
 import textwrap
@@ -52,41 +51,22 @@ class PakeUninitializedException(Exception):
         super(PakeUninitializedException, self).__init__('pake.init() has not been called yet.')
 
 
-def _coerce_define_value(value_name, value):
-    literal_eval_triggers = {"'", '"', "(", "{", "["}
-
-    if pake.util.str_is_int(value):
-        return int(value)
-    elif pake.util.str_is_float(value):
-        return float(value)
-    else:
-        ls = value.lstrip()
-        if len(ls) > 0:
-            if ls[0] in literal_eval_triggers:
-                try:
-                    return ast.literal_eval(ls)
-                except SyntaxError as syn_err:
-                    raise RuntimeError(
-                        'Error parsing define value of "{name}": {message}'
-                        .format(name=value_name, message=str(syn_err)))
-        else:
-            return ''
-
-        lower = ls.rstrip().lower()
-        if lower == 'false':
-            return False
-        if lower == 'true':
-            return True
-    return value
-
-
 def _defines_to_dict(defines):
-    if defines is None: return dict()
+    if defines is None:
+        return dict()
 
     result = {}
     for i in defines:
         d = i.split('=', maxsplit=1)
-        result[d[0].strip()] = True if len(d) == 1 else _coerce_define_value(d[0], d[1])
+
+        value_name = d[0]
+
+        try:
+            result[value_name.strip()] = True if len(d) == 1 else pake.util.parse_define_value(d[1])
+        except SyntaxError as syn_err:
+            raise ValueError(
+                'Error parsing define value of "{name}": {message}'
+                .format(name=value_name, message=str(syn_err)))
     return result
 
 
@@ -112,7 +92,11 @@ def init(stdout=None, args=None):
 
     parsed_args = pake.arguments.parse_args(args=args)
 
-    pk.set_defines_dict(_defines_to_dict(parsed_args.define))
+    try:
+        pk.set_defines_dict(_defines_to_dict(parsed_args.define))
+    except ValueError as err:
+        print(str(err), file=pake.conf.stderr)
+        exit(returncodes.BAD_DEFINE_VALUE)
 
     cur_frame = inspect.currentframe()
     try:
@@ -282,20 +266,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     or :py:meth:`pake.Pake.dry_run` (if **call_exit** is **True**), and print information to :py:attr:`pake.Pake.stderr` if
     necessary.
     
-    Possible Return Codes:
-    
-    2. Invalid parameter combination.
-    3. No tasks defined.
-    4. No tasks specified.
-    5. Task input file not found.
-    6. Task defines input files with no output files.
-    7. Reference made to an undefined task.
-    8. Cyclic dependency detected.
-    9. Unhandled :py:class:`pake.SubprocessException` was raised inside a task.
-    10. An exceptional condition occurred running a subpake script.
-    11. Other unhandled exception inside of task.
-    
-    See: :py:mod:`pake.returncodes`
+    For all return codes see: :py:mod:`pake.returncodes`
     
     :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :raises: :py:class:`ValueError` if the **jobs** parameter is used, and is set less than 1.
@@ -475,4 +446,4 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     if return_code != 0:
         return m_exit(return_code)
 
-    return 0
+    return returncodes.SUCCESS

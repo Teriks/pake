@@ -22,6 +22,10 @@
 """
 Pake return codes.
 
+.. data:: SUCCESS
+
+    0. Pake ran successfully.
+
 .. data:: PAKEFILE_NOT_FOUND
 
     1. Pakefile not found in directory, or specified pakefile does not exist.
@@ -30,37 +34,41 @@ Pake return codes.
 
     2. Bad combination of command line arguments.
 
+.. data:: BAD_DEFINE_VALUE
+
+    3. Syntax error while parsing a define value from the -D/--define option.
+
 .. data:: NO_TASKS_DEFINED
 
-    3. No tasks defined in pakefile.
+    4. No tasks defined in pakefile.
     
 .. data:: NO_TASKS_SPECIFIED
 
-    4. No tasks specified to run, no default tasks exist.
+    5. No tasks specified to run, no default tasks exist.
     
 .. data:: TASK_INPUT_NOT_FOUND
 
-    5. A task's input file is missing.
+    6. One of task's input files/directories is missing.
     
 .. data:: TASK_OUTPUT_MISSING
 
-    6. A task declares input files but no output files.
+    7. A task declares input files/directories but no output files/directories.
     
 .. data:: UNDEFINED_TASK
 
-    7. An undefined task was referenced.
+    8. An undefined task was referenced.
     
 .. data:: CYCLIC_DEPENDENCY
 
-    8. A cyclic dependency was detected.
+    9. A cyclic dependency was detected.
 
 .. data:: TASK_SUBPROCESS_EXCEPTION
 
-    9. An unhandled :py:class:`pake.SubprocessException` was raised inside a task.
+    10. An unhandled :py:class:`pake.SubprocessException` was raised inside a task.
     
 .. data:: SUBPAKE_EXCEPTION
 
-    10. An exceptional condition occurred running a subpake script.
+    11. An exceptional condition occurred running a subpake script.
     
     Occurs if :py:meth:`pake.TaskContext.subpake` encounters a :py:class:`pake.SubprocessException` inside a task.
 
@@ -68,19 +76,20 @@ Pake return codes.
 
 .. data:: TASK_EXCEPTION
 
-    11. An unhandled exception occurred inside a task.
+    12. An unhandled exception occurred inside a task.
 """
 
-
+SUCCESS = 0
 PAKEFILE_NOT_FOUND = 1
 BAD_ARGUMENTS = 2
-NO_TASKS_DEFINED = 3
-NO_TASKS_SPECIFIED = 4
-TASK_INPUT_NOT_FOUND = 5
-TASK_OUTPUT_MISSING = 6
-UNDEFINED_TASK = 7
-CYCLIC_DEPENDENCY = 8
-TASK_SUBPROCESS_EXCEPTION = 9
-SUBPAKE_EXCEPTION = 10
-TASK_EXCEPTION = 11
+BAD_DEFINE_VALUE = 3
+NO_TASKS_DEFINED = 4
+NO_TASKS_SPECIFIED = 5
+TASK_INPUT_NOT_FOUND = 6
+TASK_OUTPUT_MISSING = 7
+UNDEFINED_TASK = 8
+CYCLIC_DEPENDENCY = 9
+TASK_SUBPROCESS_EXCEPTION = 10
+SUBPAKE_EXCEPTION = 11
+TASK_EXCEPTION = 12
 
