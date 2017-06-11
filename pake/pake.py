@@ -489,27 +489,6 @@ class TaskGraph(pake.graph.Graph):
         return self._name
 
 
-class _OutPattern:
-    def __init__(self, file_pattern):
-        self._pattern = file_pattern
-
-    def _do_template(self, i):
-        name = os.path.splitext(os.path.basename(i))[0]
-        return self._pattern.replace('%', name)
-
-    def __call__(self, inputs):
-        for i in inputs:
-            yield self._do_template(i)
-
-
-class _Glob:
-    def __init__(self, expression):
-        self._expression = expression
-
-    def __call__(self):
-        return file_glob(self._expression)
-
-
 def glob(expression):
     """Deferred file input glob, the glob is not executed until the task executes.
 
