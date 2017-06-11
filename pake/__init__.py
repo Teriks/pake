@@ -21,7 +21,7 @@
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '0.8.0.0'
+__version__ = '0.8.1.0'
 
 from .filehelper import FileHelper
 
