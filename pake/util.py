@@ -37,7 +37,8 @@ __all__ = [
     'flatten_non_str',
     'handle_shell_args',
     'CallerDetail',
-    'get_pakefile_caller_detail'
+    'get_pakefile_caller_detail',
+    'parse_define_value'
 ]
 
 
