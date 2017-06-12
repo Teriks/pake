@@ -419,7 +419,7 @@ class TaskContext:
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
                                   stdin=stdin, shell=shell) as process:
-                
+
                 process_stdout = codecs.getreader(sys.stdout.encoding)(process.stdout)
 
                 if not silent:

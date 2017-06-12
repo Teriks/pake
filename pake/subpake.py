@@ -29,6 +29,7 @@ import pake.process
 import pake.program
 import pake.util
 import pake.returncodes as returncodes
+import pake.conf
 
 __all__ = ['export', 'subpake', 'SubpakeException']
 
@@ -179,12 +180,12 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
 
         if not silent:
             pake.util.copyfileobj_tee(process_stdout, [stdout, output_copy_buffer])
-        else:
+        else:  # pragma: no cover
             pake.util.copyfileobj_tee(process_stdout, [output_copy_buffer])
 
         try:
             exitcode = process.wait()
-        except:
+        except:  # pragma: no cover
             output_copy_buffer.close()
             process.kill()
             process.wait()
