@@ -269,7 +269,7 @@ def parse_define_value(value):
 
 
 def copyfileobj_tee(fsrc, destinations, length=16*1024, read_predicate=None):
-    """copy data from file-like object fsrc to multiple file like objects.
+    """copy data from file-like object **fsrc** to multiple file like objects.
 
     :param fsrc: Source file object.
     :param destinations: List of destination file objects.
