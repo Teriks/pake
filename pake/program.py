@@ -48,7 +48,7 @@ class PakeUninitializedException(Exception):
     """
 
     def __init__(self):
-        super(PakeUninitializedException, self).__init__('pake.init() has not been called yet.')
+        super().__init__('pake.init() has not been called yet.')
 
 
 def _defines_to_dict(defines):

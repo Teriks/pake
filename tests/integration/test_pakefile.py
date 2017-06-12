@@ -5,12 +5,13 @@ import unittest
 
 import os
 
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
 sys.path.insert(1,
-                os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../')))
+                os.path.abspath(os.path.join(script_dir, '..', '..')))
 
 import pake
 
-script_dir = os.path.dirname(os.path.realpath(__file__))
 
 # Force the test to occur in the correct place
 os.chdir(script_dir)
@@ -31,27 +32,41 @@ pake.export('TEST_EXPORT4', (1, 'te"st', [3, 4, "test'test"]))
 pake.export('TEST_EXPORT5', '')
 
 
-@pk.task(i='test_data/do_stuff_first.c', o='test_data/do_stuff_first.o')
-def do_stuff_first(ctx):
+@pk.task(i='test_data/one.c', o='test_data/do_single.o')
+def do_single(ctx):
     file_helper = pake.FileHelper(ctx)
 
     ctx.print(ctx.inputs[0])
     file_helper.copy(ctx.inputs[0], ctx.outputs[0])
 
 
-@pk.task(i='test_data/do_stuff_first_2.c', o='test_data/do_stuff_first_2.o')
-def do_stuff_first_2(ctx):
+@pk.task(do_single, i='test_data/one.c', o='test_data/do_single_2.o')
+def do_single_2(ctx):
     file_helper = pake.FileHelper(ctx)
 
     ctx.print(ctx.inputs[0])
-    file_helper.copy(ctx.inputs[0], ctx.outputs[0], copy_metadata=True)
+    file_helper.copy(ctx.inputs[0], ctx.outputs[0])
 
 
 # If there are an un-equal amount of inputs to outputs,
 # rebuild all inputs if any input is newer than any output, or if any output file is missing.
 
-@pk.task(i=['test_data/stuffs_one.c', 'test_data/stuffs_two.c'], o='test_data/stuffs_combined.o')
-def do_multiple_stuffs(ctx):
+@pk.task(i=['test_data/one.c', 'test_data/two.c'], o='test_data/do_multiple.o')
+def do_multiple(ctx):
+    file_helper = pake.FileHelper(ctx)
+
+    # All inputs and outputs will be considered out of date
+
+    for i in ctx.inputs:
+        ctx.print(i)
+
+    for o in ctx.outputs:
+        file_helper.touch(o)
+
+
+@pk.task(i=['test_data/one.c', 'test_data/two.c'],
+         o=['test_data/do_multiple_2_1.o', 'test_data/do_multiple_2_2.o', 'test_data/do_multiple_2_3.o'])
+def do_multiple_2(ctx):
     file_helper = pake.FileHelper(ctx)
 
     # All inputs and outputs will be considered out of date
@@ -66,8 +81,9 @@ def do_multiple_stuffs(ctx):
 # Rebuild the input on the left that corresponds to the output in the same position
 # on the right when that specific input is out of date, or it's output is missing.
 
-@pk.task(i=['test_data/stuffs_three.c', 'test_data/stuffs_four.c'], o=['test_data/stuffs_three.o', 'test_data/stuffs_four.o'])
-def do_multiple_stuffs_2(ctx):
+@pk.task(i=['test_data/one.c', 'test_data/two.c'],
+         o=['test_data/do_multiple_3_1.o', 'test_data/do_multiple_3_2.o'])
+def do_multiple_3(ctx):
     file_helper = pake.FileHelper(ctx)
     # Only out of date inputs/outputs will be in these collections
 
@@ -80,19 +96,18 @@ def do_multiple_stuffs_2(ctx):
 
 
 @pk.task(
-    do_stuff_first, do_stuff_first_2, do_multiple_stuffs, do_multiple_stuffs_2,
-    i='test_data/do_stuff.c', o='test_data/do_stuff.o'
+    do_single_2,
+    do_multiple,
+    do_multiple_2,
+    do_multiple_3,
+    i='test_data/one.c', o='test_data/do_all.o'
 )
-def do_stuff(ctx):
+def do_all(ctx):
     file_helper = pake.FileHelper(ctx)
 
     ctx.print(ctx.inputs[0])
 
     file_helper.touch(ctx.outputs[0])
-
-    # Print the collective outputs of this ctxs immediate dependencies
-
-    ctx.print('Dependency outputs: ' + str(ctx.dependency_outputs))
 
     # Run a test pakefile.py script in a subdirectory, build 'all' task
     ctx.subpake('test_data/subpake/pakefile.py', 'all')
@@ -102,21 +117,6 @@ def do_stuff(ctx):
 
 @pk.task
 def print_define(ctx):
-    """
-    Print Define info test. This is a very long info string
-    which should be text wrapped to look nice on the command line
-    by pythons built in textwrap module.  This long info string
-    should be wrapped at 70 characters, which is the default
-    value used by the textwrap module, and is similar if
-    not the same wrap value used by the argparse module when
-    formatting command help.
-    """
-
-    # Defines are interpreted into python literals.
-    # If you pass and integer, you get an int.. string str, (True or False) a bool etc.
-    # Defines that are not given a value explicitly are given the value of 'True'
-    # Defines that don't exist return 'None'
-
     if pk['SOME_DEFINE']:
         ctx.print(pk['SOME_DEFINE'])
 
@@ -137,6 +137,8 @@ def glob_and_pattern_test2(ctx):
     with ctx.multitask() as mt:
         list(mt.map(file_helper.touch, ctx.outdated_outputs))
 
+
+# Cover programmatically added tasks, and tasks which are based on classes
 
 class FileToucher:
     def __init__(self, tag):
@@ -168,6 +170,9 @@ def toucher_task_func(ctx):
 pk.add_task('toucher_func_task_c', toucher_task_func, dependencies='toucher_class_task_b', outputs=['test_data/toucher_func_file_4.o'])
 
 
+# Cover directory comparisons
+
+
 @pk.task(glob_and_pattern_test, i='test_data/glob_and_pattern', o='test_data/dir_cmp_test.o')
 def directory_compare_test(ctx):
     # glob_and_pattern_test modifies the input folder, so this should run
@@ -182,13 +187,14 @@ def directory_create_test(ctx):
     file_helper.makedirs(ctx.outputs[0])
 
 
-@pk.task(do_stuff, directory_compare_test, directory_create_test, glob_and_pattern_test2, 'toucher_func_task_c', o='test_data/main')
+@pk.task(do_all, directory_compare_test, directory_create_test, glob_and_pattern_test2, 'toucher_func_task_c', o='test_data/main')
 def all(ctx):
     file_helper = pake.FileHelper(ctx)
     file_helper.touch(ctx.outputs[0])
 
 
 # Clean .o files in directories
+# Cover some of pake.FileHelper
 
 @pk.task
 def clean(ctx):
@@ -208,39 +214,33 @@ def clean(ctx):
     ctx.subpake('test_data/subpake/pakefile.py', 'clean')
 
 
-@pk.task
-def one(ctx):
-    ctx.print('ONE')
-
-
-@pk.task
-def two(ctx):
-    ctx.print('TWO')
-
-
-@pk.task
-def three(ctx):
-    ctx.print('THREE')
-
 if __name__ == '__main__':
-    pake.run(pk, tasks=[one, two, three, print_define, all])
+    pake.run(pk, tasks=[print_define, all])
     exit(0)
 
 
 class IntegrationTest(unittest.TestCase):
     def _check_outputs(self, exist=True):
         fun = self.assertTrue if exist else self.assertFalse
-        fun(os.path.exists(os.path.join(script_dir, "test_data", "do_stuff.o")))
-        fun(os.path.exists(os.path.join(script_dir, "test_data", "do_stuff_first.o")))
-        fun(os.path.exists(os.path.join(script_dir, "test_data", "do_stuff_first_2.o")))
+
         fun(os.path.exists(os.path.join(script_dir, "test_data", "main")))
-        fun(os.path.exists(os.path.join(script_dir, "test_data", "stuffs_combined.o")))
-        fun(os.path.exists(os.path.join(script_dir, "test_data", "stuffs_four.o")))
-        fun(os.path.exists(os.path.join(script_dir, "test_data", "stuffs_three.o")))
+
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "do_single.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "do_single_2.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "do_multiple.o")))
+
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "do_multiple_2_1.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "do_multiple_2_2.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "do_multiple_2_3.o")))
+
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "do_multiple_3_1.o")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "do_multiple_3_2.o")))
+
         fun(os.path.exists(os.path.join(script_dir, "test_data", "toucher_class_file_1.o")))
         fun(os.path.exists(os.path.join(script_dir, "test_data", "toucher_class_file_2.o")))
         fun(os.path.exists(os.path.join(script_dir, "test_data", "toucher_class_file_3.o")))
         fun(os.path.exists(os.path.join(script_dir, "test_data", "toucher_func_file_4.o")))
+
         fun(os.path.exists(os.path.join(script_dir, "test_data", "subpake", "test.o")))
 
         fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "src_a", "a.o")))
@@ -264,7 +264,7 @@ class IntegrationTest(unittest.TestCase):
         fh.glob_remove(os.path.join(script_dir, '**', '*.o'))
         fh.remove(os.path.join(script_dir, 'test_data', 'main'))
 
-        self.assertEqual(pake.run(pk, tasks=[one, two, three, print_define, all], call_exit=False), 0)
+        self.assertEqual(pake.run(pk, tasks=[print_define, all], call_exit=False), 0)
 
         self._check_outputs()
 
@@ -281,7 +281,7 @@ class IntegrationTest(unittest.TestCase):
         fh.glob_remove(os.path.join(script_dir, '**', '*.o'))
         fh.remove(os.path.join(script_dir, 'test_data', 'main'))
 
-        self.assertEqual(pake.run(pk, tasks=[one, two, three, print_define, all], jobs=10, call_exit=False), 0)
+        self.assertEqual(pake.run(pk, tasks=[print_define, all], jobs=10, call_exit=False), 0)
 
         self._check_outputs()
 

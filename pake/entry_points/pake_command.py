@@ -46,6 +46,9 @@ parser.add_argument("-f", "--file", nargs=1, action='append', type=_verify_file_
 
 
 def main(args=None):
+    # Affects interpreter sub processes, not this process.
+    os.environ['PYTHONUNBUFFERED'] = '1'
+
     if args is None:
         args = parser.parse_args()
     else:

@@ -28,7 +28,7 @@ class CyclicGraphException(Exception):
     """
 
     def __init__(self, *args):
-        super(Exception, self).__init__(*args)
+        super().__init__(*args)
 
 
 class Graph:

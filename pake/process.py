@@ -19,13 +19,14 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import shutil
 
 from .util import get_pakefile_caller_detail
 
 __all__ = ['SubprocessException']
 
 
-class SubprocessException(Exception):  # pragma: no cover
+class SubprocessException(Exception):
     """
     Raised upon encountering a non-zero return code from a subprocess,
     when it is not specified that non-zero return codes should be ignored.
@@ -37,10 +38,6 @@ class SubprocessException(Exception):  # pragma: no cover
     .. py:attribute:: returncode
     
         Process returncode.
-        
-    .. py:attribute:: output
-    
-        Process output as bytes.
         
     .. py:attribute:: message
     
@@ -59,21 +56,36 @@ class SubprocessException(Exception):  # pragma: no cover
         Line Number describing the line where the process call was initiated. (might be None)
     """
 
-    def __init__(self, cmd, returncode, output,
+    def __init__(self, cmd, returncode,
+                 output=None,
+                 output_stream=None,
                  message=None):
         """
         :param cmd: Command in list form.
         :param returncode: The command's returncode.
-        :param output: All output from the command as bytes.
-        :param message: Option information.
+
+        :param output: (Optional) All output from the command as bytes.
+
+        :param output_stream: (Optional) A file like object containing the process output, at seek(0).
+                               By providing this parameter instead of **output**, you give this object permission
+                               to close the stream when it is garbage collected or when :py:meth:`pake.SubprocessException.write_info` is called.
+
+        :param message: Optional exception message.
         """
+
+        super().__init__(message)
+
+        if output is not None and output_stream is not None:
+            raise ValueError('output and output_stream parameters cannot be used together.')
 
         c_detail = get_pakefile_caller_detail()
 
         self.message = message
         self.returncode = returncode
-        self.output = output
         self.cmd = cmd
+
+        self._output = output
+        self._output_stream = output_stream
 
         if c_detail:
             self.filename = c_detail.filename
@@ -84,11 +96,19 @@ class SubprocessException(Exception):  # pragma: no cover
             self.line_number = None
             self.function_name = None
 
-    def __str__(self):
+    def __del__(self):
+        if self._output_stream is not None:
+            self._output_stream.close()
+            self._output_stream = None
+
+    def write_info(self, file):
+        """Writes information about the subprocess exception to a file like object.
+
+        This is necessary over implementing in __str__, because the process output might be drawn from another file
+        to prevent issues with huge amounts of process output.
+        """
 
         class_name = self.__module__ + "." + self.__class__.__name__
-
-        msg = ''
 
         template = []
         if self.filename:
@@ -99,19 +119,31 @@ class SubprocessException(Exception):  # pragma: no cover
             template.append('line_number={}'.format(self.line_number))
 
         if len(template):
-            msg += '{myname}({sep}\t{template}{sep}){sep}{sep}'. \
-                format(myname=class_name, template=(',' + os.linesep + '\t').join(template), sep=os.linesep)
+            file.write('{myname}({sep}\t{template}{sep}){sep}{sep}'.
+                       format(myname=class_name, template=(',' + os.linesep + '\t').join(template), sep=os.linesep))
         else:
-            msg += '{myname}(){sep}{sep}'.format(myname=class_name, sep=os.linesep)
+            file.write('{myname}(){sep}{sep}'.format(myname=class_name, sep=os.linesep))
 
         if self.message:
-            msg += 'Message: '+self.message+(os.linesep*2)
+            # noinspection PyTypeChecker
+            # os.linesep is a string, * 2 duplicates it twice
+            file.write('Message: ' + self.message + (os.linesep * 2))
 
-        msg += 'The following command exited with return code: {code}{sep}{sep}{cmd}' \
-            .format(code=self.returncode, sep=os.linesep, cmd=' '.join(self.cmd))
+        file.write('The following command exited with return code: {code}{sep}{sep}{cmd}' \
+                   .format(code=self.returncode, sep=os.linesep, cmd=' '.join(self.cmd)))
 
-        if self.output:
-            msg += "{sep}{sep}Command Output: {{{sep}{sep}{output}{sep}{sep}}}{sep}" \
-                .format(sep=os.linesep, output=self.output.decode().strip())
+        if self._output or self._output_stream:
+            file.write("{sep}{sep}Command Output: {{{sep}{sep}".format(sep=os.linesep))
 
-        return msg
+            if self._output_stream:
+                try:
+                    shutil.copyfileobj(self._output_stream, file)
+                finally:
+                    try:
+                        self._output_stream.close()
+                    finally:
+                        self._output_stream = None
+            else:
+                file.write(self._output.decode())
+
+            file.write("{sep}{sep}}}{sep}".format(sep=os.linesep))

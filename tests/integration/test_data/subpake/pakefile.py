@@ -45,6 +45,7 @@ def all(ctx):
 @pk.task
 def clean(ctx):
     for i in glob.glob("*.o"):
+        ctx.print('Removing: {}'.format(i))
         os.unlink(i)
 
 

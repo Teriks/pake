@@ -23,6 +23,7 @@ import subprocess
 import sys
 
 import os
+import tempfile
 
 import pake.process
 import pake.program
@@ -34,7 +35,7 @@ __all__ = ['export', 'subpake', 'SubpakeException']
 _exports = dict()
 
 
-class SubpakeException(pake.process.SubprocessException):
+class SubpakeException(pake.SubprocessException):
     """
     Raised upon encountering a non-zero return code from a subpake invocation.
 
@@ -45,10 +46,6 @@ class SubpakeException(pake.process.SubprocessException):
     .. py:attribute:: returncode
 
         Process returncode.
-
-    .. py:attribute:: output
-
-        Process output as bytes.
 
     .. py:attribute:: message
 
@@ -66,8 +63,27 @@ class SubpakeException(pake.process.SubprocessException):
 
         Line Number describing the line where the process call was initiated. (might be None)
     """
-    def __init__(self, *args, **kwargs):
-        super(SubpakeException, self).__init__(*args, **kwargs)
+    def __init__(self, cmd, returncode,
+                 output=None,
+                 output_stream=None,
+                 message=None):
+        """
+        :param cmd: Command in list form.
+        :param returncode: The command's returncode.
+
+        :param output: (Optional) All output from the command as bytes.
+
+        :param output_stream: (Optional) A file like object containing the process output, at seek(0).
+                               By providing this parameter instead of **output**, you give this object permission
+                               to close the stream when it is garbage collected or when :py:meth:`pake.SubprocessException.write_info` is called.
+
+        :param message: Optional exception message.
+        """
+        super().__init__(cmd=cmd,
+                         returncode=returncode,
+                         output=output,
+                         output_stream=output_stream,
+                         message=message)
 
 
 def export(name, value):  # pragma: no cover
@@ -153,21 +169,37 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
 
     args = [sys.executable, script] + extra_args + list(str(i) for i in args)
 
-    try:
-        output = subprocess.check_output(args,
-                                         stderr=subprocess.STDOUT)
-        if not silent:
-            stdout.flush()
-            stdout.write(output.decode())
+    output_copy_buffer = tempfile.TemporaryFile(mode='w+')
 
-    except subprocess.CalledProcessError as err:
-        ex = SubpakeException(cmd=args,
-                              returncode=err.returncode,
-                              output=err.output,
-                              message='An exceptional condition occurred '
-                                      'inside a pakefile ran by subpake.')
-        if exit_on_error:
-            print(str(ex), file=pake.conf.stderr)
-            exit(returncodes.SUBPAKE_EXCEPTION)
+    with subprocess.Popen(args,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.STDOUT,
+                          encoding=sys.stdout.encoding,
+                          errors='strict') as process:
+
+        if not silent:
+            pake.util.copyfileobj_tee(process.stdout, [stdout, output_copy_buffer])
         else:
-            raise ex
+            pake.util.copyfileobj_tee(process.stdout, [output_copy_buffer])
+
+        try:
+            exitcode = process.wait()
+        except:
+            output_copy_buffer.close()
+            process.kill()
+            process.wait()
+            raise
+
+        if exitcode:
+            output_copy_buffer.seek(0)
+            ex = SubpakeException(cmd=args,
+                                  returncode=exitcode,
+                                  output_stream=output_copy_buffer,
+                                  message='An exceptional condition occurred '
+                                          'inside a pakefile ran by subpake.')
+
+            if exit_on_error:
+                ex.write_info(pake.conf.stderr)
+                exit(returncodes.SUBPAKE_EXCEPTION)
+            else:
+                raise ex

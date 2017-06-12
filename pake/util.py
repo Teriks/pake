@@ -38,7 +38,10 @@ __all__ = [
     'handle_shell_args',
     'CallerDetail',
     'get_pakefile_caller_detail',
-    'parse_define_value'
+    'parse_define_value',
+    'copyfileobj_tee',
+    'BinaryTextWriter',
+    'BinaryTextReader',
 ]
 
 
@@ -263,3 +266,63 @@ def parse_define_value(value):
         if lower == 'none':
             return None
     return value
+
+
+class BinaryTextWriter:
+    """A wrapper which allows passing a stream opened in Binary mode to the **file* parameter of functions such as **print**, which expect a text mode stream."""
+    def __init__(self, file, encoding="utf-8", errors="strict"):
+        """
+        :param file:  Binary file stream to wrap.
+        :param encoding:  The encoding to use for string objects written to the underlying file.
+        :param errors:  Error mode.  See: str.encode() in python standard library.
+        """
+        self._file = file
+        self._encoding = encoding
+        self._errors = errors
+
+    def write(self, data):
+        if type(data) is bytes:
+            self._file.write(data)
+        else:
+            self._file.write(data.encode(encoding=self._encoding, errors=self._errors))
+
+
+class BinaryTextReader:
+    """A wrapper which allows reading text from a binary stream with a certain encoding."""
+    def __init__(self, file, encoding="utf-8", errors="strict"):
+        """
+        :param file:  Binary file stream to wrap.
+        :param encoding:  The encoding to use when reading from the binary stream.
+        :param errors:  Error mode.  See: str.decode() in python standard library.
+        """
+        self._file = file
+        self._encoding = encoding
+        self._errors = errors
+
+    def read(self, length):
+        data = self._file.read()
+        if type(data) is bytes:
+            return data.en
+        else:
+            self._file.write(data.encode(encoding=self._encoding, errors=self._errors))
+
+
+def copyfileobj_tee(fsrc, destinations, length=16*1024, read_predicate=None):
+    """copy data from file-like object fsrc to multiple file like objects.
+
+    :param fsrc: Source file object.
+    :param destinations: List of destination file objects.
+    :param length: Read chunk size.
+    :param read_predicate: Optional read predicate function, the stream will continue to be read until the predicate returns false.
+    """
+
+    if read_predicate is None:
+        def read_predicate():
+            return True
+
+    while read_predicate():
+        buf = fsrc.read(length)
+        if not buf:
+            break
+        for fdst in destinations:
+            fdst.write(buf)

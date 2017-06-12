@@ -19,6 +19,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import inspect
+import shutil
 import subprocess
 import tempfile
 import threading
@@ -27,6 +28,9 @@ from functools import wraps
 from glob import glob as file_glob
 
 import os
+
+import sys
+
 import pake
 from concurrent.futures import ThreadPoolExecutor, wait as futures_wait, Executor, Future
 from os import path
@@ -63,6 +67,7 @@ class TaskException(Exception):  # pragma: no cover
         """
         :param exception: The exception raised.
         """
+        super().__init__()
         self.exception = exception
 
     def __str__(self):
@@ -76,7 +81,7 @@ class MissingOutputsException(Exception):  # pragma: no cover
     """
 
     def __init__(self, task_name):
-        super(MissingOutputsException, self).__init__(
+        super().__init__(
             'Error: Task "{}" defines inputs with no outputs, this is not allowed.'.format(task_name)
         )
 
@@ -88,7 +93,7 @@ class InputNotFoundException(Exception):  # pragma: no cover
     """
 
     def __init__(self, task_name, output_name):
-        super(InputNotFoundException, self).__init__(
+        super().__init__(
             'Error: Could not find input file/directory "{}" used by task "{}".'.format(output_name, task_name)
         )
 
@@ -102,7 +107,7 @@ class UndefinedTaskException(Exception):
     """
 
     def __init__(self, task_name):
-        super(UndefinedTaskException, self).__init__('Error: Task "{}" is undefined.'.format(task_name))
+        super().__init__('Error: Task "{}" is undefined.'.format(task_name))
         self.task_name = task_name
 
 
@@ -115,7 +120,7 @@ class RedefinedTaskException(Exception):
     """
 
     def __init__(self, task_name):
-        super(RedefinedTaskException, self).__init__('Error: Task "{}" has already been defined.'
+        super().__init__('Error: Task "{}" has already been defined.'
                                                      .format(task_name))
         self.task_name = task_name
 
@@ -126,7 +131,7 @@ def _handle_task_exception(ctx, exception):
         # about the call site of the subprocess in the pakefile
         # on its own, print and wrap as it is better for this information
         # to be printed to the task's output.
-        ctx.print(str(exception))
+        exception.write_info(ctx.io)
         raise TaskException(exception)
 
     if isinstance(exception, InputNotFoundException) or isinstance(exception, MissingOutputsException):
@@ -195,6 +200,7 @@ class TaskContext:
         self.outputs = []
         self.outdated_inputs = []
         self.outdated_outputs = []
+
 
     def multitask(self):
         """Returns a contextual object for submitting work to pake's current thread pool.
@@ -407,19 +413,34 @@ class TaskContext:
                             stdout=stdout, stderr=subprocess.STDOUT,
                             stdin=stdin, shell=shell)
         else:
-            try:
-                output = subprocess.check_output(args, stderr=subprocess.STDOUT,
-                                                 stdin=stdin, shell=shell)
-                if not silent:
-                    self._io.flush()
-                    self._io.write(output.decode())
+            output_copy_buffer = tempfile.TemporaryFile(mode='w+')
 
-            except subprocess.CalledProcessError as err:
-                raise pake.process.SubprocessException(cmd=args,
-                                                       returncode=err.returncode,
-                                                       output=err.output,
-                                                       message='An error occurred while executing a system '
-                                                               'command inside a pake task.')
+            with subprocess.Popen(args,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT,
+                                  stdin=stdin, shell=shell,
+                                  encoding=sys.stdout.encoding) as process:
+
+                if not silent:
+                    pake.util.copyfileobj_tee(process.stdout, [self._io, output_copy_buffer])
+                else:
+                    pake.util.copyfileobj_tee(process.stdout, [output_copy_buffer])
+
+                try:
+                    exitcode = process.wait()
+                except:
+                    output_copy_buffer.close()
+                    process.kill()
+                    process.wait()
+                    raise
+
+                if exitcode:
+                    output_copy_buffer.seek(0)
+                    raise pake.process.SubprocessException(cmd=args,
+                                                           returncode=exitcode,
+                                                           output_stream=output_copy_buffer,
+                                                           message='An error occurred while executing a system '
+                                                                   'command inside a pake task.')
 
     @property
     def dependencies(self):
@@ -439,7 +460,7 @@ class TaskContext:
 
     def _i_io_close(self):
         self._io.seek(0)
-        self.pake.stdout.write(self._io.read())
+        shutil.copyfileobj(self._io, self.pake.stdout)
         self._io.close()
 
     def _i_submit_self(self, thread_pool):
