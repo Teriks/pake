@@ -174,8 +174,7 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
     with subprocess.Popen(args,
                           stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT,
-                          encoding=sys.stdout.encoding,
-                          errors='strict') as process:
+                          encoding=sys.stdout.encoding) as process:
 
         if not silent:
             pake.util.copyfileobj_tee(process.stdout, [stdout, output_copy_buffer])
