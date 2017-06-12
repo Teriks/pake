@@ -121,7 +121,7 @@ class RedefinedTaskException(Exception):
 
     def __init__(self, task_name):
         super().__init__('Error: Task "{}" has already been defined.'
-                                                     .format(task_name))
+                         .format(task_name))
         self.task_name = task_name
 
 
@@ -200,7 +200,6 @@ class TaskContext:
         self.outputs = []
         self.outdated_inputs = []
         self.outdated_outputs = []
-
 
     def multitask(self):
         """Returns a contextual object for submitting work to pake's current thread pool.
@@ -597,7 +596,8 @@ class MultitaskContext(Executor):
         self._threadpool = ctx.pake.threadpool
         self._pending = []
 
-    def _submit_this_thread(self, fn, *args, **kwargs):
+    @staticmethod
+    def _submit_this_thread(fn, *args, **kwargs):
         future = Future()
         if not future.set_running_or_notify_cancel():
             return future

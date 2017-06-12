@@ -246,9 +246,9 @@ def parse_define_value(value):
 
     literal_eval_triggers = {"'", '"', "(", "{", "["}
 
-    if pake.util.str_is_int(value):
+    if str_is_int(value):
         return int(value)
-    elif pake.util.str_is_float(value):
+    elif str_is_float(value):
         return float(value)
     else:
         literal = value.lstrip()
