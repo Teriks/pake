@@ -17,7 +17,7 @@
 # LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+import codecs
 import inspect
 import shutil
 import subprocess
@@ -418,13 +418,14 @@ class TaskContext:
             with subprocess.Popen(args,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
-                                  stdin=stdin, shell=shell,
-                                  encoding=sys.stdout.encoding) as process:
+                                  stdin=stdin, shell=shell) as process:
+                
+                process_stdout = codecs.getreader(sys.stdout.encoding)(process.stdout)
 
                 if not silent:
-                    pake.util.copyfileobj_tee(process.stdout, [self._io, output_copy_buffer])
+                    pake.util.copyfileobj_tee(process_stdout, [self._io, output_copy_buffer])
                 else:
-                    pake.util.copyfileobj_tee(process.stdout, [output_copy_buffer])
+                    pake.util.copyfileobj_tee(process_stdout, [output_copy_buffer])
 
                 try:
                     exitcode = process.wait()
