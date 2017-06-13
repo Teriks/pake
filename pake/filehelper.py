@@ -64,7 +64,7 @@ class FileHelper:
             self._task_ctx = _DummyCtx()
 
     @property
-    def task_ctx(self):
+    def task_ctx(self):  # pragma: no cover
         if type(self._task_ctx) is _DummyCtx:
             return None
         return self._task_ctx
