@@ -119,11 +119,11 @@ class SubprocessException(ProcessException):
         self._output = output
         self._output_stream = output_stream
 
-        if c_detail:
+        if c_detail:  # pragma: no cover
             self.filename = c_detail.filename
             self.line_number = c_detail.line_number
             self.function_name = c_detail.function_name
-        else:
+        else:  # pragma: no cover
             self.filename = None
             self.line_number = None
             self.function_name = None
@@ -224,11 +224,11 @@ class TimeoutExpired(ProcessException):
 
         c_detail = pake.util.get_pakefile_caller_detail()
 
-        if c_detail:
+        if c_detail:  # pragma: no cover
             self.filename = c_detail.filename
             self.line_number = c_detail.line_number
             self.function_name = c_detail.function_name
-        else:
+        else:   # pragma: no cover
             self.filename = None
             self.line_number = None
             self.function_name = None
@@ -257,11 +257,11 @@ class TimeoutExpired(ProcessException):
         return out_str
 
     @property
-    def stdout(self):
+    def stdout(self):  # pragma: no cover
         return self.output
 
     @stdout.setter
-    def stdout(self, value):
+    def stdout(self, value):  # pragma: no cover
         self.output = value
 
 
@@ -309,11 +309,11 @@ class CalledProcessException(ProcessException):
 
         c_detail = pake.util.get_pakefile_caller_detail()
 
-        if c_detail:
+        if c_detail:  # pragma: no cover
             self.filename = c_detail.filename
             self.line_number = c_detail.line_number
             self.function_name = c_detail.function_name
-        else:
+        else:  # pragma: no cover
             self.filename = None
             self.line_number = None
             self.function_name = None
@@ -349,11 +349,11 @@ class CalledProcessException(ProcessException):
         return out_str
 
     @property
-    def stdout(self):
+    def stdout(self):  # pragma: no cover
         return self.output
 
     @stdout.setter
-    def stdout(self, value):
+    def stdout(self, value):  # pragma: no cover
         self.output = value
 
 
