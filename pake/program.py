@@ -66,7 +66,7 @@ def _defines_to_dict(defines):
         except SyntaxError as syn_err:
             raise ValueError(
                 'Error parsing define value of "{name}": {message}'
-                .format(name=value_name, message=str(syn_err)))
+                    .format(name=value_name, message=str(syn_err)))
     return result
 
 
@@ -104,6 +104,16 @@ def init(stdout=None, args=None):
         _init_file = os.path.abspath(filename)
     finally:
         del cur_frame
+
+    depth = get_subpake_depth()
+
+    if parsed_args.directory and parsed_args.directory != os.getcwd():
+        pk.print('pake[{}]: Entering Directory "{}"'.
+                 format(get_subpake_depth(), parsed_args.directory))
+        os.chdir(parsed_args.directory)
+
+    if depth > 0:
+        pk.print('*** enter subpake[{}]:'.format(depth))
 
     return pk
 
@@ -167,10 +177,7 @@ def get_subpake_depth():
 
     args = pake.arguments.get_args()
 
-    if hasattr(args, 's_depth'):
-        return args.s_depth
-    else:
-        return 0
+    return args.s_depth
 
 
 def get_init_file():
@@ -295,7 +302,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     parsed_args = pake.arguments.get_args()
 
     def m_exit(code):
-        if call_exit:
+        if call_exit:  # pragma: no cover
             exit(code)
         return code
 
@@ -364,6 +371,11 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         pake_obj.print("No tasks specified.")
         return m_exit(returncodes.NO_TASKS_SPECIFIED)
 
+    if parsed_args.directory and os.getcwd() != parsed_args.directory:
+        # Quietly enforce directory change before running any tasks,
+        # incase the current directory was changed after init was called.
+        os.chdir(parsed_args.directory)
+
     if parsed_args.dry_run:
         try:
             pake_obj.dry_run(run_tasks)
@@ -382,20 +394,6 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         except pake.CyclicGraphException as err:
             print(str(err), file=pake.conf.stderr)
             return m_exit(returncodes.CYCLIC_DEPENDENCY)
-
-    depth = get_subpake_depth()
-
-    if depth > 0:
-        pake_obj.print('*** enter subpake[{}]:'.format(depth))
-
-    exit_dir = None
-    if parsed_args.directory:
-        exit_dir = os.getcwd()
-
-        pake_obj.print('pake[{}]: Entering Directory "{}"'.
-                       format(depth, parsed_args.directory))
-
-        os.chdir(parsed_args.directory)
 
     return_code = 0
 
@@ -435,9 +433,13 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
             return_code = returncodes.TASK_SUBPROCESS_EXCEPTION
         else:
             return_code = returncodes.TASK_EXCEPTION
-    if exit_dir:
+
+    depth = get_subpake_depth()
+
+    if pake.get_init_dir() != os.getcwd():
         pake_obj.print('pake[{}]: Exiting Directory "{}"'.
                        format(depth, parsed_args.directory))
+        os.chdir(pake.get_init_dir())
 
     if depth > 0:
         pake_obj.print('*** exit subpake[{}]:'.format(depth))

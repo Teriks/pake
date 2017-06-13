@@ -222,4 +222,53 @@ class ProgramTest(unittest.TestCase):
         assert_bad_args('--show-task-info', 'dummy')
         assert_bad_args('--show-tasks', 'dummy')
 
+    def test_run_changedir(self):
+
+        pake.program.shutdown()
+
+        start_dir = os.getcwd()
+
+        dest_dir = os.path.abspath(os.path.join(script_dir, '..'))
+
+        # Tell pake to change directories on init
+
+        pk = pake.init(args=['-C', dest_dir])
+
+        self.assertEqual(dest_dir, os.getcwd())
+
+        @pk.task
+        def check_dir(ctx):
+            if dest_dir != os.getcwd():
+                raise Exception()
+
+        self.assertEqual(pake.run(pk, tasks=check_dir, call_exit=False), returncodes.SUCCESS)
+
+        # Should be back to normal after run
+
+        self.assertEqual(start_dir, os.getcwd())
+
+        # ==========================
+        # Check that its forced quietly before run, even if it is changed prior
+
+        pake.program.shutdown()
+
+        pk = pake.init(args=['-C', dest_dir])
+
+        self.assertEqual(dest_dir, os.getcwd())
+
+        @pk.task
+        def check_dir(ctx):
+            if dest_dir != os.getcwd():
+                raise Exception()
+
+        # Try changing it back...
+        os.chdir(script_dir)
+
+        # Directory should change here to dest_dir
+        self.assertEqual(pake.run(pk, tasks=check_dir, call_exit=False), returncodes.SUCCESS)
+
+        # Should be back to normal after run
+
+        self.assertEqual(start_dir, os.getcwd())
+
 
