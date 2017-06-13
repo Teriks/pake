@@ -45,7 +45,7 @@ def do_single_2(ctx):
     file_helper = pake.FileHelper(ctx)
 
     ctx.print(ctx.inputs[0])
-    file_helper.copy(ctx.inputs[0], ctx.outputs[0])
+    file_helper.copy(ctx.inputs[0], ctx.outputs[0], copy_metadata=True)
 
 
 # If there are an un-equal amount of inputs to outputs,
@@ -91,8 +91,8 @@ def do_multiple_3(ctx):
     # as the number of outputs.  ctx.outdated_input[i] is the input related to
     # the output: ctx.outdated_output[i]
     with ctx.multitask() as mt:
-        for i in zip(ctx.outdated_inputs, ctx.outdated_outputs):
-            mt.submit(file_helper.touch, i[1])
+        for i, o in zip(ctx.outdated_inputs, ctx.outdated_outputs):
+            mt.submit(file_helper.copy, i, o, silent=True)
 
 
 @pk.task(
