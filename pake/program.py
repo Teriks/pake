@@ -399,11 +399,10 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
 
     if jobs is None:
         max_jobs = 1 if parsed_args.jobs is None else parsed_args.jobs
+    elif jobs < 1:
+        raise ValueError('jobs parameter may not be less than 1.')
     else:
-        if jobs < 1:
-            raise ValueError('jobs parameter may not be less than 1.')
-        else:
-            max_jobs = jobs
+        max_jobs = jobs
 
     try:
         pake_obj.run(jobs=max_jobs, tasks=run_tasks)
