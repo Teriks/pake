@@ -21,6 +21,7 @@
 import argparse
 import pake
 import pake.conf
+import os.path
 from gettext import gettext as _
 
 __all__ = ['parse_args', 'get_parser', 'args_are_parsed', 'get_args']
@@ -40,6 +41,15 @@ def _create_gt_int(less_message):
     return _gt_zero_int
 
 
+def _absolute_directory(dir):
+    if os.path.isdir(dir):
+        return os.path.abspath(dir)
+    else:
+        _arg_parser.print_usage(pake.conf.stderr)
+        print(_('{}: error: {}').format(_arg_parser.prog, 'Directory "{}" does not exist.'.format(dir)), file=pake.conf.stderr)
+        exit(2)
+
+
 _arg_parser.add_argument('-v', '--version', action='version', version='pake ' + pake.__version__)
 
 _arg_parser.add_argument('tasks', type=str, nargs='*', help='Build tasks.')
@@ -57,7 +67,8 @@ _arg_parser.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
                          help='Use to preform a dry run, lists all tasks that '
                               'will be executed in the next actual invocation.')
 
-_arg_parser.add_argument('-C', '--directory', help='Change directory before executing.')
+_arg_parser.add_argument('-C', '--directory', help='Change directory before executing.',
+                         type=_absolute_directory)
 
 _arg_parser.add_argument('-t', '--show-tasks', action='store_true', dest='show_tasks',
                          help='List all task names.')
