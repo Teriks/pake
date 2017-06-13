@@ -150,6 +150,16 @@ class TaskExceptionsTest(unittest.TestCase):
             def call2(ctx):
                 getattr(ctx, method)('missing file')  # FileNotFound
 
+            @pk.task
+            def call3(ctx):
+                call = getattr(ctx, method)
+                call(sys.executable, os.path.join(script_dir, 'throw.py'), ignore_errors=True)  # ignore exception
+
+            try:
+                pk.run(tasks=call3)
+            except pake.TaskException as err:
+                self.fail('TaskContext.{} threw on non zero return code with ignore_errors=True'.format(method))
+
             with self.assertRaises(pake.TaskException) as cm:
                 pk.run(tasks=call1)
 

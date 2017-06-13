@@ -9,6 +9,8 @@ sys.path.insert(1,
                                  os.path.join('..', '..'))))
 
 from pake import process
+import pake.program
+import pake
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -50,6 +52,21 @@ class ProcessTest(unittest.TestCase):
 
         _ = str(exc.exception)  # just test for serialization exceptions
 
+        # Check pake propagates the exception correctly
+
+        pake.program.shutdown()
+
+        pk = pake.init()
+
+        @pk.task
+        def dummy(ctx):
+            process.check_call(cmd, stderr=process.DEVNULL, stdout=process.DEVNULL)
+
+        with self.assertRaises(pake.TaskException) as exc:
+            pk.run(tasks=dummy)
+
+        self.assertEqual(type(exc.exception.exception), process.CalledProcessException)
+
     def test_check_output(self):
         cmd = [sys.executable, os.path.join(script_dir, 'timeout.py')]
 
@@ -64,4 +81,19 @@ class ProcessTest(unittest.TestCase):
             process.check_output(cmd, stderr=process.DEVNULL)
 
         _ = str(exc.exception)  # just test for serialization exceptions
+
+        # Check pake propagates the exception correctly
+
+        pake.program.shutdown()
+
+        pk = pake.init()
+
+        @pk.task
+        def dummy(ctx):
+            process.check_output(cmd, stderr=process.DEVNULL)
+
+        with self.assertRaises(pake.TaskException) as exc:
+            pk.run(tasks=dummy)
+
+        self.assertEqual(type(exc.exception.exception), process.CalledProcessException)
 
