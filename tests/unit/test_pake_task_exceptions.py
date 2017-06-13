@@ -153,12 +153,12 @@ class TaskExceptionsTest(unittest.TestCase):
             @pk.task
             def call3(ctx):
                 call = getattr(ctx, method)
-                call(sys.executable, os.path.join(script_dir, 'throw.py'), ignore_errors=True)  # ignore exception
+                call(sys.executable, os.path.join(script_dir, 'throw.py'))  # Raise pake.SubprocessException
 
-            try:
-                pk.run(tasks=call3)
-            except pake.TaskException as err:
-                self.fail('TaskContext.{} threw on non zero return code with ignore_errors=True'.format(method))
+            @pk.task
+            def call4(ctx):
+                call = getattr(ctx, method)
+                call(sys.executable, os.path.join(script_dir, 'throw.py'), ignore_errors=True)  # ignore exception
 
             with self.assertRaises(pake.TaskException) as exc:
                 pk.run(tasks=call1)
@@ -179,6 +179,28 @@ class TaskExceptionsTest(unittest.TestCase):
                 pk.run(tasks=call2, jobs=10)
 
             self.assertEqual(type(exc.exception.exception), FileNotFoundError)
+
+            # Test pake.SubprocessException propagation
+
+            with self.assertRaises(pake.TaskException) as exc:
+                pk.run(tasks=call3)
+
+            self.assertEqual(type(exc.exception.exception), pake.SubprocessException)
+
+            with self.assertRaises(pake.TaskException) as exc:
+                pk.run(tasks=call3, jobs=10)
+
+            self.assertEqual(type(exc.exception.exception), pake.SubprocessException)
+
+            try:
+                pk.run(tasks=call4)
+            except pake.TaskException:
+                self.fail('TaskContext.{} threw on non zero return code with ignore_errors=True'.format(method))
+
+            try:
+                pk.run(tasks=call4, jobs=10)
+            except pake.TaskException:
+                self.fail('TaskContext.{} threw on non zero return code with ignore_errors=True. with pk.run(jobs=10)'.format(method))
 
         subprocess_test_helper('call')
         subprocess_test_helper('check_call')
