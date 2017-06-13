@@ -22,6 +22,8 @@ import argparse
 import pake
 import pake.conf
 import os.path
+import pake.returncodes
+
 from gettext import gettext as _
 
 __all__ = ['parse_args', 'get_parser', 'args_are_parsed', 'get_args']
@@ -35,7 +37,7 @@ def _create_gt_int(less_message):
         if val < 1:
             _arg_parser.print_usage(pake.conf.stderr)
             print(_('{}: error: {}').format(_arg_parser.prog, less_message), file=pake.conf.stderr)
-            exit(2)
+            exit(pake.returncodes.BAD_ARGUMENTS)
         return val
 
     return _gt_zero_int
@@ -47,7 +49,7 @@ def _absolute_directory(dir):
     else:
         _arg_parser.print_usage(pake.conf.stderr)
         print(_('{}: error: {}').format(_arg_parser.prog, 'Directory "{}" does not exist.'.format(dir)), file=pake.conf.stderr)
-        exit(2)
+        exit(pake.returncodes.BAD_ARGUMENTS)
 
 
 _arg_parser.add_argument('-v', '--version', action='version', version='pake ' + pake.__version__)

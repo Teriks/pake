@@ -32,7 +32,7 @@ Pake return codes.
 
 .. data:: BAD_ARGUMENTS
 
-    2. Bad combination of command line arguments.
+    2. Bad combination of command line arguments, or bad arguments in general.
 
 .. data:: BAD_DEFINE_VALUE
 

@@ -76,7 +76,7 @@ See: :py:mod:`pake.returncodes`
 
 0. Pake ran successfully.
 1. Pakefile not found in directory, or specified pakefile does not exist.
-2. Bad combination of command line arguments.
+2. Bad combination of command line arguments, or bad arguments in general.
 3. Syntax error while parsing a define value from the **-D/--define** option.
 4. No tasks defined in pakefile.
 5. No tasks specified to run, no default tasks exist.
