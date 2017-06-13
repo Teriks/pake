@@ -11,7 +11,7 @@ with open('pake/__init__.py') as f:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
 
 if not version:
-    raise RuntimeError('version is not set')
+    raise RuntimeError('version is not set.')
 
 # alpha 1
 version += 'a1'
@@ -23,9 +23,10 @@ with open('README.rst', 'r', encoding='utf-8') as f:
 
 setup(name='pake',
       author='Teriks',
+      author_email='Teriks@users.noreply.github.com',
       url='https://github.com/Teriks/pake',
       version=version,
-      packages=find_packages(),
+      packages=find_packages(exclude=('tests',)),
       license='BSD 3-Clause',
       description='A make like build utility using python.',
       long_description=readme,
@@ -38,11 +39,10 @@ setup(name='pake',
       },
       classifiers=[
           'Development Status :: 3 - Alpha',
-          'License :: OSI Approved :: BSD 3-Clause License',
+          'License :: OSI Approved :: BSD License',
           'Intended Audience :: Developers',
           'Natural Language :: English',
           'Operating System :: OS Independent',
-          'Programming Language :: Python :: 3.4',
           'Programming Language :: Python :: 3.5',
           'Topic :: Software Development :: Build Tools',
           'Topic :: Utilities',
