@@ -37,15 +37,15 @@ class TaskExceptionsTest(unittest.TestCase):
         def a_task(ctx):
             pass
 
-        with self.assertRaises(pake.TaskException) as cm:
+        with self.assertRaises(pake.TaskException) as exc:
             pk.run(tasks=a_task)
 
-        self.assertEqual(type(cm.exception.exception), Exception)
+        self.assertEqual(type(exc.exception.exception), Exception)
 
-        with self.assertRaises(pake.TaskException) as cm:
+        with self.assertRaises(pake.TaskException) as exc:
             pk.run(tasks=a_task, jobs=10)
 
-        self.assertEqual(type(cm.exception.exception), Exception)
+        self.assertEqual(type(exc.exception.exception), Exception)
 
         def raise_exception(*args):
             raise Exception()
@@ -67,15 +67,15 @@ class TaskExceptionsTest(unittest.TestCase):
         def a_task(ctx):
             pass
 
-        with self.assertRaises(pake.TaskException) as cm:
+        with self.assertRaises(pake.TaskException) as exc:
             pk.run(tasks=a_task)
 
-        self.assertEqual(type(cm.exception.exception), Exception)
+        self.assertEqual(type(exc.exception.exception), Exception)
 
-        with self.assertRaises(pake.TaskException) as cm:
+        with self.assertRaises(pake.TaskException) as exc:
             pk.run(tasks=a_task, jobs=10)
 
-        self.assertEqual(type(cm.exception.exception), Exception)
+        self.assertEqual(type(exc.exception.exception), Exception)
 
         # =============================
 
@@ -94,15 +94,15 @@ class TaskExceptionsTest(unittest.TestCase):
         def a_task(ctx):
             pass
 
-        with self.assertRaises(pake.TaskException) as cm:
+        with self.assertRaises(pake.TaskException) as exc:
             pk.run(tasks=a_task)
 
-        self.assertEqual(type(cm.exception.exception), Exception)
+        self.assertEqual(type(exc.exception.exception), Exception)
 
-        with self.assertRaises(pake.TaskException) as cm:
+        with self.assertRaises(pake.TaskException) as exc:
             pk.run(tasks=a_task, jobs=10)
 
-        self.assertEqual(type(cm.exception.exception), Exception)
+        self.assertEqual(type(exc.exception.exception), Exception)
 
     def test_subprocess_task_exceptions(self):
         # =============================
@@ -117,25 +117,25 @@ class TaskExceptionsTest(unittest.TestCase):
         def subpake2(ctx):
             ctx.subpake('missing file')  # FileNotFound
 
-        with self.assertRaises(pake.TaskException) as cm:
+        with self.assertRaises(pake.TaskException) as exc:
             pk.run(tasks=subpake1)
 
-        self.assertEqual(type(cm.exception.exception), ValueError)
+        self.assertEqual(type(exc.exception.exception), ValueError)
 
-        with self.assertRaises(pake.TaskException) as cm:
+        with self.assertRaises(pake.TaskException) as exc:
             pk.run(tasks=subpake1, jobs=10)
 
-        self.assertEqual(type(cm.exception.exception), ValueError)
+        self.assertEqual(type(exc.exception.exception), ValueError)
 
-        with self.assertRaises(pake.TaskException) as cm:
+        with self.assertRaises(pake.TaskException) as exc:
             pk.run(tasks=subpake2)
 
-            self.assertEqual(type(cm.exception.exception), FileNotFoundError)
+            self.assertEqual(type(exc.exception.exception), FileNotFoundError)
 
-        with self.assertRaises(pake.TaskException) as cm:
+        with self.assertRaises(pake.TaskException) as exc:
             pk.run(tasks=subpake2, jobs=10)
 
-        self.assertEqual(type(cm.exception.exception), FileNotFoundError)
+        self.assertEqual(type(exc.exception.exception), FileNotFoundError)
 
         # =============================
 
@@ -160,25 +160,25 @@ class TaskExceptionsTest(unittest.TestCase):
             except pake.TaskException as err:
                 self.fail('TaskContext.{} threw on non zero return code with ignore_errors=True'.format(method))
 
-            with self.assertRaises(pake.TaskException) as cm:
+            with self.assertRaises(pake.TaskException) as exc:
                 pk.run(tasks=call1)
 
-            self.assertEqual(type(cm.exception.exception), ValueError)
+            self.assertEqual(type(exc.exception.exception), ValueError)
 
-            with self.assertRaises(pake.TaskException) as cm:
+            with self.assertRaises(pake.TaskException) as exc:
                 pk.run(tasks=call1, jobs=10)
 
-            self.assertEqual(type(cm.exception.exception), ValueError)
+            self.assertEqual(type(exc.exception.exception), ValueError)
 
-            with self.assertRaises(pake.TaskException) as cm:
+            with self.assertRaises(pake.TaskException) as exc:
                 pk.run(tasks=call2)
 
-            self.assertEqual(type(cm.exception.exception), FileNotFoundError)
+            self.assertEqual(type(exc.exception.exception), FileNotFoundError)
 
-            with self.assertRaises(pake.TaskException) as cm:
+            with self.assertRaises(pake.TaskException) as exc:
                 pk.run(tasks=call2, jobs=10)
 
-            self.assertEqual(type(cm.exception.exception), FileNotFoundError)
+            self.assertEqual(type(exc.exception.exception), FileNotFoundError)
 
         subprocess_test_helper('call')
         subprocess_test_helper('check_call')
