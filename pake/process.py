@@ -18,15 +18,48 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""
+Methods for spawning processes.
+
+.. data:: DEVNULL
+
+    Analog for subprocess.DEVNULL
+
+.. data:: STDOUT
+
+    Analog for subprocess.STDOUT
+
+.. data:: PIPE
+
+    Analog for subprocess.PIPE
+"""
+
 import os
 import shutil
+import signal
 
-from .util import get_pakefile_caller_detail
+import pake.util
+import subprocess
 
-__all__ = ['SubprocessException']
+
+__all__ = [
+    'ProcessException'
+    'SubprocessException',
+    'CalledProcessException'
+    'TimeoutExpired',
+    'run',
+    'call',
+    'check_call',
+    'check_output']
 
 
-class SubprocessException(Exception):
+class ProcessException(Exception):
+    """Base class for process exceptions."""
+    def __init__(self, message):
+        super().__init__(message)
+
+
+class SubprocessException(ProcessException):
     """
     Raised upon encountering a non-zero return code from a subprocess,
     when it is not specified that non-zero return codes should be ignored.
@@ -78,7 +111,7 @@ class SubprocessException(Exception):
         if output is not None and output_stream is not None:
             raise ValueError('output and output_stream parameters cannot be used together.')
 
-        c_detail = get_pakefile_caller_detail()
+        c_detail = pake.util.get_pakefile_caller_detail()
 
         self.message = message
         self.returncode = returncode
@@ -147,3 +180,222 @@ class SubprocessException(Exception):
                 file.write(self._output.decode())
 
             file.write("{sep}{sep}}}{sep}".format(sep=os.linesep))
+
+
+class TimeoutExpired(ProcessException):
+    """This exception is raised when the timeout expires while waiting for a child process.
+
+    .. py:attribute:: cmd
+
+        Executed command
+
+    .. py:attribute:: timeout
+
+        Timeout in seconds.
+
+    .. py:attribute:: output
+
+        Output of the child process if it was captured by :py:meth:`pake.process.check_output`. Otherwise, None.
+
+    .. py:attribute:: stdout
+
+        Alias for output, for symmetry with stderr.
+
+    .. py:attribute:: stderr
+
+        Stderr output of the child process if it was captured by :py:meth:`pake.process.check_output`. Otherwise, None.
+    """
+    def __init__(self, cmd, timeout, output=None, stderr=None):
+        self.cmd = cmd
+        self.timeout = timeout
+        self.output = output
+        self.stderr = stderr
+
+        c_detail = pake.util.get_pakefile_caller_detail()
+
+        if c_detail:
+            self.filename = c_detail.filename
+            self.line_number = c_detail.line_number
+            self.function_name = c_detail.function_name
+        else:
+            self.filename = None
+            self.line_number = None
+            self.function_name = None
+
+    def __str__(self):
+        class_name = self.__module__ + "." + self.__class__.__name__
+
+        out_str = ''
+
+        template = []
+        if self.filename:
+            template.append('filename="{}"'.format(self.filename))
+        if self.function_name:
+            template.append('function_name="{}"'.format(self.function_name))
+        if self.line_number:
+            template.append('line_number={}'.format(self.line_number))
+
+        if len(template):
+            out_str += ('{myname}({sep}\t{template}{sep}){sep}{sep}'.
+                        format(myname=class_name, template=(',' + os.linesep + '\t').join(template), sep=os.linesep))
+        else:
+            out_str += ('{myname}(){sep}{sep}'.format(myname=class_name, sep=os.linesep))
+
+        out_str += "Command {} timed out after {} seconds".format(self.cmd, self.timeout)
+
+        return out_str
+
+    @property
+    def stdout(self):
+        return self.output
+
+    @stdout.setter
+    def stdout(self, value):
+        self.output = value
+
+
+class CalledProcessException(ProcessException):
+    """Raised when :py:meth:`pake.process.check_call` or :py:meth:`pake.process.check_output` and the process returns a non-zero exit status.
+
+    .. py:attribute:: cmd
+
+        Executed command
+
+    .. py:attribute:: timeout
+
+        Timeout in seconds.
+
+    .. py:attribute:: output
+
+        Output of the child process if it was captured by :py:meth:`pake.process.check_output`. Otherwise, None.
+
+    .. py:attribute:: stdout
+
+        Alias for output, for symmetry with stderr.
+
+    .. py:attribute:: stderr
+
+        Stderr output of the child process if it was captured by :py:meth:`pake.process.check_output`. Otherwise, None.
+    """
+    def __init__(self, cmd, returncode, output=None, stderr=None):
+        self.returncode = returncode
+        self.cmd = cmd
+        self.output = output
+        self.stderr = stderr
+
+        c_detail = pake.util.get_pakefile_caller_detail()
+
+        if c_detail:
+            self.filename = c_detail.filename
+            self.line_number = c_detail.line_number
+            self.function_name = c_detail.function_name
+        else:
+            self.filename = None
+            self.line_number = None
+            self.function_name = None
+
+    def __str__(self):
+
+        class_name = self.__module__ + "." + self.__class__.__name__
+
+        out_str = ''
+
+        template = []
+        if self.filename:
+            template.append('filename="{}"'.format(self.filename))
+        if self.function_name:
+            template.append('function_name="{}"'.format(self.function_name))
+        if self.line_number:
+            template.append('line_number={}'.format(self.line_number))
+
+        if len(template):
+            out_str += ('{myname}({sep}\t{template}{sep}){sep}{sep}'.
+                        format(myname=class_name, template=(',' + os.linesep + '\t').join(template), sep=os.linesep))
+        else:
+            out_str += ('{myname}(){sep}{sep}'.format(myname=class_name, sep=os.linesep))
+
+        if self.returncode and self.returncode < 0:
+            try:
+                out_str += "Command '{}' died with {}.".format(self.cmd, signal.Signals(-self.returncode))
+            except ValueError:
+                out_str += "Command '{}' died with unknown signal {}.".format(self.cmd, -self.returncode)
+        else:
+            out_str += "Command '{}' returned non-zero exit status {}.".format(self.cmd, self.returncode)
+
+        return out_str
+
+    @property
+    def stdout(self):
+        """Alias for output attribute, to match stderr"""
+        return self.output
+
+    @stdout.setter
+    def stdout(self, value):
+        self.output = value
+
+
+DEVNULL = subprocess.DEVNULL
+PIPE = subprocess.PIPE
+STDOUT = subprocess.STDOUT
+
+
+def call(*args, stdin=None, stdout=None, stderr=None, shell=False, timeout=None, **kwargs):
+    """Wrapper around :py:meth:`subprocess.call` which allows the same *args call syntax as :py:meth:`pake.TaskContext.call` and friends.
+
+    :param args: Executable and arguments.
+    :param stdin: Stdin to feed to the process.
+    :param stdout: File to write stdout to.
+    :param stderr: File to write stderr to.
+    :param shell: Execute in shell mode.
+    :param timeout: Program execution timeout value in seconds.
+
+    :raises :py:exc:`pake.process.TimeoutExpired` If the process does not exit before timeout is up.
+    """
+    args = pake.util.handle_shell_args(args)
+    try:
+        return subprocess.call(args, stdin=stdin, stdout=stdout, stderr=stderr, shell=shell, timeout=timeout, **kwargs)
+    except subprocess.TimeoutExpired as err:
+        raise TimeoutExpired(err.args, err.timeout, err.stdout, err.stdout)
+
+
+def check_call(*args, stdin=None, stdout=None, stderr=None, shell=False, timeout=None, **kwargs):
+    """Wrapper around :py:meth:`subprocess.check_call` which allows the same *args call syntax as :py:meth:`pake.TaskContext.call` and friends.
+
+    :param args: Executable and arguments.
+    :param stdin: Stdin to feed to the process.
+    :param stdout: File to write stdout to.
+    :param stderr: File to write stderr to.
+    :param shell: Execute in shell mode.
+    :param timeout: Program execution timeout value in seconds.
+
+    :raises :py:exc:`pake.process.CalledProcessException` If the process exits with a non zero return code.
+    :raises :py:exc:`pake.process.TimeoutExpired` If the process does not exit before timeout is up.
+    """
+    args = pake.util.handle_shell_args(args)
+    try:
+        return subprocess.check_call(args, stdin=stdin, stdout=stdout, stderr=stderr, shell=shell, timeout=timeout, **kwargs)
+    except subprocess.TimeoutExpired as err:
+        raise TimeoutExpired(err.args, err.timeout, err.stdout, err.stdout)
+    except subprocess.CalledProcessError as err:
+        raise CalledProcessException(args, err.returncode, output=err.output, stderr=err.stdout)
+
+
+def check_output(*args, stdin=None, stderr=None, shell=False, timeout=None, **kwargs):
+    """Wrapper around :py:meth:`subprocess.check_output` which allows the same *args call syntax as :py:meth:`pake.TaskContext.call` and friends.
+
+    :param args: Executable and arguments.
+    :param stdin: Stdin to feed to the process.
+    :param stderr: File to write stderr to.
+    :param shell: Execute in shell mode.
+    :param timeout: Program execution timeout value in seconds.
+
+    :raises :py:exc:`pake.process.CalledProcessException` If the process exits with a non zero return code.
+    :raises :py:exc:`pake.process.TimeoutExpired` If the process does not exit before timeout is up.
+    """
+    args = pake.util.handle_shell_args(args)
+    try:
+        return subprocess.check_output(args, stdin=stdin, stderr=stderr, shell=shell, timeout=timeout, **kwargs)
+    except subprocess.TimeoutExpired as err:
+        raise TimeoutExpired(err.args, err.timeout, err.stdout, err.stdout)
+    except subprocess.CalledProcessError as err:
+        raise CalledProcessException(args, err.returncode, output=err.output, stderr=err.stdout)

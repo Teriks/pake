@@ -435,7 +435,6 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
             return_code = returncodes.TASK_SUBPROCESS_EXCEPTION
         else:
             return_code = returncodes.TASK_EXCEPTION
-
     if exit_dir:
         pake_obj.print('pake[{}]: Exiting Directory "{}"'.
                        format(depth, parsed_args.directory))

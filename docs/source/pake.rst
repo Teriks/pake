@@ -19,7 +19,15 @@ Module: pake.graph
 .. automodule:: pake.graph
     :members:
     :show-inheritance:
-    
+
+
+Module: pake.process
+------------------------
+
+.. automodule:: pake.process
+    :members:
+
+
 Module: pake.util
 -----------------
  

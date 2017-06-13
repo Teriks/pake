@@ -134,6 +134,14 @@ def _handle_task_exception(ctx, exception):
         exception.write_info(ctx.io)
         raise TaskException(exception)
 
+    if isinstance(exception, pake.process.ProcessException):
+        # ProcessException's provide detailed information
+        # about the call site of the subprocess in the pakefile
+        # on its own, print and wrap as it is better for this information
+        # to be printed to the task's output.
+        ctx.print(str(exception))
+        raise TaskException(exception)
+
     if isinstance(exception, InputNotFoundException) or isinstance(exception, MissingOutputsException):
         # These are raised inside the task when
         # the task runs and does file detection, they provides information
