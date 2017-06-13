@@ -102,7 +102,7 @@ class FileHelper:
 
         This uses :py:meth:`pathlib.Path.touch`.
 
-        :raises: :py:exc:`FileExistsError` Raised if **exist_ok** is **False** and the file already exists.
+        :raises FileExistsError: Raised if **exist_ok** is **False** and the file already exists.
 
         :param file_name: The file name.
         :param mode: The permissions umask.
