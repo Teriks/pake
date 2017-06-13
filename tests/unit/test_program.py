@@ -207,6 +207,14 @@ class ProgramTest(unittest.TestCase):
             # calls exit(2) because --jobs < 1
             assert_bad_args( '--jobs', '0')
 
+        with self.assertRaises(BaseException):
+            # calls exit(2) because -C directory does not exist
+            assert_bad_args('-C', os.path.join(script_dir, 'IDONTEXIST'))
+
+        with self.assertRaises(BaseException):
+            # calls exit(2) because -C directory is actually a file
+            assert_bad_args('-C', os.path.join(script_dir, 'test_program.py'))
+
         # Cant run tasks when listing task info anyway.
         assert_bad_args('--dry-run', '--show-tasks')
         assert_bad_args('--dry-run', '--show-task-info')
