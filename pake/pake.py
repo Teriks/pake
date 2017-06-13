@@ -435,15 +435,16 @@ class TaskContext:
 
                     if not silent:
                         pake.util.copyfileobj_tee(process_stdout, [self._io, output_copy_buffer])
-                    else:
+                    else:  # pragma: no cover
                         pake.util.copyfileobj_tee(process_stdout, [output_copy_buffer])
-                except:
+
+                except:  # pragma: no cover
                     output_copy_buffer.close()
                     raise
 
                 try:
                     exitcode = process.wait()
-                except:
+                except:  # pragma: no cover
                     output_copy_buffer.close()
                     process.kill()
                     process.wait()

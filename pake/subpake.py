@@ -185,7 +185,8 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
                 pake.util.copyfileobj_tee(process_stdout, [stdout, output_copy_buffer])
             else:  # pragma: no cover
                 pake.util.copyfileobj_tee(process_stdout, [output_copy_buffer])
-        except:
+
+        except:  # pragma: no cover
             output_copy_buffer.close()
             raise
 
