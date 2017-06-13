@@ -266,7 +266,7 @@ def parse_define_value(value):
     return value
 
 
-def copyfileobj_tee(fsrc, destinations, length=16*1024, read_predicate=None):
+def copyfileobj_tee(fsrc, destinations, length=16*1024):
     """copy data from file-like object **fsrc** to multiple file like objects.
 
     :param fsrc: Source file object.
@@ -275,11 +275,7 @@ def copyfileobj_tee(fsrc, destinations, length=16*1024, read_predicate=None):
     :param read_predicate: Optional read predicate function, the stream will continue to be read until the predicate returns false.
     """
 
-    if read_predicate is None:
-        def read_predicate():
-            return True
-
-    while read_predicate():
+    while 1:
         buf = fsrc.read(length)
         if not buf:
             break
