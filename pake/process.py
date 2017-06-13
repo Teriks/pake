@@ -350,7 +350,6 @@ class CalledProcessException(ProcessException):
 
     @property
     def stdout(self):
-        """Alias for output attribute, to match stderr"""
         return self.output
 
     @stdout.setter
