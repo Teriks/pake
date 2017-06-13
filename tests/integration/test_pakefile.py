@@ -129,6 +129,10 @@ def glob_and_pattern_test(ctx):
     for i, o in ctx.outdated_pairs:
         file_helper.touch(o)
 
+    file_helper.makedirs('test_data/glob_and_pattern/delete_me_dir1')
+    file_helper.makedirs('test_data/glob_and_pattern/delete_me_dir2')
+    file_helper.makedirs('test_data/glob_and_pattern/delete_me_dir3')
+
 
 @pk.task(i=[pake.glob('test_data/glob_and_pattern/src_a/*.c'), pake.glob('test_data/glob_and_pattern/src_b/*.c')],
          o=pake.pattern('{dir}/%.o'))
@@ -224,6 +228,10 @@ def clean(ctx):
 
     file_helper.rmtree('test_data/subpake_copy')
 
+    file_helper.glob_remove_dirs('test_data/glob_and_pattern/delete_me_dir*')
+
+    file_helper.rmtree('test_data/directory_create_test')
+
 
 if __name__ == '__main__':
     pake.run(pk, tasks=[print_define, all])
@@ -235,6 +243,8 @@ class IntegrationTest(unittest.TestCase):
         fun = self.assertTrue if exist else self.assertFalse
 
         fun(os.path.exists(os.path.join(script_dir, "test_data", "main")))
+
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "directory_create_test")))
 
         fun(os.path.exists(os.path.join(script_dir, "test_data", "do_single.o")))
         fun(os.path.exists(os.path.join(script_dir, "test_data", "do_single_2.o")))
@@ -265,6 +275,10 @@ class IntegrationTest(unittest.TestCase):
         fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "a.o")))
         fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "b.o")))
         fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "c.o")))
+
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "delete_me_dir1")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "delete_me_dir2")))
+        fun(os.path.exists(os.path.join(script_dir, "test_data", "glob_and_pattern", "delete_me_dir3")))
 
         fun(os.path.exists(os.path.join(script_dir, "test_data", "dir_cmp_test.o")))
 
