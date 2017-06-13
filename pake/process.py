@@ -204,6 +204,18 @@ class TimeoutExpired(ProcessException):
     .. py:attribute:: stderr
 
         Stderr output of the child process if it was captured by :py:meth:`pake.process.check_output`. Otherwise, None.
+
+    .. py:attribute:: filename
+
+        Filename describing the file from which the process call was initiated. (might be None)
+
+    .. py:attribute:: function_name
+
+        Function name describing the function which initiated the process call. (might be None)
+
+    .. py:attribute:: line_number
+
+        Line Number describing the line where the process call was initiated. (might be None)
     """
     def __init__(self, cmd, timeout, output=None, stderr=None):
         self.cmd = cmd
@@ -276,6 +288,19 @@ class CalledProcessException(ProcessException):
     .. py:attribute:: stderr
 
         Stderr output of the child process if it was captured by :py:meth:`pake.process.check_output`. Otherwise, None.
+
+    .. py:attribute:: filename
+
+        Filename describing the file from which the process call was initiated. (might be None)
+
+    .. py:attribute:: function_name
+
+        Function name describing the function which initiated the process call. (might be None)
+
+    .. py:attribute:: line_number
+
+        Line Number describing the line where the process call was initiated. (might be None)
+
     """
     def __init__(self, cmd, returncode, output=None, stderr=None):
         self.returncode = returncode
