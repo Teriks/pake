@@ -18,12 +18,18 @@ class SubpakeTest(unittest.TestCase):
 
         fp = pake.FileHelper(ctx)
 
-        self.assertEqual(fp.task_ctx, ctx)
+        self.assertEqual(fp.printer, ctx)
 
         # FileHelper.makedirs
         # =============================
 
         fp.makedirs('test_data/filehelper/sub', silent=silent)
+
+        try:
+            fp.makedirs('test_data/filehelper/sub', silent=silent)
+        except Exception:
+            self.fail('pake.FileHelper.makedirs threw creating an existing directory tree.  '
+                      'It should not do this when exist_ok=True, which is default.')
 
         with self.assertRaises(OSError):
             fp.makedirs('test_data/filehelper/sub', exist_ok=False, silent=silent)
@@ -186,16 +192,24 @@ class SubpakeTest(unittest.TestCase):
 
         fh = pake.FileHelper()
 
-        self.assertEqual(fh.task_ctx, None)
+        self.assertEqual(fh.printer, None)
 
         class SilentTestCtx:
-            def print(*args, **kwargs):
+            def print(*args):
                 nonlocal self
                 self.fail('SilentTestCtx printed from file helper function set to be silent.')
 
         class TestCtx:
-            def print(*args, **kwargs):
+            def print(*args):
                 pass
+
+        class ErrCtx:
+            # I don't implement print
+            pass
+
+        with self.assertRaises(ValueError):
+            # Error because no print function is defined.
+            _ = pake.FileHelper(ErrCtx())
 
         past_cwd = os.getcwd()
         os.chdir(script_dir)

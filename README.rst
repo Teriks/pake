@@ -19,7 +19,7 @@ Note: pake is Alpha and likely to change some.
 
 ::
 
-    sudo pip3 install git+git://github.com/Teriks/pake.git@0.9.1.0a1
+    sudo pip3 install git+git://github.com/Teriks/pake.git@0.10.0.0a1
 
 Example project using pake
 ==========================

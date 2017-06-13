@@ -5,7 +5,9 @@ Manipulating Files / Dirs With FileHelper
 methods that are common in software builds.  Operations include creating full
 directory trees, glob removal of files and directories, file touch etc..
 
-The :py:class:`pake.FileHelper` class takes a single optional argument named **task_ctx**.
+The :py:class:`pake.FileHelper` class takes a single optional argument named **printer**.
+
+The passed object should implement a **print(\*args)** function.
 
 If you pass it a :py:class:`pake.TaskContext` instance from your tasks single argument, it will
 print information about file system operations to the tasks IO queue as they are being performed.

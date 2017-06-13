@@ -29,43 +29,47 @@ import pake
 __all__ = ['FileHelper']
 
 
-class _DummyCtx:
-    def print(*args, **kwargs):
+class _DummyPrinter:
+    def print(*args):
         pass
 
 
 class FileHelper:
-    """A helper class for dealing with common file operations
-    inside and outside of pake tasks.  Instantiating this class
-    with the *task_ctx* parameter set to a :py:class:`pake.TaskContext`
-    instance will cause it to print information about file system operations
-    it performs to the tasks output queue.  Each available file system functions notice message
+    """A helper class for dealing with common file operations inside and outside of pake tasks.  Instantiating this class
+    with the **printer** parameter set to a :py:class:`pake.TaskContext` instance will cause it to print information about
+    file system operations it performs to the tasks output queue.  Each available file system functions notice message
     can be silenced using the **silent** parameter of the function.
     """
 
-    def __init__(self, task_ctx=None):
-        """Build the FileHelper object around the :py:class:`pake.TaskContext` instance
-        that gets passed into a pake task.
+    def __init__(self, printer=None):
+        """Build the FileHelper object around a printer instance which prints information about the file system operations being preformed.
 
-        :param task_ctx: A :py:class:`pake.TaskContext` instance or None.  If **task_ctx** is set
-                       then information about the file operations that occur using this
-                       FileHelper instance will be printed to the tasks output, unless
-                       the 'silent' parameter is set to True in the function being called.
+        Any object which implements **print(\*args)** in the same fashion as the python standard built in **print** function will work as the task context.
+
+        The only objects ever passed into the print function are strings, **file=** is never specified.
+
+        :param printer: An object implementing **print(\*args)**
+
+        :raises ValueError: If the object passed to the **printer** parameter does not implement a **print** function.
         """
-        if task_ctx:
-            print_op = getattr(task_ctx, "print", None)
+        if printer:
+            print_op = getattr(printer, "print", None)
             if not callable(print_op):
                 raise ValueError('task_ctx object does not implement print.')
 
-            self._task_ctx = task_ctx
+            self._printer = printer
         else:
-            self._task_ctx = _DummyCtx()
+            self._printer = _DummyPrinter()
 
     @property
-    def task_ctx(self):
-        if type(self._task_ctx) is _DummyCtx:
+    def printer(self):
+        """Return the printer object associated with this :py:class:`pake.FileHelper`.
+
+        If one does not exist, return **None**.
+        """
+        if type(self._printer) is _DummyPrinter:
             return None
-        return self._task_ctx
+        return self._printer
 
     def makedirs(self, path, mode=0o777, silent=False, exist_ok=True):
         """Create a directory tree if it does not exist, if the directory tree exists already this function does nothing.
@@ -84,8 +88,8 @@ class FileHelper:
         :raises OSError: Raised for all directory creation errors (aside from *errno.EEXIST* if **exist_ok**  is **True**)
         """
 
-        if not silent and self._task_ctx is not None:
-            self._task_ctx.print('Created Directory(s): "{}"'.format(path))
+        if not silent and self._printer is not None:
+            self._printer.print('Created Directory(s): "{}"'.format(path))
 
         try:
             os.makedirs(path, mode=mode)
@@ -109,8 +113,8 @@ class FileHelper:
         :param exist_ok: whether or not it is okay for the file to exist already.
         :param silent: If True, don't print information to the tasks output.
         """
-        if not silent and self._task_ctx is not None:
-            self._task_ctx.print('Touched File: "{}"'.format(file_name))
+        if not silent and self._printer is not None:
+            self._printer.print('Touched File: "{}"'.format(file_name))
         pathlib.Path(file_name).touch(mode=mode, exist_ok=exist_ok)
 
     def copytree(self, src, dst, symlinks=False, ignore=None, copy_function=shutil.copy2,
@@ -167,9 +171,9 @@ class FileHelper:
 
         :param silent: If True, Don't print info the the tasks output.
         """
-        if not silent and self._task_ctx is not None:
-            self._task_ctx.print('Copied Tree: "{}" -> "{}"'
-                                 .format(src, dst))
+        if not silent and self._printer is not None:
+            self._printer.print('Copied Tree: "{}" -> "{}"'
+                                .format(src, dst))
 
         shutil.copytree(src, dst,
                         symlinks=symlinks,
@@ -209,11 +213,11 @@ class FileHelper:
         :param silent: If True, don't print information to the tasks output.
         """
 
-        if not silent and self._task_ctx is not None:
+        if not silent and self._printer is not None:
             moved_what = 'Tree' if os.path.isdir(src) else 'File'
 
-            self._task_ctx.print('Moved {}: "{}" -> "{}"'
-                                 .format(moved_what, src, dest))
+            self._printer.print('Moved {}: "{}" -> "{}"'
+                                .format(moved_what, src, dest))
 
         shutil.move(src, dest, copy_function=copy_function)
 
@@ -231,14 +235,14 @@ class FileHelper:
         """
 
         if copy_metadata:  # pragma: no cover
-            if not silent and self._task_ctx is not None:
-                self._task_ctx.print('Copied File With Metadata: "{}" -> "{}"'
-                                     .format(src, dest))
+            if not silent and self._printer is not None:
+                self._printer.print('Copied File With Metadata: "{}" -> "{}"'
+                                    .format(src, dest))
             shutil.copy2(src, dest, follow_symlinks=follow_symlinks)
         else:
-            if not silent and self._task_ctx is not None:
-                self._task_ctx.print('Copied File: "{}" -> "{}"'
-                                     .format(src, dest))
+            if not silent and self._printer is not None:
+                self._printer.print('Copied File: "{}" -> "{}"'
+                                    .format(src, dest))
             shutil.copy(src, dest, follow_symlinks=follow_symlinks)
 
     def remove(self, path, silent=False, must_exist=False):
@@ -251,8 +255,8 @@ class FileHelper:
         :param silent: If True, don't print information to the tasks output.
         :param must_exist: If set to True, a FileNotFoundError will be raised if the file does not exist.
         """
-        if not silent and self._task_ctx is not None:
-            self._task_ctx.print('Removed File: "{}"'.format(path))
+        if not silent and self._printer is not None:
+            self._printer.print('Removed File: "{}"'.format(path))
 
         try:
             os.remove(path)
@@ -273,8 +277,8 @@ class FileHelper:
 
         :raises OSError: Raised if a file is in use (On Windows), or if there is another problem deleting one of the files.
         """
-        if not silent and self._task_ctx is not None:
-            self._task_ctx.print('Glob Removed Files: "{}"'.format(glob_pattern))
+        if not silent and self._printer is not None:
+            self._printer.print('Glob Removed Files: "{}"'.format(glob_pattern))
         for i in (f for f in glob.iglob(glob_pattern, recursive=True) if os.path.isfile(f)):
             os.remove(i)
 
@@ -291,8 +295,8 @@ class FileHelper:
 
         :param silent: If True, don't print information to the tasks output.
         """
-        if not silent and self._task_ctx is not None:
-            self._task_ctx.print('Glob Removed Directories: "{}"'.format(glob_pattern))
+        if not silent and self._printer is not None:
+            self._printer.print('Glob Removed Directories: "{}"'.format(glob_pattern))
         for i in (d for d in glob.iglob(glob_pattern, recursive=True) if os.path.isdir(d)):
             shutil.rmtree(i, ignore_errors=True)
 
@@ -312,8 +316,8 @@ class FileHelper:
         :param must_exist: If True, a FileNotFoundError will be raised if the directory
                            does not exist
         """
-        if not silent and self._task_ctx is not None:
-            self._task_ctx.print('Removed Directory(s): "{}"'.format(path))
+        if not silent and self._printer is not None:
+            self._printer.print('Removed Directory(s): "{}"'.format(path))
         try:
             shutil.rmtree(path)
         except FileNotFoundError:
