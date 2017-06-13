@@ -192,6 +192,15 @@ def all(ctx):
     file_helper = pake.FileHelper(ctx)
     file_helper.touch(ctx.outputs[0])
 
+    # Move to and back, just to test out move
+    file_helper.move(ctx.outputs[0], script_dir)
+    file_helper.move(os.path.join(script_dir,'main'),'test_data')
+
+    file_helper.move('test_data/subpake', '.')
+    file_helper.move('subpake', 'test_data/')
+
+    file_helper.copytree('test_data', 'test_data/subpake_copy')
+
 
 # Clean .o files in directories
 # Cover some of pake.FileHelper
@@ -212,6 +221,8 @@ def clean(ctx):
     file_helper.remove('test_data/test2')
 
     ctx.subpake('test_data/subpake/pakefile.py', 'clean')
+
+    file_helper.rmtree('test_data/subpake_copy')
 
 
 if __name__ == '__main__':
