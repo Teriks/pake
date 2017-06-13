@@ -40,8 +40,6 @@ __all__ = [
     'get_pakefile_caller_detail',
     'parse_define_value',
     'copyfileobj_tee',
-    'BinaryTextWriter',
-    'BinaryTextReader',
 ]
 
 
