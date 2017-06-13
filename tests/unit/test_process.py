@@ -32,7 +32,7 @@ class ProcessTest(unittest.TestCase):
 
         with self.assertRaises(process.TimeoutExpired) as exc:
             process.check_call(cmd, timeout=0.1,
-                               stderr=process.DEVNULL, stdin=process.DEVNULL)
+                               stderr=process.DEVNULL, stdout=process.DEVNULL)
 
         self.assertSequenceEqual((cmd, 0.1), exc.exception.cmd)
 
@@ -41,7 +41,7 @@ class ProcessTest(unittest.TestCase):
         cmd = [sys.executable, os.path.join(script_dir, 'throw.py')]
 
         with self.assertRaises(process.CalledProcessException) as exc:
-            process.check_call(cmd, stderr=process.DEVNULL, stdin=process.DEVNULL)
+            process.check_call(cmd, stderr=process.DEVNULL, stdout=process.DEVNULL)
 
         self.assertListEqual(cmd, exc.exception.cmd)
 
@@ -51,14 +51,14 @@ class ProcessTest(unittest.TestCase):
         cmd = [sys.executable, os.path.join(script_dir, 'timeout.py')]
 
         with self.assertRaises(process.TimeoutExpired) as exc:
-            process.check_output(*cmd, timeout=0.1, stderr=process.DEVNULL, stdin=process.DEVNULL)
+            process.check_output(*cmd, timeout=0.1, stderr=process.DEVNULL)
 
         _ = str(exc.exception)  # just test for serialization exceptions
 
         cmd = [sys.executable, os.path.join(script_dir, 'throw.py')]
 
         with self.assertRaises(process.CalledProcessException) as exc:
-            process.check_output(cmd, stderr=process.DEVNULL, stdin=process.DEVNULL)
+            process.check_output(cmd, stderr=process.DEVNULL)
 
         _ = str(exc.exception)  # just test for serialization exceptions
 
