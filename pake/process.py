@@ -239,14 +239,14 @@ class TimeoutExpired(ProcessException):
         out_str = ''
 
         template = []
-        if self.filename:
+        if self.filename:  # pragma: no cover
             template.append('filename="{}"'.format(self.filename))
-        if self.function_name:
+        if self.function_name:  # pragma: no cover
             template.append('function_name="{}"'.format(self.function_name))
-        if self.line_number:
+        if self.line_number:  # pragma: no cover
             template.append('line_number={}'.format(self.line_number))
 
-        if len(template):
+        if len(template):  # pragma: no cover
             out_str += ('{myname}({sep}\t{template}{sep}){sep}{sep}'.
                         format(myname=class_name, template=(',' + os.linesep + '\t').join(template), sep=os.linesep))
         else:
@@ -325,14 +325,14 @@ class CalledProcessException(ProcessException):
         out_str = ''
 
         template = []
-        if self.filename:
+        if self.filename:  # pragma: no cover
             template.append('filename="{}"'.format(self.filename))
-        if self.function_name:
+        if self.function_name:  # pragma: no cover
             template.append('function_name="{}"'.format(self.function_name))
-        if self.line_number:
+        if self.line_number:  # pragma: no cover
             template.append('line_number={}'.format(self.line_number))
 
-        if len(template):
+        if len(template):   # pragma: no cover
             out_str += ('{myname}({sep}\t{template}{sep}){sep}{sep}'.
                         format(myname=class_name, template=(',' + os.linesep + '\t').join(template), sep=os.linesep))
         else:
