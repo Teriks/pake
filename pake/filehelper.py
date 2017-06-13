@@ -33,9 +33,6 @@ class _DummyCtx:
     def print(*args, **kwargs):
         pass
 
-    def print_err(*args, **kwargs):
-        pass
-
 
 class FileHelper:
     """A helper class for dealing with common file operations
