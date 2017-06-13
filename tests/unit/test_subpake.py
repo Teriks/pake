@@ -31,3 +31,18 @@ class SubpakeTest(unittest.TestCase):
         with self.assertRaises(pake.SubpakeException) as err:
             pake.subpake(os.path.join(script_dir, 'throw.py'), exit_on_error=False)
 
+        # If pake is not initialized, there is no depth tracking
+
+        try:
+            pake.subpake(os.path.join(script_dir, 'assert_subpake_depth.py'), '-D', 'DEPTH=0', exit_on_error=False)
+        except pake.SubpakeException as err:
+            self.fail('subpake depth=0 assertion failed, return code {}.'.format(err.returncode))
+
+        # Pake must be initialized for depth tracking
+        pake.init()
+
+        try:
+            pake.subpake(os.path.join(script_dir, 'assert_subpake_depth.py'), '-D', 'DEPTH=1', exit_on_error=False)
+        except pake.SubpakeException as err:
+            self.fail('subpake depth=1 assertion failed, return code {}.'.format(err.returncode))
+

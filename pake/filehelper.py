@@ -53,15 +53,16 @@ class FileHelper:
                        the 'silent' parameter is set to True in the function being called.
         """
         if task_ctx:
-            if type(task_ctx) is not pake.TaskContext:
-                raise ValueError("task_ctx was not a pake.TaskContext object.")
+            print_op = getattr(task_ctx, "print", None)
+            if not callable(print_op):
+                raise ValueError('task_ctx object does not implement print.')
 
             self._task_ctx = task_ctx
         else:
             self._task_ctx = _DummyCtx()
 
     @property
-    def task_ctx(self):  # pragma: no cover
+    def task_ctx(self):
         if type(self._task_ctx) is _DummyCtx:
             return None
         return self._task_ctx
@@ -80,7 +81,7 @@ class FileHelper:
         :param exist_ok: If False, an OSError will be thrown if any directory
                          in the given path already exists.
 
-        :raises OSError: Raised for all directory creation errors aside from *errno.EEXIST*
+        :raises OSError: Raised for all directory creation errors (aside from *errno.EEXIST* if **exist_ok**  is **True**)
         """
 
         if not silent and self._task_ctx is not None:
@@ -89,17 +90,19 @@ class FileHelper:
         try:
             os.makedirs(path, mode=mode)
         except OSError as exception:
-            if not exist_ok and exception.args[0] != errno.EEXIST:
+            if exist_ok and exception.args[0] == errno.EEXIST:
+                pass
+            else:
                 raise
 
     def touch(self, file_name, mode=0o666, exist_ok=True, silent=False):
         """Create a file at this given path. If mode is given, it is combined with the process’ umask value to determine
         the file mode and access flags.  If the file already exists, the function succeeds if exist_ok is true
-        (and its modification time is updated to the current time), otherwise :py:class:`FileExistsError` is raised.
+        (and its modification time is updated to the current time), otherwise :py:exc:`FileExistsError` is raised.
 
         This uses :py:meth:`pathlib.Path.touch`.
 
-        :raises FileExistsError: Raised if exist_ok is False and the file already exists.
+        :raises: :py:exc:`FileExistsError` Raised if **exist_ok** is **False** and the file already exists.
 
         :param file_name: The file name.
         :param mode: The permissions umask.
@@ -153,7 +156,9 @@ class FileHelper:
         :param src: The source directory tree.
         :param dst: The destination path.
         :param symlinks: If True, try to copy symlinks.
-        :param ignore: If True, ignore errors while copying files and directories.
+
+        :param ignore: Callable, used specifying files to ignore in a specific directory as copytree
+                       walks the source directory tree. ``callable(src, names) -> ignored_names``
 
         :param copy_function: The copy function, if not specified :py:meth:`shutil.copy2` is used.
 
@@ -212,27 +217,29 @@ class FileHelper:
 
         shutil.move(src, dest, copy_function=copy_function)
 
-    def copy(self, src, dest, copy_metadata=False, silent=False):
+    def copy(self, src, dest, copy_metadata=False, follow_symlinks=True, silent=False):
         """Copy a file to a destination.
 
-        See :py:meth:`shutil.copy` and :py:meth:`shutil.copy2` (when copy_metadata is True)
+        See :py:meth:`shutil.copy` and :py:meth:`shutil.copy2` (when **copy_metadata** is True)
+
 
         :param src: The file.
         :param dest: The destination path.
         :param copy_metadata: If True, file metadata like creation time will be copied to the new file.
+        :param follow_symlinks: Whether or not to follow symlinks while copying.
         :param silent: If True, Don't print information to the tasks output.
         """
 
-        if copy_metadata:
+        if copy_metadata:  # pragma: no cover
             if not silent and self._task_ctx is not None:
                 self._task_ctx.print('Copied File With Metadata: "{}" -> "{}"'
                                      .format(src, dest))
-            shutil.copy2(src, dest)
+            shutil.copy2(src, dest, follow_symlinks=follow_symlinks)
         else:
             if not silent and self._task_ctx is not None:
                 self._task_ctx.print('Copied File: "{}" -> "{}"'
                                      .format(src, dest))
-            shutil.copy(src, dest)
+            shutil.copy(src, dest, follow_symlinks=follow_symlinks)
 
     def remove(self, path, silent=False, must_exist=False):
         """Remove a file from disk if it exists, otherwise do nothing,  uses :py:meth:`os.remove`.
