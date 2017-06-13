@@ -420,19 +420,26 @@ class TaskContext:
                             stdout=stdout, stderr=subprocess.STDOUT,
                             stdin=stdin, shell=shell)
         else:
-            output_copy_buffer = tempfile.TemporaryFile(mode='w+')
 
             with subprocess.Popen(args,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
                                   stdin=stdin, shell=shell) as process:
 
-                process_stdout = codecs.getreader(sys.stdout.encoding)(process.stdout)
+                output_copy_buffer = tempfile.TemporaryFile(mode='w+')
 
-                if not silent:
-                    pake.util.copyfileobj_tee(process_stdout, [self._io, output_copy_buffer])
-                else:
-                    pake.util.copyfileobj_tee(process_stdout, [output_copy_buffer])
+                stdout_encoding = 'utf-8' if sys.stdout.encoding is None else sys.stdout.encoding  # pragma: no cover
+
+                try:
+                    process_stdout = codecs.getreader(stdout_encoding)(process.stdout)
+
+                    if not silent:
+                        pake.util.copyfileobj_tee(process_stdout, [self._io, output_copy_buffer])
+                    else:
+                        pake.util.copyfileobj_tee(process_stdout, [output_copy_buffer])
+                except:
+                    output_copy_buffer.close()
+                    raise
 
                 try:
                     exitcode = process.wait()
@@ -449,6 +456,8 @@ class TaskContext:
                                                            output_stream=output_copy_buffer,
                                                            message='An error occurred while executing a system '
                                                                    'command inside a pake task.')
+                else:
+                    output_copy_buffer.close()
 
     @property
     def dependencies(self):

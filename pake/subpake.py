@@ -170,18 +170,24 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
 
     args = [sys.executable, script] + extra_args + list(str(i) for i in args)
 
-    output_copy_buffer = tempfile.TemporaryFile(mode='w+')
-
     with subprocess.Popen(args,
                           stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT) as process:
 
-        process_stdout = codecs.getreader(sys.stdout.encoding)(process.stdout)
+        output_copy_buffer = tempfile.TemporaryFile(mode='w+')
 
-        if not silent:
-            pake.util.copyfileobj_tee(process_stdout, [stdout, output_copy_buffer])
-        else:  # pragma: no cover
-            pake.util.copyfileobj_tee(process_stdout, [output_copy_buffer])
+        stdout_encoding = 'utf-8' if sys.stdout.encoding is None else sys.stdout.encoding  # pragma: no cover
+
+        try:
+            process_stdout = codecs.getreader(stdout_encoding)(process.stdout)
+
+            if not silent:
+                pake.util.copyfileobj_tee(process_stdout, [stdout, output_copy_buffer])
+            else:  # pragma: no cover
+                pake.util.copyfileobj_tee(process_stdout, [output_copy_buffer])
+        except:
+            output_copy_buffer.close()
+            raise
 
         try:
             exitcode = process.wait()
@@ -204,3 +210,5 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
                 exit(returncodes.SUBPAKE_EXCEPTION)
             else:
                 raise ex
+        else:
+            output_copy_buffer.close()

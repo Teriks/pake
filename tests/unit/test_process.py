@@ -26,6 +26,9 @@ class ProcessTest(unittest.TestCase):
         self.assertNotEqual(process.call(sys.executable, os.path.join(script_dir, 'throw.py'),
                                          stderr=process.DEVNULL, stdout=process.DEVNULL), 0)
 
+        self.assertNotEqual(process.call(sys.executable, os.path.join(script_dir, 'killself.py'),
+                                         stderr=process.DEVNULL, stdout=process.DEVNULL), 0)
+
     def test_check_call(self):
 
         cmd = [sys.executable, os.path.join(script_dir, 'timeout.py')]
