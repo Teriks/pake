@@ -19,12 +19,12 @@ class ProcessTest(unittest.TestCase):
         cmd = [sys.executable, os.path.join(script_dir, 'timeout.py')]
 
         with self.assertRaises(process.TimeoutExpired) as exc:
-            process.call(*cmd, timeout=0.1, stderr=process.DEVNULL, stdin=process.DEVNULL)
+            process.call(*cmd, timeout=0.1, stderr=process.DEVNULL, stdout=process.DEVNULL)
 
         self.assertSequenceEqual((cmd, 0.1), exc.exception.cmd)
 
         self.assertNotEqual(process.call(sys.executable, os.path.join(script_dir, 'throw.py'),
-                                         stderr=process.DEVNULL, stdin=process.DEVNULL), 0)
+                                         stderr=process.DEVNULL, stdout=process.DEVNULL), 0)
 
     def test_check_call(self):
 
