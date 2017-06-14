@@ -348,12 +348,11 @@ Pakes current options
       -ti, --show-task-info
                             List all tasks along side their doc string. Only tasks
                             with doc strings present will be shown.
-      -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
-                            once, all specified pakefiles will be executed in
-                            order. If a file resides in a directory other than the
-                            current directory, pake will change directories to the
-                            files directory; if -C is specified in that case pake
-                            will change to the directory specified by -C instead.
+     -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
+                           once, all specified pakefiles will be executed in
+                           order with the current directory as the working
+                           directory (unless -C is specified).
+
 
 
 .. |Master Documentation Status| image:: https://readthedocs.org/projects/pake/badge/?version=latest
