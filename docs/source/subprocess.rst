@@ -177,3 +177,43 @@ Examples:
         except pake.SubprocessException:
             pass
 
+
+
+pake.process Module Methods
+---------------------------
+
+The :py:mod:`pake.process` module provides thin wrappers around the builtin python :py:mod:`subprocess` module methods.
+
+Primarily: :py:meth:`subprocess.call`, :py:meth:`subprocess.check_call` and :py:meth:`subprocess.check_output`.
+
+The corresponding wrappers are: :py:meth:`pake.process.call`, :py:meth:`subprocess.check_call` and :py:meth:`subprocess.check_output`.
+
+The wrappers are there mostly to allow calling sub-processes with a similar syntax to :py:meth:`pake.Pake.call` and friends.
+
+IE. They can be called with variadic arguments, and will also flatten any non string iterables passed to the **\*args** parameter.
+
+
+Example:
+
+.. code-block:: python
+
+    import sys
+    from pake import process
+
+
+    def run_python_silent(*args):
+        # sys.executable and *args go into the variadic argument, the
+        # *args iterable is flattened out for you
+
+        # Returns the return code
+        return process.call(sys.executable, args,
+                            stdout=process.DEVNULL,
+                            stderr=process.DEVNULL)
+
+
+They also raise exceptions similar to those from the :py:mod:`subprocess` module, however the exceptions
+behave nicer if they occur inside of a task.
+
+See: :py:exc:`pake.process.TimeoutExpired` and :py:exc:`pake.process.CalledProcessException`.
+
+Which are analogs for :py:exc:`subprocess.TimeoutExpired` and :py:exc:`subprocess.CalledProcessError`.
