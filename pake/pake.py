@@ -95,17 +95,18 @@ class TaskExitException(Exception):
         """The return code passed to **exit()** inside the task."""
         return self.exit_exception.code
 
-    def print_traceback(self, file=pake.conf.stderr):
+    def print_traceback(self, file=None):
         """
         Print the traceback of the :py:exc:`SystemExit` exception that was raised inside the task to a file object.
-        :param file: The file object to print to.
+        
+        :param file: The file object to print to.  Default value is :py:attr:`pake.conf.stderr` if **None** is specified.
         """
 
         traceback.print_exception(
             type(self.exit_exception),
             self.exit_exception,
             self.exit_exception.__traceback__,
-            file=file)
+            file=pake.conf.stderr if file is None else file)
 
 
 class MissingOutputsException(Exception):  # pragma: no cover
