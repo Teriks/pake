@@ -412,6 +412,32 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         if pake_obj.run_count == 0:
             pake_obj.print('Nothing to do, all tasks up to date.')
 
+    except pake.TaskExitException as err:
+        return_code = err.return_code
+
+        # Sneaky trick to figure out if someone did not read the documentation.
+        # _TerminateException derives SystemExit which triggers TaskExitException inside a task.
+        # we can detect if the exit originated from pake.terminate here because that is the exception
+        # pake.terminate raises to kill the interpreter.  pake.terminate should not be called
+        # inside of a task because it writes to unsynchronized process output, among other reasons.
+        if isinstance(err.exit_exception, _TerminateException):
+            pake.conf.stderr.write(os.linesep)
+            print('pake.terminate(..., {code}) was used inside task "{task}", do not do this!  '
+                  'Just use plain a exit() call instead.  '
+                  'See "pake.terminate" and "pake.Pake.terminate" documentation for more information '
+                  'on where these functions should and should not be used.'
+                  .format(code=err.return_code, task=err.task_name),
+                  file=pake.conf.stderr)
+            pake.conf.stderr.write(os.linesep)
+            err.print_traceback()
+
+
+
+        elif return_code != 0:
+            # Print info only for error conditions
+            print(os.linesep+str(err)+os.linesep, file=pake.conf.stderr)
+            err.print_traceback(file=pake.conf.stderr)
+
     except pake.InputNotFoundException as err:
         print(str(err), file=pake.conf.stderr)
         return_code = returncodes.TASK_INPUT_NOT_FOUND
@@ -438,12 +464,50 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     return _terminate(pake_obj, return_code, exit_func=m_exit)
 
 
+class _TerminateException(SystemExit):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
 def terminate(pake_obj, return_code=returncodes.SUCCESS):  # pragma: no cover
     """
-    Preform a graceful exit from a pakefile, printing the leaving directory or exit subpake message if needed, then
-    exiting with a given return code.  The default return code is :py:attr:`pake.returncodes.SUCCESS`.
+    Preform a graceful exit from a pakefile outside of a task, printing the leaving directory or exit subpake message if
+    needed, then exiting with a given return code.  The default return code is :py:attr:`pake.returncodes.SUCCESS`.
 
-    This should be used as opposed to a raw **exit** call to ensure the output of pake remains consistent.
+    This should be used as opposed to a raw **exit** call outside of pake tasks to ensure the output of pake remains consistent.
+    
+    Do not use this function from inside of a task, just use a plain **exit** call.  An **exit** call inside of a task will cause
+    pake to stop as soon as it can and return with the given exit code.  Pake can handle getting the 'leaving directory/exiting subpake'
+    output correct when plain **exit** is called inside a task; so you do not need to use this function inside tasks.
+    
+    Using this function inside a task will cause the 'leaving directory/exiting subpake' messages to be printed twice, and also
+    in a possibly random location in your build output if your running pake with multiple jobs.
+    
+    :py:meth:`pake.terminate` or :py:meth:`pake.Pake.terminate` should be used to exit the pakefile before tasks have run, if it is necessary.
+    
+    Use Case:
+    
+    .. code-block:: python
+    
+       import os
+       import pake
+       from pake import returncodes
+       
+       pk = pake.init()
+       
+       # Say you need to wimp out of a build for some reason
+       # But not inside of a task.
+       
+       if os.name == 'nt':
+           pk.print('You really thought you could '
+                    'build my software on windows? nope!')
+           
+           pake.terminate(pk, returncodes.ERROR)
+           
+           # or
+           
+           # pk.terminate(returncodes.ERROR)
+           
 
     :py:meth:`pake.Pake.terminate` is a shorthand which passes the **pake_obj** instance to this function for you.
 
@@ -455,7 +519,11 @@ def terminate(pake_obj, return_code=returncodes.SUCCESS):  # pragma: no cover
 
     :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     """
-    _terminate(pake_obj, return_code)
+
+    def m_exit(code):
+        raise _TerminateException(code)
+
+    _terminate(pake_obj, return_code, exit_func=m_exit)
 
 
 def _terminate(pake_obj, return_code, exit_func=exit):

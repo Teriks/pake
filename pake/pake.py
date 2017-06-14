@@ -50,6 +50,7 @@ __all__ = ['pattern',
            'UndefinedTaskException',
            'RedefinedTaskException',
            'TaskException',
+           'TaskExitException',
            'InputNotFoundException',
            'MissingOutputsException']
 
@@ -73,6 +74,37 @@ class TaskException(Exception):  # pragma: no cover
 
     def __str__(self):
         return str(self.exception)
+
+
+class TaskExitException(Exception):
+    """Occurs when **exit()** is called inside of a task."""
+    def __init__(self, task_name, exit_exception):
+        """
+        
+        :param task_name: The name of the task that raised the :py:exc:`SystemExit` exception.
+        :param exit_exception: Reference to the :py:exc:`SystemExit` exception raised inside the task.
+        """
+        super().__init__('exit({code}) was called within task "{task}".'
+                         .format(code=exit_exception.code, task=task_name))
+
+        self.task_name = task_name
+        self.exit_exception = exit_exception
+
+    @property
+    def return_code(self):
+        return self.exit_exception.code
+
+    def print_traceback(self, file=pake.conf.stderr):
+        """
+        Print the traceback of the :py:exc:`SystemExit` exception that was raised inside the task to a file object.
+        :param file: The file object to print to.
+        """
+
+        traceback.print_exception(
+            type(self.exit_exception),
+            self.exit_exception,
+            self.exit_exception.__traceback__,
+            file=file)
 
 
 class MissingOutputsException(Exception):  # pragma: no cover
@@ -127,6 +159,10 @@ class RedefinedTaskException(Exception):
 
 
 def _handle_task_exception(ctx, exception):
+    if isinstance(exception, SystemExit):
+        # Handle exit() within tasks
+        raise TaskExitException(ctx.name, exception)
+
     if isinstance(exception, pake.process.SubprocessException):
         # SubprocessException provides detailed information
         # about the call site of the subprocess in the pakefile
@@ -786,8 +822,10 @@ class Pake:
 
     def terminate(self, return_code=pake.returncodes.SUCCESS):  # pragma: no cover
         """Shorthand for ``pake.terminate(this, return_code=return_code)``.
+        
+        Do not use this inside of tasks, this is meant to be used before any tasks are run.
 
-        See: :py:meth:`pake.terminate`
+        See for more details: :py:meth:`pake.terminate`
 
         :param return_code: Return code to exit the pakefile with.
                             The default return code is :py:attr:`pake.returncodes.SUCCESS`.
@@ -1269,8 +1307,7 @@ class Pake:
                     if not no_header:
                         ctx.print('===== Executing Task: "{}"'.format(ctx.name))
                     return func(*args, **kwargs)
-
-            except Exception as err:
+            except BaseException as err:
                 _handle_task_exception(ctx, err)
             finally:
                 ctx._i_io_close()
@@ -1325,6 +1362,8 @@ class Pake:
         
         :raises: :py:class:`pake.TaskException` if an exception occurred while running a task, information will have \
                  already been printed to the :py:attr:`pake.TaskContext.io` file object which belongs to the given task.
+        
+        :raises: :py:class:`pake.TaskExitException` if **exit()** is called inside of a task.
         
         :raises: :py:class:`pake.MissingOutputsException` if a task defines input files/directories without specifying any output files/directories.
         :raises: :py:class:`pake.InputNotFoundException` if a task defines input files/directories but one of them was not found on disk.
