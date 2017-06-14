@@ -26,49 +26,53 @@ Pake return codes.
 
     0. Pake ran successfully.
 
+.. data:: ERROR
+
+    1. Generic error, good for use with :py:meth:`pake.terminate`
+
 .. data:: PAKEFILE_NOT_FOUND
 
-    1. Pakefile not found in directory, or specified pakefile does not exist.
+    2. Pakefile not found in directory, or specified pakefile does not exist.
 
 .. data:: BAD_ARGUMENTS
 
-    2. Bad combination of command line arguments, or bad arguments in general.
+    3. Bad combination of command line arguments, or bad arguments in general.
 
 .. data:: BAD_DEFINE_VALUE
 
-    3. Syntax error while parsing a define value from the -D/--define option.
+    4. Syntax error while parsing a define value from the -D/--define option.
 
 .. data:: NO_TASKS_DEFINED
 
-    4. No tasks defined in pakefile.
+    5. No tasks defined in pakefile.
     
 .. data:: NO_TASKS_SPECIFIED
 
-    5. No tasks specified to run, no default tasks exist.
+    6. No tasks specified to run, no default tasks exist.
     
 .. data:: TASK_INPUT_NOT_FOUND
 
-    6. One of task's input files/directories is missing.
+    7. One of task's input files/directories is missing.
     
 .. data:: TASK_OUTPUT_MISSING
 
-    7. A task declares input files/directories but no output files/directories.
+    8. A task declares input files/directories but no output files/directories.
     
 .. data:: UNDEFINED_TASK
 
-    8. An undefined task was referenced.
+    9. An undefined task was referenced.
     
 .. data:: CYCLIC_DEPENDENCY
 
-    9. A cyclic dependency was detected.
+    10. A cyclic dependency was detected.
 
 .. data:: TASK_SUBPROCESS_EXCEPTION
 
-    10. An unhandled :py:class:`pake.SubprocessException` was raised inside a task.
+    11. An unhandled :py:class:`pake.SubprocessException` was raised inside a task.
     
 .. data:: SUBPAKE_EXCEPTION
 
-    11. An exceptional condition occurred running a subpake script.
+    12. An exceptional condition occurred running a subpake script.
     
     Occurs if :py:meth:`pake.TaskContext.subpake` encounters a :py:class:`pake.SubprocessException` inside a task.
 
@@ -76,20 +80,21 @@ Pake return codes.
 
 .. data:: TASK_EXCEPTION
 
-    12. An unhandled exception occurred inside a task.
+    13. An unhandled exception occurred inside a task.
 """
 
 SUCCESS = 0
-PAKEFILE_NOT_FOUND = 1
-BAD_ARGUMENTS = 2
-BAD_DEFINE_VALUE = 3
-NO_TASKS_DEFINED = 4
-NO_TASKS_SPECIFIED = 5
-TASK_INPUT_NOT_FOUND = 6
-TASK_OUTPUT_MISSING = 7
-UNDEFINED_TASK = 8
-CYCLIC_DEPENDENCY = 9
-TASK_SUBPROCESS_EXCEPTION = 10
-SUBPAKE_EXCEPTION = 11
-TASK_EXCEPTION = 12
+ERROR = 1
+PAKEFILE_NOT_FOUND = 2
+BAD_ARGUMENTS = 3
+BAD_DEFINE_VALUE = 4
+NO_TASKS_DEFINED = 5
+NO_TASKS_SPECIFIED = 6
+TASK_INPUT_NOT_FOUND = 7
+TASK_OUTPUT_MISSING = 8
+UNDEFINED_TASK = 9
+CYCLIC_DEPENDENCY = 10
+TASK_SUBPROCESS_EXCEPTION = 11
+SUBPAKE_EXCEPTION = 12
+TASK_EXCEPTION = 13
 
