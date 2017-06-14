@@ -790,6 +790,7 @@ class Pake:
         See: :py:meth:`pake.terminate`
 
         :param return_code: Return code to exit the pakefile with.
+                            The default return code is :py:attr:`pake.returncodes.SUCCESS`.
         """
         pake.terminate(self, return_code=return_code)
 

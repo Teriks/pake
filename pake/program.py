@@ -441,7 +441,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
 def terminate(pake_obj, return_code=returncodes.SUCCESS):  # pragma: no cover
     """
     Preform a graceful exit from a pakefile, printing the leaving directory or exit subpake message if needed, then
-    exiting with a given return code.
+    exiting with a given return code.  The default return code is :py:attr:`pake.returncodes.SUCCESS`.
 
     This should be used as opposed to a raw **exit** call to ensure the output of pake remains consistent.
 
