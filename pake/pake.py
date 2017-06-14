@@ -77,7 +77,18 @@ class TaskException(Exception):  # pragma: no cover
 
 
 class TaskExitException(Exception):
-    """Occurs when **exit()** is called inside of a task."""
+    """Occurs when **exit()** is called inside of a task.
+    
+    .. :py:attribute:: task_name
+       
+       The name of the task in which **exit** was called.
+       
+       
+    .. :py:attribute:: exit_exception
+       
+       Reference to the :py:exc:`SystemExit` exception which caused this exception to be raised.
+    
+    """
     def __init__(self, task_name, exit_exception):
         """
         
