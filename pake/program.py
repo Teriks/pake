@@ -445,6 +445,8 @@ def terminate(pake_obj, return_code=returncodes.SUCCESS):  # pragma: no cover
 
     This should be used as opposed to a raw **exit** call to ensure the output of pake remains consistent.
 
+    :py:meth:`pake.Pake.terminate` is a shorthand which passes the **pake_obj** instance to this function for you.
+
     :param pake_obj: Reference to the initialized pake object, for message io.
 
     :param return_code: Return code to exit the pakefile with, see :py:mod:`pake.returncodes` for standard return codes.
