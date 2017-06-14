@@ -41,33 +41,37 @@ in parallel.
 Command Line Options
 --------------------
 
-.. code-block:: none
+::
 
-    usage:
-     usage: pake [-h] [-v] [-D DEFINE] [-j JOBS] [-n] [-C DIRECTORY] [-t] [-ti] [-f FILE] [tasks [tasks ...]]
+    usage: pake [-h] [-v] [-D DEFINE] [-j JOBS] [-n] [-C DIRECTORY] [-t] [-ti]
+                [-f FILE]
+                [tasks [tasks ...]]
 
-     positional arguments:
-       tasks                 Build tasks.
+    positional arguments:
+      tasks                 Build tasks.
 
-     optional arguments:
-       -h, --help            show this help message and exit
-       -v, --version         show program's version number and exit
-       -D DEFINE, --define DEFINE
-                             Add defined value.
-       -j JOBS, --jobs JOBS  Max number of parallel jobs. Using this option enables
-                             unrelated tasks to run in parallel with a max of N
-                             tasks running at a time.
-       -n, --dry-run         Use to preform a dry run, lists all tasks that will be
-                             executed in the next actual invocation.
-       -C DIRECTORY, --directory DIRECTORY
-                             Change directory before executing.
-       -t, --show-tasks      List all task names.
-       -ti, --show-task-info
-                             List all tasks along side their doc string. Only tasks
-                             with doc strings present will be shown.
-       -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
-                             once, all specified pakefiles will be executed in
-                             order.
+    optional arguments:
+      -h, --help            show this help message and exit
+      -v, --version         show program's version number and exit
+      -D DEFINE, --define DEFINE
+                            Add defined value.
+      -j JOBS, --jobs JOBS  Max number of parallel jobs. Using this option enables
+                            unrelated tasks to run in parallel with a max of N
+                            tasks running at a time.
+      -n, --dry-run         Use to preform a dry run, lists all tasks that will be
+                            executed in the next actual invocation.
+      -C DIRECTORY, --directory DIRECTORY
+                            Change directory before executing.
+      -t, --show-tasks      List all task names.
+      -ti, --show-task-info
+                            List all tasks along side their doc string. Only tasks
+                            with doc strings present will be shown.
+      -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
+                            once, all specified pakefiles will be executed in
+                            order. If a file resides in a directory other than the
+                            current directory, pake will change directories to the
+                            files directory; if -C is specified in that case pake
+                            will change to the directory specified by -C instead.
 
 Return Codes
 ------------

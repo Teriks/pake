@@ -43,7 +43,10 @@ def _verify_file_exists(in_file):
 
 parser.add_argument("-f", "--file", nargs=1, action='append', type=_verify_file_exists,
                     help='Pakefile path(s).  This switch can be used more than once, '
-                         'all specified pakefiles will be executed in order.')
+                         'all specified pakefiles will be executed in order.  If a file '
+                         'resides in a directory other than the current directory, pake will '
+                         'change directories to the files directory;  if -C is specified in that case '
+                         'pake will change to the directory specified by -C instead.')
 
 
 def _find_pakefile_or_exit(directory):

@@ -19,7 +19,7 @@ Note: pake is Alpha and likely to change some.
 
 ::
 
-    sudo pip3 install git+git://github.com/Teriks/pake.git@0.10.0.0a1
+    sudo pip3 install git+git://github.com/Teriks/pake.git@0.10.0.1a1
 
 Example project using pake
 ==========================
@@ -346,11 +346,15 @@ Pakes current options
                             Change directory before executing.
       -t, --show-tasks      List all task names.
       -ti, --show-task-info
-                            List all tasks along side their doc string. Only tasks
+                            List all tasks along side their doc string. Only tasks
                             with doc strings present will be shown.
       -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
                             once, all specified pakefiles will be executed in
-                            order.
+                            order. If a file resides in a directory other than the
+                            current directory, pake will change directories to the
+                            files directory; if -C is specified in that case pake
+                            will change to the directory specified by -C instead.
+
 
 .. |Master Documentation Status| image:: https://readthedocs.org/projects/pake/badge/?version=latest
    :target: http://pake.readthedocs.io/en/latest/?badge=latest
