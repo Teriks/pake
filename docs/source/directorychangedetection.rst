@@ -26,7 +26,7 @@ Example:
         png_files = []
 
         for d in ctx.inputs:
-            # Need to collect the files in the directory yourself
+            # Need to collect the files in the directories yourself
             png_files += pathlib.Path(inputdir).glob('*.png')
 
         # Concatenate with ImageMagick's convert command
