@@ -451,9 +451,11 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     except pake.TaskException as err:
         inner_err = err.exception
         if isinstance(inner_err, pake.SubpakeException):
+            pake.conf.stderr.write(os.linesep)
             inner_err.write_info(file=pake.conf.stderr)
             return_code = returncodes.SUBPAKE_EXCEPTION
         elif isinstance(inner_err, pake.SubprocessException):
+            pake.conf.stderr.write(os.linesep)
             inner_err.write_info(file=pake.conf.stderr)
             return_code = returncodes.TASK_SUBPROCESS_EXCEPTION
         else:
