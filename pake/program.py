@@ -108,13 +108,13 @@ def init(stdout=None, args=None):
 
     depth = get_subpake_depth()
 
+    if depth > 0:
+        pk.print('*** enter subpake[{}]:'.format(depth))
+
     if parsed_args.directory and parsed_args.directory != os.getcwd():
         pk.print('pake[{}]: Entering Directory "{}"'.
                  format(get_subpake_depth(), parsed_args.directory))
         os.chdir(parsed_args.directory)
-
-    if depth > 0:
-        pk.print('*** enter subpake[{}]:'.format(depth))
 
     return pk
 
