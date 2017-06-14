@@ -92,6 +92,7 @@ class TaskExitException(Exception):
 
     @property
     def return_code(self):
+        """The return code passed to **exit()** inside the task."""
         return self.exit_exception.code
 
     def print_traceback(self, file=pake.conf.stderr):
