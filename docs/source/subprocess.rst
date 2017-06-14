@@ -186,7 +186,7 @@ The :py:mod:`pake.process` module provides thin wrappers around the builtin pyth
 
 Primarily: :py:meth:`subprocess.call`, :py:meth:`subprocess.check_call` and :py:meth:`subprocess.check_output`.
 
-The corresponding wrappers are: :py:meth:`pake.process.call`, :py:meth:`subprocess.check_call` and :py:meth:`subprocess.check_output`.
+The corresponding wrappers are: :py:meth:`pake.process.call`, :py:meth:`pake.process.check_call` and :py:meth:`pake.process.check_output`.
 
 The wrappers are there mostly to allow calling sub-processes with a similar syntax to :py:meth:`pake.Pake.call` and friends.
 
