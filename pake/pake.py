@@ -784,7 +784,7 @@ class Pake:
         """
         return self._task_contexts.values()
 
-    def terminate(self, return_code=pake.returncodes.SUCCESS):
+    def terminate(self, return_code=pake.returncodes.SUCCESS):  # pragma: no cover
         """Shorthand for ``pake.terminate(this, return_code=return_code)``.
 
         See: :py:meth:`pake.terminate`
