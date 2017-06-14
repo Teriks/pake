@@ -581,6 +581,8 @@ def glob(expression):
     """Deferred file input glob, the glob is not executed until the task executes.
 
     This input generator handles recursive directory globs by default.
+     
+    This generator will also report directory names as well as file names.
        
     Collects files for input with a unix style glob expression.
     

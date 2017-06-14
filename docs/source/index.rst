@@ -46,6 +46,7 @@ Guides / Help
 
    Running Pake <runningpake>
    Writing Basic Tasks <basictasks>
+   Change Detection Against Directories <directorychangedetection>
    Exiting Pakefiles Before pake.run <exitingpakefiles>
    Adding Tasks Programmatically <programmaticlyaddtasks>
    Exceptions Inside Tasks <taskexceptions>
