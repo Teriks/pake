@@ -7,8 +7,8 @@ pake is a make like python build utility where tasks, dependencies and
 build commands can be expressed entirely in python, similar to ruby
 rake.
 
-pake supports automatic file change detection when dealing with inputs
-and outputs and also parallel builds.
+pake supports automatic file/directory change detection when dealing with
+task inputs and outputs, and also parallel builds.
 
 pake requires python3.5+
 
