@@ -77,7 +77,7 @@ class TaskException(Exception):  # pragma: no cover
 
 
 class TaskExitException(Exception):
-    """Occurs when **exit()** is called inside of a task.
+    """Raised from :py:meth:`pake.Pake.run` when **exit()** is called inside of a task.
     
     .. :py:attribute:: task_name
        
