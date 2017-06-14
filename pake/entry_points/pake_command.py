@@ -38,11 +38,37 @@ def _verify_file_exists(in_file):
             parser.error('"{}" is not a file.'.format(in_file))
     else:
         parser.error('File "{}" does not exist.'.format(in_file))
+    return os.path.abspath(in_file)
 
 
 parser.add_argument("-f", "--file", nargs=1, action='append', type=_verify_file_exists,
                     help='Pakefile path(s).  This switch can be used more than once, '
                          'all specified pakefiles will be executed in order.')
+
+
+def _find_pakefile_or_exit(directory):
+    option_one = os.path.join(directory, 'pakefile.py')
+    option_two = os.path.join(directory, 'pakefile')
+
+    if os.path.exists(option_one):
+        return os.path.abspath(option_one)
+    elif os.path.exists(option_two):
+        return os.path.abspath(option_two)
+    else:
+        print("No pakefile.py or pakefile was found in this directory.")
+        exit(returncodes.PAKEFILE_NOT_FOUND)
+
+
+def _strip_single_arg_switches(sys_args, switch_set):
+    continue_twice = False
+    for arg in sys_args:
+        if continue_twice:
+            continue_twice = False
+            continue
+        if arg in switch_set:
+            continue_twice = True
+            continue
+        yield arg
 
 
 def main(args=None):
@@ -54,40 +80,64 @@ def main(args=None):
     else:
         args = parser.parse_args(args=args)
 
-    # Strip out the -f/--file switches, put everything else into actual_args
-
+    init_dir = os.getcwd()
     sys_args = sys.argv[1:]
-    actual_args = []
-    switch_set = {'-f', '--file'}
-    continue_twice = False
-
-    for arg in sys_args:
-        if continue_twice:
-            continue_twice = False
-            continue
-        if arg in switch_set:
-            continue_twice = True
-            continue
-
-        actual_args.append(arg)
 
     if not args.file:
-        if os.path.exists("pakefile.py"):
-            file = os.path.abspath("pakefile.py")
-        elif os.path.exists("pakefile"):
-            file = os.path.abspath("pakefile")
+
+        # Strip out the -C/--directory switch and argument, put everything else into actual_args.
+        # The directory change is going to be handled here, if a pakefile exists in that directory.
+
+        actual_args = list(
+            _strip_single_arg_switches(sys_args, {'-C', '--directory'})
+        )
+
+        if args.directory:
+            file = _find_pakefile_or_exit(args.directory)
         else:
-            print("No pakefile.py or pakefile was found in this directory.")
-            exit(returncodes.PAKEFILE_NOT_FOUND)
+            file = _find_pakefile_or_exit(init_dir)
 
-        os.chdir(os.path.dirname(file))
-        exit(subprocess.call([sys.executable, file] + actual_args, stdout=pake.conf.stdout, stderr=pake.conf.stderr))
+        new_dir = os.path.dirname(file)
 
-    for file in (os.path.abspath(f) for f in itertools.chain.from_iterable(args.file)):
-        os.chdir(os.path.dirname(file))
-        code = subprocess.call([sys.executable, file] + actual_args, stdout=pake.conf.stdout, stderr=pake.conf.stderr)
-        if code != 0:
-            exit(code)
+        if new_dir != init_dir:
+            print('pake[0]: Entering Directory "{}"'.format(new_dir))
+            sys.stdout.flush()
+            os.chdir(new_dir)
+
+        return_code = subprocess.call([sys.executable, file] + actual_args, stdout=pake.conf.stdout, stderr=pake.conf.stderr)
+
+        if new_dir != init_dir:
+            print('pake[0]: Exiting Directory "{}"'.format(new_dir))
+            sys.stdout.flush()
+            os.chdir(init_dir)
+
+        exit(return_code)
+
+    # Strip out the -f/--file switches and arguments, put everything else into actual_args.
+    # The pakefile itself will not accept a --file argument.  The -C/--directory argument is still
+    # going to be forwarded, allowing for this syntax:  pake -f some_file.py -C work_in_some_directory_please
+
+    actual_args = list(
+        _strip_single_arg_switches(sys_args, {'-f', '--file'})
+    )
+
+    for file in itertools.chain.from_iterable(args.file):
+        new_dir = os.path.dirname(file)
+
+        if new_dir != init_dir:
+            print('pake[0]: Entering Directory "{}"'.format(new_dir))
+            sys.stdout.flush()
+            os.chdir(new_dir)
+
+        return_code = subprocess.call([sys.executable, file] + actual_args, stdout=pake.conf.stdout, stderr=pake.conf.stderr)
+
+        if new_dir != init_dir:
+            print('pake[0]: Exiting Directory "{}"'.format(new_dir))
+            sys.stdout.flush()
+            os.chdir(init_dir)
+
+        if return_code != 0:
+            exit(return_code)
 
 
 if __name__ == "__main__":
