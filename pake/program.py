@@ -431,7 +431,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
             pake.conf.stderr.write(os.linesep)
             err.print_traceback()
 
-        elif return_code != 0:
+        elif return_code != returncodes.SUCCESS:
             # Print info only for error conditions
             print(os.linesep+str(err)+os.linesep, file=pake.conf.stderr)
             err.print_traceback(file=pake.conf.stderr)
