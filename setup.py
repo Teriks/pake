@@ -21,14 +21,14 @@ with open('README.rst', 'r', encoding='utf-8') as f:
     readme = f.read()
 
 
-setup(name='pake',
+setup(name='python-pake',
       author='Teriks',
       author_email='Teriks@users.noreply.github.com',
       url='https://github.com/Teriks/pake',
       version=version,
       packages=find_packages(exclude=('tests',)),
       license='BSD 3-Clause',
-      description='A make like build utility using python.',
+      description='A make like build utility entirely in python.',
       long_description=readme,
       include_package_data=True,
       install_requires=[],
