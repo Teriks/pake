@@ -64,6 +64,11 @@ class SubprocessException(ProcessException):
     Raised upon encountering a non-zero return code from a subprocess,
     when it is not specified that non-zero return codes should be ignored.
     
+    This exception is only raised by process spawning methods in :py:class:`pake.TaskContext`.
+    
+    It is designed to deal with reporting huge amounts of process output (If necessary)
+    in the exception information when a process called from a task context fails.
+    
     .. py:attribute:: cmd
     
         Executed command in list form.
@@ -184,6 +189,8 @@ class SubprocessException(ProcessException):
 
 class TimeoutExpired(ProcessException):
     """This exception is raised when the timeout expires while waiting for a child process.
+    
+    This exception is only raised by process spawning methods in the :py:mod:`pake.process` module.
 
     .. py:attribute:: cmd
 
@@ -268,6 +275,8 @@ class TimeoutExpired(ProcessException):
 
 class CalledProcessException(ProcessException):
     """Raised when :py:meth:`pake.process.check_call` or :py:meth:`pake.process.check_output` and the process returns a non-zero exit status.
+    
+    This exception is only raised by process spawning methods in the :py:mod:`pake.process` module.
 
     .. py:attribute:: cmd
 
