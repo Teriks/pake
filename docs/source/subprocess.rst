@@ -182,7 +182,7 @@ Examples:
 pake.process Module Methods
 ---------------------------
 
-The :py:mod:`pake.process` module provides thin wrappers around the builtin python :py:mod:`subprocess` module methods.
+The :py:mod:`pake.process` module provides thin wrappers around the built in python :py:mod:`subprocess` module methods.
 
 Primarily: :py:meth:`subprocess.call`, :py:meth:`subprocess.check_call` and :py:meth:`subprocess.check_output`.
 
