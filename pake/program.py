@@ -38,7 +38,8 @@ __all__ = [
     'get_max_jobs',
     'get_subpake_depth',
     'get_init_file',
-    'get_init_dir'
+    'get_init_dir',
+    'terminate'
 ]
 
 
@@ -282,6 +283,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     :param tasks: A list of, or a single default task to run if no tasks are specified on the command line.
     :param jobs: Call with an arbitrary number of max jobs, overriding the command line value of **--jobs**.
                  The default value of this parameter is **None**, which means the command line value or default of 1 is not overridden.
+
     :param call_exit: Whether or not **exit(return_code)** should be called by this function on error.
                       This defaults to **True**, when set to **False** the return code is instead returned
                       to the caller.
@@ -302,7 +304,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     parsed_args = pake.arguments.get_args()
 
     def m_exit(code):
-        if call_exit:  # pragma: no cover
+        if call_exit and code != returncodes.SUCCESS:  # pragma: no cover
             exit(code)
         return code
 
@@ -433,6 +435,32 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         else:
             return_code = returncodes.TASK_EXCEPTION
 
+    return _terminate(pake_obj, return_code, exit_func=m_exit)
+
+
+def terminate(pake_obj, return_code=returncodes.SUCCESS):  # pragma: no cover
+    """
+    Preform a graceful exit from a pakefile, printing the leaving directory or exit subpake message if needed, then
+    exiting with a given return code.
+
+    This should be used as opposed to a raw **exit** call to ensure the output of pake remains consistent.
+
+    :param pake_obj: Reference to the initialized pake object, for message io.
+
+    :param return_code: Return code to exit the pakefile with, see :py:mod:`pake.returncodes` for standard return codes.
+                        Defaults to :py:attr:`pake.returncodes.SUCCESS`
+
+    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
+    """
+    _terminate(pake_obj, return_code)
+
+
+def _terminate(pake_obj, return_code, exit_func=exit):
+    if not is_init():
+        raise pake.PakeUninitializedException()
+
+    parsed_args = pake.arguments.get_args()
+
     depth = get_subpake_depth()
 
     if pake.get_init_dir() != os.getcwd():
@@ -443,7 +471,4 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     if depth > 0:
         pake_obj.print('*** exit subpake[{}]:'.format(depth))
 
-    if return_code != 0:
-        return m_exit(return_code)
-
-    return returncodes.SUCCESS
+    return exit_func(return_code)

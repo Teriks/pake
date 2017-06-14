@@ -122,20 +122,7 @@ def main(args=None):
     )
 
     for file in itertools.chain.from_iterable(args.file):
-        new_dir = os.path.dirname(file)
-
-        if new_dir != init_dir:
-            print('pake[0]: Entering Directory "{}"'.format(new_dir))
-            sys.stdout.flush()
-            os.chdir(new_dir)
-
         return_code = subprocess.call([sys.executable, file] + actual_args, stdout=pake.conf.stdout, stderr=pake.conf.stderr)
-
-        if new_dir != init_dir:
-            print('pake[0]: Exiting Directory "{}"'.format(new_dir))
-            sys.stdout.flush()
-            os.chdir(init_dir)
-
         if return_code != 0:
             exit(return_code)
 
