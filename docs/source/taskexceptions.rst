@@ -130,3 +130,66 @@ Yields Output:
     SystemExit: 1
 
 
+pake.SubprocessException Inside Tasks
+-------------------------------------
+
+Special reporting is implemented for :py:exc:`pake.SubprocessException`, which is raised from
+:py:exc:`pake.TaskContext.call` and friends.
+
+
+When a process called through one of the process spawning methods in :py:exc:`pake.TaskContext`
+returns with a non 0 return code, a :py:exc:`pake.SubprocessException` is raised by default;  Unless you
+have specified in the process spawning functions arguments to ignore non 0 return codes.
+
+The reported exception information will contain the full path to your pakefile, the name of the process
+spawning function, and the line number where it was called.  All of this will be at the very top of the
+error message.
+
+All output from the failed command will be mentioned at the bottom in a block surrounded by brackets,
+which is labeled with "Command Output: "
+
+
+.. code-block:: python
+
+    import pake
+
+    pk = pake.init()
+
+    @pk.task
+    def test(ctx):
+        # pake.SubprocessException is raised because
+        # which cannot find the given command and returns non 0
+
+        # silent is specified, which means the process will not
+        # send any output to the task IO queue, but the command
+        # will still be printed
+        ctx.call('which', "i-dont-exist", silent=True)
+
+    pake.run(pk, tasks=test)
+
+
+Yields Output:
+
+.. code-block:: bash
+
+    ===== Executing Task: "test"
+    which i-dont-exist
+
+    pake.process.SubprocessException(
+            filename="{FULL_PAKEFILE_PATH}\pakefile.py",
+            function_name="call",
+            line_number=9
+    )
+
+    Message: An error occurred while executing a system command inside a pake task.
+
+    The following command exited with return code: 1
+
+    which i-dont-exist
+
+    Command Output: {
+
+    which: no i-dont-exist in ({EVERY_DIRECTORY_IN_YOUR_ENV_PATH_VAR})
+
+
+    }
