@@ -287,7 +287,6 @@ Running pake
 
 .. code:: bash
 
-
     cd your_pakefile_directory
 
     # Run pake with up to 10 tasks running in parallel
@@ -322,7 +321,7 @@ chain may execute in parallel.
 Pakes current options
 =====================
 
-::
+.. code-block:: none
 
 
     usage: pake [-h] [-v] [-D DEFINE] [-j JOBS] [-n] [-C DIRECTORY] [-t] [-ti]
@@ -358,6 +357,6 @@ Pakes current options
 .. |Master Documentation Status| image:: https://readthedocs.org/projects/pake/badge/?version=latest
    :target: http://pake.readthedocs.io/en/latest/?badge=latest
 .. |Develop Documentation Status| image:: https://readthedocs.org/projects/pake/badge/?version=develop
-   :target: http://pake.readthedocs.io/en/latest/?badge=develop
+   :target: http://pake.readthedocs.io/en/develop/?badge=develop
 .. |codecov| image:: https://codecov.io/gh/Teriks/pake/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/Teriks/pake

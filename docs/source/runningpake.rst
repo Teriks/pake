@@ -85,7 +85,7 @@ there is more than one of them.
 Command Line Options
 --------------------
 
-::
+.. code-block:: none
 
     usage: pake [-h] [-v] [-D DEFINE] [-j JOBS] [-n] [-C DIRECTORY] [-t] [-ti]
                 [-f FILE]
