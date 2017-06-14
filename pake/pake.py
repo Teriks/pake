@@ -39,6 +39,7 @@ import pake.conf
 import pake.graph
 import pake.process
 import pake.util
+import pake.returncodes
 
 __all__ = ['pattern',
            'glob',
@@ -782,6 +783,15 @@ class Pake:
         :return: List of :py:class:`pake.TaskContext`. 
         """
         return self._task_contexts.values()
+
+    def terminate(self, return_code=pake.returncodes.SUCCESS):
+        """Shorthand for ``pake.terminate(this, return_code=return_code)``.
+
+        See: :py:meth:`pake.terminate`
+
+        :param return_code: Return code to exit the pakefile with.
+        """
+        pake.terminate(self, return_code=return_code)
 
     @staticmethod
     def _process_i_o_params(i, o):
