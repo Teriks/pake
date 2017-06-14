@@ -8,7 +8,7 @@ Pake is capable of handling change detection against both files and directories,
 as inputs or outputs interchangeably and in combination.
 
 
-*Note:*
+**Note:**
 
 each registered task receives a :py:class:`pake.TaskContext` instance as a single argument when run.
 

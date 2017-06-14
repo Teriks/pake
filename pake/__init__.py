@@ -21,7 +21,7 @@
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '0.11.0.0'
+__version__ = '0.12.0.0'
 
 from .filehelper import FileHelper
 
@@ -57,7 +57,7 @@ from .program import \
 from .subpake import subpake, export, SubpakeException
 
 __all__ = [
-    'init'
+    'init',
     'is_init',
     'run',
     'terminate',

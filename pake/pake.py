@@ -63,17 +63,41 @@ class TaskException(Exception):  # pragma: no cover
     .. py:attribute:: exception
     
         The exception raised.
+        
+    .. py:attribute:: task_name
+    
+        The name of the task which the exception was raised in.
+        
+    .. py:attribute:: exception_name
+    
+        The fully qualified name of the exception object.
     """
 
-    def __init__(self, exception):
+    def __init__(self, task_name, exception):
         """
-        :param exception: The exception raised.
+        :param task_name: The name of the task that raised the exception.
+        :param exception: Reference to the exception object that raised.
         """
-        super().__init__()
+
+        self.exception_name = pake.util.qualified_name(exception)
+
+        super().__init__('Exception "{exc}" was called within task "{task}".'
+                         .format(exc=self.exception_name, task=task_name))
+
         self.exception = exception
 
-    def __str__(self):
-        return str(self.exception)
+    def print_traceback(self, file=None):
+        """
+        Print the traceback of the exception that was raised inside the task to a file object.
+        
+        :param file: The file object to print to.  Default value is :py:attr:`pake.conf.stderr` if **None** is specified.
+        """
+
+        traceback.print_exception(
+            type(self.exception),
+            self.exception,
+            self.exception.__traceback__,
+            file=pake.conf.stderr if file is None else file)
 
 
 class TaskExitException(Exception):
@@ -173,24 +197,8 @@ class RedefinedTaskException(Exception):
 
 def _handle_task_exception(ctx, exception):
     if isinstance(exception, SystemExit):
-        # Handle exit() within tasks
+        # Handle exit() within tasks in a more specific manner
         raise TaskExitException(ctx.name, exception)
-
-    if isinstance(exception, pake.process.SubprocessException):
-        # SubprocessException provides detailed information
-        # about the call site of the subprocess in the pakefile
-        # on its own, print and wrap as it is better for this information
-        # to be printed to the task's output.
-        exception.write_info(ctx.io)
-        raise TaskException(exception)
-
-    if isinstance(exception, pake.process.ProcessException):
-        # ProcessException's provide detailed information
-        # about the call site of the subprocess in the pakefile
-        # on its own, print and wrap as it is better for this information
-        # to be printed to the task's output.
-        ctx.print(str(exception))
-        raise TaskException(exception)
 
     if isinstance(exception, InputNotFoundException) or isinstance(exception, MissingOutputsException):
         # These are raised inside the task when
@@ -201,16 +209,7 @@ def _handle_task_exception(ctx, exception):
         # Pake.run(...) (the object method) as they are.
         raise exception
 
-    # For everything else, print a standard trace
-    # to the tasks IO before raising TaskException
-
-    traceback.print_exception(
-        type(exception),
-        exception,
-        exception.__traceback__,
-        file=ctx.io)
-
-    raise TaskException(exception)
+    raise TaskException(ctx.name, exception)
 
 
 def _wait_futures_and_raise(futures):

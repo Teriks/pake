@@ -33,6 +33,33 @@ Basic C to Object Compilation Task Example:
    # pake.run(pk, tasks=compile_c)
 
 
+Multiple Dependencies:
+
+.. code-block:: python
+
+   import pake
+
+   pk = pake.init()
+
+   @pk.task
+   def task_a():
+        pass
+
+   @pk.task
+   def task_b():
+        pass
+
+   def do_both():
+        pass
+
+   # The dependencies parameter will accept a single task reference
+   # as well as a list of task references
+
+   pk.add_task('do_both', do_both, dependencies=[task_a, 'task_b'])
+
+   pake.run(pk, tasks=do_both)
+
+
 Callable Class Example:
 
 

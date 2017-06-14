@@ -24,11 +24,11 @@ Pake return codes.
 
 .. data:: SUCCESS
 
-    0. Pake ran successfully.
+    0. Pake ran/exited successfully.
 
 .. data:: ERROR
 
-    1. Generic error, good for use with :py:meth:`pake.terminate`
+    1. Generic error, good for use with :py:meth:`pake.terminate` (or **exit()** inside tasks)
 
 .. data:: PAKEFILE_NOT_FOUND
 

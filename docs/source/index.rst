@@ -46,7 +46,9 @@ Guides / Help
 
    Running Pake <runningpake>
    Writing Basic Tasks <basictasks>
+   Exiting Pakefiles Before pake.run <exitingpakefiles>
    Adding Tasks Programmatically <programmaticlyaddtasks>
+   Exceptions Inside Tasks <taskexceptions>
    Parallelism Inside Tasks <multitasking>
    Manipulating Files / Dirs With FileHelper <filehelper>
    Running Commands / Subprocess's <subprocess>

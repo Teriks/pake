@@ -431,8 +431,6 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
             pake.conf.stderr.write(os.linesep)
             err.print_traceback()
 
-
-
         elif return_code != 0:
             # Print info only for error conditions
             print(os.linesep+str(err)+os.linesep, file=pake.conf.stderr)
@@ -451,14 +449,16 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         print(str(err), file=pake.conf.stderr)
         return_code = returncodes.CYCLIC_DEPENDENCY
     except pake.TaskException as err:
-        err = err.exception
-        # Information has already been printed to Pake.stderr
-        if isinstance(err, pake.SubpakeException):
-            # SubpakeException derives from SubprocessException, it needs to come first
+        inner_err = err.exception
+        if isinstance(inner_err, pake.SubpakeException):
+            inner_err.write_info(file=pake.conf.stderr)
             return_code = returncodes.SUBPAKE_EXCEPTION
-        elif isinstance(err, pake.SubprocessException):
+        elif isinstance(inner_err, pake.SubprocessException):
+            inner_err.write_info(file=pake.conf.stderr)
             return_code = returncodes.TASK_SUBPROCESS_EXCEPTION
         else:
+            print(os.linesep+str(err)+os.linesep, file=pake.conf.stderr)
+            err.print_traceback(file=pake.conf.stderr)
             return_code = returncodes.TASK_EXCEPTION
 
     return _terminate(pake_obj, return_code, exit_func=m_exit)
@@ -492,21 +492,30 @@ def terminate(pake_obj, return_code=returncodes.SUCCESS):  # pragma: no cover
        import os
        import pake
        from pake import returncodes
-       
+    
        pk = pake.init()
-       
+    
        # Say you need to wimp out of a build for some reason
        # But not inside of a task.
-       
+    
        if os.name == 'nt':
            pk.print('You really thought you could '
                     'build my software on windows? nope!')
-           
+    
            pake.terminate(pk, returncodes.ERROR)
-           
+    
            # or
-           
+    
            # pk.terminate(returncodes.ERROR)
+           
+           
+       # Define some tasks...
+       
+       @pk.task
+       def build(ctx):
+           pass
+        
+       pake.run(pk, tasks=build)
            
 
     :py:meth:`pake.Pake.terminate` is a shorthand which passes the **pake_obj** instance to this function for you.

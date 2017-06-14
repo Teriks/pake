@@ -38,6 +38,7 @@ import os
 import shutil
 import signal
 
+import pake
 import pake.util
 import subprocess
 
@@ -140,7 +141,7 @@ class SubprocessException(ProcessException):
         to prevent issues with huge amounts of process output.
         """
 
-        class_name = self.__module__ + "." + self.__class__.__name__
+        class_name = pake.util.qualified_name(self)
 
         template = []
         if self.filename:
@@ -234,7 +235,7 @@ class TimeoutExpired(ProcessException):
             self.function_name = None
 
     def __str__(self):
-        class_name = self.__module__ + "." + self.__class__.__name__
+        class_name = pake.util.qualified_name(self)
 
         out_str = ''
 
@@ -319,8 +320,7 @@ class CalledProcessException(ProcessException):
             self.function_name = None
 
     def __str__(self):
-
-        class_name = self.__module__ + "." + self.__class__.__name__
+        class_name = pake.util.qualified_name(self)
 
         out_str = ''
 

@@ -40,6 +40,7 @@ __all__ = [
     'get_pakefile_caller_detail',
     'parse_define_value',
     'copyfileobj_tee',
+    'qualified_name'
 ]
 
 
@@ -264,6 +265,19 @@ def parse_define_value(value):
         if lower == 'none':
             return None
     return value
+
+
+def qualified_name(object_instance):
+    """Return the fully qualified type name of an object.
+    
+    :param object_instance: Object instance.
+    :return: Fully qualified name string.
+    """
+
+    if hasattr(object_instance, '__module__'):
+        return object_instance.__module__ + '.' + type(object_instance).__name__
+    else:
+        return type(object_instance).__name__
 
 
 def copyfileobj_tee(fsrc, destinations, length=16*1024):
