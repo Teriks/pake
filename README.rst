@@ -22,7 +22,7 @@ Installing
 
 Note: pake is Alpha and likely to change some.
 
-.. code:: bash
+.. code-block:: bash
 
     sudo pip3 install python-pake
 
@@ -37,7 +37,7 @@ https://github.com/Teriks/libasm\_io
 Writing basic tasks
 ===================
 
-.. code:: python
+.. code-block:: python
 
     import pake
 
@@ -145,7 +145,7 @@ Writing basic tasks
 
 Output from the example above:
 
-.. code:: bash
+.. code-block:: bash
 
     ===== Executing task: "bar"
     gcc -c "bar/bar.c" -o "bar/bar.o"
@@ -164,7 +164,7 @@ order to achieve a predictable level of parallelism that is limited by
 the **--jobs** command line argument or the *jobs* parameter of
 **pake.Pake.run**.
 
-.. code:: python
+.. code-block:: python
 
 
     import pake
@@ -198,7 +198,7 @@ pake.subpake. ctx.subpake is preferred because it handles writing
 program output to the tasks output queue in a synchronized manner when
 multiple jobs are running.
 
-.. code:: python
+.. code-block:: python
 
     import pake
 
@@ -266,7 +266,7 @@ multiple jobs are running.
 
 Output from the example above:
 
-.. code:: bash
+.. code-block:: bash
 
     *** enter subpake[1]:
     pake[1]: Entering Directory "(REST OF PATH...)/paketest/sometasks"
@@ -285,7 +285,7 @@ Output from the example above:
 Running pake
 ============
 
-.. code:: bash
+.. code-block:: bash
 
     cd your_pakefile_directory
 
@@ -321,7 +321,7 @@ chain may execute in parallel.
 Pakes current options
 =====================
 
-.. code-block:: none
+::
 
 
     usage: pake [-h] [-v] [-D DEFINE] [-j JOBS] [-n] [-C DIRECTORY] [-t] [-ti]
