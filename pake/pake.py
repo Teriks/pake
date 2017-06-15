@@ -579,11 +579,11 @@ class TaskGraph(pake.graph.Graph):
 def glob(expression):
     """Deferred file input glob, the glob is not executed until the task executes.
 
-    This input generator handles recursive directory globs by default.
+    This input generator handles recursive directory globs by default, denoted by a double asterisk.
      
-    This generator will also report directory names as well as file names.
+    It will return directory names as well if your glob expression matches them.
        
-    Collects files for input with a unix style glob expression.
+    The syntax used is the same as the built in :py:meth:`glob.glob` from pythons :py:mod:`glob` module.
     
     Example:
            
