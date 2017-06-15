@@ -317,6 +317,36 @@ class GraphTest(unittest.TestCase):
         with self.assertRaises(pake.InputNotFoundException):
             pk.run(tasks=task_a, jobs=jobs)
 
+        # ================
+
+        pake.program.shutdown()
+        pk = pake.init()
+
+        # Check the same case as above but this time there are
+        # more outputs than inputs
+        @pk.task(i=['a.c', 'b.c'],
+                 o=['a.o', 'b.o', 'c.o'])
+        def task_a(ctx):
+            pass
+
+        with self.assertRaises(pake.InputNotFoundException):
+            pk.run(tasks=task_a, jobs=jobs)
+
+        # ================
+
+        pake.program.shutdown()
+        pk = pake.init()
+
+        # Check the same case as above but this time there are
+        # more inputs than outputs
+        @pk.task(i=['a.c', 'b.c', 'c.o'],
+                 o=['a.o', 'b.o'])
+        def task_a(ctx):
+            pass
+
+        with self.assertRaises(pake.InputNotFoundException):
+            pk.run(tasks=task_a, jobs=jobs)
+
     def test_changedetect(self):
         self._basic_behavior_test(jobs=1)
         self._basic_behavior_test(jobs=10)
