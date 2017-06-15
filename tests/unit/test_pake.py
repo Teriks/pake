@@ -15,8 +15,8 @@ import pake.conf
 
 
 from tests import open_devnull
-#pake.conf.stdout = open_devnull() if pake.conf.stdout is sys.stdout else pake.conf.stdout
-#pake.conf.stderr = open_devnull() if pake.conf.stderr is sys.stderr else pake.conf.stderr
+pake.conf.stdout = open_devnull() if pake.conf.stdout is sys.stdout else pake.conf.stdout
+pake.conf.stderr = open_devnull() if pake.conf.stderr is sys.stderr else pake.conf.stderr
 
 
 class PakeTest(unittest.TestCase):
