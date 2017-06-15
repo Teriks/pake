@@ -149,6 +149,7 @@ class SubprocessException(ProcessException):
         """
         return self._output
 
+    @property
     def output_stream(self):  # pragma: no cover
         """
         All output of the process (including **stderr**) as a file 
