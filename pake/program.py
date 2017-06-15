@@ -420,7 +420,8 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         # we can detect if the exit originated from pake.terminate here because that is the exception
         # pake.terminate raises to kill the interpreter.  pake.terminate should not be called
         # inside of a task because it writes to unsynchronized process output, among other reasons.
-        if isinstance(err.exit_exception, _TerminateException):
+
+        if isinstance(err.exit_exception, _TerminateException):  # pragma: no cover
             pake.conf.stderr.write(os.linesep)
             print('pake.terminate(..., {code}) was used inside task "{task}", do not do this!  '
                   'Just use plain a exit() call instead.  '
