@@ -323,8 +323,8 @@ class TaskContext:
         to your actual unwrapped task function from the
         :py:class:`pake.Pake` object or elsewhere.
         
-        However since @wrap is used when wrapping your 
-        function, metadata such as func.__doc__ and friends
+        However since the :py:meth:`functools.wraps` decorator is used
+        when wrapping your task function, metadata such as **func.__doc__** 
         will be maintained on this function reference.
         """
         return self.node.func
@@ -686,10 +686,9 @@ class TaskGraph(pake.graph.Graph):
         to your actual unwrapped task function from the
         :py:class:`pake.Pake` object or elsewhere.
         
-        However since @wrap is used when wrapping your 
-        function, metadata such as func.__doc__ and friends
+        However since the :py:meth:`functools.wraps` decorator is used
+        when wrapping your task function, metadata such as **func.__doc__** 
         will be maintained on this function reference.
-        
     """
 
     def __init__(self, name, func):
