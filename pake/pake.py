@@ -57,8 +57,7 @@ __all__ = ['pattern',
 
 class TaskException(Exception):  # pragma: no cover
     """
-    Raised by :py:meth:`pake.Pake.run` and :py:meth:`pake.Pake.dry_run` if an exception is 
-    encountered running/visiting a task.
+    Raised by :py:meth:`pake.Pake.run` if an exception is encountered running/visiting a task.
     
     .. py:attribute:: exception
     
