@@ -13,7 +13,7 @@ import pake
 
 class GraphTest(unittest.TestCase):
 
-    def _behavior_test(self, jobs):
+    def _basic_behavior_test(self, jobs):
 
         pake.program.shutdown()
         pk = pake.init()
@@ -128,6 +128,73 @@ class GraphTest(unittest.TestCase):
         pk.run(tasks=task_a, jobs=jobs)
 
         self.assertFalse(ran)
+
+    def _existing_files_test(self, jobs):
+
+        # Test file comparisons when outputs already exist
+
+        in1 = os.path.join(script_dir, 'test_data', 'in1')
+        in2 = os.path.join(script_dir, 'test_data', 'in2')
+        out1 = os.path.join(script_dir, 'test_data', 'out1')
+        out2 = os.path.join(script_dir, 'test_data', 'out2')
+
+        # ================
+
+        pake.program.shutdown()
+        pk = pake.init()
+
+        ran = False
+
+        # Make all the modification times ancient
+
+        os.utime(in1, (0, 0))
+        os.utime(in2, (0, 0))
+        os.utime(out1, (0, 0))
+        os.utime(out2, (0, 0))
+
+        # Make an input recent
+
+        pake.FileHelper().touch(in1)
+
+        # This should run
+        @pk.task(i=[in1, in2], o=out1)
+        def task_a(ctx):
+            nonlocal ran
+            ran = True
+
+        pk.run(tasks=task_a, jobs=jobs)
+
+        self.assertTrue(ran)
+
+        # ================
+
+        # Same test as above, except with multiple outputs
+
+        pake.program.shutdown()
+        pk = pake.init()
+
+        ran = False
+
+        # Make all the modification times ancient
+
+        os.utime(in1, (0, 0))
+        os.utime(in2, (0, 0))
+        os.utime(out1, (0, 0))
+        os.utime(out2, (0, 0))
+
+        # Make an input recent
+
+        pake.FileHelper().touch(in2)
+
+        # This should run
+        @pk.task(i=[in1, in2], o=[out1, out2])
+        def task_a(ctx):
+            nonlocal ran
+            ran = True
+
+        pk.run(tasks=task_a, jobs=jobs)
+
+        self.assertTrue(ran)
 
     def _exceptions_test(self, jobs):
 
@@ -250,9 +317,12 @@ class GraphTest(unittest.TestCase):
         with self.assertRaises(pake.InputNotFoundException):
             pk.run(tasks=task_a, jobs=jobs)
 
-    def test_behaviour(self):
-        self._behavior_test(jobs=1)
-        self._behavior_test(jobs=10)
+    def test_changedetect(self):
+        self._basic_behavior_test(jobs=1)
+        self._basic_behavior_test(jobs=10)
+
+        self._existing_files_test(jobs=1)
+        self._existing_files_test(jobs=10)
 
     def test_exceptions(self):
         self._exceptions_test(jobs=1)
