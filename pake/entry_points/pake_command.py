@@ -34,7 +34,9 @@ parser = pake.arguments.get_parser()
 
 def _pakefile_not_found(message):
     parser.print_usage(pake.conf.stderr)
-    print('{}: error: {}'.format(parser.prog, message, file=pake.conf.stderr))
+    print('{}: error: {}'
+          .format(parser.prog, message),
+          file=pake.conf.stderr)
     exit(pake.returncodes.PAKEFILE_NOT_FOUND)
 
 

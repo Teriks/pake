@@ -34,19 +34,23 @@ def _create_gt_int(less_message):
         val = int(val)
         if val < 1:
             _arg_parser.print_usage(pake.conf.stderr)
-            print('{}: error: {}'.format(_arg_parser.prog, less_message, file=pake.conf.stderr))
+            print('{}: error: {}'
+                  .format(_arg_parser.prog, less_message),
+                  file=pake.conf.stderr)
             exit(pake.returncodes.BAD_ARGUMENTS)
         return val
 
     return _gt_zero_int
 
 
-def _absolute_directory(dir):
-    if os.path.isdir(dir):
-        return os.path.abspath(dir)
+def _absolute_directory(directory):
+    if os.path.isdir(directory):
+        return os.path.abspath(directory)
     else:
         _arg_parser.print_usage(pake.conf.stderr)
-        print('{}: error: {}'.format(_arg_parser.prog, 'Directory "{}" does not exist.'.format(dir), file=pake.conf.stderr))
+        print('{prog}: error: Directory "{dir}" does not exist.'
+              .format(prog=_arg_parser.prog, dir=directory),
+              file=pake.conf.stderr)
         exit(pake.returncodes.BAD_ARGUMENTS)
 
 
