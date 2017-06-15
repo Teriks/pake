@@ -32,16 +32,22 @@ import pake.returncodes as returncodes
 parser = pake.arguments.get_parser()
 
 
-def _verify_file_exists(in_file):
+def _pakefile_not_found(message):
+    parser.print_usage(pake.conf.stderr)
+    print('{}: error: {}').format(parser.prog, message, file=pake.conf.stderr)
+    exit(pake.returncodes.PAKEFILE_NOT_FOUND)
+
+
+def _verify_pakefile_exists(in_file):
     if os.path.exists(in_file):
         if not os.path.isfile(in_file):
-            parser.error('"{}" is not a file.'.format(in_file))
+            _pakefile_not_found('"{}" is not a file.'.format(in_file))
     else:
-        parser.error('File "{}" does not exist.'.format(in_file))
+        _pakefile_not_found('File "{}" does not exist.'.format(in_file))
     return os.path.abspath(in_file)
 
 
-parser.add_argument("-f", "--file", nargs=1, action='append', type=_verify_file_exists,
+parser.add_argument("-f", "--file", nargs=1, action='append', type=_verify_pakefile_exists,
                     help='Pakefile path(s).  This switch can be used more than once, '
                          'all specified pakefiles will be executed in order with the '
                          'current directory as the working directory (unless -C is specified).')
@@ -56,7 +62,7 @@ def _find_pakefile_or_exit(directory):
     elif os.path.exists(option_two):
         return os.path.abspath(option_two)
     else:
-        print("No pakefile.py or pakefile was found in this directory.")
+        print("No pakefile.py or pakefile was found in this directory.", file=pake.conf.stderr)
         exit(returncodes.PAKEFILE_NOT_FOUND)
 
 
