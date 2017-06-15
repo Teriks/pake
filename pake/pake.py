@@ -700,10 +700,10 @@ class TaskGraph(pake.graph.Graph):
         :param func: Task callable.
         """
 
-        if name is None:  # pragma: no cover
+        if name is None:
             raise ValueError('Name parameter must not be None.')
 
-        if not callable(func):  # pragma: no cover
+        if not callable(func):
             raise ValueError('Func parameter must be callable, also not None.')
 
         self._name = name
