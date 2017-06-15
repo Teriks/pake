@@ -180,11 +180,10 @@ class PakeTest(unittest.TestCase):
 
         self.assertEqual(pk.run_count, 5)
 
-    def test_cyclic_exception(self):
-
+    def _cyclic_exception_test(self, pake_args):
         pake.program.shutdown()
 
-        pk = pake.init()
+        pk = pake.init(args=pake_args)
 
         @pk.task
         def dep_one():
@@ -209,8 +208,11 @@ class PakeTest(unittest.TestCase):
         with self.assertRaises(pake.CyclicGraphException):
             pk.run(tasks=task_two)
 
-        with self.assertRaises(pake.CyclicGraphException):
-            pk.run(tasks=task_two, jobs=10)
-
         self.assertEqual(pake.run(pk, tasks=task_two, call_exit=False),
                          pake.returncodes.CYCLIC_DEPENDENCY)
+
+    def test_cyclic_exception(self):
+
+        self._cyclic_exception_test(None)
+        self._cyclic_exception_test(['--jobs', '10'])
+        self._cyclic_exception_test(['--dry-run'])
