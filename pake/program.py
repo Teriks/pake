@@ -452,18 +452,26 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         return_code = returncodes.CYCLIC_DEPENDENCY
     except pake.TaskException as err:
         inner_err = err.exception
+
         if isinstance(inner_err, pake.SubpakeException):
             pake.conf.stderr.write(os.linesep)
             inner_err.write_info(file=pake.conf.stderr)
+            pake.conf.stderr.write(os.linesep)
+
             return_code = returncodes.SUBPAKE_EXCEPTION
+
         elif isinstance(inner_err, pake.SubprocessException):
             pake.conf.stderr.write(os.linesep)
             inner_err.write_info(file=pake.conf.stderr)
+            pake.conf.stderr.write(os.linesep)
+
             return_code = returncodes.TASK_SUBPROCESS_EXCEPTION
+
         else:
             print(os.linesep+str(err)+os.linesep, file=pake.conf.stderr)
             err.print_traceback(file=pake.conf.stderr)
             pake.conf.stderr.write(os.linesep)
+
             return_code = returncodes.TASK_EXCEPTION
 
     return _terminate(pake_obj, return_code, exit_func=m_exit)
