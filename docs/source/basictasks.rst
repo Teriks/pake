@@ -84,7 +84,6 @@ It is not an error to leave this argument undefined, but you will most likely be
     def baz(ctx):
         """Use this to build baz"""
 
-        # see: pake.FileHelper
         file_helper = pake.FileHelper(ctx)
 
         # Create a bin directory, this won't complain if it exists already
@@ -104,7 +103,6 @@ It is not an error to leave this argument undefined, but you will most likely be
     def clean(ctx):
         """Clean binaries"""
 
-        # see: pake.FileHelper
         file_helper = pake.FileHelper(ctx)
 
         # Clean up using a the FileHelper object

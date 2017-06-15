@@ -99,7 +99,6 @@ Writing basic tasks
     def baz(ctx):
         """Use this to build baz"""
 
-        # see: pake.FileHelper
         file_helper = pake.FileHelper(ctx)
 
         # Create a bin directory, this won't complain if it exists already
@@ -119,7 +118,6 @@ Writing basic tasks
     def clean(ctx):
         """Clean binaries"""
 
-        # see: pake.FileHelper
         file_helper = pake.FileHelper(ctx)
 
         # Clean up using a the FileHelper object
