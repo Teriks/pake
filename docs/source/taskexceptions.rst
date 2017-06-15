@@ -139,7 +139,7 @@ raised from :py:exc:`pake.TaskContext.call`, :py:exc:`pake.TaskContext.check_cal
 
 When a process called through one of these process spawning methods returns with a non 0 return code,
 a :py:exc:`pake.SubprocessException` is raised by default.  That will always be true unless you have
- supplied **ignore_errors=True** as an argument to these functions.
+supplied **ignore_errors=True** as an argument to these functions.
 
 The reported exception information will contain the full path to your pakefile, the name of the process
 spawning function, and the line number where it was called.  All of this will be at the very top of the
