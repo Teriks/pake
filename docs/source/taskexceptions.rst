@@ -133,9 +133,8 @@ Yields Output:
 pake.SubprocessException Inside Tasks
 -------------------------------------
 
-Special reporting is implemented for :py:exc:`pake.SubprocessException`, which is raised from
-:py:exc:`pake.TaskContext.call` and friends.
-
+Special error reporting is implemented for :py:exc:`pake.SubprocessException`, which is
+raised from :py:exc:`pake.TaskContext.call` and friends.
 
 When a process called through one of the process spawning methods in :py:exc:`pake.TaskContext`
 returns with a non 0 return code, a :py:exc:`pake.SubprocessException` is raised by default;  Unless you
