@@ -146,7 +146,7 @@ spawning function, and the line number where it was called.  All of this will be
 error message.
 
 All output from the failed command will be mentioned at the bottom in a block surrounded by brackets,
-which is labeled with "Command Output: "
+which is labeled with **"Command Output: "**
 
 
 Example:
