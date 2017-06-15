@@ -59,7 +59,6 @@ class TaskContextProcessTest(unittest.TestCase):
             else:
                 raise err.exception
 
-
         try:
             pk.run(tasks=test_0)
         except pake.TaskException as err:

@@ -28,6 +28,21 @@ class PakeTest(unittest.TestCase):
 
         pk = pake.init()
 
+        def undefined_task():
+            pass
+
+        with self.assertRaises(pake.UndefinedTaskException):
+            _ = pk.get_task_name(undefined_task)
+
+        with self.assertRaises(pake.UndefinedTaskException):
+            _ = pk.get_task_context(undefined_task)
+
+        with self.assertRaises(pake.UndefinedTaskException):
+            _ = pk.get_task_name("undefined_task")
+
+        with self.assertRaises(pake.UndefinedTaskException):
+            _ = pk.get_task_context("undefined_task")
+
         script_path = os.path.dirname(os.path.abspath(__file__))
 
         in1 = os.path.join(script_path, 'test_data', 'in1')
