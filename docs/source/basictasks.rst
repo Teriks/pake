@@ -77,15 +77,14 @@ It is not an error to leave this argument undefined, but you will most likely be
     # the directory the pakefile exists in, it will list all documented
     # tasks with their python doc strings.
     #
-    # The pake.FileHelper class (pake.fileutil.FileHelper)
-    # can be used to preform basic file system operations while
-    # printing to the tasks output information about what said
-    # operation is doing.
+    # The pake.FileHelper class can be used to preform basic file
+    # system operations while printing to the tasks output information
+    # about what said operation is doing.
     @pk.task(foo, bar, o="bin/baz", i="main.c")
     def baz(ctx):
         """Use this to build baz"""
 
-        # see: pake.fileutil.FileHelper
+        # see: pake.FileHelper
         file_helper = pake.FileHelper(ctx)
 
         # Create a bin directory, this won't complain if it exists already
@@ -105,7 +104,7 @@ It is not an error to leave this argument undefined, but you will most likely be
     def clean(ctx):
         """Clean binaries"""
 
-        # see: pake.fileutil.FileHelper
+        # see: pake.FileHelper
         file_helper = pake.FileHelper(ctx)
 
         # Clean up using a the FileHelper object

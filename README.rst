@@ -17,7 +17,7 @@ Installing
 
 Note: pake is Alpha and likely to change some.
 
-::
+.. code:: bash
 
     sudo pip3 install python-pake
 
@@ -33,7 +33,6 @@ Writing basic tasks
 ===================
 
 .. code:: python
-
 
     import pake
 
@@ -93,15 +92,14 @@ Writing basic tasks
     # the directory the pakefile exists in, it will list all documented
     # tasks with their python doc strings.
     #
-    # The pake.FileHelper class (pake.fileutil.FileHelper)
-    # can be used to preform basic file system operations while
-    # printing to the tasks output information about what said
-    # operation is doing.
+    # The pake.FileHelper class can be used to preform basic file
+    # system operations while printing to the tasks output information
+    # about what said operation is doing.
     @pk.task(foo, bar, o="bin/baz", i="main.c")
     def baz(ctx):
         """Use this to build baz"""
 
-        # see: pake.fileutil.FileHelper
+        # see: pake.FileHelper
         file_helper = pake.FileHelper(ctx)
 
         # Create a bin directory, this won't complain if it exists already
@@ -121,7 +119,7 @@ Writing basic tasks
     def clean(ctx):
         """Clean binaries"""
 
-        # see: pake.fileutil.FileHelper
+        # see: pake.FileHelper
         file_helper = pake.FileHelper(ctx)
 
         # Clean up using a the FileHelper object
@@ -141,10 +139,10 @@ Writing basic tasks
 
     pake.run(pk, tasks=baz)
 
+
 Output from the example above:
 
-::
-
+.. code:: bash
 
     ===== Executing task: "bar"
     gcc -c "bar/bar.c" -o "bar/bar.o"
@@ -153,6 +151,7 @@ Output from the example above:
     ===== Executing task: "baz"
     Created Directory(s): "bin"
     gcc -o bin/baz main.c foo/foo.o bar/bar.o
+
 
 Parallelism inside tasks
 ========================
@@ -197,7 +196,6 @@ program output to the tasks output queue in a synchronized manner when
 multiple jobs are running.
 
 .. code:: python
-
 
     import pake
 
@@ -265,8 +263,7 @@ multiple jobs are running.
 
 Output from the example above:
 
-::
-
+.. code:: bash
 
     *** enter subpake[1]:
     pake[1]: Entering Directory "(REST OF PATH...)/paketest/sometasks"
