@@ -106,7 +106,8 @@ class SubprocessException(ProcessException):
 
         :param output_stream: (Optional) A file like object containing the process output, at seek(0).
                                By providing this parameter instead of **output**, you give this object permission
-                               to close the stream when it is garbage collected or when :py:meth:`pake.SubprocessException.write_info` is called.
+                               to close the stream when it is garbage collected or when :py:meth:`pake.SubprocessException.write_info`
+                               is called.  The passed stream should be a text mode stream.
 
         :param message: Optional exception message.
         """
@@ -139,11 +140,38 @@ class SubprocessException(ProcessException):
             self._output_stream.close()
             self._output_stream = None
 
+    @property
+    def output(self):  # pragma: no cover
+        """
+        All output of the process (including **stderr**) as a bytes object
+        if it is available, otherwise this property is **None**.
+        
+        """
+        return self._output
+
+    def output_stream(self):  # pragma: no cover
+        """
+        All output of the process (including **stderr**) as a file 
+        object at **seek(0)** if it is available, otherwise this property is **None**.
+        
+        If this property is not **None** and you call :py:meth:`pake.SubprocessException.write_info`, 
+        this property will become **None** because that method reads the stream and disposes of it.
+        
+        The stream will be a text mode stream.
+        
+        """
+        return self._output_stream
+
     def write_info(self, file):
         """Writes information about the subprocess exception to a file like object.
 
-        This is necessary over implementing in __str__, because the process output might be drawn from another file
-        to prevent issues with huge amounts of process output.
+        This is necessary over implementing in __str__, because the process output might be 
+        drawn from another file to prevent issues with huge amounts of process output.
+        
+        Calling this method will cause :py:attr:`pake.SubprocessException.output_stream` to
+        become **None** if it already isn't.
+        
+        :param file: The text mode file object to write the information to.
         """
 
         class_name = pake.util.qualified_name(self)

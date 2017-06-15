@@ -200,6 +200,8 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
 
         if exitcode:
             output_copy_buffer.seek(0)
+
+            # Giving up responsibility to close output_copy_buffer here
             ex = SubpakeException(cmd=args,
                                   returncode=exitcode,
                                   output_stream=output_copy_buffer,
@@ -211,5 +213,5 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
                 exit(returncodes.SUBPAKE_EXCEPTION)
             else:
                 raise ex
-        else:
-            output_copy_buffer.close()
+
+        output_copy_buffer.close()

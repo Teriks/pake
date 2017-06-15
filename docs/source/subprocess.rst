@@ -1,5 +1,5 @@
-Running Commands / Subprocess's
-===============================
+Running Commands / Sub Processes
+================================
 
 
 TaskContext.call
@@ -7,7 +7,7 @@ TaskContext.call
 
 
 The :py:class:`pake.TaskContext` object passed into each task contains
-methods for calling subprocess's in a way that produces user friendly
+methods for calling sub-processes in a way that produces user friendly
 error messages and halts the execution of pake if an error is reported
 by the given process.
 
@@ -96,7 +96,7 @@ error information to the task output.
 :py:meth:`pake.TaskContext.check_output` differs from :py:meth:`subprocess.check_output`
 in that you cannot specify an **stderr** parameter, and an **ignore_errors**
 option is added which can prevent the method from raising an exception on non
-zero return codes from the process.  All of the processes **stderr** is directed
+zero return codes from the process.  All of the process's **stderr** is directed
 to it's **stdout**.
 
 **ignore_errors** allows you to directly return the output of a command even if it errors

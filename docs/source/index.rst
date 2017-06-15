@@ -52,7 +52,7 @@ Guides / Help
    Exceptions Inside Tasks <taskexceptions>
    Parallelism Inside Tasks <multitasking>
    Manipulating Files / Dirs With FileHelper <filehelper>
-   Running Commands / Subprocess's <subprocess>
+   Running Commands / Sub Processes <subprocess>
    Running Sub Pakefiles <subpake>
 
 

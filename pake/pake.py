@@ -330,9 +330,24 @@ class TaskContext:
     @staticmethod
     def check_call(*args, stdin=None, shell=False, ignore_errors=False):
         """
-        Return the return code of an executed system command.
+        Get the return code of an executed system command, without printing 
+        any output to the tasks IO queue by default.
         
-        :raises: :py:class:`pake.SubprocessException` if **ignore_errors** is False
+        None of the process's **stdout/stderr** will go to the task IO queue, 
+        and the command that was run will not be printed either.
+        
+        This function raises :py:class:`pake.SubprocessException` on non-zero
+        return codes by default.  
+        
+        You should pass pass **ignore_errors=True** if you want this method to return 
+        the non-zero value, or instead catch the exception and get the return code from it.
+        
+        **Note:**
+        
+        Neither :py:attr:`pake.SubprocessException.output` or :py:attr:`pake.SubprocessException.output_stream` 
+        will be available in the exception if you handle it.
+        
+        :raises: :py:class:`pake.SubprocessException` if **ignore_errors** is **False**
                  and the process exits with a non zero return code.
                  
         :raises: :py:class:`OSError` (commonly) if a the executed command or file does not exist.
@@ -341,7 +356,7 @@ class TaskContext:
         :raises: :py:class:`ValueError` if no command + optional arguments are provided.
         
         :param args: Command arguments, same syntax as :py:meth:`pake.TaskContext.call`
-        :param stdin: Optional stdin to pipe into the called process.
+        :param stdin: Optional file object to pipe into the called process's **stdin**.
         :param shell: Whether to execute in shell mode or not.
         :param ignore_errors: Whether to ignore non zero return codes and return the return code anyway.
         :return: Integer return code.
@@ -361,16 +376,32 @@ class TaskContext:
                 return err.returncode
             raise pake.process.SubprocessException(cmd=args,
                                                    returncode=err.returncode,
-                                                   output=err.output,
                                                    message='An error occurred while executing a system '
                                                            'command inside a pake task.')
 
     @staticmethod
     def check_output(*args, stdin=None, shell=False, ignore_errors=False):
         """
-        Return the output of a system command as a bytes object.
+        Return the output of a system command as a bytes object, without printing
+        it's **stdout/stderr** to the task IO queue.  The process command line that
+        was run will not be printed either.
         
-        Output will include stdout and stderr.
+        The returned bytes output will include **stdout** and **stderr** combined, and 
+        it can be decoded into a string by using the **decode()** method on pythons built 
+        in **bytes** object.
+        
+        This function raises :py:class:`pake.SubprocessException` on non-zero 
+        return codes by default.  
+        
+        If you want to return possible error output from the called process's **stderr** 
+        you should pass **ignore_errors=True**, or instead catch the exception and get the 
+        process output from it.
+        
+        **Note:**
+        
+        :py:attr:`pake.SubprocessException.output` will be available for retrieving
+        the output of the process if you handle the exception, the value will be 
+        all of **stdout/stderr** as a **bytes** object that must be decoded into a string.
         
         :raises: :py:class:`pake.SubprocessException` if **ignore_errors** is False
                  and the process exits with a non zero return code.
@@ -381,8 +412,8 @@ class TaskContext:
         :raises: :py:class:`ValueError` if no command + optional arguments are provided.
         
         :param args: Command arguments, same syntax as :py:meth:`pake.TaskContext.call`
-        :param stdin: Optional stdin to pipe into the called process.
-        :param shell: Whether to execute in shell mode or not.
+        :param stdin: Optional file object to pipe into the called process's **stdin**.
+        :param shell: Whether or not to use the system shell for execution.
         :param ignore_errors: Whether to ignore non zero return codes and return the output anyway.
         :return: Bytes object (program output data)
         """
@@ -405,8 +436,33 @@ class TaskContext:
                                                            'command inside a pake task.')
 
     def call(self, *args, stdin=None, shell=False, ignore_errors=False, silent=False, print_cmd=True):
-        """Calls a sub process, all output is written to the task IO file stream.
+        """
+        Calls a sub process and returns it's return code.
+         
+        all **stdout/stderr** is written to the task IO file stream.  The full command line 
+        which was used to start the process is printed to the task IO queue before the 
+        output of the command, unless **print_cmd=False**.
         
+        
+        You can prevent the process from sending it's **stdout/stderr** to the task IO queue
+        by specifying **silent=True**
+        
+        
+        If a process returns a non-zero return code, this method will raise 
+        :py:exc:`pake.SubprocessException` by default.  
+        
+        If you want the value of non-zero return codes to be returned then you must
+        pass **ignore_errors=True** to prevent :py:exc:`pake.SubprocessException` from 
+        being thrown, or instead catch the exception and get the return code from it.
+        
+        
+        **Note:**
+        
+        :py:attr:`pake.SubprocessException.output_stream` will be available for retrieving
+        the output of the process (**stdout** and **stderr** combined) if you handle the exception,
+        the file stream will be a text mode file object at **seek(0)**.
+        
+
         Example:
         
         .. code-block:: python
@@ -430,14 +486,25 @@ class TaskContext:
            # are both list objects, but anything that is iterable will work
            
            ctx.call(['gcc', '-c', ctx.inputs, '-o', ctx.outputs])
-        
+           
+           
+           # Fetch a non-zero return code without a 
+           # pake.SubprocessException.  ctx.check_call
+           # is better used for this task.
+           
+           code = ctx.call('which', 'am_i_here', 
+                           ignore_errors=True,  # Ignore errors (non-zero return codes)
+                           print_cmd=False,   # Don't print the command line executed
+                           silent=True)  # Don't print stdout/stderr to task IO
         
         :param args: Process and arguments.
-        :param stdin: Set the stdin of the process.
+        :param stdin: Optional file object to pipe into the called process's **stdin**.
         :param shell: Whether or not to use the system shell for execution.
         :param ignore_errors: Whether or not to raise a :py:class:`pake.SubprocessException` on non 0 exit codes.
-        :param silent: Whether or not to silence all output from the command.
+        :param silent: Whether or not to silence **stdout/stderr** from the command.
         :param print_cmd: Whether or not to print the executed command line to the tasks output.
+        
+        :returns: The process return code.
         
         :raises: :py:class:`pake.SubprocessException` if *ignore_errors* is *False* and the process exits with a non 0 exit code.
         
@@ -464,9 +531,9 @@ class TaskContext:
                 stdout = self._io
                 stdout.flush()
 
-            subprocess.call(args,
-                            stdout=stdout, stderr=subprocess.STDOUT,
-                            stdin=stdin, shell=shell)
+            return subprocess.call(args,
+                                   stdout=stdout, stderr=subprocess.STDOUT,
+                                   stdin=stdin, shell=shell)
         else:
 
             with subprocess.Popen(args,
@@ -500,13 +567,15 @@ class TaskContext:
 
                 if exitcode:
                     output_copy_buffer.seek(0)
+                    # Giving up responsibility to close output_copy_buffer here
                     raise pake.process.SubprocessException(cmd=args,
                                                            returncode=exitcode,
                                                            output_stream=output_copy_buffer,
                                                            message='An error occurred while executing a system '
                                                                    'command inside a pake task.')
-                else:
-                    output_copy_buffer.close()
+
+                output_copy_buffer.close()
+                return exitcode
 
     @property
     def dependencies(self):
