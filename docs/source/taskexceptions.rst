@@ -134,11 +134,12 @@ pake.SubprocessException Inside Tasks
 -------------------------------------
 
 Special error reporting is implemented for :py:exc:`pake.SubprocessException`, which is
-raised from :py:exc:`pake.TaskContext.call` and friends.
+raised from :py:exc:`pake.TaskContext.call`, :py:exc:`pake.TaskContext.check_call`, and
+:py:exc:`pake.TaskContext.check_output`.
 
-When a process called through one of the process spawning methods in :py:exc:`pake.TaskContext`
-returns with a non 0 return code, a :py:exc:`pake.SubprocessException` is raised by default;  Unless you
-have specified in the process spawning functions arguments to ignore non 0 return codes.
+When a process called through one of these process spawning methods returns with a non 0 return code,
+a :py:exc:`pake.SubprocessException` is raised by default.  That will always be true unless you have
+ supplied **ignore_errors=True** as an argument to these functions.
 
 The reported exception information will contain the full path to your pakefile, the name of the process
 spawning function, and the line number where it was called.  All of this will be at the very top of the
