@@ -188,7 +188,7 @@ Primarily: :py:meth:`subprocess.call`, :py:meth:`subprocess.check_call` and :py:
 
 The corresponding wrappers are: :py:meth:`pake.process.call`, :py:meth:`pake.process.check_call` and :py:meth:`pake.process.check_output`.
 
-The wrappers are there mostly to allow calling sub-processes with a similar syntax to :py:meth:`pake.Pake.call` and friends.
+The wrappers exist mostly to allow calling sub-processes with a similar syntax to :py:meth:`pake.Pake.call` and friends.
 
 IE. They can be called with variadic arguments, and will also flatten any non string iterables passed to the **\*args** parameter.
 

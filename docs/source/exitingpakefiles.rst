@@ -2,17 +2,17 @@ Exiting Pakefiles Before pake.run
 =================================
 
 
-:py:meth:`pake.terminate` is meant to be used before any tasks are run to gracefully exit a pakefile.
+:py:meth:`pake.terminate` is meant to be used to gracefully exit a pakefile before any tasks are run.
 
 You can also use :py:meth:`pake.Pake.terminate` on the pake context returned by :py:meth:`pake.init`,
 which is just a shorthand for :py:meth:`pake.terminate` that provides the first argument for you.
 
 These methods are for exiting pake outside of a task after pake is initialized, they ensure that
 the proper 'leaving directory / exit subpake` messages are sent to pake's output in order
-to keep the output of pake consistent.
+to keep pake's output consistent.
 
-You should use these functions instead of **exit** when handling error conditions before :py:meth:`pake.run`
-is called, but after :py:meth:`pake.init` has been called.
+You should use these functions instead of **exit** when handling error conditions that occur before
+the call to :py:meth:`pake.run`, but after :py:meth:`pake.init` has been called.
 
 Do not call :py:meth:`pake.terminate` or :py:meth:`pake.Pake.terminate` inside of task, for that you
 should simply use a call to **exit()**.  (See: :ref:`Calls To exit() Inside Tasks`)

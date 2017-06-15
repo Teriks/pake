@@ -3,7 +3,7 @@ Change Detection Against Directories
 
 Change detection in pake works against directories in the same way it works against files.
 
-Files can be compared against directories in both directions when providing inputs and 
+Files can be compared against directories (and vice versa) when providing inputs and
 outputs to a task, directories can also be compared against each other if needed.
 
 Basically, a directory name can be used in place of a file name anywhere in 
