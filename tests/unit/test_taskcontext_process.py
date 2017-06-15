@@ -24,27 +24,50 @@ class TaskContextProcessTest(unittest.TestCase):
     def test_call(self):
 
         exit_10 = os.path.join(script_dir, 'exit_10.py')
+        exit_0 = os.path.join(script_dir, 'exit_0.py')
 
         pk = pake.init()
 
         class TestFailException:
-            def __init__(self, code):
+            def __init__(self, expected, code):
                 self.code = code
+                self.expected = expected
 
         @pk.task
-        def test_task(ctx):
+        def test_10(ctx):
             return_code = ctx.call(sys.executable, exit_10,
                                    ignore_errors=True,
                                    silent=True)
             if return_code != 10:
-                raise TestFailException(return_code)
+                raise TestFailException(10 ,return_code)
+
+        @pk.task
+        def test_0(ctx):
+            return_code = ctx.call(sys.executable, exit_0)
+            if return_code != 0:
+                raise TestFailException(0, return_code)
 
         try:
-            pk.run(tasks=test_task)
+            pk.run(tasks=test_10)
         except pake.TaskException as err:
 
             if isinstance(err.exception, TestFailException):
-                self.fail('pake.TaskContext.call failed to return correct return code.'
-                          'expected 10, got: {}'.format(err.exception.code))
+                self.fail('pake.TaskContext.call exit_10.py failed to return '
+                          'correct return code.'
+                          'expected {}, got: {}'.
+                          format(err.exception.expected, err.exception.code))
+            else:
+                raise err.exception
+
+
+        try:
+            pk.run(tasks=test_0)
+        except pake.TaskException as err:
+
+            if isinstance(err.exception, TestFailException):
+                self.fail('pake.TaskContext.call exit_0.py failed to return '
+                          'correct return code.'
+                          'expected {}, got: {}'.
+                          format(err.exception.expected, err.exception.code))
             else:
                 raise err.exception
