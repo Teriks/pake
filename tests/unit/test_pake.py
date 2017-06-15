@@ -12,6 +12,7 @@ import pake
 import pake.program
 import pake.util
 import pake.conf
+import pake.returncodes
 
 
 from tests import open_devnull
@@ -178,3 +179,38 @@ class PakeTest(unittest.TestCase):
         self.assertEqual(pake.run(pk, tasks=['task_two'], call_exit=False), 0)
 
         self.assertEqual(pk.run_count, 5)
+
+    def test_cyclic_exception(self):
+
+        pake.program.shutdown()
+
+        pk = pake.init()
+
+        @pk.task
+        def dep_one():
+            pass
+
+        @pk.task(dep_one)
+        def task_one():
+            pass
+
+        # task_two depends on dep_one.
+        # but it also depends on task_one, which in turn
+        # depends on dep_one again.
+
+        # Pake considers this a cyclic dependency, and it is (I think) the
+        # only way you can write a pakefile with a cycle in it, given how
+        # you must define tasks before they are referenced.
+
+        @pk.task(task_one, dep_one)
+        def task_two():
+            pass
+
+        with self.assertRaises(pake.CyclicGraphException):
+            pk.run(tasks=task_two)
+
+        with self.assertRaises(pake.CyclicGraphException):
+            pk.run(tasks=task_two, jobs=10)
+
+        self.assertEqual(pake.run(pk, tasks=task_two, call_exit=False),
+                         pake.returncodes.CYCLIC_DEPENDENCY)
