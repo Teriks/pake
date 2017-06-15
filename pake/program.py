@@ -480,7 +480,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
 
 class _TerminateException(SystemExit):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)  # pragma: no cover
 
 
 def terminate(pake_obj, return_code=returncodes.SUCCESS):  # pragma: no cover
