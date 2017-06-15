@@ -109,6 +109,21 @@ class PakeTest(unittest.TestCase):
         # as well as inside. That is not the case with ctx.dependency_outputs
         self.assertCountEqual([task_one_ctx, dep_three_ctx], ctx.dependencies)
 
+        # Not available yet
+        self.assertListEqual([], ctx.dependency_outputs)
+
+        # Not available yet
+        self.assertListEqual([], ctx.outputs)
+
+        # Not available yet
+        self.assertListEqual([], ctx.inputs)
+
+        # Not available yet
+        self.assertListEqual([], ctx.outdated_outputs)
+
+        # Not available yet
+        self.assertListEqual([], ctx.outdated_inputs)
+
         self.assertEqual(ctx.name, 'task_two')
 
         self.assertEqual(ctx, pk.get_task_context('task_two'))
