@@ -26,7 +26,7 @@ Note: pake is Alpha and likely to change some.
 
 .. code-block:: bash
 
-    sudo pip3 install python-pake
+    sudo pip3 install python-pake --upgrade
 
 
 Module Doc
