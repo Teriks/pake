@@ -12,6 +12,11 @@ task inputs and outputs, and also parallel builds.
 
 pake requires python3.5+
 
+
+This readme contains only a little information about how to use pake, please
+checkout the latest documentation at the links above for an expansive
+overview on how pake works and how pakefiles should be written.
+
 Installing
 ==========
 
