@@ -21,7 +21,7 @@ pake.conf.stderr = open_devnull() if pake.conf.stderr is sys.stderr else pake.co
 
 class PakeTest(unittest.TestCase):
 
-    def test_registration(self):
+    def test_registration_and_run(self):
 
         pake.program.shutdown()
 
@@ -143,6 +143,12 @@ class PakeTest(unittest.TestCase):
         with self.assertRaises(pake.UndefinedTaskException):
             pk.get_task_name('undefined')
 
+        with self.assertRaises(ValueError):
+            pk.get_task_name(1)
+
+        with self.assertRaises(ValueError):
+            pk.get_task_name(None)
+
         with self.assertRaises(pake.RedefinedTaskException):
             pk.add_task('task_one', task_one)
 
@@ -152,6 +158,22 @@ class PakeTest(unittest.TestCase):
         # Raises an exception if there is an issue
         # Makes this test easier to debug
         pk.run(tasks='task_two')
+
+        with self.assertRaises(ValueError):
+            # Because jobs <= 1
+            pk.run(tasks='task_two', jobs=-1)
+
+        with self.assertRaises(ValueError):
+            # Because jobs <= 1
+            pk.run(tasks='task_two', jobs=0)
+
+        with self.assertRaises(ValueError):
+            # Because tasks is None
+            pk.run(tasks=None)
+
+        with self.assertRaises(ValueError):
+            # Because tasks is empty
+            pk.run(tasks=[])
 
         self.assertEqual(pake.run(pk, tasks=['task_two'], call_exit=False), 0)
 

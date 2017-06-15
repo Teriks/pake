@@ -676,15 +676,18 @@ class TaskGraph(pake.graph.Graph):
 
     def __init__(self, name, func):
         """
+        :raises: :py:exc:`ValueError` if **name** or **func** are **None**,
+                 or if **func** is not callable.
+                 
         :param name: Task name.
         :param func: Task callable.
         """
 
-        if name is None:
-            raise ValueError('name parameter may not be None.')
+        if name is None:  # pragma: no cover
+            raise ValueError('Name parameter must not be None.')
 
-        if func is None:
-            raise ValueError('func parameter may not be None.')
+        if not callable(func):  # pragma: no cover
+            raise ValueError('Func parameter must be callable, also not None.')
 
         self._name = name
         self.func = func
@@ -1514,21 +1517,21 @@ class Pake:
         :param jobs: Maximum number of threads, defaults to 1. (must be >= 1)
         """
 
-        if not pake.util.is_iterable_not_str(tasks):
-            tasks = [tasks]
+        if not tasks:
+            raise ValueError('Tasks parameter may not be None or an empty list.')
 
         if jobs < 1:
             raise ValueError('Job count must be >= to 1.')
+
+        if not pake.util.is_iterable_not_str(tasks):
+            tasks = [tasks]
 
         self._cur_job_count = jobs
         self._run_count = 0
 
         graphs = []
-        if tasks:
-            for task in tasks:
-                graphs.append(self.get_task_context(task).node.topological_sort())
-        else:
-            graphs.append(self._graph.topological_sort())
+        for task in tasks:
+            graphs.append(self.get_task_context(task).node.topological_sort())
 
         if jobs == 1:
             for graph in graphs:

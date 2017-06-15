@@ -33,7 +33,9 @@ class TaskContextProcessTest(unittest.TestSuite):
 
         @pk.task
         def test_task(ctx):
-            return_code = ctx.call(sys.executable, exit_10, ignore_errors=True)
+            return_code = ctx.call(sys.executable, exit_10,
+                                   ignore_errors=True,
+                                   silent=True)
             if return_code != 10:
                 raise TestFailException(return_code)
 
