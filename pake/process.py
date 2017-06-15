@@ -376,7 +376,8 @@ class CalledProcessException(ProcessException):
         else:
             out_str += ('{myname}(){sep}{sep}'.format(myname=class_name, sep=os.linesep))
 
-        if self.returncode and self.returncode < 0:
+        if self.returncode and self.returncode < 0:  # pragma: no cover
+            # subprocess module uses this same logic
             try:
                 out_str += "Command '{}' died with {}.".format(self.cmd, signal.Signals(-self.returncode))
             except ValueError:
