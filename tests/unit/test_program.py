@@ -119,6 +119,15 @@ class ProgramTest(unittest.TestCase):
 
         self.assertEqual(pk.run_count, run_count)
 
+        with self.assertRaises(ValueError):
+            # Because jobs <= 1
+            pake.run(pk, tasks=[task_one, 'task_two'], jobs=0)
+
+        with self.assertRaises(ValueError):
+            # Because jobs <= 1
+            pake.run(pk, tasks=[task_one, 'task_two'], jobs=-1)
+
+
         # ===========
 
         def test_run_helper(dry_run=False):
