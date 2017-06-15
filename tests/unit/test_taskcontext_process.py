@@ -19,7 +19,7 @@ pake.conf.stdout = open_devnull() if pake.conf.stdout is sys.stdout else pake.co
 pake.conf.stderr = open_devnull() if pake.conf.stderr is sys.stderr else pake.conf.stderr
 
 
-class TaskContextProcessTest(unittest.TestSuite):
+class TaskContextProcessTest(unittest.TestCase):
 
     def test_call(self):
 

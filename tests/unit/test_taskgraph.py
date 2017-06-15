@@ -10,9 +10,8 @@ sys.path.insert(1, os.path.abspath(
 
 
 import pake
-import pake.program
 
-class TaskGraphTest(unittest.TestSuite):
+class TaskGraphTest(unittest.TestCase):
 
     def test_taskgraph_init(self):
 

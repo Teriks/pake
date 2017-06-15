@@ -114,6 +114,15 @@ class SubprocessException(ProcessException):
 
         super().__init__(message)
 
+        self._output = None
+        self._output_stream = None
+
+        if not cmd:
+            raise ValueError('cmd list must not be None or empty.')
+
+        if output and type(output) is not bytes:
+            raise ValueError("output parameter must be of type 'bytes'")
+
         if output is not None and output_stream is not None:
             raise ValueError('output and output_stream parameters cannot be used together.')
 
@@ -121,7 +130,7 @@ class SubprocessException(ProcessException):
 
         self.message = message
         self.returncode = returncode
-        self.cmd = cmd
+        self.cmd = list(cmd)
 
         self._output = output
         self._output_stream = output_stream
