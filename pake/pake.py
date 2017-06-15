@@ -313,7 +313,20 @@ class TaskContext:
 
     @property
     def func(self):
-        """Task function reference."""
+        """
+        Task function reference.
+        
+        This function will be an internal wrapper around
+        the one you specified and you should not call it.
+        
+        There is not currently a way to get a reference
+        to your actual unwrapped task function from the
+        :py:class:`pake.Pake` object or elsewhere.
+        
+        However since @wrap is used when wrapping your 
+        function, metadata such as func.__doc__ and friends
+        will be maintained on this function reference.
+        """
         return self.node.func
 
     @property
@@ -663,8 +676,8 @@ class TaskGraph(pake.graph.Graph):
     """Task graph node.
     
     .. py:attribute:: func
-    
-        The task function associated with the node.
+
+        Task function reference.
         
         This function will be an internal wrapper around
         the one you specified and you should not call it.
@@ -672,6 +685,10 @@ class TaskGraph(pake.graph.Graph):
         There is not currently a way to get a reference
         to your actual unwrapped task function from the
         :py:class:`pake.Pake` object or elsewhere.
+        
+        However since @wrap is used when wrapping your 
+        function, metadata such as func.__doc__ and friends
+        will be maintained on this function reference.
         
     """
 
