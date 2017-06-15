@@ -7,8 +7,11 @@ import os
 
 # the directory above tests to the path so pake can be included
 # not needed if module is 'installed'
-sys.path.insert(1,
-                os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../../../')))
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
+sys.path.insert(1, os.path.abspath(
+    os.path.join(script_dir, os.path.join('..', '..', '..', '..'))))
+
 
 import pake
 

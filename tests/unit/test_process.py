@@ -3,16 +3,14 @@ import unittest
 
 import os
 
-sys.path.insert(1,
-                os.path.abspath(
-                    os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                 os.path.join('..', '..'))))
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
+sys.path.insert(1, os.path.abspath(
+                   os.path.join(script_dir, os.path.join('..', '..'))))
 
 from pake import process
 import pake.program
 import pake
-
-script_dir = os.path.dirname(os.path.realpath(__file__))
 
 
 class ProcessTest(unittest.TestCase):

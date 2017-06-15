@@ -226,25 +226,33 @@ class TaskContext:
     
         All file inputs, or an empty list.  
         
-        Note: Not available until the task runs.
+       **Note:** 
+       
+       Not available outside of a task, may only be used while a task is executing.
         
     .. py:attribute:: outputs
     
         All file outputs, or an empty list.
         
-        Note: Not available until the task runs.
+       **Note:** 
+       
+       Not available outside of a task, may only be used while a task is executing.
        
     .. py:attribute:: outdated_inputs
     
         All changed file inputs (or inputs who's corresponding output is missing), or an empty list.
         
-        Note: Not available until the task runs.
+       **Note:** 
+       
+       Not available outside of a task, may only be used while a task is executing.
         
     .. py:attribute:: oudated_outputs
     
         All out of date file outputs, or an empty list
         
-        Note: Not available until the task runs.
+       **Note:** 
+       
+       Not available outside of a task, may only be used while a task is executing.
     """
 
     def __init__(self, pake_instance, node):
@@ -258,15 +266,16 @@ class TaskContext:
         self.outdated_outputs = []
 
     def multitask(self):
-        """Returns a contextual object for submitting work to pake's current thread pool.
+        """
+        Returns a contextual object for submitting work to pake's current thread pool.
 
-           .. code-block:: python
+        .. code-block:: python
 
-              @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
-              def build_c(ctx):
-                  with ctx.multitask() as mt:
-                      for i, o in ctx.outdated_pairs:
-                          mt.submit(ctx.call, ['gcc', '-c', i, '-o', o])
+           @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
+               def build_c(ctx):
+                   with ctx.multitask() as mt:
+                       for i, o in ctx.outdated_pairs:
+                           mt.submit(ctx.call, ['gcc', '-c', i, '-o', o])
 
 
         At the end of the **with** statement, all submitted tasks are simultaneously waited on.
@@ -278,23 +287,26 @@ class TaskContext:
 
     @property
     def outdated_pairs(self):
-        """Short hand for: zip(ctx.outdated_inputs, ctx.outdated_outputs)
+        """
+        Short hand for: zip(ctx.outdated_inputs, ctx.outdated_outputs)
            
-           Returns a generator object over outdated (input, output) pairs.
-           
-           This is only useful when the task has the same number of inputs as it does outputs.
+        Returns a generator object over outdated (input, output) pairs.
+       
+        This is only useful when the task has the same number of inputs as it does outputs.
 
-           Example:
+        Example:
 
-           .. code-block:: python
-              
-              @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
-              def build_c(ctx):
-                  for i, o in ctx.outdated_pairs:
-                      ctx.call(['gcc', '-c', i, '-o', o])
-                      
-                 
-           Note: Not available until the task runs.
+        .. code-block:: python
+          
+           @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
+           def build_c(ctx):
+               for i, o in ctx.outdated_pairs:
+                   ctx.call(['gcc', '-c', i, '-o', o])
+                  
+             
+        **Note:** 
+       
+        Not available outside of a task, may only be used while a task is executing.
 
         """
         return zip(self.outdated_inputs, self.outdated_outputs)
@@ -310,10 +322,17 @@ class TaskContext:
         return self._node.name
 
     @property
-    def io(self):
-        """Task IO file stream, a file like object that is only open for writing during a tasks execution.
+    def io(self):  # pragma: no cover
+        """
+        
+        Task IO file stream, a file like object that is only open for writing during a tasks execution.
         
         Any output to be displayed for the task should be written to this file object.
+        
+        This file object is a text mode stream with no newline conversion, it can be used
+        with the built in **print** function an other methods that can write text data
+        to a file like object.
+        
         """
         return self._io
 
@@ -579,15 +598,34 @@ class TaskContext:
 
     @property
     def dependencies(self):
-        """Dependencies of this task, iterable of :py:class:`Pake.TaskGraph`"""
-        return self._node.edges
+        """
+        Immediate dependencies of this task.
+        
+        returns a list of :py:class:`pake.TaskContext` representing  each
+        immediate dependency of this task.
+        
+        **Note:**
+        
+        This property **will** return a meaningful value outside of a task.
+        """
+        return list(
+            self.pake.get_task_context(i.func) for i in self._node.edges
+        )
 
     @property
     def dependency_outputs(self):
-        """Returns a list of output files generated by the tasks immediate dependencies."""
+        """
+        Returns a list of output files generated by the tasks immediate dependencies.
+        
+        **Note:** 
+       
+        Not available outside of a task, may only be used while a task is executing.
+        """
 
-        return list(pake.util.flatten_non_str(
-            self.pake.get_task_context(i.func).outputs for i in self.dependencies)
+        return list(
+            pake.util.flatten_non_str(
+            self.pake.get_task_context(i.func).outputs for i in self.dependencies
+            )
         )
 
     def _i_io_open(self):
@@ -625,10 +663,29 @@ class TaskGraph(pake.graph.Graph):
     
     .. py:attribute:: func
     
-        The task function associated with the node
+        The task function associated with the node.
+        
+        This function will be an internal wrapper around
+        the one you specified and you should not call it.
+        
+        There is not currently a way to get a reference
+        to your actual unwrapped task function from the
+        :py:class:`pake.Pake` object or elsewhere.
+        
     """
 
     def __init__(self, name, func):
+        """
+        :param name: Task name.
+        :param func: Task callable.
+        """
+
+        if name is None:
+            raise ValueError('name parameter may not be None.')
+
+        if func is None:
+            raise ValueError('func parameter may not be None.')
+
         self._name = name
         self.func = func
         super(TaskGraph, self).__init__()
@@ -637,11 +694,12 @@ class TaskGraph(pake.graph.Graph):
         self.func(*args, **kwargs)
 
     @property
-    def name(self):
+    def name(self):  # pragma: no cover
         """The task name."""
         return self._name
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
+        """Returns :py:attr:`pake.TaskGraph.name`."""
         return self._name
 
 
