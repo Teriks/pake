@@ -876,7 +876,7 @@ class Pake:
     
     .. py:attribute:: stdout
     
-        (set-able) The stream all standard task output gets written to.
+        (set-able) The stream all task output gets written to.
     
     """
 
@@ -884,7 +884,7 @@ class Pake:
         """
         Create a pake object, optionally set stdout for the instance.
         
-        :param stdout: The stream all standard task output gets written to, (defaults to pake.conf.stdout)
+        :param stdout: The stream all task output gets written to, (defaults to pake.conf.stdout)
         """
 
         self._graph = TaskGraph("_", lambda: None)
