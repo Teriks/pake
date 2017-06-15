@@ -46,9 +46,9 @@ Yields Output:
     Exception "Exception" was called within task "test".
 
     Traceback (most recent call last):
-      File "{PAKE_INSTALL_PATH}\pake\pake.py", line 1316, in func_wrapper
+      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1316, in func_wrapper
         return func(*args, **kwargs)
-      File "{FULL_PAKEFILE_DIR_PATH}\pakefile.py", line 8, in test
+      File "{FULL_PAKEFILE_DIR_PATH}/pakefile.py", line 8, in test
         raise Exception('Some Exception')
     Exception: Some Exception
 
@@ -121,11 +121,11 @@ Yields Output:
     exit(1) was called within task "test".
 
     Traceback (most recent call last):
-      File "{PAKE_INSTALL_PATH}\pake\pake.py", line 1316, in func_wrapper
+      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1316, in func_wrapper
         return func(*args, **kwargs)
-      File "{FULL_PAKEFILE_DIR_PATH}\pakefile.py", line 12, in test
+      File "{FULL_PAKEFILE_DIR_PATH}/pakefile.py", line 12, in test
         exit(returncodes.ERROR)
-      File "{PYTHON_INSTALL_PATH}\lib\_sitebuiltins.py", line 26, in __call__
+      File "{PYTHON_INSTALL_PATH}/lib/_sitebuiltins.py", line 26, in __call__
         raise SystemExit(code)
     SystemExit: 1
 
@@ -177,7 +177,7 @@ Yields Output:
     which i-dont-exist
 
     pake.process.SubprocessException(
-            filename="{FULL_PAKEFILE_DIR_PATH}\pakefile.py",
+            filename="{FULL_PAKEFILE_DIR_PATH}/pakefile.py",
             function_name="call",
             line_number=9
     )
@@ -249,7 +249,7 @@ Yields Output:
     ===== Executing Task: "test"
 
     pake.subpake.SubpakeException(
-            filename="{REST_OF_FULL_PATH}\pakefile.py",
+            filename="{REST_OF_FULL_PATH}/pakefile.py",
             function_name="subpake",
             line_number=13
     )
@@ -258,23 +258,23 @@ Yields Output:
 
     The following command exited with return code: 13
 
-    {PYTHON_INSTALL_DIR}\python.exe subfolder/pakefile.py --s_depth 1 --directory {REST_OF_FULL_PATH}\subfolder
+    {PYTHON_INSTALL_DIR}/python3 subfolder/pakefile.py --s_depth 1 --directory {REST_OF_FULL_PATH}/subfolder
 
     Command Output: {
 
     *** enter subpake[1]:
-    pake[1]: Entering Directory "{REST_OF_FULL_PATH}\subfolder"
+    pake[1]: Entering Directory "{REST_OF_FULL_PATH}/subfolder"
     ===== Executing Task: "sub_test"
 
     Exception "Exception" was called within task "sub_test".
 
     Traceback (most recent call last):
-      File "{PAKE_INSTALL_DIRECTORY}\pake\pake.py", line 1323, in func_wrapper
+      File "{PAKE_INSTALL_DIRECTORY}/pake/pake.py", line 1323, in func_wrapper
         return func(*args, **kwargs)
       File "subfolder/pakefile.py", line 7, in sub_test
     Exception: Test Exception
 
-    pake[1]: Exiting Directory "{REST_OF_FULL_PATH}\subfolder"
+    pake[1]: Exiting Directory "{REST_OF_FULL_PATH}/subfolder"
     *** exit subpake[1]:
 
 
