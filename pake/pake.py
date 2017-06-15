@@ -344,8 +344,8 @@ class TaskContext:
         
         **Note:**
         
-        Neither :py:attr:`pake.SubprocessException.output` or :py:attr:`pake.SubprocessException.output_stream` 
-        will be available in the exception if you handle it.
+        :py:attr:`pake.SubprocessException.output` and :py:attr:`pake.SubprocessException.output_stream` 
+        will **not** be available in the exception if you handle it.
         
         :raises: :py:class:`pake.SubprocessException` if **ignore_errors** is **False**
                  and the process exits with a non zero return code.
