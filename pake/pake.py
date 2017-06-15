@@ -959,8 +959,14 @@ class Pake:
         If the define is not found, then **None** is returned by default.
         
         The indexer operator can also be used on the pake instance to fetch defines, IE:
-          
-        *pk['YOURDEFINE']*
+        
+        .. code-block:: python
+        
+            import pake
+            
+            pk = pake.init()
+            
+            value = pk['YOURDEFINE']
         
         Which also produces **None** if the define does not exist.
         
