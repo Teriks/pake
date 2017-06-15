@@ -429,12 +429,14 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
                   .format(code=err.return_code, task=err.task_name),
                   file=pake.conf.stderr)
             pake.conf.stderr.write(os.linesep)
-            err.print_traceback()
+            err.print_traceback(file=pake.conf.stderr)
+            pake.conf.stderr.write(os.linesep)
 
         elif return_code != returncodes.SUCCESS:
             # Print info only for error conditions
             print(os.linesep+str(err)+os.linesep, file=pake.conf.stderr)
             err.print_traceback(file=pake.conf.stderr)
+            pake.conf.stderr.write(os.linesep)
 
     except pake.InputNotFoundException as err:
         print(str(err), file=pake.conf.stderr)
@@ -461,6 +463,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         else:
             print(os.linesep+str(err)+os.linesep, file=pake.conf.stderr)
             err.print_traceback(file=pake.conf.stderr)
+            pake.conf.stderr.write(os.linesep)
             return_code = returncodes.TASK_EXCEPTION
 
     return _terminate(pake_obj, return_code, exit_func=m_exit)

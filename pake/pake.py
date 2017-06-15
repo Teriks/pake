@@ -475,7 +475,7 @@ class TaskContext:
                                   stderr=subprocess.STDOUT,
                                   stdin=stdin, shell=shell) as process:
 
-                output_copy_buffer = tempfile.TemporaryFile(mode='w+')
+                output_copy_buffer = tempfile.TemporaryFile(mode='w+', newline='\n')
 
                 stdout_encoding = 'utf-8' if sys.stdout.encoding is None else sys.stdout.encoding  # pragma: no cover
 
@@ -523,7 +523,7 @@ class TaskContext:
         )
 
     def _i_io_open(self):
-        self._io = tempfile.TemporaryFile(mode='w+')
+        self._io = tempfile.TemporaryFile(mode='w+', newline='\n')
 
     def _i_io_close(self):
         self._io.seek(0)

@@ -174,7 +174,7 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
                           stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT) as process:
 
-        output_copy_buffer = tempfile.TemporaryFile(mode='w+')
+        output_copy_buffer = tempfile.TemporaryFile(mode='w+', newline='\n')
 
         stdout_encoding = 'utf-8' if sys.stdout.encoding is None else sys.stdout.encoding  # pragma: no cover
 

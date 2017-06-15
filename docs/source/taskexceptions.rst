@@ -46,9 +46,9 @@ Yields Output:
     Exception "Exception" was called within task "test".
 
     Traceback (most recent call last):
-      File "{PAKE_INSTALL_PATH_HERE}\pake\pake.py", line 1316, in func_wrapper
+      File "{PAKE_INSTALL_PATH}\pake\pake.py", line 1316, in func_wrapper
         return func(*args, **kwargs)
-      File "{PAKEFILE_DIRECTORY_HERE}\pakefile.py", line 8, in test
+      File "{FULL_PAKEFILE_DIR_PATH}\pakefile.py", line 8, in test
         raise Exception('Some Exception')
     Exception: Some Exception
 
@@ -121,11 +121,11 @@ Yields Output:
     exit(1) was called within task "test".
 
     Traceback (most recent call last):
-      File "{PAKE_INSTALL_PATH_HERE}\pake\pake.py", line 1316, in func_wrapper
+      File "{PAKE_INSTALL_PATH}\pake\pake.py", line 1316, in func_wrapper
         return func(*args, **kwargs)
-      File "{PAKEFILE_DIRECTORY_HERE}\pakefile.py", line 12, in test
+      File "{FULL_PAKEFILE_DIR_PATH}\pakefile.py", line 12, in test
         exit(returncodes.ERROR)
-      File "{PYTHON_INSTALL_PATH_HERE}\lib\_sitebuiltins.py", line 26, in __call__
+      File "{PYTHON_INSTALL_PATH}\lib\_sitebuiltins.py", line 26, in __call__
         raise SystemExit(code)
     SystemExit: 1
 
@@ -148,6 +148,8 @@ error message.
 All output from the failed command will be mentioned at the bottom in a block surrounded by brackets,
 which is labeled with "Command Output: "
 
+
+Example:
 
 .. code-block:: python
 
@@ -176,7 +178,7 @@ Yields Output:
     which i-dont-exist
 
     pake.process.SubprocessException(
-            filename="{FULL_PAKEFILE_PATH}\pakefile.py",
+            filename="{FULL_PAKEFILE_DIR_PATH}\pakefile.py",
             function_name="call",
             line_number=9
     )
@@ -193,3 +195,91 @@ Yields Output:
 
 
     }
+
+
+
+pake.SubpakeException Inside Tasks
+----------------------------------
+
+:py:exc:`pake.SubpakeException` is derived from :py:exc:`pake.SubprocessException`
+and produces similar error information when raised inside a task.
+
+
+Example: ``subfolder/pakefile.py``
+
+.. code-block:: python
+
+    import pake
+
+    pk = pake.init()
+
+    @pk.task
+    def sub_test(ctx):
+        raise Exception('Test Exception')
+
+    pake.run(pk, tasks=sub_test)
+
+
+Example: ``pakefile.py``
+
+.. code-block:: python
+
+    import pake
+
+    pk = pake.init()
+
+    @pk.task
+    def test(ctx):
+        # pake.SubpakeException is raised because
+        # 'subfolder/pakefile.py' raises an exception inside a task
+        # and returns with a non 0 exit code.
+
+        # Silent prevents the pakefiles output from being printed
+        # to the task IO queue, keeping the output short for this example
+
+        ctx.subpake('subfolder/pakefile.py', silent=True)
+
+    pake.run(pk, tasks=test)
+
+
+
+Yields Output:
+
+.. code-block:: bash
+
+    ===== Executing Task: "test"
+
+    pake.subpake.SubpakeException(
+            filename="{REST_OF_FULL_PATH}\pakefile.py",
+            function_name="subpake",
+            line_number=13
+    )
+
+    Message: An exceptional condition occurred inside a pakefile ran by subpake.
+
+    The following command exited with return code: 13
+
+    {PYTHON_INSTALL_DIR}\python.exe subfolder/pakefile.py --s_depth 1 --directory {REST_OF_FULL_PATH}\subfolder
+
+    Command Output: {
+
+    *** enter subpake[1]:
+    pake[1]: Entering Directory "{REST_OF_FULL_PATH}\subfolder"
+    ===== Executing Task: "sub_test"
+
+    Exception "Exception" was called within task "sub_test".
+
+    Traceback (most recent call last):
+      File "{PAKE_INSTALL_DIRECTORY}\pake\pake.py", line 1323, in func_wrapper
+        return func(*args, **kwargs)
+      File "subfolder/pakefile.py", line 7, in sub_test
+    Exception: Test Exception
+
+    pake[1]: Exiting Directory "{REST_OF_FULL_PATH}\subfolder"
+    *** exit subpake[1]:
+
+
+    }
+
+
+
