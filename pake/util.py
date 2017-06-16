@@ -26,6 +26,8 @@ import shlex
 import os
 from collections import namedtuple
 
+from os import path
+
 import pake.program
 
 __all__ = [
@@ -297,3 +299,15 @@ def copyfileobj_tee(fsrc, destinations, length=16*1024):
             break
         for fdst in destinations:
             fdst.write(buf)
+
+
+def is_more_recent(input, output):
+    """
+    Check if an (input) file/directory has a more recent modification time than an (output) file/directory.
+
+    :param input: Path to a file or directory
+    :param output: Path to a file or directory
+    :return: **True** if **input** is more recent than **output**, else **False**
+    """
+
+    return path.getmtime(input) > path.getmtime(output)

@@ -1084,7 +1084,7 @@ class Pake:
             for input_object in i:
                 if not path.exists(input_object):
                     raise InputNotFoundException(task_name, input_object)
-                if path.getmtime(output_object) < path.getmtime(input_object):
+                if pake.util.is_more_recent(input_object, output_object):
                     outdated_inputs.append(input_object)
                     outdated_output = output_object
 
@@ -1109,7 +1109,7 @@ class Pake:
                 if not path.exists(input_object):
                     raise InputNotFoundException(task_name, input_object)
                 for output_object in o:
-                    if not path.exists(output_object) or path.getmtime(output_object) < path.getmtime(input_object):
+                    if not path.exists(output_object) or pake.util.is_more_recent(input_object, output_object):
                         input_set.add(input_object)
                         output_set.add(output_object)
 
@@ -1120,7 +1120,7 @@ class Pake:
             for input_object, output_object in zip(i, o):
                 if not path.exists(input_object):
                     raise InputNotFoundException(task_name, input_object)
-                if not path.exists(output_object) or path.getmtime(output_object) < path.getmtime(input_object):
+                if not path.exists(output_object) or pake.util.is_more_recent(input_object, output_object):
                     outdated_inputs.append(input_object)
                     outdated_outputs.append(output_object)
 
@@ -1386,9 +1386,8 @@ class Pake:
         ctx.outdated_inputs = list(outdated_inputs)
         ctx.outdated_outputs = list(outdated_outputs)
 
-        if len(i) > 0 or len(o) > 0:
-            if len(outdated_inputs) > 0 or len(outdated_outputs) > 0:
-                return True
+        if (len(i) > 0 or len(o) > 0) and (len(outdated_inputs) > 0 or len(outdated_outputs) > 0):
+            return True
 
         return False
 
