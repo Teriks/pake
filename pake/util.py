@@ -230,11 +230,11 @@ def parse_define_value(value):
 
     'True', 'False' and 'None' values are case insensitive.
 
-    Anything that does not start with a python literal quoting character (such as " or even [ ) and
+    Anything that does not start with a python literal quoting character (such as **{** and **[** ) and
     is not a True or False value, Integer, or Float, is considered to be a raw string.
 
-    :raises: :py:exc:`SyntaxError` if an attempt is made to parse a literal such as an integer, float, list etc.. and it fails.
-    :raises: :py:exc:`ValueError` if the **value** parameter is passed **None**.
+    :raises: :py:exc:`SyntaxError` if an attempt to parse a complex literal (list, set, tuple, or dictionary) fails.
+    :raises: :py:exc:`ValueError` if the **value** parameter is **None**.
 
     :param value: String representing the defines value.
     :return: Python literal representing the defines values.
