@@ -79,25 +79,6 @@ _INIT_FILE = None
 _INIT_DIR = None
 
 
-def _validate_parsed_init_arguments(parsed_args):
-    """
-    Validate command line arguments necessary for pake.init before function execution.
-
-    This function should return a tuple of (True/False, return_code)
-
-    If the first value of the tuple is True, pake.init will exit() with the given return code.
-
-    If the first value of the tuple if False, pake.init is free to continue executing.
-
-    :param parsed_args: parsed argument object from the argparse module.  See: pake.arguments
-    :return: Tuple of (True/False, return_code)
-    """
-
-    # Reserved for future use
-
-    return False, 0
-
-
 def init(stdout=None, args=None):
     """
     Read command line arguments relevant to initialization, and return a :py:class:`pake.Pake` object.
@@ -111,12 +92,6 @@ def init(stdout=None, args=None):
     global _INIT_FILE, _INIT_DIR
 
     parsed_args = pake.arguments.parse_args(args=args)
-
-    should_return, return_code = \
-        _validate_parsed_init_arguments(parsed_args)
-
-    if should_return:
-        exit(return_code)
 
     pk = pake.Pake(stdout=stdout)
 
