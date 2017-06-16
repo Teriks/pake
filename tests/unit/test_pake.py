@@ -309,6 +309,7 @@ class PakeTest(unittest.TestCase):
     def test_is_running(self):
         self._is_running_test()
         self._is_running_test(10)
-
+        self._is_running_exception_test()
+        self._is_running_exception_test(10)
 
 
