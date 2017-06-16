@@ -80,6 +80,148 @@ there is more than one of them.
 
 ``pake task unrelated_task order_independent_task``
 
+
+
+Specifying Defines
+------------------
+
+The **-D/--define** option is used to specify defines on the command line that can be retrieved
+with the :py:meth:`pake.Pake.get_define` method, or **__getitem__** indexer on the :py:class:`pake.Pake`
+object (which is returned by :py:meth:`pake.init`).
+
+Define values are parsed partially with the built in :py:mod:`ast` module, the only caveat is that the
+values **True**, **False** and **None** are case insensitive.
+
+Defines which are specified without a value, default to the value of **True**.
+
+Basic Example:
+
+.. code-block:: bash
+
+    pake -D IM_A_TRUE=True \
+         -D IM_TRUE_TOO=true \
+         -D IM_NONE=none \
+         -D NO_VALUE \
+         -D IM_STRING="Hello"
+
+Retrieval:
+
+.. code-block:: python
+
+    import pake
+
+    pk = pake.init()
+
+    im_true = pk.get_define('IM_TRUE')
+
+    im_true_too = pk.get_define('IM_TRUE_TOO')
+
+    im_false = pk.get_define('IM_NONE')
+
+    no_value = pk.get_define('NO_VALUE')
+
+    im_string = pk.get_define('IM_STRING')
+
+
+    print(type(im_true)) # -> <class 'bool'>
+
+    print(im_true) # -> True
+
+
+    print(type(im_true_too)) # -> <class 'bool'>
+
+    print(im_true_too) # -> True
+
+
+    print(type(im_none)) # -> <class 'NoneType'>
+
+    print(im_none) # -> None
+
+
+    print(type(no_value)) # -> <class 'bool'>
+
+    print(no_value) # -> True
+
+
+    print(type(im_string)) # -> <class 'str'>
+
+    print(im_string) # -> Hello
+
+
+You can pass complex python types such as dictionaries, sets, tuples etc.. as a define value, and pake
+will recognize and fully deserialize them into the correct type.
+
+Complex Types Example:
+
+.. code-block:: bash
+
+    pake -D IM_A_DICT="{'im': 'dict'}" \
+            IM_A_SET="{'im', 'set')" \
+            IM_A_LIST="['im', 'list']" \
+            IM_A_TUPLE="('im', 'tuple')"
+
+Retrieval:
+
+.. code-block:: python
+
+    import pake
+
+    pk = pake.init()
+
+    im_a_dict = pk.get_define('IM_A_DICT')
+
+    im_a_set = pk.get_define('IM_A_SET')
+
+    im_a_list = pk.get_define('IM_A_LIST')
+
+    im_a_tuple = pk.get_define('IM_A_TUPLE')
+
+
+    print(type(im_a_dict)) # -> <class 'dict'>
+
+    print(im_a_dict) # -> {'im': 'dict'}
+
+
+    print(type(im_a_set)) # -> <class 'set'>
+
+    print(im_a_set) # -> {'im': 'set'}
+
+
+    print(type(im_a_list)) # -> <class 'list'>
+
+    print(im_a_list) # -> {'im': 'list'}
+
+
+    print(type(im_a_tuple)) # -> <class 'tuple'>
+
+    print(im_a_tuple) # -> {'im': 'tuple'}
+
+
+Read Defines From STDIN
+-----------------------
+
+The **--stdin-defines** option allows you to pipe defines into pake in the form of a python dictionary.
+
+Any defines that are set this way can be overwritten by defines set on the command line using **-D/--define**
+
+The dictionary that you pipe in is parsed into a python literal using the built in :py:mod:`ast` module,
+so you can use complex types such as sets, tuples, dictionaries ect.. as the value for your defines.
+
+Example:
+
+.. code-block:: bash
+
+    # Pipe in two defines, MY_DEFINE=True and MY_DEFINE_2=42
+
+    echo "{'MY_DEFINE': True, 'MY_DEFINE_2': 42}" | pake --stdin-defines
+
+
+    # Overwrite the value of MY_DEFINE_2 that was piped in, using the -D/--define option
+    # it will have a value of False instead of 42
+
+    echo "{'MY_DEFINE': True, 'MY_DEFINE_2': 42}" | pake --stdin-defines -D MY_DEFINE_2=False
+
+
 Command Line Options
 --------------------
 
