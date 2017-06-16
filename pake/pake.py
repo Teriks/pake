@@ -969,6 +969,10 @@ class Pake:
             value = pk['YOURDEFINE']
         
         Which also produces **None** if the define does not exist.
+
+        See: :ref:`Specifying Defines` for documentation covering how
+        to specify defines on the command line, as well as what types
+        of values you can use for your defines.
         
         :param name: Name of the define
         :param default: The default value to return if the define does not exist
