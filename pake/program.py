@@ -95,7 +95,12 @@ def init(stdout=None, args=None):
 
     pk = pake.Pake(stdout=stdout)
 
-    if parsed_args.stdin_defines: # pragma: no cover
+    if parsed_args.stdin_defines:  # pragma: no cover
+
+        # This is all covered by unit test 'test_stdin_defines.py'
+        # Confirmed by debugger, coverage.py is not picking it
+        # up though.
+
         try:
             parsed_stdin_defines = ast.literal_eval(sys.stdin.read())
 
@@ -108,10 +113,6 @@ def init(stdout=None, args=None):
                 exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
 
         except Exception as err:
-
-            # This is covered by unit test 'test_stdin_defines.py'
-            # Confirmed by debugger, coverage.py is not picking it
-            # up in the subprocess though.
 
             print('Syntax error parsing defines from standard input '''
                   'with --stdin-defines option:' + os.linesep,
