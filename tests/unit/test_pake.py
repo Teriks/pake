@@ -226,8 +226,89 @@ class PakeTest(unittest.TestCase):
         self.assertEqual(pake.run(pk, tasks=task_two, call_exit=False),
                          pake.returncodes.CYCLIC_DEPENDENCY)
 
-    def test_cyclic_exception(self):
 
+    def test_cyclic_exception(self):
         self._cyclic_exception_test(None)
         self._cyclic_exception_test(['--jobs', '10'])
         self._cyclic_exception_test(['--dry-run'])
+
+
+    def _is_running_test(self, jobs=1):
+
+        # Test that the is_running and threadpool properties
+        # of the Pake object maintain the correct state
+
+        class TestException(Exception):
+            def __init__(self, *args):
+                super().__init__(*args)
+
+        pake.program.shutdown()
+
+        pk = pake.init()
+
+        self.assertEqual(pk.is_running, False)
+        self.assertEqual(pk.threadpool, None)
+
+        @pk.task
+        def task_a(ctx):
+            if not pk.is_running:
+                raise TestException('Test failed, pk.is_running is False while pake is running.')
+
+            if jobs == 1 and pk.threadpool:
+                raise TestException('Test failed, pk.threadpool is NOT None when jobs == 1.')
+
+            if jobs > 1 and not pk.threadpool:
+                raise TestException('Test failed, pk.threadpool is None when jobs > 1.')
+
+        try:
+            pk.run(tasks=[task_a], jobs=jobs)
+        except pake.TaskException as err:
+            self.fail(str(err.exception))
+
+        self.assertEqual(pk.is_running, False)
+        self.assertEqual(pk.threadpool, None)
+
+    def _is_running_exception_test(self, jobs=1):
+
+        # Test that the state of pk.is_running and pk.threadpool
+        # are correct even after pake experiences an exception inside
+        # of a task
+
+        class TestException(Exception):
+            def __init__(self, *args):
+                super().__init__(*args)
+
+        pake.program.shutdown()
+
+        pk = pake.init()
+
+        self.assertEqual(pk.is_running, False)
+        self.assertEqual(pk.threadpool, None)
+
+        @pk.task
+        def task_a(ctx):
+            raise TestException()
+
+        def task_b(ctx):
+            pass
+
+        def task_c(ctx):
+            pass
+
+        try:
+            pk.run(tasks=[task_a, task_b, task_c], jobs=jobs)
+        except pake.TaskException as err:
+            if not isinstance(err.exception, TestException):
+                self.fail('Unexpected exception "{}" in pake.is_running exception test!'
+                          .format(pake.util.qualified_name(err.__name__)))
+            pass
+
+        self.assertEqual(pk.is_running, False)
+        self.assertEqual(pk.threadpool, None)
+
+    def test_is_running(self):
+        self._is_running_test()
+        self._is_running_test(10)
+
+
+

@@ -890,6 +890,8 @@ class Pake:
         :param stdout: The stream all task output gets written to, (defaults to pake.conf.stdout)
         """
 
+        self.stdout = stdout if stdout is not None else pake.conf.stdout
+
         self._graph = TaskGraph("_", lambda: None)
 
         # maps task name to TaskContext
@@ -901,7 +903,7 @@ class Pake:
         self._defines = dict()
         self._dry_run_mode = False
         self._threadpool = None
-        self.stdout = stdout if stdout is not None else pake.conf.stdout
+        self._is_running = False
         self._run_count_lock = threading.Lock()
         self._run_count = 0
         self._cur_job_count = 0
@@ -929,7 +931,8 @@ class Pake:
 
     @property
     def threadpool(self):
-        """Current execution thread pool, is only ever not **None** while pake is running.
+        """Current execution thread pool, is only ever not **None** while pake is running
+        (when :py:attr:`pake.Pake.is_running` equals **True**).
         
         If pake is running with a job count of 1, no threadpool is used so this property will be **None**.
         """
@@ -1559,30 +1562,92 @@ class Pake:
         self._cur_job_count = jobs
         self._run_count = 0
 
-        graphs = []
-        for task in tasks:
-            graphs.append(self.get_task_context(task).node.topological_sort())
+        task_graphs = (self.get_task_context(task).node.topological_sort() for task in tasks)
 
         if jobs == 1:
+            self._run_sync(task_graphs)
+            return
+
+        self._run_parallel(jobs, task_graphs)
+
+    def _run_parallel(self, jobs, task_graphs):
+
+        # Task futures pending wait
+        pending_futures = []
+
+        try:
+            self._threadpool = ThreadPoolExecutor(max_workers=jobs)
+
+            # is_running, and _threadool will be left 'None'
+            # if constructing the threadpool throws
+
+            self._is_running = True
+
+            for graph in task_graphs:
+                for i in (i for i in graph if i is not self._graph):
+                    context = self.get_task_context(i.name)
+                    pending_futures.append(context._i_submit_self(self._threadpool))
+        finally:
+            all_futures_waited = False
+            try:
+                # This will raise if a task throws an exception.
+                _wait_futures_and_raise(pending_futures)
+
+                # No exception was raised if execution got to here
+                all_futures_waited = True
+            finally:
+                # Be very paranoid about object state
+
+                t_pool = self._threadpool  # t_pool shutdown might throw, maybe
+
+                # Fix object state
+                self._threadpool = None
+                self._is_running = False
+
+                if t_pool:
+                    # Only wait here if _wait_futures_and_raise did not finish.
+                    # this function will not complain if you have already waited
+                    # some of your threadpool tasks
+                    t_pool.shutdown(wait=not all_futures_waited)
+
+    def _run_sync(self, graphs):
+        try:
+            self._is_running = True
             for graph in graphs:
                 for i in graph:
                     i()
-            return
-
-        executor = None
-        pending = []
-        try:
-            executor = ThreadPoolExecutor(max_workers=jobs)
-            self._threadpool = executor
-            for graph in graphs:
-                for i in (i for i in graph if i is not self._graph):
-                    context = self.get_task_context(i.name)
-                    pending.append(context._i_submit_self(executor))
         finally:
-            _wait_futures_and_raise(pending)
-            self._threadpool = None
-            if executor:
-                executor.shutdown(wait=False)
+            self._is_running = False
+
+    @property
+    def is_running(self):
+        """Check if pake is currently running tasks.
+
+        This can be used to determine if code is executing inside of a task.
+
+        Example:
+
+        .. code-block:: python
+
+            import pake
+
+            pk = pake.init()
+
+            pk.print(pk.is_running) # -> False
+
+            @pk.task
+            def my_task(ctx):
+                ctx.print(pk.is_running) # -> True
+
+
+            pake.run(pk, tasks=my_task, call_exit=False)
+
+            pk.print(pk.is_running) # -> False
+
+
+        :return:  **True** if pake is currently running tasks, **False** otherwise.
+        """
+        return self._is_running
 
     def dry_run(self, tasks):
         """

@@ -184,6 +184,10 @@ def get_max_jobs():
     Get the max number of jobs passed from the --jobs command line argument.
     
     The minimum number of jobs allowed is 1.
+
+    Be aware, the value this function returns will not be affected by the optional
+    **jobs** argument of :py:meth:`pake.run` and :py:meth:`pake.Pake.run`.  It is purely
+    for retrieving the value passed on the command line.
     
     :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: The max number of jobs from the --jobs command line argument. (an integer >= 1)
