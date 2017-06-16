@@ -233,7 +233,7 @@ def parse_define_value(value):
     Anything that does not start with a python literal quoting character (such as **{** and **[** ) and
     is not a True or False value, Integer, or Float, is considered to be a raw string.
 
-    :raises: :py:exc:`SyntaxError` if an attempt to parse a complex literal (list, set, tuple, or dictionary) fails.
+    :raises: :py:exc:`SyntaxError` if an attempt to parse a complex literal (quoted string, list, set, tuple, or dictionary) fails.
     :raises: :py:exc:`ValueError` if the **value** parameter is **None**.
 
     :param value: String representing the defines value.
