@@ -3,7 +3,7 @@ About pake
 
 |Master Documentation Status| |Develop Documentation Status| |codecov|
 
-pake is a make like python build utility where tasks, dependencies and
+pake is a make-like python build utility where tasks, dependencies and
 build commands can be expressed entirely in python, similar to ruby
 rake.
 
