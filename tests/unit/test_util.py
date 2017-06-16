@@ -196,20 +196,20 @@ class UtilTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             pake.util.parse_define_value(None)
 
-        with self.assertRaises(SyntaxError):
+        with self.assertRaises(ValueError):
             pake.util.parse_define_value(' { Im not a full literal ')
 
-        with self.assertRaises(SyntaxError):
+        with self.assertRaises(ValueError):
             pake.util.parse_define_value(' " Im not a full literal ')
 
-        with self.assertRaises(SyntaxError):
+        with self.assertRaises(ValueError):
             pake.util.parse_define_value(' { "test": : "broken dict" } ')
 
-        with self.assertRaises(SyntaxError):
+        with self.assertRaises(ValueError):
             pake.util.parse_define_value(' [ "bad"  list" ] ')
 
-        with self.assertRaises(SyntaxError):
+        with self.assertRaises(ValueError):
             pake.util.parse_define_value('  "bad"  string"  ')
 
-        with self.assertRaises(SyntaxError):
+        with self.assertRaises(ValueError):
             pake.util.parse_define_value("  'bad'  string'  ")

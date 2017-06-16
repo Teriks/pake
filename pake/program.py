@@ -68,7 +68,7 @@ def _defines_to_dict(defines):
 
         try:
             result[value_name.strip()] = True if len(d) == 1 else pake.util.parse_define_value(d[1])
-        except SyntaxError as syn_err:
+        except ValueError as syn_err:
             raise ValueError(
                 'Error parsing define value of "{name}": {message}'
                     .format(name=value_name, message=str(syn_err)))
@@ -95,33 +95,31 @@ def init(stdout=None, args=None):
 
     pk = pake.Pake(stdout=stdout)
 
-    try:  # pragma: no cover
-        if parsed_args.stdin_defines:
-            pk.merge_defines_dict(ast.literal_eval(sys.stdin.read()))
-    except SyntaxError as err:  # pragma: no cover
+    if parsed_args.stdin_defines: # pragma: no cover
+        try:
+            parsed_stdin_defines = ast.literal_eval(sys.stdin.read())
+        except Exception as err:
 
-        # This is covered by unit test 'test_stdin_defines.py'
-        # Confirmed by debugger, coverage.py is not picking it
-        # up in the subprocess though.
+            # This is covered by unit test 'test_stdin_defines.py'
+            # Confirmed by debugger, coverage.py is not picking it
+            # up in the subprocess though.
 
-        print('Syntax error parsing defines from standard input with --stdin-defines option:' + os.linesep)
-        print(str(err), file=pake.conf.stderr)
-        exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
-    except Exception as err:  # pragma: no cover
+            print('Syntax error parsing defines from standard input '''
+                  'with --stdin-defines option:' + os.linesep,
+                  file=pake.conf.stderr)
+            print(str(err), file=pake.conf.stderr)
 
-        # This is not hit by the test mentioned above.
-        # I'm unsure what all can come out of ast.literal_eval
-        # so it's just a catch all with a slightly different message.
-
-        print('Unknown error parsing defines from standard input with --stdin-defines option:' + os.linesep)
-        print(str(err), file=pake.conf.stderr)
-        exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
+            exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
+        else:
+            pk.merge_defines_dict(parsed_stdin_defines)
 
     try:
-        pk.merge_defines_dict(_defines_to_dict(parsed_args.define))
+        parsed_cmd_arg_defines = _defines_to_dict(parsed_args.define)
     except ValueError as err:
         print(str(err), file=pake.conf.stderr)
         exit(returncodes.BAD_DEFINE_VALUE)
+    else:
+        pk.merge_defines_dict(parsed_cmd_arg_defines)
 
     # Find the init file by examining the stack
 

@@ -233,8 +233,8 @@ def parse_define_value(value):
     Anything that does not start with a python literal quoting character (such as **{** and **[** ) and
     is not a True or False value, Integer, or Float, is considered to be a raw string.
 
-    :raises: :py:exc:`SyntaxError` if an attempt to parse a complex literal (quoted string, list, set, tuple, or dictionary) fails.
-    :raises: :py:exc:`ValueError` if the **value** parameter is **None**.
+    :raises: :py:exc:`ValueError` if the **value** parameter is **None**, or
+             if an attempt to parse a complex literal (quoted string, list, set, tuple, or dictionary) fails.
 
     :param value: String representing the defines value.
     :return: Python literal representing the defines values.
@@ -253,7 +253,10 @@ def parse_define_value(value):
         literal = value.lstrip()
         if len(literal) > 0:
             if literal[0] in literal_eval_triggers:
-                return ast.literal_eval(literal)
+                try:
+                    return ast.literal_eval(literal)
+                except Exception as err:
+                    raise ValueError(str(err))
         else:
             return ''
 
