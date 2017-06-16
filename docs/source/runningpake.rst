@@ -98,7 +98,7 @@ Basic Example:
 
 .. code-block:: bash
 
-    pake -D IM_A_TRUE=True \
+    pake -D IM_TRUE=True \
          -D IM_TRUE_TOO=true \
          -D IM_NONE=none \
          -D NO_VALUE \
@@ -116,7 +116,7 @@ Retrieval:
 
     im_true_too = pk.get_define('IM_TRUE_TOO')
 
-    im_false = pk.get_define('IM_NONE')
+    im_none = pk.get_define('IM_NONE')
 
     no_value = pk.get_define('NO_VALUE')
 
@@ -156,9 +156,9 @@ Complex Types Example:
 .. code-block:: bash
 
     pake -D IM_A_DICT="{'im': 'dict'}" \
-            IM_A_SET="{'im', 'set'}" \
-            IM_A_LIST="['im', 'list']" \
-            IM_A_TUPLE="('im', 'tuple')"
+         -D IM_A_SET="{'im', 'set'}" \
+         -D IM_A_LIST="['im', 'list']" \
+         -D IM_A_TUPLE="('im', 'tuple')"
 
 Retrieval:
 
