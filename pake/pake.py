@@ -1523,7 +1523,8 @@ class Pake:
         """
         Run all given tasks, with an optional level of concurrency.
 
-        :raises: :py:class:`ValueError` if **jobs** is less than 1.
+        :raises: :py:class:`ValueError` if **jobs** is less than 1,
+                 or if **tasks** is **None** or an empty list.
         
         :raises: :py:class:`pake.TaskException` if an exception occurred while running a task.
         
@@ -1581,6 +1582,7 @@ class Pake:
         
         When using change detection, only out of date tasks will be visited.
         
+        :raises: :py:exc:`ValueError` If **tasks** is **None** or an empty list.
 
         :raises: :py:class:`pake.MissingOutputsException` if a task defines input files/directories without specifying any output files/directories.
         :raises: :py:class:`pake.InputNotFoundException` if a task defines input files/directories but one of them was not found on disk.
