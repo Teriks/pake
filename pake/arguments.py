@@ -29,10 +29,10 @@ __all__ = ['parse_args', 'get_parser', 'args_are_parsed', 'get_args']
 _ARG_PARSER = argparse.ArgumentParser(prog='pake')
 
 
-def _create_gt_int(less_message):
+def _create_gt_int(minimum, less_message):
     def _gt_zero_int(val):
         val = int(val)
-        if val < 1:
+        if val < minimum:
             _ARG_PARSER.print_usage(pake.conf.stderr)
             print('{}: error: {}'
                   .format(_ARG_PARSER.prog, less_message),
@@ -60,7 +60,7 @@ _ARG_PARSER.add_argument('tasks', type=str, nargs='*', help='Build tasks.')
 
 _ARG_PARSER.add_argument('-D', '--define', action='append', help='Add defined value.')
 
-_ARG_PARSER.add_argument('-j', '--jobs', type=_create_gt_int('--jobs must be greater than one.'),
+_ARG_PARSER.add_argument('-j', '--jobs', type=_create_gt_int(1, '--jobs must be greater than zero.'),
                          help='Max number of parallel jobs.  Using this option '
                               'enables unrelated tasks to run in parallel with a '
                               'max of N tasks running at a time.')
