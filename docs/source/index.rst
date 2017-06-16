@@ -24,9 +24,15 @@ Installing
 
 Note: pake is Alpha and likely to change some.
 
-.. code-block:: bash
 
-    sudo pip3 install python-pake --upgrade
+To install the latest release use:
+
+``sudo pip3 install python-pake --upgrade``
+
+
+If you want to install the development branch you can use:
+
+``sudo pip3 install git+git://github.com/Teriks/pake@develop``
 
 
 Module Doc
