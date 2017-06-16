@@ -18,7 +18,7 @@ all of its output (stdout and stderr) to the tasks IO queue.
 It will raise a :py:exc:`pake.SubprocessException` on non-zero return 
 codes by default unless you specify **ignore_errors=True**.
 
-If you specify for *call* to ignore errors, it will always return the 
+If you specify for **call** to ignore errors, it will always return the 
 process's return code regardless of whether it is non-zero or not.
 
 It can be used to test return codes like :py:meth:`pake.TaskContext.check_call`,
