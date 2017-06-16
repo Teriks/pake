@@ -184,17 +184,17 @@ Retrieval:
 
     print(type(im_a_set)) # -> <class 'set'>
 
-    print(im_a_set) # -> {'im': 'set'}
+    print(im_a_set) # -> {'im', 'set'}
 
 
     print(type(im_a_list)) # -> <class 'list'>
 
-    print(im_a_list) # -> {'im': 'list'}
+    print(im_a_list) # -> ['im': 'list']
 
 
     print(type(im_a_tuple)) # -> <class 'tuple'>
 
-    print(im_a_tuple) # -> {'im': 'tuple'}
+    print(im_a_tuple) # -> ('im': 'tuple')
 
 
 Read Defines From STDIN
