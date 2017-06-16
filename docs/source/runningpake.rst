@@ -201,8 +201,8 @@ Retrieval:
     pk.terminate(0)
 
 
-Read Defines From STDIN
------------------------
+Reading Defines From STDIN
+--------------------------
 
 The **--stdin-defines** option allows you to pipe defines into pake in the form of a python dictionary.
 
