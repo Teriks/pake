@@ -74,7 +74,7 @@ Pake return codes.
 
     12. An exceptional condition occurred running a subpake script.
     
-    Occurs if :py:meth:`pake.TaskContext.subpake` encounters a :py:class:`pake.SubprocessException` inside a task.
+    Occurs if :py:meth:`pake.TaskContext.subpake` encounters a :py:class:`pake.SubpakeException` inside a task.
 
     Or if a pakefile invoked with :py:meth:`pake.subpake` returns non zero and the subpake parameter  **exit_on_error** is set to **True**.
 
