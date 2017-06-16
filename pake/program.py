@@ -120,14 +120,24 @@ def init(stdout=None, args=None):
 
     pk = pake.Pake(stdout=stdout)
 
-    try:
+    try:  # pragma: no cover
         if parsed_args.stdin_defines:
             pk.merge_defines_dict(ast.literal_eval(sys.stdin.read()))
-    except SyntaxError as err:
+    except SyntaxError as err:  # pragma: no cover
+
+        # This is covered by unit test 'test_stdin_defines.py'
+        # Confirmed by debugger, coverage.py is not picking it
+        # up in the subprocess though.
+
         print('Syntax error parsing defines from standard input with --stdin-defines option:' + os.linesep)
         print(str(err), file=pake.conf.stderr)
         exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
-    except Exception as err:
+    except Exception as err:  # pragma: no cover
+
+        # This is not hit by the test mentioned above.
+        # I'm unsure what all can come out of ast.literal_eval
+        # so it's just a catch all with a slightly different message.
+
         print('Unknown error parsing defines from standard input with --stdin-defines option:' + os.linesep)
         print(str(err), file=pake.conf.stderr)
         exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
