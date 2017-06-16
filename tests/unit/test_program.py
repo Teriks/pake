@@ -52,6 +52,9 @@ class ProgramTest(unittest.TestCase):
 
         self.assertFalse(pake.is_init())
 
+        with self.assertRaises(pake.PakeUninitializedException):
+            pake.terminate(pake.Pake(), 0)
+
         pk = pake.init()
 
         self.assertTrue(pk.stdout is pake.conf.stdout)
