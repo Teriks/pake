@@ -1525,8 +1525,7 @@ class Pake:
 
         :raises: :py:class:`ValueError` if **jobs** is less than 1.
         
-        :raises: :py:class:`pake.TaskException` if an exception occurred while running a task, information will have \
-                 already been printed to the :py:attr:`pake.TaskContext.io` file object which belongs to the given task.
+        :raises: :py:class:`pake.TaskException` if an exception occurred while running a task.
         
         :raises: :py:class:`pake.TaskExitException` if **exit()** is called inside of a task.
         
