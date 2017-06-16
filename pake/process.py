@@ -411,7 +411,7 @@ STDOUT = subprocess.STDOUT
 
 
 def call(*args, stdin=None, stdout=None, stderr=None, shell=False, timeout=None, **kwargs):
-    """Wrapper around :py:meth:`subprocess.call` which allows the same varargs call syntax as :py:meth:`pake.TaskContext.call` and friends.
+    """Wrapper around :py:meth:`subprocess.call` which allows the same **\*args** call syntax as :py:meth:`pake.TaskContext.call` and friends.
 
     :param args: Executable and arguments.
     :param stdin: Stdin to feed to the process.
@@ -430,7 +430,7 @@ def call(*args, stdin=None, stdout=None, stderr=None, shell=False, timeout=None,
 
 
 def check_call(*args, stdin=None, stdout=None, stderr=None, shell=False, timeout=None, **kwargs):
-    """Wrapper around :py:meth:`subprocess.check_call` which allows the same varargs call syntax as :py:meth:`pake.TaskContext.call` and friends.
+    """Wrapper around :py:meth:`subprocess.check_call` which allows the same **\*args** call syntax as :py:meth:`pake.TaskContext.call` and friends.
 
     :param args: Executable and arguments.
     :param stdin: Stdin to feed to the process.
@@ -452,7 +452,7 @@ def check_call(*args, stdin=None, stdout=None, stderr=None, shell=False, timeout
 
 
 def check_output(*args, stdin=None, stderr=None, shell=False, timeout=None, **kwargs):
-    """Wrapper around :py:meth:`subprocess.check_output` which allows the same varargs call syntax as :py:meth:`pake.TaskContext.call` and friends.
+    """Wrapper around :py:meth:`subprocess.check_output` which allows the same **\*args** call syntax as :py:meth:`pake.TaskContext.call` and friends.
 
     :param args: Executable and arguments.
     :param stdin: Stdin to feed to the process.
