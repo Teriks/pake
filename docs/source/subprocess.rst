@@ -19,7 +19,7 @@ It will raise a :py:exc:`pake.SubprocessException` on non-zero return
 codes by default unless you specify **ignore_errors=True**.
 
 If you specify for **call** to ignore errors, it will always return the 
-process's return code regardless of whether it is non-zero or not.
+process's return code regardless of whether it was non-zero or not.
 
 It can be used to test return codes like :py:meth:`pake.TaskContext.check_call`,
 but it is preferable to use the later method for that purpose since :py:meth:`pake.TaskContext.call`
