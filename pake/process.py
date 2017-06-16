@@ -37,7 +37,6 @@ Methods for spawning processes.
 import os
 import shutil
 import signal
-
 import pake
 import pake.util
 import subprocess

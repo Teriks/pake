@@ -19,15 +19,11 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import inspect
-import os.path
 import textwrap
-
+import os.path
 import os
-
 import sys
-
 import pake
-
 import pake.arguments
 import pake.conf
 import pake.util

@@ -28,18 +28,21 @@ from functools import wraps
 from glob import glob as file_glob
 
 import os
-
 import sys
 
 import pake
-from concurrent.futures import ThreadPoolExecutor, wait as futures_wait, Executor, Future
-from os import path
-
 import pake.conf
 import pake.graph
 import pake.process
 import pake.util
 import pake.returncodes
+
+from concurrent.futures import \
+    ThreadPoolExecutor, \
+    wait as futures_wait, \
+    Executor, Future
+
+from os import path
 
 __all__ = ['pattern',
            'glob',

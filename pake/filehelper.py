@@ -24,7 +24,6 @@ import pathlib
 import shutil
 
 import os
-import pake
 
 __all__ = ['FileHelper']
 

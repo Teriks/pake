@@ -25,12 +25,12 @@ import sys
 import os
 import tempfile
 
+import pake
 import pake.process
 import pake.program
 import pake.util
 import pake.returncodes as returncodes
 import pake.conf
-import pickle
 
 __all__ = ['export', 'subpake', 'SubpakeException']
 
