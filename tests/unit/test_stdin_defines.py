@@ -74,7 +74,7 @@ class TestStdinDefines(unittest.TestCase):
 
             # Check pake handled the incorrect literal type correctly
             self.assertEqual(return_code, pake.returncodes.STDIN_DEFINES_SYNTAX_ERROR)
-            
+
 
             # ==========================
 

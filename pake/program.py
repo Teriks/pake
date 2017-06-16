@@ -100,9 +100,9 @@ def init(stdout=None, args=None):
             parsed_stdin_defines = ast.literal_eval(sys.stdin.read())
 
             if type(parsed_stdin_defines) != dict:
-                print('The --stdin-define option expects that a python dictionary '
-                      'object be written to stdin.  A literal of type {} '
-                      'was deserialized instead.'.format(type(parsed_stdin_defines).__name__),
+                print('The --stdin-defines option expects that a python dictionary '
+                      'object be written to stdin.  A literal of type {} was '
+                      'deserialized instead.'.format(type(parsed_stdin_defines).__name__),
                       file=pake.conf.stderr)
 
                 exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
