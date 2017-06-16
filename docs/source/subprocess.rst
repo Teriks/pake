@@ -15,6 +15,20 @@ by the given process.
 :py:meth:`pake.TaskContext.call` can be used to run a program and direct
 all of its output (stdout and stderr) to the tasks IO queue.
 
+It will raise a :py:exc:`pake.SubprocessException` on non-zero return 
+codes by default unless you specify **ignore_errors=True**.
+
+If you specify to ignore errors, it will return the processes return code.
+
+It can be used to test return codes like :py:meth:`pake.TaskContext.check_call`,
+but it is preferable to use the later method for that purpose since :py:meth:`pake.TaskContext.call`
+prints to the task IO queue by default.  (unless you specify **silent=True** and **print_cmd=False**).
+
+:py:meth:`pake.TaskContext.call` is designed primarily for handling 
+large amounts of process output and reporting it back when an error occurs
+without crashing pake, which is accomplished by duplicating the process output
+to a temporary file on disk and later reading it back incrementally when needed.
+
 
 Examples:
 
