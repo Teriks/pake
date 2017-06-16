@@ -40,7 +40,7 @@ Pake return codes.
 
 .. data:: BAD_DEFINE_VALUE
 
-    4. Syntax error while parsing a define value from the -D/--define option.
+    4. Syntax error while parsing a define value from the **-D/--define** option.
 
 .. data:: NO_TASKS_DEFINED
 
@@ -74,7 +74,6 @@ Pake return codes.
 
     12. An exceptional condition occurred running a subpake script.
     
-    Occurs if :py:meth:`pake.TaskContext.subpake` encounters a :py:class:`pake.SubpakeException` inside a task.
 
     Or if a pakefile invoked with :py:meth:`pake.subpake` returns non zero and the subpake parameter  **exit_on_error** is set to **True**.
 
