@@ -147,6 +147,8 @@ Retrieval:
 
     print(im_string) # -> Hello
 
+    pk.terminate(0)
+
 
 You can pass complex python types such as dictionaries, sets, tuples etc.. as a define value, and pake
 will recognize and fully deserialize them into the correct type.
@@ -196,6 +198,8 @@ Retrieval:
 
     print(im_a_tuple) # -> ('im': 'tuple')
 
+    pk.terminate(0)
+
 
 Read Defines From STDIN
 -----------------------
@@ -207,7 +211,26 @@ Any defines that are set this way can be overwritten by defines set on the comma
 The dictionary that you pipe in is parsed into a python literal using the built in :py:mod:`ast` module,
 so you can use complex types such as sets, tuples, dictionaries ect.. as the value for your defines.
 
-Example:
+Example Pakefile:
+
+.. code-block:: python
+
+    import pake
+
+    pk = pake.init()
+
+    a = pk['MY_DEFINE']
+
+    b = pk['MY_DEFINE_2']
+
+    print(a)
+
+    print(b)
+
+    pk.terminate(0)
+
+
+Example Commands:
 
 .. code-block:: bash
 
@@ -215,11 +238,21 @@ Example:
 
     echo "{'MY_DEFINE': True, 'MY_DEFINE_2': 42}" | pake --stdin-defines
 
+    # Prints:
+
+    True
+    42
+
 
     # Overwrite the value of MY_DEFINE_2 that was piped in, using the -D/--define option
     # it will have a value of False instead of 42
 
     echo "{'MY_DEFINE': True, 'MY_DEFINE_2': 42}" | pake --stdin-defines -D MY_DEFINE_2=False
+
+    # Prints:
+
+    True
+    False
 
 
 Command Line Options
