@@ -37,9 +37,11 @@ __all__ = ['export', 'subpake', 'SubpakeException']
 _EXPORTS = dict()
 
 
-class SubpakeException(pake.SubprocessException):
+class SubpakeException(pake.process.StreamingSubprocessException):
     """
     Raised upon encountering a non-zero return code from a subpake invocation.
+
+    This exception is raised from both :py:meth:`pake.subpake` and :py:meth:`pake.TaskContext.subpake`.
 
     .. py:attribute:: cmd
 
@@ -65,6 +67,7 @@ class SubpakeException(pake.SubprocessException):
 
         Line Number describing the line where the process call was initiated. (might be None)
     """
+
     def __init__(self, cmd, returncode,
                  output=None,
                  output_stream=None,
@@ -77,7 +80,7 @@ class SubpakeException(pake.SubprocessException):
 
         :param output_stream: (Optional) A file like object containing the process output, at seek(0).
                                By providing this parameter instead of **output**, you give this object permission
-                               to close the stream when it is garbage collected or when :py:meth:`pake.SubprocessException.write_info` is called.
+                               to close the stream when it is garbage collected or when :py:meth:`pake.SubpakeException.write_info` is called.
 
         :param message: Optional exception message.
         """

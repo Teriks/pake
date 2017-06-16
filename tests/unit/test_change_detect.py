@@ -6,15 +6,13 @@ import os
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 sys.path.insert(1, os.path.abspath(
-                   os.path.join(script_dir, os.path.join('..', '..'))))
+    os.path.join(script_dir, os.path.join('..', '..'))))
 
 import pake
 
 
 class GraphTest(unittest.TestCase):
-
     def _basic_behavior_test(self, jobs):
-
         pake.program.shutdown()
         pk = pake.init()
 
@@ -130,7 +128,6 @@ class GraphTest(unittest.TestCase):
         self.assertFalse(ran)
 
     def _existing_files_test(self, jobs):
-
         # Test file comparisons when outputs already exist
 
         in1 = os.path.join(script_dir, 'test_data', 'in1')
@@ -197,7 +194,6 @@ class GraphTest(unittest.TestCase):
         self.assertTrue(ran)
 
     def _exceptions_test(self, jobs):
-
         pake.program.shutdown()
         pk = pake.init()
 
@@ -357,6 +353,3 @@ class GraphTest(unittest.TestCase):
     def test_exceptions(self):
         self._exceptions_test(jobs=1)
         self._exceptions_test(jobs=10)
-
-
-

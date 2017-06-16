@@ -8,15 +8,13 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(1, os.path.abspath(
     os.path.join(script_dir, os.path.join('..', '..'))))
 
-
 import pake
 
+
 class TaskGraphTest(unittest.TestCase):
-
     def test_taskgraph_init(self):
-
         with self.assertRaises(ValueError):
-            # Beause name is None
+            # Because name is None
             _ = pake.TaskGraph(None, lambda: '_')
 
         with self.assertRaises(ValueError):

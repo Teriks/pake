@@ -6,7 +6,7 @@ import os
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 sys.path.insert(1, os.path.abspath(
-                   os.path.join(script_dir, os.path.join('..', '..'))))
+    os.path.join(script_dir, os.path.join('..', '..'))))
 
 from pake import process
 import pake.program
@@ -14,7 +14,6 @@ import pake
 
 
 class ProcessTest(unittest.TestCase):
-
     def test_call(self):
         cmd = [sys.executable, os.path.join(script_dir, 'timeout.py')]
 
@@ -30,7 +29,6 @@ class ProcessTest(unittest.TestCase):
                                          stderr=process.DEVNULL, stdout=process.DEVNULL), 0)
 
     def test_check_call(self):
-
         cmd = [sys.executable, os.path.join(script_dir, 'timeout.py')]
 
         with self.assertRaises(process.TimeoutExpired) as exc:
@@ -94,4 +92,3 @@ class ProcessTest(unittest.TestCase):
             pk.run(tasks=dummy)
 
         self.assertEqual(type(exc.exception.exception), process.CalledProcessException)
-

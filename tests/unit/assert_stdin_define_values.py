@@ -1,6 +1,5 @@
 import sys
 
-
 import os
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -10,7 +9,6 @@ sys.path.insert(1, os.path.abspath(
 
 import pake
 import pake.returncodes
-
 
 pk = pake.init()
 

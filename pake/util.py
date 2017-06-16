@@ -285,7 +285,7 @@ def qualified_name(object_instance):
         return type(object_instance).__name__
 
 
-def copyfileobj_tee(fsrc, destinations, length=16*1024):
+def copyfileobj_tee(fsrc, destinations, length=16 * 1024):
     """copy data from file-like object **fsrc** to multiple file like objects.
 
     :param fsrc: Source file object.

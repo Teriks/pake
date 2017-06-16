@@ -6,7 +6,7 @@ import os
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 sys.path.insert(1, os.path.abspath(
-                   os.path.join(script_dir, os.path.join('..', '..'))))
+    os.path.join(script_dir, os.path.join('..', '..'))))
 
 import pake
 
@@ -52,7 +52,6 @@ class SubpakeTest(unittest.TestCase):
 
             self.assertTrue(os.path.isfile(touch_file))
 
-
         # FileHelper.copytree
         # =============================
 
@@ -67,7 +66,6 @@ class SubpakeTest(unittest.TestCase):
         with self.assertRaises(FileExistsError):
             fp.copytree('test_data/filehelper', 'test_data/filehelper/copy_test', silent=silent)
 
-
         # FileHelper.move
         # =============================
 
@@ -81,7 +79,6 @@ class SubpakeTest(unittest.TestCase):
         fp.move('test_data/filehelper/movedir', 'test_data/filehelper/copy_test', silent=silent)
 
         self.assertTrue(os.path.isfile('test_data/filehelper/copy_test/movedir/move.txt'))
-
 
         # FileHelper.remove
         #  =============================
@@ -103,7 +100,6 @@ class SubpakeTest(unittest.TestCase):
         with self.assertRaises(OSError):
             fp.remove('test_data/filehelper/copy_test/movedir', must_exist=True, silent=silent)
 
-
         # FileHelper.touch
         # =============================
 
@@ -116,7 +112,6 @@ class SubpakeTest(unittest.TestCase):
         with self.assertRaises(FileExistsError):
             fp.touch('test_data/filehelper/delete_me_0/sub/file0.txt', silent=silent, exist_ok=False)
 
-
         # FileHelper.glob_remove
         # =============================
 
@@ -124,7 +119,6 @@ class SubpakeTest(unittest.TestCase):
 
         for i in range(0, 3):
             self.assertFalse(os.path.isfile('test_data/filehelper/delete_me_{idx}/sub/file{idx}.txt'.format(idx=i)))
-
 
         # FileHelper.copy
         # =============================
@@ -152,7 +146,6 @@ class SubpakeTest(unittest.TestCase):
             self.fail(
                 'pake.FileHelper.copy with metadata threw overwriting an existing file.  It should not do this.')
 
-
         # FileHelper.glob_remove_dirs
         # =============================
 
@@ -170,7 +163,6 @@ class SubpakeTest(unittest.TestCase):
         for i in range(0, 3):
             # now they should be gone
             self.assertFalse(os.path.isdir('test_data/filehelper/delete_me_{}'.format(i)))
-
 
         # FileHelper.rmtree
         # =============================

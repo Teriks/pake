@@ -6,7 +6,7 @@ import os
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 sys.path.insert(1, os.path.abspath(
-                   os.path.join(script_dir, os.path.join('..', '..'))))
+    os.path.join(script_dir, os.path.join('..', '..'))))
 
 import pake
 import pake.program
@@ -14,14 +14,13 @@ import pake.conf
 import pake.arguments
 import pake.returncodes as returncodes
 
-
 from tests import open_devnull
+
 pake.conf.stdout = open_devnull() if pake.conf.stdout is sys.stdout else pake.conf.stdout
 pake.conf.stderr = open_devnull() if pake.conf.stderr is sys.stderr else pake.conf.stderr
 
 
 class ProgramTest(unittest.TestCase):
-
     def test_exceptions(self):
 
         pake.program.shutdown()
@@ -182,7 +181,7 @@ class ProgramTest(unittest.TestCase):
             @pk.task
             def task_five(ctx):
                 # execute with the current interpreter
-                ctx.call(sys.executable, os.path.join(script_dir,'throw.py'))
+                ctx.call(sys.executable, os.path.join(script_dir, 'throw.py'))
 
             if not dry_run:
                 # Because 'throw.py' runs but throws an exception
@@ -299,5 +298,3 @@ class ProgramTest(unittest.TestCase):
         # Should be back to normal after run
 
         self.assertEqual(start_dir, os.getcwd())
-
-

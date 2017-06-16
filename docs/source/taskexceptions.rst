@@ -130,15 +130,15 @@ Yields Output:
     SystemExit: 1
 
 
-pake.SubprocessException Inside Tasks
--------------------------------------
+pake.TaskSubprocessException Inside Tasks
+-----------------------------------------
 
-Special error reporting is implemented for :py:exc:`pake.SubprocessException`, which is
+Special error reporting is implemented for :py:exc:`pake.TaskSubprocessException`, which is
 raised from :py:exc:`pake.TaskContext.call`, :py:exc:`pake.TaskContext.check_call`, and
 :py:exc:`pake.TaskContext.check_output`.
 
 When a process called through one of these process spawning methods returns with a non 0 return code,
-a :py:exc:`pake.SubprocessException` is raised by default.  That will always be true unless you have
+a :py:exc:`pake.TaskSubprocessException` is raised by default.  That will always be true unless you have
 supplied **ignore_errors=True** as an argument to these functions.
 
 The reported exception information will contain the full path to your pakefile, the name of the process
@@ -159,7 +159,7 @@ Example:
 
     @pk.task
     def test(ctx):
-        # pake.SubprocessException is raised because
+        # pake.TaskSubprocessException is raised because
         # which cannot find the given command and returns non 0
 
         # silent is specified, which means the process will not
@@ -177,7 +177,7 @@ Yields Output:
     ===== Executing Task: "test"
     which i-dont-exist
 
-    pake.process.SubprocessException(
+    pake.pake.TaskSubprocessException(
             filename="{FULL_PAKEFILE_DIR_PATH}/pakefile.py",
             function_name="call",
             line_number=9
@@ -201,8 +201,9 @@ Yields Output:
 pake.SubpakeException Inside Tasks
 ----------------------------------
 
-:py:exc:`pake.SubpakeException` is derived from :py:exc:`pake.SubprocessException`
-and produces similar error information when raised inside a task.
+:py:exc:`pake.SubpakeException` is derived from :py:exc:`pake.process.StreamingSubprocessException`
+just like :py:exc:`pake.TaskSubprocessException`, and produces similar error information when raised
+inside a task.
 
 
 Example: ``subfolder/pakefile.py``

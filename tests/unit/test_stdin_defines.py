@@ -15,9 +15,7 @@ import pake.returncodes
 
 
 class TestStdinDefines(unittest.TestCase):
-
     def test_stdin_defines(self):
-
         # Test that the --stdin-defines feature is working, and can handle being fed bad values
 
         good_value = {
@@ -35,7 +33,6 @@ class TestStdinDefines(unittest.TestCase):
         # Temp file is the quickest way to do this
 
         with tempfile.TemporaryFile(mode='w+', newline='\n') as temp:
-
             temp.write(str(good_value))
             temp.flush()
             temp.seek(0)
@@ -75,7 +72,6 @@ class TestStdinDefines(unittest.TestCase):
             # Check pake handled the incorrect literal type correctly
             self.assertEqual(return_code, pake.returncodes.STDIN_DEFINES_SYNTAX_ERROR)
 
-
             # ==========================
 
             # Feed it garbage
@@ -108,6 +104,3 @@ class TestStdinDefines(unittest.TestCase):
                 process.check_call(sys.executable, assert_script,
                                    '--stdin-define', '-D', 'DEFINE_VALUE_TRUE=False',
                                    stdin=temp, stderr=process.DEVNULL, stdout=process.DEVNULL)
-
-
-

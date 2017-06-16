@@ -67,7 +67,6 @@ _ARG_PARSER.add_argument('-j', '--jobs', type=_create_gt_int(1, '--jobs must be 
 
 _ARG_PARSER.add_argument('--_subpake_depth', default=0, type=int, help=argparse.SUPPRESS)
 
-
 _ARG_PARSER.add_argument('--stdin-defines', action='store_true',
                          help='Read defines from a Python Dictionary piped into stdin. '
                               'Defines read with this option can be overwritten by defines '

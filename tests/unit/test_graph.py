@@ -6,7 +6,7 @@ import os
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 sys.path.insert(1, os.path.abspath(
-                   os.path.join(script_dir, os.path.join('..', '..'))))
+    os.path.join(script_dir, os.path.join('..', '..'))))
 
 import pake.graph
 

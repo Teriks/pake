@@ -15,7 +15,7 @@ by the given process.
 :py:meth:`pake.TaskContext.call` can be used to run a program and direct
 all of its output (stdout and stderr) to the tasks IO queue.
 
-It will raise a :py:exc:`pake.SubprocessException` on non-zero return 
+It will raise a :py:exc:`pake.TaskSubprocessException` on non-zero return
 codes by default unless you specify **ignore_errors=True**.
 
 If you specify for **call** to ignore errors, it will always return the 
@@ -61,7 +61,7 @@ Examples:
         ctx.call('echo "goodbye!"')
 
         # Try some command and ignore any errors (non zero return codes)
-        # Otherwise, 'call' raises a 'pake.SubprocessException' on non zero
+        # Otherwise, 'call' raises a 'pake.TaskSubprocessException' on non zero
         # return codes.
 
         ctx.call(['do_something_bad'], ignore_errors=True)
@@ -147,7 +147,7 @@ Examples:
         try:
             path = ctx.check_output('which', 'gcc').decode()
             ctx.print('gcc exists!, path:', path)
-        except pake.SubprocessException:
+        except pake.TaskSubprocessException:
             pass
 
 
@@ -189,7 +189,7 @@ Examples:
         try:
             ctx.check_call('which', 'gcc')
             ctx.print('gcc exists!')
-        except pake.SubprocessException:
+        except pake.TaskSubprocessException:
             pass
 
 
@@ -231,4 +231,4 @@ behave nicer if they occur inside of a task.
 
 See: :py:exc:`pake.process.TimeoutExpired` and :py:exc:`pake.process.CalledProcessException`.
 
-Which are analogs for :py:exc:`subprocess.TimeoutExpired` and :py:exc:`subprocess.CalledProcessError`.
+Which are analogs for :py:exc:`subprocess.TimeoutExpired` and :py:exc:`subprocess.CalledProcessException`.

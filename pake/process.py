@@ -37,14 +37,14 @@ Methods for spawning processes.
 import os
 import shutil
 import signal
-import pake
-import pake.util
 import subprocess
 
+import pake
+import pake.util
 
 __all__ = [
     'ProcessException',
-    'SubprocessException',
+    'StreamingSubprocessException',
     'CalledProcessException',
     'TimeoutExpired',
     'call',
@@ -54,20 +54,19 @@ __all__ = [
 
 class ProcessException(Exception):
     """Base class for process exceptions."""
+
     def __init__(self, message):
         super().__init__(message)
 
 
-class SubprocessException(ProcessException):
+class StreamingSubprocessException(ProcessException):
     """
-    Raised upon encountering a non-zero return code from a subprocess,
-    when it is not specified that non-zero return codes should be ignored.
-    
-    This exception is only raised by process spawning methods in :py:class:`pake.TaskContext`.
-    
-    It is designed to deal with reporting huge amounts of process output (If necessary)
+    A base class for process exceptions designed to deal with reporting huge amounts of process output (If necessary)
     in the exception information when a process called from a task context fails.
-    
+
+    This exception is used as a base class for process exceptions thrown from :py:meth:`pake.subpake`, and the
+    process spawning methods in the :py:class:`pake.TaskContext` object.
+
     .. py:attribute:: cmd
     
         Executed command in list form.
@@ -105,7 +104,7 @@ class SubprocessException(ProcessException):
 
         :param output_stream: (Optional) A file like object containing the process output, at seek(0).
                                By providing this parameter instead of **output**, you give this object permission
-                               to close the stream when it is garbage collected or when :py:meth:`pake.SubprocessException.write_info`
+                               to close the stream when it is garbage collected or when :py:meth:`pake.TaskSubprocessException.write_info`
                                is called.  The passed stream should be a text mode stream.
 
         :param message: Optional exception message.
@@ -163,7 +162,7 @@ class SubprocessException(ProcessException):
         All output of the process (including **stderr**) as a file 
         object at **seek(0)** if it is available, otherwise this property is **None**.
         
-        If this property is not **None** and you call :py:meth:`pake.SubprocessException.write_info`, 
+        If this property is not **None** and you call :py:meth:`pake.TaskSubprocessException.write_info`,
         this property will become **None** because that method reads the stream and disposes of it.
         
         The stream will be a text mode stream.
@@ -177,7 +176,7 @@ class SubprocessException(ProcessException):
         This is necessary over implementing in __str__, because the process output might be 
         drawn from another file to prevent issues with huge amounts of process output.
         
-        Calling this method will cause :py:attr:`pake.SubprocessException.output_stream` to
+        Calling this method will cause :py:attr:`pake.TaskSubprocessException.output_stream` to
         become **None** if it already isn't.
         
         :param file: The text mode file object to write the information to.
@@ -261,6 +260,7 @@ class TimeoutExpired(ProcessException):
 
         Line Number describing the line where the process call was initiated. (might be None)
     """
+
     def __init__(self, cmd, timeout, output=None, stderr=None):
         self.cmd = cmd
         self.timeout = timeout
@@ -273,7 +273,7 @@ class TimeoutExpired(ProcessException):
             self.filename = c_detail.filename
             self.line_number = c_detail.line_number
             self.function_name = c_detail.function_name
-        else:   # pragma: no cover
+        else:  # pragma: no cover
             self.filename = None
             self.line_number = None
             self.function_name = None
@@ -348,6 +348,7 @@ class CalledProcessException(ProcessException):
         Line Number describing the line where the process call was initiated. (might be None)
 
     """
+
     def __init__(self, cmd, returncode, output=None, stderr=None):
         self.returncode = returncode
         self.cmd = cmd
@@ -378,7 +379,7 @@ class CalledProcessException(ProcessException):
         if self.line_number:  # pragma: no cover
             template.append('line_number={}'.format(self.line_number))
 
-        if len(template):   # pragma: no cover
+        if len(template):  # pragma: no cover
             out_str += ('{myname}({sep}\t{template}{sep}){sep}{sep}'.
                         format(myname=class_name, template=(',' + os.linesep + '\t').join(template), sep=os.linesep))
         else:
@@ -443,7 +444,8 @@ def check_call(*args, stdin=None, stdout=None, stderr=None, shell=False, timeout
     """
     args = pake.util.handle_shell_args(args)
     try:
-        return subprocess.check_call(args, stdin=stdin, stdout=stdout, stderr=stderr, shell=shell, timeout=timeout, **kwargs)
+        return subprocess.check_call(args, stdin=stdin, stdout=stdout, stderr=stderr, shell=shell, timeout=timeout,
+                                     **kwargs)
     except subprocess.TimeoutExpired as err:
         raise TimeoutExpired(err.args, err.timeout, err.stdout, err.stdout)
     except subprocess.CalledProcessError as err:

@@ -6,7 +6,7 @@ import os
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 sys.path.insert(1, os.path.abspath(
-                   os.path.join(script_dir, os.path.join('..', '..'))))
+    os.path.join(script_dir, os.path.join('..', '..'))))
 
 import pake
 import pake.program
@@ -14,14 +14,13 @@ import pake.util
 import pake.conf
 import pake.returncodes
 
-
 from tests import open_devnull
+
 pake.conf.stdout = open_devnull() if pake.conf.stdout is sys.stdout else pake.conf.stdout
 pake.conf.stderr = open_devnull() if pake.conf.stderr is sys.stderr else pake.conf.stderr
 
 
 class PakeTest(unittest.TestCase):
-
     def test_registration_and_run(self):
 
         pake.program.shutdown()
@@ -226,12 +225,10 @@ class PakeTest(unittest.TestCase):
         self.assertEqual(pake.run(pk, tasks=task_two, call_exit=False),
                          pake.returncodes.CYCLIC_DEPENDENCY)
 
-
     def test_cyclic_exception(self):
         self._cyclic_exception_test(None)
         self._cyclic_exception_test(['--jobs', '10'])
         self._cyclic_exception_test(['--dry-run'])
-
 
     def _is_running_test(self, jobs=1):
 
@@ -311,5 +308,3 @@ class PakeTest(unittest.TestCase):
         self._is_running_test(10)
         self._is_running_exception_test()
         self._is_running_exception_test(10)
-
-

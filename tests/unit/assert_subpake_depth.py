@@ -10,13 +10,13 @@ import pake
 
 pk = pake.init()
 
-
 DEPTH = pk.get_define('DEPTH')
+
 
 @pk.task
 def default(ctx):
     depth = pake.get_subpake_depth()
     assert depth == DEPTH
 
-pk.run(tasks=default)
 
+pk.run(tasks=default)

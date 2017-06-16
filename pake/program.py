@@ -26,6 +26,7 @@ import sys
 import pake
 import pake.arguments
 import pake.conf
+import pake.pake
 import pake.util
 import pake.returncodes as returncodes
 import ast
@@ -524,7 +525,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
 
             return_code = returncodes.SUBPAKE_EXCEPTION
 
-        elif isinstance(inner_err, pake.SubprocessException):
+        elif isinstance(inner_err, pake.TaskSubprocessException):
             pake.conf.stderr.write(os.linesep)
             inner_err.write_info(file=pake.conf.stderr)
             pake.conf.stderr.write(os.linesep)

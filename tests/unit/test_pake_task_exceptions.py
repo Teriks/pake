@@ -3,16 +3,18 @@ import unittest
 import os
 import time
 
+import pake.pake
+
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 sys.path.insert(1, os.path.abspath(
-                   os.path.join(script_dir, os.path.join('..', '..'))))
+    os.path.join(script_dir, os.path.join('..', '..'))))
 
 import pake
 import pake.conf
 
-
 from tests import open_devnull
+
 pake.conf.stdout = open_devnull() if pake.conf.stdout is sys.stdout else pake.conf.stdout
 pake.conf.stderr = open_devnull() if pake.conf.stderr is sys.stderr else pake.conf.stderr
 
@@ -151,7 +153,7 @@ class TaskExceptionsTest(unittest.TestCase):
             @pk.task
             def call3(ctx):
                 call = getattr(ctx, method)
-                call(sys.executable, os.path.join(script_dir, 'throw.py'))  # Raise pake.SubprocessException
+                call(sys.executable, os.path.join(script_dir, 'throw.py'))  # Raise pake.TaskSubprocessException
 
             @pk.task
             def call4(ctx):
@@ -178,17 +180,17 @@ class TaskExceptionsTest(unittest.TestCase):
 
             self.assertEqual(type(exc.exception.exception), FileNotFoundError)
 
-            # Test pake.SubprocessException propagation
+            # Test pake.TaskSubprocessException propagation
 
             with self.assertRaises(pake.TaskException) as exc:
                 pk.run(tasks=call3)
 
-            self.assertEqual(type(exc.exception.exception), pake.SubprocessException)
+            self.assertEqual(type(exc.exception.exception), pake.TaskSubprocessException)
 
             with self.assertRaises(pake.TaskException) as exc:
                 pk.run(tasks=call3, jobs=10)
 
-            self.assertEqual(type(exc.exception.exception), pake.SubprocessException)
+            self.assertEqual(type(exc.exception.exception), pake.TaskSubprocessException)
 
             try:
                 pk.run(tasks=call4)
@@ -198,7 +200,9 @@ class TaskExceptionsTest(unittest.TestCase):
             try:
                 pk.run(tasks=call4, jobs=10)
             except pake.TaskException:
-                self.fail('TaskContext.{} threw on non zero return code with ignore_errors=True. with pk.run(jobs=10)'.format(method))
+                self.fail(
+                    'TaskContext.{} threw on non zero return code with ignore_errors=True. with pk.run(jobs=10)'.format(
+                        method))
 
         subprocess_test_helper('call')
         subprocess_test_helper('check_call')
@@ -227,12 +231,12 @@ class TaskExceptionsTest(unittest.TestCase):
 
         # The return code with call_exit=False should match the exit code in the task
 
-        self.assertEqual(pake.run(pk, tasks=[test2,test3,test], jobs=10, call_exit=False), 100)
+        self.assertEqual(pake.run(pk, tasks=[test2, test3, test], jobs=10, call_exit=False), 100)
 
-        self.assertEqual(pake.run(pk, tasks=[test2,test3,test], call_exit=False), 100)
+        self.assertEqual(pake.run(pk, tasks=[test2, test3, test], call_exit=False), 100)
 
         with self.assertRaises(pake.TaskExitException) as exc:
-            pk.run(tasks=[test2,test3,test])
+            pk.run(tasks=[test2, test3, test])
 
         self.assertEqual(exc.exception.task_name, 'test')
         self.assertEqual(exc.exception.return_code, 100)

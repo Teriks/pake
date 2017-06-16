@@ -41,8 +41,6 @@ from .pake import \
     InputNotFoundException, \
     MissingOutputsException
 
-from .process import SubprocessException
-
 from .program import \
     run, \
     init, \
@@ -54,6 +52,7 @@ from .program import \
     get_init_file, \
     get_init_dir
 
+from .pake import TaskSubprocessException
 from .subpake import subpake, export, SubpakeException
 
 __all__ = [
@@ -76,12 +75,12 @@ __all__ = [
     'FileHelper',
     'TaskException',
     'TaskExitException',
+    'TaskSubprocessException',
     'InputNotFoundException',
     'MissingOutputsException',
     'UndefinedTaskException',
     'RedefinedTaskException',
     'PakeUninitializedException',
     'CyclicGraphException',
-    'SubprocessException',
-    'SubpakeException'
+    'SubpakeException',
 ]
