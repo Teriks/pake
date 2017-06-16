@@ -1330,10 +1330,10 @@ class Pake:
         
         :param task: Task name string, or registered task callable.
         
-        :raises: :py:class:`pake.UndefinedTaskException` if the task function/callable is not registered to the pake context.
         :raises: :py:class:`ValueError` if the **task** parameter is not a string or a callable function/object.
-        
-        :return: Task name string
+        :raises: :py:class:`pake.UndefinedTaskException` if the task function/callable is not registered to the pake context.
+
+        :return: Task name string.
         """
         if type(task) is str:
             ctx = self._task_contexts.get(task, None)
@@ -1352,7 +1352,9 @@ class Pake:
         """
         Get the :py:class:`pake.TaskContext` object for a specific task.
         
+        :raises: :py:class:`ValueError` if the **task** parameter is not a string or a callable function/object.
         :raises: :py:class:`pake.UndefinedTaskException` if the task in not registered.
+        
         :param task: Task function or function name as a string
         :return: :py:class:`pake.TaskContext`
         """
