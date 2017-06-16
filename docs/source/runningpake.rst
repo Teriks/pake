@@ -156,7 +156,7 @@ Complex Types Example:
 .. code-block:: bash
 
     pake -D IM_A_DICT="{'im': 'dict'}" \
-            IM_A_SET="{'im', 'set')" \
+            IM_A_SET="{'im', 'set'}" \
             IM_A_LIST="['im', 'list']" \
             IM_A_TUPLE="('im', 'tuple')"
 
