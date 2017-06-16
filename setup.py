@@ -13,9 +13,6 @@ with open('pake/__init__.py') as f:
 if not version:
     raise RuntimeError('version is not set.')
 
-# alpha 1
-version += 'a1'
-
 readme = ''
 with open('README.rst', 'r', encoding='utf-8') as f:
     readme = f.read()
