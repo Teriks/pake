@@ -85,7 +85,7 @@ class TestStdinDefines(unittest.TestCase):
             temp.seek(0)
 
             with self.assertRaises(pake.process.CalledProcessException):
-                # If this should raise pake.process.CalledProcessException,
+                # This should raise pake.process.CalledProcessException,
                 # because the helper script is not expecting DEFINE_VALUE_TRUE=False
 
                 process.check_call(sys.executable, assert_script,
