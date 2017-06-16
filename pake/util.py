@@ -286,7 +286,6 @@ def copyfileobj_tee(fsrc, destinations, length=16*1024):
     :param fsrc: Source file object.
     :param destinations: List of destination file objects.
     :param length: Read chunk size.
-    :param read_predicate: Optional read predicate function, the stream will continue to be read until the predicate returns false.
     """
 
     while 1:
