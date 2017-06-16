@@ -98,6 +98,15 @@ def init(stdout=None, args=None):
     if parsed_args.stdin_defines: # pragma: no cover
         try:
             parsed_stdin_defines = ast.literal_eval(sys.stdin.read())
+
+            if type(parsed_stdin_defines) != dict:
+                print('The --stdin-define option expects that a python dictionary '
+                      'object be written to stdin.  A literal of type {} '
+                      'was deserialized instead.'.format(type(parsed_stdin_defines).__name__),
+                      file=pake.conf.stderr)
+
+                exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
+
         except Exception as err:
 
             # This is covered by unit test 'test_stdin_defines.py'

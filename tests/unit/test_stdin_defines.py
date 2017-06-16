@@ -61,6 +61,23 @@ class TestStdinDefines(unittest.TestCase):
 
             # ==========================
 
+            # Feed it something that is not a dictionary,
+            # but will still deserialize
+
+            temp.seek(0)
+            temp.write("['list']")
+            temp.flush()
+            temp.seek(0)
+
+            return_code = process.call(sys.executable, assert_script, '--stdin-define',
+                                       stdin=temp, stderr=process.DEVNULL, stdout=process.DEVNULL)
+
+            # Check pake handled the incorrect literal type correctly
+            self.assertEqual(return_code, pake.returncodes.STDIN_DEFINES_SYNTAX_ERROR)
+            
+
+            # ==========================
+
             # Feed it garbage
 
             temp.seek(0)
