@@ -7,11 +7,15 @@ or even :py:meth:`pake.subpake`.
 :py:meth:`pake.TaskContext.subpake` is preferred because it handles writing program
 output to the tasks output queue in a synchronized manner when multiple jobs are running.
 
-A :py:meth:`pake.TaskContext.subpake` is passed into the single argument of each task function.
+A :py:class:`pake.TaskContext` is passed into the single argument of each task function.
 
 Defines can be exported to pakefiles ran with the **subpake** functions using :py:meth:`pake.export`.
 
-Example:
+:py:meth:`pake.subpake` and :py:meth:`pake.TaskContext.subpake` use the **--stdin-defines** option of
+pake to pass exported define values into the new process instance, which means you can overwrite your
+exported define values with **-D/--define** in the subpake command arguments if you need to.
+
+Export / Subpake Example:
 
 .. code-block:: python
 
@@ -20,15 +24,15 @@ Example:
     pk = pake.init()
 
     # Try to get the CC define from the command line,
-    # default to "GCC".
+    # default to 'gcc'.
 
-    CC = pk.get_define("CC", "gcc")
+    CC = pk.get_define('CC', 'gcc')
 
     # Export the CC variable's value to all invocations
     # of pake.subpake or ctx.subpake as a define that can be
     # retrieved with pk.get_define()
     #
-    pake.export("CC", CC)
+    pake.export('CC', CC)
 
 
     # You can also export lists, dictionaries sets and tuples,
@@ -36,21 +40,25 @@ Example:
     # Literal values being: strings, integers, floats; and
     # other lists, dicts, sets and tuples (if they only contain literals)
 
-    pake.export("CC_FLAGS", ['-Wextra', '-Wall'])
+    pake.export('CC_FLAGS', ['-Wextra', '-Wall'])
 
 
     # Nesting works with composite literals,
     # as long as everything is a pure literal or something
     # that str()'s into a literal.
 
-    pake.export("STUFF",
+    pake.export('STUFF',
                 ['you',
                  ['might',
                   ('be',
                    ['a',
                     {'bad' :
-                         ['person', ['if', {'you', 'do'}, ("this",) ]]
+                         ['person', ['if', {'you', 'do'}, ('this',) ]]
                      }])]])
+
+
+    # This export will be overrode in the next call
+    pake.export('OVERRIDE_ME', False)
 
 
     # Execute outside of a task, by default the stdout/stderr
@@ -58,7 +66,11 @@ Example:
     # object to which stdout gets written to can be specified
     # with pake.subpake(..., stdout=(file))
 
-    pake.subpake("sometasks/pakefile.py", "dotasks")
+    # This command also demonstrates that you can override
+    # your exports using the -D/--define option
+
+    pake.subpake('sometasks/pakefile.py', 'dotasks', '-D', 'OVERRIDE_ME=True')
+
 
     # This task does not depend on anything or have any inputs/outputs
     # it will basically only run if you explicitly specify it as a default
@@ -71,7 +83,7 @@ Example:
         # Specify that the "foo" task is to be ran.
         # The scripts output is written to this tasks output queue
 
-        ctx.subpake("library/pakefile.py", "foo")
+        ctx.subpake('library/pakefile.py', 'foo')
 
 
 

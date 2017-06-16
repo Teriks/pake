@@ -1607,6 +1607,15 @@ class Pake:
         """
         self._defines = dict(dictionary)
 
+    def merge_defines_dict(self, dictionary):  # pragma: no cover
+        """
+        Merge the current defines with another dictionary, overwriting anything
+        that is already defined with the value from the new dictionary.
+
+        :param dictionary: The dictionary to merge into the current defines.
+        """
+        self._defines.update(dictionary)
+
     def print(self, *args, **kwargs):  # pragma: no cover
         """Shorthand for print(..., file=this_instance.stdout)"""
 

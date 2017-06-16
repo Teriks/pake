@@ -78,17 +78,15 @@ in parallel.
 In general, direct dependencies of a task have no defined order of execution when
 there is more than one of them.
 
-.. code-block:: bash
-
-    pake task unrelated_task order_independent_task
+``pake task unrelated_task order_independent_task``
 
 Command Line Options
 --------------------
 
 .. code-block:: none
 
-    usage: pake [-h] [-v] [-D DEFINE] [-j JOBS] [-n] [-C DIRECTORY] [-t] [-ti]
-                [-f FILE]
+    usage: pake [-h] [-v] [-D DEFINE] [-j JOBS] [--stdin-defines] [-n]
+                [-C DIRECTORY] [-t] [-ti] [-f FILE]
                 [tasks [tasks ...]]
 
     positional arguments:
@@ -102,6 +100,10 @@ Command Line Options
       -j JOBS, --jobs JOBS  Max number of parallel jobs. Using this option enables
                             unrelated tasks to run in parallel with a max of N
                             tasks running at a time.
+      --stdin-defines       Read defines from a Python Dictionary piped into
+                            stdin. Defines read with this option can be
+                            overwritten by defines specified on the command line
+                            with -D/--define.
       -n, --dry-run         Use to preform a dry run, lists all tasks that will be
                             executed in the next actual invocation.
       -C DIRECTORY, --directory DIRECTORY
@@ -119,20 +121,6 @@ Command Line Options
 Return Codes
 ------------
 
-See: :py:mod:`pake.returncodes`
-
-0. Pake ran/exited successfully.
-1. Generic error, good for use with :py:meth:`pake.terminate` (or **exit()** inside tasks)
-2. Pakefile not found in directory, or specified pakefile does not exist.
-3. Bad combination of command line arguments, or bad arguments in general.
-4. Syntax error while parsing a define value from the **-D/--define** option.
-5. No tasks defined in pakefile.
-6. No tasks specified to run, no default tasks exist.
-7. A task's input file/directory is missing.
-8. A task declares input files/directories but no output files.
-9. An undefined task was referenced.
-10. A cyclic dependency was detected.
-11. An unhandled :py:class:`pake.SubprocessException` was raised inside a task.
-12. An exceptional condition occurred running a subpake script.
-13. An unhandled exception occurred inside of a task.
+See the :py:mod:`pake.returncodes` module, pake's return codes are defined
+as constants and each is described in detail in the module documentation.
 

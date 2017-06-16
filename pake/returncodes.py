@@ -81,6 +81,12 @@ Pake return codes.
 .. data:: TASK_EXCEPTION
 
     13. An unhandled exception occurred inside a task.
+
+.. data:: STDIN_DEFINES_SYNTAX_ERROR
+
+    14. A syntax error was encountered parsing the defines dictionary passed into
+        **stdin** while using the **--stdin-defines** option.
+
 """
 
 SUCCESS = 0
@@ -97,4 +103,5 @@ CYCLIC_DEPENDENCY = 10
 TASK_SUBPROCESS_EXCEPTION = 11
 SUBPAKE_EXCEPTION = 12
 TASK_EXCEPTION = 13
+STDIN_DEFINES_SYNTAX_ERROR = 14
 

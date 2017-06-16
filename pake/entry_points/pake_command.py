@@ -94,33 +94,12 @@ def main(args=None):
 
     if not args.file:
 
-        # Strip out the -C/--directory switch and argument, put everything else into actual_args.
-        # The directory change is going to be handled here, if a pakefile exists in that directory.
-
-        actual_args = list(
-            _strip_single_arg_switches(sys_args, {'-C', '--directory'})
-        )
-
         if args.directory:
             file = _find_pakefile_or_exit(args.directory)
         else:
             file = _find_pakefile_or_exit(init_dir)
 
-        new_dir = os.path.dirname(file)
-
-        if new_dir != init_dir:
-            print('pake[0]: Entering Directory "{}"'.format(new_dir))
-            sys.stdout.flush()
-            os.chdir(new_dir)
-
-        return_code = subprocess.call([sys.executable, file] + actual_args, stdout=pake.conf.stdout, stderr=pake.conf.stderr)
-
-        if new_dir != init_dir:
-            print('pake[0]: Exiting Directory "{}"'.format(new_dir))
-            sys.stdout.flush()
-            os.chdir(init_dir)
-
-        exit(return_code)
+        exit(subprocess.call([sys.executable, file] + sys_args, stdout=pake.conf.stdout, stderr=pake.conf.stderr))
 
     # Strip out the -f/--file switches and arguments, put everything else into actual_args.
     # The pakefile itself will not accept a --file argument.  The -C/--directory argument is still

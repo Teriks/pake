@@ -259,7 +259,7 @@ Yields Output:
 
     The following command exited with return code: 13
 
-    {PYTHON_INSTALL_DIR}/python3 subfolder/pakefile.py --s_depth 1 --directory {REST_OF_FULL_PATH}/subfolder
+    {PYTHON_INSTALL_DIR}/python3 subfolder/pakefile.py --_subpake_depth 1 --stdin-defines --directory {REST_OF_FULL_PATH}/subfolder
 
     Command Output: {
 

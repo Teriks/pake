@@ -22,9 +22,16 @@ Installing
 
 Note: pake is Alpha and likely to change some.
 
-.. code-block:: bash
 
-    sudo pip3 install python-pake --upgrade
+To install the latest release use:
+
+``sudo pip3 install python-pake --upgrade``
+
+
+If you want to install the development branch you can use:
+
+``sudo pip3 install git+git://github.com/Teriks/pake@develop``
+
 
 Example project using pake
 ==========================
@@ -34,8 +41,10 @@ build along side the makefiles in that project.
 
 https://github.com/Teriks/libasm\_io
 
-Writing basic tasks
+Writing Basic Tasks
 ===================
+
+Here's a contrived pake demo which demonstrates how tasks are written:
 
 .. code-block:: python
 
@@ -143,20 +152,30 @@ Writing basic tasks
     pake.run(pk, tasks=baz)
 
 
-Output from the example above:
+Output from command ``pake``:
 
 .. code-block:: bash
 
     ===== Executing task: "bar"
-    gcc -c "bar/bar.c" -o "bar/bar.o"
+    gcc -c bar/bar.c -o bar/bar.o
     ===== Executing task: "foo"
-    gcc -c "foo/foo.c" -o "foo/foo.o"
+    gcc -c foo/foo.c -o foo/foo.o
     ===== Executing task: "baz"
     Created Directory(s): "bin"
     gcc -o bin/baz main.c foo/foo.o bar/bar.o
 
 
-Parallelism inside tasks
+Output from command ``pake clean``:
+
+.. code-block:: bash
+
+    ===== Executing task: "clean"
+    Removed Directory(s): "bin"
+    Glob Removed Files: "foo/*.o"
+    Glob Removed Files: "bar/*.o"
+
+
+Parallelism Inside Tasks
 ========================
 
 Work can be submitted to the threadpool pake is running it's tasks on in
@@ -190,13 +209,24 @@ the **--jobs** command line argument or the *jobs* parameter of
 
     pake.run(pk, tasks=build)
 
-Running pake scripts in pake
-============================
+Running Sub Pakefiles
+=====================
 
-Pake is able to run itself through the use of ctx.subpake or even
-pake.subpake. ctx.subpake is preferred because it handles writing
-program output to the tasks output queue in a synchronized manner when
-multiple jobs are running.
+Pake is able to run itself through the use of **pake.TaskContext.subpake**
+or even **pake.subpake**.
+
+**pake.TaskContext.subpake** is preferred because it handles writing program
+output to the tasks output queue in a synchronized manner when multiple jobs are running.
+
+A **pake.TaskContext** is passed into the single argument of each task function.
+
+Defines can be exported to pakefiles ran with the **subpake** functions using **pake.export**.
+
+**pake.subpake** and **pake.TaskContext.subpake** use the **--stdin-defines** option of pake to
+pass exported define values into the new process instance, which means you can overwrite your
+exported define values with **-D/--define** in the subpake command arguments if you need to.
+
+Export / Subpake Example:
 
 .. code-block:: python
 
@@ -205,15 +235,15 @@ multiple jobs are running.
     pk = pake.init()
 
     # Try to get the CC define from the command line,
-    # default to "GCC".
+    # default to 'gcc'.
 
-    CC = pk.get_define("CC", "gcc")
+    CC = pk.get_define('CC', 'gcc')
 
     # Export the CC variable's value to all invocations
-    # of pake.subpake or ctx.subpake as a define that can be 
+    # of pake.subpake or ctx.subpake as a define that can be
     # retrieved with pk.get_define()
     #
-    pake.export("CC", CC)
+    pake.export('CC', CC)
 
 
     # You can also export lists, dictionaries sets and tuples,
@@ -221,21 +251,25 @@ multiple jobs are running.
     # Literal values being: strings, integers, floats; and
     # other lists, dicts, sets and tuples (if they only contain literals)
 
-    pake.export("CC_FLAGS", ['-Wextra', '-Wall'])
+    pake.export('CC_FLAGS', ['-Wextra', '-Wall'])
 
 
     # Nesting works with composite literals,
     # as long as everything is a pure literal or something
-    # that str()'s  into a literal.
+    # that str()'s into a literal.
 
-    pake.export("STUFF",
+    pake.export('STUFF',
                 ['you',
                  ['might',
                   ('be',
                    ['a',
                     {'bad' :
-                         ['person', ['if', {'you', 'do'}, ("this",) ]]
+                         ['person', ['if', {'you', 'do'}, ('this',) ]]
                      }])]])
+
+
+    # This export will be overrode in the next call
+    pake.export('OVERRIDE_ME', False)
 
 
     # Execute outside of a task, by default the stdout/stderr
@@ -243,7 +277,11 @@ multiple jobs are running.
     # object to which stdout gets written to can be specified
     # with pake.subpake(..., stdout=(file))
 
-    pake.subpake("sometasks/pakefile.py", "dotasks")
+    # This command also demonstrates that you can override
+    # your exports using the -D/--define option
+
+    pake.subpake('sometasks/pakefile.py', 'dotasks', '-D', 'OVERRIDE_ME=True')
+
 
     # This task does not depend on anything or have any inputs/outputs
     # it will basically only run if you explicitly specify it as a default
@@ -252,11 +290,11 @@ multiple jobs are running.
     @pk.task
     def my_phony_task(ctx):
         # Arguments are passed in a variadic parameter...
-        
+
         # Specify that the "foo" task is to be ran.
         # The scripts output is written to this tasks output queue
 
-        ctx.subpake("library/pakefile.py", "foo")
+        ctx.subpake('library/pakefile.py', 'foo')
 
 
 
@@ -264,23 +302,25 @@ multiple jobs are running.
 
     pake.run(pk, tasks=my_phony_task)
 
+
 Output from the example above:
 
 .. code-block:: bash
 
-    *** enter subpake[1]:
-    pake[1]: Entering Directory "(REST OF PATH...)/paketest/sometasks"
-    ===== Executing Task: "dotasks"
-    Do Tasks
-    pake[1]: Exiting Directory "(REST OF PATH...)/paketest/sometasks"
-    *** exit subpake[1]:
-    ===== Executing Task: "my_phony_task"
-    *** enter subpake[1]:
-    pake[1]: Entering Directory "(REST OF PATH...)/paketest/library"
-    ===== Executing Task: "foo"
-    Foo!
-    pake[1]: Exiting Directory "(REST OF PATH...)/paketest/library"
-    *** exit subpake[1]:
+   *** enter subpake[1]:
+   pake[1]: Entering Directory "(REST OF PATH...)/paketest/sometasks"
+   ===== Executing Task: "dotasks"
+   Do Tasks
+   pake[1]: Exiting Directory "(REST OF PATH...)/paketest/sometasks"
+   *** exit subpake[1]:
+   ===== Executing Task: "my_phony_task"
+   *** enter subpake[1]:
+   pake[1]: Entering Directory "(REST OF PATH...)/paketest/library"
+   ===== Executing Task: "foo"
+   Foo!
+   pake[1]: Exiting Directory "(REST OF PATH...)/paketest/library"
+   *** exit subpake[1]:
+
 
 Running pake
 ============
@@ -318,14 +358,13 @@ chain may execute in parallel.
 
 ``pake task unrelated_task order_independent_phony``
 
-Pakes current options
-=====================
+Command Line Options
+--------------------
 
 ::
 
-
-    usage: pake [-h] [-v] [-D DEFINE] [-j JOBS] [-n] [-C DIRECTORY] [-t] [-ti]
-                [-f FILE]
+    usage: pake [-h] [-v] [-D DEFINE] [-j JOBS] [--stdin-defines] [-n]
+                [-C DIRECTORY] [-t] [-ti] [-f FILE]
                 [tasks [tasks ...]]
 
     positional arguments:
@@ -339,6 +378,10 @@ Pakes current options
       -j JOBS, --jobs JOBS  Max number of parallel jobs. Using this option enables
                             unrelated tasks to run in parallel with a max of N
                             tasks running at a time.
+      --stdin-defines       Read defines from a Python Dictionary piped into
+                            stdin. Defines read with this option can be
+                            overwritten by defines specified on the command line
+                            with -D/--define.
       -n, --dry-run         Use to preform a dry run, lists all tasks that will be
                             executed in the next actual invocation.
       -C DIRECTORY, --directory DIRECTORY

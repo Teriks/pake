@@ -30,10 +30,11 @@ import pake.program
 import pake.util
 import pake.returncodes as returncodes
 import pake.conf
+import pickle
 
 __all__ = ['export', 'subpake', 'SubpakeException']
 
-_exports = dict()
+_EXPORTS = dict()
 
 
 class SubpakeException(pake.SubprocessException):
@@ -94,7 +95,7 @@ def export(name, value):  # pragma: no cover
     :param name: The name of the define.
     :param value: The value of the define.
     """
-    _exports[name] = value
+    _EXPORTS[name] = value
 
 
 def subpake(*args, stdout=None, silent=False, exit_on_error=True):
@@ -159,11 +160,7 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
     except pake.program.PakeUninitializedException:
         depth = 0
 
-    extra_args = []
-    for key, value in _exports.items():
-        extra_args += ['-D', key + '=' + str(value)]
-
-    extra_args += ['--s_depth', str(depth)]
+    extra_args = ['--_subpake_depth', str(depth), '--stdin-defines']
 
     if os.getcwd() != script_dir:
         extra_args += ['--directory', script_dir]
@@ -172,10 +169,14 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
 
     with subprocess.Popen(args,
                           stdout=subprocess.PIPE,
-                          stderr=subprocess.STDOUT) as process:
+                          stderr=subprocess.STDOUT,
+                          stdin=subprocess.PIPE) as process:
+
+        process.stdin.write(str(_EXPORTS).encode())
+        process.stdin.flush()
+        process.stdin.close()
 
         output_copy_buffer = tempfile.TemporaryFile(mode='w+', newline='\n')
-
         stdout_encoding = 'utf-8' if sys.stdout.encoding is None else sys.stdout.encoding  # pragma: no cover
 
         try:

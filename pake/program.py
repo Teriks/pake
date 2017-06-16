@@ -23,12 +23,16 @@ import os.path
 import textwrap
 
 import os
+
+import sys
+
 import pake
 
 import pake.arguments
 import pake.conf
 import pake.util
 import pake.returncodes as returncodes
+import ast
 
 __all__ = [
     'PakeUninitializedException',
@@ -71,8 +75,27 @@ def _defines_to_dict(defines):
     return result
 
 
-_init_file = None
-_init_dir = None
+_INIT_FILE = None
+_INIT_DIR = None
+
+
+def _validate_parsed_init_arguments(parsed_args):
+    """
+    Validate command line arguments necessary for pake.init before function execution.
+
+    This function should return a tuple of (True/False, return_code)
+
+    If the first value of the tuple is True, pake.init will exit() with the given return code.
+
+    If the first value of the tuple if False, pake.init is free to continue executing.
+
+    :param parsed_args: parsed argument object from the argparse module.  See: pake.arguments
+    :return: Tuple of (True/False, return_code)
+    """
+
+    # Reserved for future use
+
+    return False, 0
 
 
 def init(stdout=None, args=None):
@@ -85,26 +108,50 @@ def init(stdout=None, args=None):
     :return: :py:class:`pake.Pake`
     """
 
-    global _init_file, _init_dir
-
-    _init_dir = os.getcwd()
-
-    pk = pake.Pake(stdout=stdout)
+    global _INIT_FILE, _INIT_DIR
 
     parsed_args = pake.arguments.parse_args(args=args)
 
+    should_return, return_code = \
+        _validate_parsed_init_arguments(parsed_args)
+
+    if should_return:
+        exit(return_code)
+
+    pk = pake.Pake(stdout=stdout)
+
     try:
-        pk.set_defines_dict(_defines_to_dict(parsed_args.define))
+        if parsed_args.stdin_defines:
+            pk.merge_defines_dict(ast.literal_eval(sys.stdin.read()))
+    except SyntaxError as err:
+        print('Syntax error parsing defines from standard input with --stdin-defines option:' + os.linesep)
+        print(str(err), file=pake.conf.stderr)
+        exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
+    except Exception as err:
+        print('Unknown error parsing defines from standard input with --stdin-defines option:' + os.linesep)
+        print(str(err), file=pake.conf.stderr)
+        exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
+
+    try:
+        pk.merge_defines_dict(_defines_to_dict(parsed_args.define))
     except ValueError as err:
         print(str(err), file=pake.conf.stderr)
         exit(returncodes.BAD_DEFINE_VALUE)
 
+    # Find the init file by examining the stack
+
     cur_frame = inspect.currentframe()
     try:
         frame, filename, line_number, function_name, lines, index = inspect.getouterframes(cur_frame)[1]
-        _init_file = os.path.abspath(filename)
+        _INIT_FILE = os.path.abspath(filename)
     finally:
         del cur_frame
+
+    # Init dir is the current directory, before directory changes
+
+    _INIT_DIR = os.getcwd()
+
+    # Print enter subpake / enter directory if needed
 
     depth = get_subpake_depth()
 
@@ -126,10 +173,10 @@ def shutdown():
     Used primarily for unit tests.
     """
 
-    global _init_file, _init_dir
+    global _INIT_FILE, _INIT_DIR
 
-    _init_file = None
-    _init_dir = None
+    _INIT_FILE = None
+    _INIT_DIR = None
 
     pake.arguments.clear_args()
 
@@ -140,7 +187,7 @@ def is_init():
     
     :return: True if :py:meth:`pake.init` has been called. 
     """
-    return _init_file is not None
+    return _INIT_FILE is not None
 
 
 def get_max_jobs():
@@ -178,7 +225,7 @@ def get_subpake_depth():
 
     args = pake.arguments.get_args()
 
-    return args.s_depth
+    return args._subpake_depth
 
 
 def get_init_file():
@@ -191,7 +238,7 @@ def get_init_file():
     if not is_init():
         raise PakeUninitializedException()
 
-    return _init_file
+    return _INIT_FILE
 
 
 def get_init_dir():
@@ -206,7 +253,7 @@ def get_init_dir():
     if not is_init():
         raise PakeUninitializedException()
 
-    return _init_dir
+    return _INIT_DIR
 
 
 def _format_task_info(max_name_width, task_name, task_doc):  # pragma: no cover
@@ -266,6 +313,66 @@ def _list_task_info(pake_obj, default_tasks):  # pragma: no cover
         pake_obj.print('No documented tasks present.')
 
 
+def _validate_parsed_run_arguments(parsed_args):
+    """
+    Validate command line arguments necessary for pake.run before program execution.
+
+    This function should return a tuple of (True/False, return_code)
+
+    If the first value of the tuple is True, pake.run will return/exit with the given return code.
+
+    If the first value of the tuple if False, pake.run is free to continue executing.
+
+    :param parsed_args: parsed argument object from the argparse module.  See: pake.arguments
+    :return: Tuple of (True/False, return_code)
+    """
+
+    if parsed_args.show_tasks and parsed_args.show_task_info:
+        print('-t/--show-tasks and -ti/--show-task-info cannot be used together.',
+              file=pake.conf.stderr)
+        return True, returncodes.BAD_ARGUMENTS
+
+    if parsed_args.dry_run:
+        if parsed_args.jobs:
+            print("-n/--dry-run and -j/--jobs cannot be used together.",
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+        if parsed_args.show_tasks:
+            print("-n/--dry-run and the -t/--show-tasks option cannot be used together.",
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+        if parsed_args.show_task_info:
+            print("-n/--dry-run and the -ti/--show-task-info option cannot be used together.",
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+    if parsed_args.tasks and len(parsed_args.tasks) > 0:
+        if parsed_args.show_tasks:
+            print("Run tasks may not be specified when using the -t/--show-tasks option.",
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+        if parsed_args.show_task_info:
+            print("Run tasks may not be specified when using the -ti/--show-task-info option.",
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+    if parsed_args.jobs:
+        if parsed_args.show_tasks:
+            print('-t/--show-tasks and -j/--jobs cannot be used together.',
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+        if parsed_args.show_task_info:
+            print('-ti/--show-task-info and -j/--jobs cannot be used together.',
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+    return False, 0
+
+
 def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     """
     Run pake (the program) given a :py:class:`pake.Pake` instance and options default tasks.
@@ -308,48 +415,11 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
             exit(code)
         return code
 
-    if parsed_args.show_tasks and parsed_args.show_task_info:
-        print('-t/--show-tasks and -ti/--show-task-info cannot be used together.',
-              file=pake.conf.stderr)
-        return m_exit(returncodes.BAD_ARGUMENTS)
+    should_return, return_code = \
+        _validate_parsed_run_arguments(parsed_args)
 
-    if parsed_args.dry_run:
-        if parsed_args.jobs:
-            print("-n/--dry-run and -j/--jobs cannot be used together.",
-                  file=pake.conf.stderr)
-            return m_exit(returncodes.BAD_ARGUMENTS)
-
-        if parsed_args.show_tasks:
-            print("-n/--dry-run and the -t/--show-tasks option cannot be used together.",
-                  file=pake.conf.stderr)
-            return m_exit(returncodes.BAD_ARGUMENTS)
-
-        if parsed_args.show_task_info:
-            print("-n/--dry-run and the -ti/--show-task-info option cannot be used together.",
-                  file=pake.conf.stderr)
-            return m_exit(returncodes.BAD_ARGUMENTS)
-
-    if parsed_args.tasks and len(parsed_args.tasks) > 0:
-        if parsed_args.show_tasks:
-            print("Run tasks may not be specified when using the -t/--show-tasks option.",
-                  file=pake.conf.stderr)
-            return m_exit(returncodes.BAD_ARGUMENTS)
-
-        if parsed_args.show_task_info:
-            print("Run tasks may not be specified when using the -ti/--show-task-info option.",
-                  file=pake.conf.stderr)
-            return m_exit(returncodes.BAD_ARGUMENTS)
-
-    if parsed_args.jobs:
-        if parsed_args.show_tasks:
-            print('-t/--show-tasks and -j/--jobs cannot be used together.',
-                  file=pake.conf.stderr)
-            return m_exit(returncodes.BAD_ARGUMENTS)
-
-        if parsed_args.show_task_info:
-            print('-ti/--show-task-info and -j/--jobs cannot be used together.',
-                  file=pake.conf.stderr)
-            return m_exit(returncodes.BAD_ARGUMENTS)
+    if should_return:
+        return m_exit(return_code)
 
     if pake_obj.task_count == 0:
         print('*** No Tasks.  Stop.',
@@ -358,11 +428,11 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
 
     if parsed_args.show_tasks:  # pragma: no cover
         _list_tasks(pake_obj, tasks)
-        return 0
+        return m_exit(returncodes.SUCCESS)
 
     if parsed_args.show_task_info:  # pragma: no cover
         _list_task_info(pake_obj, tasks)
-        return 0
+        return m_exit(returncodes.SUCCESS)
 
     run_tasks = []
     if parsed_args.tasks:
@@ -435,7 +505,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
 
         elif return_code != returncodes.SUCCESS:
             # Print info only for error conditions
-            print(os.linesep+str(err)+os.linesep, file=pake.conf.stderr)
+            print(os.linesep + str(err) + os.linesep, file=pake.conf.stderr)
             err.print_traceback(file=pake.conf.stderr)
             pake.conf.stderr.write(os.linesep)
 
@@ -469,7 +539,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
             return_code = returncodes.TASK_SUBPROCESS_EXCEPTION
 
         else:
-            print(os.linesep+str(err)+os.linesep, file=pake.conf.stderr)
+            print(os.linesep + str(err) + os.linesep, file=pake.conf.stderr)
             err.print_traceback(file=pake.conf.stderr)
             pake.conf.stderr.write(os.linesep)
 

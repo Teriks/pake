@@ -16,6 +16,7 @@ In this example the argument is named **ctx**, but it can be named however you l
 
 It is not an error to leave this argument undefined, but you will most likely be using it.
 
+Here's a contrived pake demo which demonstrates how tasks are written:
 
 .. code-block:: python
 
@@ -123,14 +124,25 @@ It is not an error to leave this argument undefined, but you will most likely be
     pake.run(pk, tasks=baz)
 
 
-Output from the example above:
+Output from command ``pake``:
 
 .. code-block:: bash
 
     ===== Executing task: "bar"
-    gcc -c "bar/bar.c" -o "bar/bar.o"
+    gcc -c bar/bar.c -o bar/bar.o
     ===== Executing task: "foo"
-    gcc -c "foo/foo.c" -o "foo/foo.o"
+    gcc -c foo/foo.c -o foo/foo.o
     ===== Executing task: "baz"
     Created Directory(s): "bin"
     gcc -o bin/baz main.c foo/foo.o bar/bar.o
+
+
+Output from command ``pake clean``:
+
+.. code-block:: bash
+
+    ===== Executing task: "clean"
+    Removed Directory(s): "bin"
+    Glob Removed Files: "foo/*.o"
+    Glob Removed Files: "bar/*.o"
+

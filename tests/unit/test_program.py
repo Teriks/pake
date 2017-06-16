@@ -127,7 +127,6 @@ class ProgramTest(unittest.TestCase):
             # Because jobs <= 1
             pake.run(pk, tasks=[task_one, 'task_two'], jobs=-1)
 
-
         # ===========
 
         def test_run_helper(dry_run=False):
@@ -192,35 +191,45 @@ class ProgramTest(unittest.TestCase):
         test_run_helper()
         test_run_helper(True)
 
-        # =====
-
-        # Test bad argument combinations, return code 3
+    def test_bad_arguments(self):
+        # Test pake's reaction to bad argument combinations, code returncodes.BAD_ARGUMENTS
 
         def assert_bad_args(*args):
             pake.program.shutdown()
-            pk = pake.init(args=list(args))
 
-            @pk.task
-            def dummy(ctx):
-                pass
+            # There are two places pake might exit from, init and run
 
-            # Invalid argument combination
-            self.assertEqual(pake.run(pk, call_exit=False), returncodes.BAD_ARGUMENTS)
+            exit_init_code = returncodes.SUCCESS
+            pk_instance = None
+
+            try:
+                pk_instance = pake.init(args=list(args))
+            except SystemExit as err:
+                exit_init_code = err.code
+
+            if pk_instance:
+                @pk_instance.task
+                def dummy(ctx):
+                    pass
+
+            if exit_init_code == returncodes.SUCCESS:
+                # Assert bad arguments on run, if init did not exit
+                self.assertEqual(pake.run(pk_instance, call_exit=False), returncodes.BAD_ARGUMENTS)
+            else:
+                # Assert init exited with bad arguments
+                self.assertEqual(exit_init_code, returncodes.BAD_ARGUMENTS)
 
         # No multitasking in dry run mode.
         assert_bad_args('--dry-run', '--jobs', '2')
 
-        with self.assertRaises(BaseException):
-            # calls exit(2) because --jobs < 1
-            assert_bad_args( '--jobs', '0')
+        # because --jobs < 1
+        assert_bad_args('--jobs', '0')
 
-        with self.assertRaises(BaseException):
-            # calls exit(2) because -C directory does not exist
-            assert_bad_args('-C', os.path.join(script_dir, 'IDONTEXIST'))
+        # because -C directory does not exist
+        assert_bad_args('-C', os.path.join(script_dir, 'IDONTEXIST'))
 
-        with self.assertRaises(BaseException):
-            # calls exit(2) because -C directory is actually a file
-            assert_bad_args('-C', os.path.join(script_dir, 'test_program.py'))
+        # because -C directory is actually a file
+        assert_bad_args('-C', os.path.join(script_dir, 'test_program.py'))
 
         # Cant run tasks when listing task info anyway.
         assert_bad_args('--dry-run', '--show-tasks')
@@ -250,6 +259,8 @@ class ProgramTest(unittest.TestCase):
         pk = pake.init(args=['-C', dest_dir])
 
         self.assertEqual(dest_dir, os.getcwd())
+
+        self.assertEqual(pake.get_init_dir(), start_dir)
 
         @pk.task
         def check_dir(ctx):
