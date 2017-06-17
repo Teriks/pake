@@ -146,3 +146,88 @@ Yields Output:
       File "{PYTHON_INSTALL_PATH}/lib/_sitebuiltins.py", line 26, in __call__
         raise SystemExit(code)
     SystemExit: 1
+
+
+Exit exception stack traces in tasks
+------------------------------------
+
+Calls to **exit()**, :py:meth:`pake.terminate`, or :py:meth:`pake.Pake.terminate` with non-zero return codes
+will result in a stack trace being printed with information about the location of the exit or terminate call.
+
+This is not the case if you call **exit()** or pake's terminate functions with a return code of zero,
+there will be no stack trace or any information printed if the return code is zero (which indicates success).
+
+
+Example **exit(1)** stack trace:
+
+.. code-block:: python
+
+    import pake
+    from pake import returncodes
+
+    pk = pake.init()
+
+
+    @pk.task
+    def build(ctx):
+        exit(returncodes.ERROR)
+
+    pake.run(pk, tasks=build)
+
+Yields Output:
+
+.. code-block:: bash
+
+    ===== Executing Task: "build"
+
+    Exit exception "SystemExit" with return-code(1) was raised in task "build".
+
+    Traceback (most recent call last):
+      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1504, in func_wrapper
+        return func(*args, **kwargs)
+      File "{FULL_PAKEFILE_DIR_PATH}/pakefile.py", line 9, in build
+        exit(returncodes.ERROR)
+      File "{PYTHON_INSTALL_PATH}/lib/_sitebuiltins.py", line 26, in __call__
+        raise SystemExit(code)
+    SystemExit: 1
+
+
+Example **terminate(1)** stack trace:
+
+.. code-block:: python
+
+    import pake
+    from pake import returncodes
+
+    pk = pake.init()
+
+
+    @pk.task
+    def build(ctx):
+        pk.terminate(returncodes.ERROR)
+
+    pake.run(pk, tasks=build)
+
+
+Yields Output:
+
+.. code-block:: bash
+
+    ===== Executing Task: "build"
+
+    Exit exception "pake.program.TerminateException" with return-code(1) was raised in task "build".
+
+    Traceback (most recent call last):
+      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1504, in func_wrapper
+        return func(*args, **kwargs)
+      File "{FULL_PAKEFILE_DIR_PATH}/pakefile.py", line 9, in build
+        pk.terminate(returncodes.ERROR)
+      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1027, in terminate
+        pake.terminate(self, return_code=return_code)
+      File "{PAKE_INSTALL_PATH}/pake/program.py", line 614, in terminate
+        m_exit(return_code)
+      File "{PAKE_INSTALL_PATH}/pake/program.py", line 605, in m_exit
+        raise TerminateException(code)
+    pake.program.TerminateException: 1
+
+
