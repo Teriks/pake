@@ -937,8 +937,11 @@ class Pake:
 
     @property
     def threadpool(self):
-        """Current execution thread pool, is only ever not **None** while pake is running
-        (when :py:attr:`pake.Pake.is_running` equals **True**).
+        """Current execution thread pool.
+
+        This will never be anything other than **None** unless pake is running, and it's max job count is greater than 1.
+
+        Pake is considered to be running when :py:attr:`pake.Pake.is_running` equals **True**.
         
         If pake is running with a job count of 1, no threadpool is used so this property will be **None**.
         """
