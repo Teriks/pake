@@ -199,27 +199,19 @@ class ProgramTest(unittest.TestCase):
         def assert_bad_args(*args):
             pake.de_init(clear_conf=False)
 
-            # There are two places pake might exit from, init and run
-
-            exit_init_code = returncodes.SUCCESS
-            pk_instance = None
-
             try:
-                pk_instance = pake.init(args=list(args))
+                pake.init(args=list(args))
             except SystemExit as err:
                 exit_init_code = err.code
-
-            if pk_instance:
-                @pk_instance.task
-                def dummy(ctx):
-                    pass
-
-            if exit_init_code == returncodes.SUCCESS:
-                # Assert bad arguments on run, if init did not exit
-                self.assertEqual(pake.run(pk_instance, call_exit=False), returncodes.BAD_ARGUMENTS)
-            else:
-                # Assert init exited with bad arguments
                 self.assertEqual(exit_init_code, returncodes.BAD_ARGUMENTS)
+            else:
+                self.fail('Bad command line arguments were passed to pake.init and it did not exit!')
+
+        # This does not make sense
+        assert_bad_args('--show-tasks', '--stdin-defines')
+
+        # This does not make sense
+        assert_bad_args('--show-task-info', '--stdin-defines')
 
         # No multitasking in dry run mode.
         assert_bad_args('--dry-run', '--jobs', '2')

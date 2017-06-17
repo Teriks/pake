@@ -23,6 +23,7 @@ import pake
 import pake.conf
 import os.path
 import pake.returncodes
+from pake import returncodes
 
 __all__ = ['parse_args', 'get_parser', 'args_are_parsed', 'get_args']
 
@@ -89,9 +90,83 @@ _ARG_PARSER.add_argument('-ti', '--show-task-info', action='store_true', dest='s
 _PARSED_ARGS = None
 
 
+def _validate_arguments(parsed_args):
+    """
+    Validate command line arguments.
+
+    This function should return a tuple of (True/False, return_code)
+
+    If the first value of the tuple is True, parse_args will exit with the given return code.
+
+    :param parsed_args: parsed argument object from the argparse module.
+    :return: Tuple of (True/False, return_code)
+    """
+
+    if parsed_args.stdin_defines:
+        if parsed_args.show_tasks:
+            print('-t/--show-tasks and --stdin-defines cannot be used together.',
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+        if parsed_args.show_task_info:
+            print('-t/--show-task-info and --stdin-defines cannot be used together.',
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+    if parsed_args.show_tasks and parsed_args.show_task_info:
+        print('-t/--show-tasks and -ti/--show-task-info cannot be used together.',
+              file=pake.conf.stderr)
+        return True, returncodes.BAD_ARGUMENTS
+
+    if parsed_args.dry_run:
+        if parsed_args.jobs:
+            print("-n/--dry-run and -j/--jobs cannot be used together.",
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+        if parsed_args.show_tasks:
+            print("-n/--dry-run and the -t/--show-tasks option cannot be used together.",
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+        if parsed_args.show_task_info:
+            print("-n/--dry-run and the -ti/--show-task-info option cannot be used together.",
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+    if parsed_args.tasks and len(parsed_args.tasks) > 0:
+        if parsed_args.show_tasks:
+            print("Run tasks may not be specified when using the -t/--show-tasks option.",
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+        if parsed_args.show_task_info:
+            print("Run tasks may not be specified when using the -ti/--show-task-info option.",
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+    if parsed_args.jobs:
+        if parsed_args.show_tasks:
+            print('-t/--show-tasks and -j/--jobs cannot be used together.',
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+        if parsed_args.show_task_info:
+            print('-ti/--show-task-info and -j/--jobs cannot be used together.',
+                  file=pake.conf.stderr)
+            return True, returncodes.BAD_ARGUMENTS
+
+    return False, 0
+
+
 def parse_args(args=None):
     global _PARSED_ARGS
     _PARSED_ARGS = _ARG_PARSER.parse_args(args=args)
+
+    should_exit, return_code = _validate_arguments(_PARSED_ARGS)
+    if should_exit:
+        exit(return_code)
+
     return _PARSED_ARGS
 
 

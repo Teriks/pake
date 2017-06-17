@@ -70,7 +70,7 @@ def _defines_to_dict(defines):
         except ValueError as syn_err:
             raise ValueError(
                 'Error parsing define value of "{name}": {message}'
-                    .format(name=value_name, message=str(syn_err)))
+                .format(name=value_name, message=str(syn_err)))
     return result
 
 
@@ -320,75 +320,23 @@ def _list_task_info(pake_obj, default_tasks):  # pragma: no cover
         pake_obj.print('No documented tasks present.')
 
 
-def _validate_parsed_run_arguments(parsed_args):
-    """
-    Validate command line arguments necessary for pake.run before program execution.
-
-    This function should return a tuple of (True/False, return_code)
-
-    If the first value of the tuple is True, pake.run will return/exit with the given return code.
-
-    If the first value of the tuple if False, pake.run is free to continue executing.
-
-    :param parsed_args: parsed argument object from the argparse module.  See: pake.arguments
-    :return: Tuple of (True/False, return_code)
-    """
-
-    if parsed_args.show_tasks and parsed_args.show_task_info:
-        print('-t/--show-tasks and -ti/--show-task-info cannot be used together.',
-              file=pake.conf.stderr)
-        return True, returncodes.BAD_ARGUMENTS
-
-    if parsed_args.dry_run:
-        if parsed_args.jobs:
-            print("-n/--dry-run and -j/--jobs cannot be used together.",
-                  file=pake.conf.stderr)
-            return True, returncodes.BAD_ARGUMENTS
-
-        if parsed_args.show_tasks:
-            print("-n/--dry-run and the -t/--show-tasks option cannot be used together.",
-                  file=pake.conf.stderr)
-            return True, returncodes.BAD_ARGUMENTS
-
-        if parsed_args.show_task_info:
-            print("-n/--dry-run and the -ti/--show-task-info option cannot be used together.",
-                  file=pake.conf.stderr)
-            return True, returncodes.BAD_ARGUMENTS
-
-    if parsed_args.tasks and len(parsed_args.tasks) > 0:
-        if parsed_args.show_tasks:
-            print("Run tasks may not be specified when using the -t/--show-tasks option.",
-                  file=pake.conf.stderr)
-            return True, returncodes.BAD_ARGUMENTS
-
-        if parsed_args.show_task_info:
-            print("Run tasks may not be specified when using the -ti/--show-task-info option.",
-                  file=pake.conf.stderr)
-            return True, returncodes.BAD_ARGUMENTS
-
-    if parsed_args.jobs:
-        if parsed_args.show_tasks:
-            print('-t/--show-tasks and -j/--jobs cannot be used together.',
-                  file=pake.conf.stderr)
-            return True, returncodes.BAD_ARGUMENTS
-
-        if parsed_args.show_task_info:
-            print('-ti/--show-task-info and -j/--jobs cannot be used together.',
-                  file=pake.conf.stderr)
-            return True, returncodes.BAD_ARGUMENTS
-
-    return False, 0
-
-
 def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     """
-    Run pake (the program) given a :py:class:`pake.Pake` instance and options default tasks.
+    Run pake (the program) given a :py:class:`pake.Pake` instance and default tasks.
+
+    This function should be used to invoke pake at the end of your pakefile.
     
     This function will call **exit(return_code)** upon handling any exceptions from :py:meth:`pake.Pake.run`
-    or :py:meth:`pake.Pake.dry_run` (if **call_exit** is **True**), and print information to :py:attr:`pake.Pake.stderr` if
-    necessary.
+    or :py:meth:`pake.Pake.dry_run` if **call_exit** is **True**, and will print information to
+    :py:attr:`pake.Pake.stderr` if necessary.
+
+    This function will not call **exit** if pake executes successfully with a return code of zero.
     
-    For all return codes see: :py:mod:`pake.returncodes`
+    This function will return pake's exit code when **call_exit=False**. For all  return codes
+    see: :py:mod:`pake.returncodes`.
+
+    This function will never return :py:attr:`pake.returncodes.BAD_ARGUMENTS`,
+    because :py:meth:`pake.init` will already have immediately called exit.
     
     :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :raises: :py:exc:`ValueError` if the **jobs** parameter is used, and is set less than 1.
@@ -399,8 +347,10 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
                  The default value of this parameter is **None**, which means the command line value or default of 1 is not overridden.
 
     :param call_exit: Whether or not **exit(return_code)** should be called by this function on error.
-                      This defaults to **True**, when set to **False** the return code is instead returned
-                      to the caller.
+                      This defaults to **True** and when set to **False** the return code is instead
+                      returned to the caller.
+
+    :return: A return code from :py:mod:`pake.returncodes`.
     """
 
     if not is_init():
@@ -421,12 +371,6 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         if call_exit and code != returncodes.SUCCESS:  # pragma: no cover
             exit(code)
         return code
-
-    should_return, return_code = \
-        _validate_parsed_run_arguments(parsed_args)
-
-    if should_return:
-        return m_exit(return_code)
 
     if pake_obj.task_count == 0:
         print('*** No Tasks.  Stop.',
