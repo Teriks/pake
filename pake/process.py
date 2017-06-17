@@ -23,15 +23,15 @@ Methods for spawning processes.
 
 .. data:: DEVNULL
 
-    Analog for subprocess.DEVNULL
+    Analog for :py:attr:`subprocess.DEVNULL`
 
 .. data:: STDOUT
 
-    Analog for subprocess.STDOUT
+    Analog for :py:attr:`subprocess.STDOUT`
 
 .. data:: PIPE
 
-    Analog for subprocess.PIPE
+    Analog for :py:attr:`subprocess.PIPE`
 """
 
 import os
