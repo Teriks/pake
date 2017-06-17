@@ -68,7 +68,7 @@ Pake return codes.
 
 .. data:: TASK_SUBPROCESS_EXCEPTION
 
-    11. An unhandled :py:class:`pake.TaskSubprocessException` was raised inside a task.
+    11. An unhandled :py:exc:`pake.TaskSubprocessException` was raised inside a task.
     
 .. data:: SUBPAKE_EXCEPTION
 

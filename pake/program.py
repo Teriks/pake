@@ -40,7 +40,8 @@ __all__ = [
     'get_subpake_depth',
     'get_init_file',
     'get_init_dir',
-    'terminate'
+    'terminate',
+    'TerminateException'
 ]
 
 
@@ -190,7 +191,7 @@ def get_max_jobs():
     **jobs** argument of :py:meth:`pake.run` and :py:meth:`pake.Pake.run`.  It is purely
     for retrieving the value passed on the command line.
     
-    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
+    :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: The max number of jobs from the --jobs command line argument. (an integer >= 1)
     """
 
@@ -210,7 +211,7 @@ def get_subpake_depth():
     
     The depth of execution starts at 0.
     
-    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
+    :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: The current depth of execution (an integer >= 0)
     """
 
@@ -225,7 +226,7 @@ def get_subpake_depth():
 def get_init_file():
     """Gets the full path to the file :py:meth:`pake.init` was called in.
     
-    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
+    :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: Full path to pakes entrypoint file, or **None** 
     """
 
@@ -240,7 +241,7 @@ def get_init_dir():
     
     If pake preformed any directory changes, this returns the working path before that happened.
     
-    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
+    :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: Full path to init dir, or **None**
     """
 
@@ -377,8 +378,8 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     
     For all return codes see: :py:mod:`pake.returncodes`
     
-    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
-    :raises: :py:class:`ValueError` if the **jobs** parameter is used, and is set less than 1.
+    :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
+    :raises: :py:exc:`ValueError` if the **jobs** parameter is used, and is set less than 1.
 
     :param pake_obj: A :py:class:`pake.Pake` instance, usually created by :py:func:`pake.init`.
     :param tasks: A list of, or a single default task to run if no tasks are specified on the command line.
@@ -479,25 +480,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     except pake.TaskExitException as err:
         return_code = err.return_code
 
-        # Sneaky trick to figure out if someone did not read the documentation.
-        # _TerminateException derives SystemExit which triggers TaskExitException inside a task.
-        # we can detect if the exit originated from pake.terminate here because that is the exception
-        # pake.terminate raises to kill the interpreter.  pake.terminate should not be called
-        # inside of a task because it writes to unsynchronized process output, among other reasons.
-
-        if isinstance(err.exit_exception, _TerminateException):  # pragma: no cover
-            pake.conf.stderr.write(os.linesep)
-            print('pake.terminate(..., {code}) was used inside task "{task}", do not do this!  '
-                  'Just use plain a exit() call instead.  '
-                  'See "pake.terminate" and "pake.Pake.terminate" documentation for more information '
-                  'on where these functions should and should not be used.'
-                  .format(code=err.return_code, task=err.task_name),
-                  file=pake.conf.stderr)
-            pake.conf.stderr.write(os.linesep)
-            err.print_traceback(file=pake.conf.stderr)
-            pake.conf.stderr.write(os.linesep)
-
-        elif return_code != returncodes.SUCCESS:
+        if return_code != returncodes.SUCCESS:
             # Print info only for error conditions
             print(os.linesep + str(err) + os.linesep, file=pake.conf.stderr)
             err.print_traceback(file=pake.conf.stderr)
@@ -542,59 +525,70 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     return _terminate(pake_obj, return_code, exit_func=m_exit)
 
 
-class _TerminateException(SystemExit):
+class TerminateException(SystemExit):
+    """
+    This exception is raised by :py:meth:`pake.terminate` and :py:meth:`pake.Pake.terminate`,
+    it derives :py:exc:`SystemExit` and if it is not caught pake will exit gracefully with
+    the return code provided to the exception.
+
+    If this exception is raised inside of a task, :py:meth:`pake.Pake.run` with raise a
+    :py:exc:`pake.TaskExitException` in response.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)  # pragma: no cover
 
 
 def terminate(pake_obj, return_code=returncodes.SUCCESS):  # pragma: no cover
     """
-    Preform a graceful exit from a pakefile outside of a task, printing the leaving directory or exit subpake message if
+    Preform a graceful exit from a pakefile, printing the leaving directory or exit subpake message if
     needed, then exiting with a given return code.  The default return code is :py:attr:`pake.returncodes.SUCCESS`.
 
-    This should be used as opposed to a raw **exit** call outside of pake tasks to ensure the output of pake remains consistent.
-    
-    Do not use this function from inside of a task, just use a plain **exit** call.  An **exit** call inside of a task will cause
-    pake to stop as soon as it can and return with the given exit code.  Pake can handle getting the 'leaving directory/exiting subpake'
-    output correct when plain **exit** is called inside a task; so you do not need to use this function inside tasks.
-    
-    Using this function inside a task will cause the 'leaving directory/exiting subpake' messages to be printed twice, and also
-    in a possibly random location in your build output if your running pake with multiple jobs.
-    
-    :py:meth:`pake.terminate` or :py:meth:`pake.Pake.terminate` should be used to exit the pakefile before tasks have run, if it is necessary.
+    This should be used as opposed to a raw **exit** call to ensure the output of pake remains consistent.
     
     Use Case:
     
     .. code-block:: python
-    
+
        import os
        import pake
        from pake import returncodes
-    
+
        pk = pake.init()
-    
+
        # Say you need to wimp out of a build for some reason
-       # But not inside of a task.
-    
+       # But not inside of a task.  pake.terminate will make sure the
+       # 'leaving directory/exiting subpake' message is printed
+       # if it needs to be.
+
        if os.name == 'nt':
            pk.print('You really thought you could '
                     'build my software on windows? nope!')
-    
+
            pake.terminate(pk, returncodes.ERROR)
-    
+
            # or
-    
+
            # pk.terminate(returncodes.ERROR)
-           
-           
+
+
        # Define some tasks...
-       
+
        @pk.task
        def build(ctx):
-           pass
-        
+            # You can use pake.terminate() inside of a task as well as exit()
+            # pake.terminate() may offer more functionality than a raw exit()
+            # in the future, however exit() will always work as well.
+
+            something_bad_happened = True
+
+            if something_bad_happened:
+                pake.terminate(pk, returncodes.ERROR)
+
+                # Or:
+
+                # pk.terminate(returncodes.ERROR)
+
        pake.run(pk, tasks=build)
-           
 
     :py:meth:`pake.Pake.terminate` is a shorthand which passes the **pake_obj** instance to this function for you.
 
@@ -604,13 +598,22 @@ def terminate(pake_obj, return_code=returncodes.SUCCESS):  # pragma: no cover
                         Defaults to :py:attr:`pake.returncodes.SUCCESS`.  :py:attr:`pake.returncodes.ERROR` is intended
                         to be used with **terminate** to indicate a generic error, but other return codes may be used.
 
-    :raises: :py:class:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
+    :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     """
 
     def m_exit(code):
-        raise _TerminateException(code)
+        raise TerminateException(code)
 
-    _terminate(pake_obj, return_code, exit_func=m_exit)
+    if pake_obj.is_running:
+        # If is_running is True, then we must be inside a task.
+
+        # It is safe to call exit() inside a task,
+        # just call exit, pake will handle the 'leaving directory/exit subpake'
+        # message if needed.
+
+        m_exit(return_code)
+    else:
+        _terminate(pake_obj, return_code, exit_func=m_exit)
 
 
 def _terminate(pake_obj, return_code, exit_func=exit):

@@ -12,7 +12,7 @@ Running Pake
 pake will look for "pakefile.py" or "pakefile" in the current directory and run it if it exists.
 
 
-Manually Specifying Pakefile(s)
+Manually specifying pakefile(s)
 -------------------------------
 
 You can specify one or more files to run with **-f/--file**.
@@ -32,7 +32,7 @@ For example:
     pake -f your_pakefile_1.py -f your_pakefile_2.py foo
 
 
-Executing In Another Directory
+Executing in another directory
 ------------------------------
 
 The **-C** or **--directory** option can be used to execute pake in an arbitrary directory.
@@ -63,8 +63,8 @@ Example:
     pake -f pakefile1.py -f pakefile2.py -f pakefile3.py -C build_directory my_task
 
 
-Specifying Multiple Tasks
--------------------------
+Running multiple tasks
+----------------------
 
 You can specify multiple tasks, but do not rely on unrelated tasks being executed in any
 specific order because they won't be.  If there is a specific order you need your tasks to
@@ -82,8 +82,8 @@ there is more than one of them.
 
 
 
-Specifying Defines
-------------------
+Specifying define values
+------------------------
 
 The **-D/--define** option is used to specify defines on the command line that can be retrieved
 with the :py:meth:`pake.Pake.get_define` method, or **__getitem__** indexer on the :py:class:`pake.Pake`
@@ -197,7 +197,7 @@ Retrieval:
     pk.terminate(0)
 
 
-Reading Defines From STDIN
+Reading defines from STDIN
 --------------------------
 
 The **--stdin-defines** option allows you to pipe defines into pake in the form of a python dictionary.
@@ -249,7 +249,7 @@ Example Commands:
     False
 
 
-Command Line Options
+Command line options
 --------------------
 
 .. code-block:: none
@@ -287,7 +287,7 @@ Command Line Options
                             directory (unless -C is specified).
 
 
-Return Codes
+Return codes
 ------------
 
 See the :py:mod:`pake.returncodes` module, pake's return codes are defined

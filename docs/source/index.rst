@@ -39,27 +39,27 @@ Module Doc
 ----------
 
 .. toctree::
-   :maxdepth: 4
+    :maxdepth: 4
 
-   pake
+    pake
 
 
 Guides / Help
 -------------
 
 .. toctree::
-   :maxdepth: 4
+    :maxdepth: 4
 
-   Running Pake <runningpake>
-   Writing Basic Tasks <basictasks>
-   Change Detection Against Directories <directorychangedetection>
-   Exiting Pakefiles Before pake.run <exitingpakefiles>
-   Adding Tasks Programmatically <programmaticlyaddtasks>
-   Exceptions Inside Tasks <taskexceptions>
-   Parallelism Inside Tasks <multitasking>
-   Manipulating Files / Dirs With FileHelper <filehelper>
-   Running Commands / Sub Processes <subprocess>
-   Running Sub Pakefiles <subpake>
+    Running Pake <runningpake>
+    Writing Basic Tasks <basictasks>
+    Change Detection Against Directories <directorychangedetection>
+    Exiting Pakefiles Gracefully <exitingpakefiles>
+    Adding Tasks Programmatically <programmaticlyaddtasks>
+    Exceptions Inside Tasks <taskexceptions>
+    Parallelism Inside Tasks <multitasking>
+    Manipulating Files / Dirs With pake.FileHelper <filehelper>
+    Running Commands / Sub Processes <subprocess>
+    Running Sub Pakefiles <subpake>
 
 
 Module Index

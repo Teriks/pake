@@ -194,7 +194,7 @@ Examples:
 
 
 
-pake.process Module Methods
+pake.process module methods
 ---------------------------
 
 The :py:mod:`pake.process` module provides thin wrappers around the built in python :py:mod:`subprocess` module methods.

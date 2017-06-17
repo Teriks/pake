@@ -13,12 +13,12 @@ Example:
 
 .. code-block:: python
 
-   import pake
+    import pake
 
-   pk=pake.init()
+    pk=pake.init()
 
-   @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
-   def build_c(ctx)
+    @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
+    def build_c(ctx)
 
        # Start multitasking
 
@@ -29,8 +29,8 @@ Example:
                mt.submit(ctx.call, ['gcc', '-c', i, '-o', o])
 
 
-   @pk.task(build_c, i=pake.glob('obj/*.o'), o='main')
-   def build(ctx):
+    @pk.task(build_c, i=pake.glob('obj/*.o'), o='main')
+    def build(ctx):
 
        # Utilizing the automatic non string iterable
        # flattening here to pass ctx.inputs and ctx.outputs
@@ -38,4 +38,4 @@ Example:
        ctx.call(['gcc', ctx.inputs, '-o', ctx.outputs])
 
 
-   pake.run(pk, tasks=build)
+    pake.run(pk, tasks=build)

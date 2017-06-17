@@ -131,9 +131,9 @@ def subpake(*args, stdout=None, silent=False, exit_on_error=True):
        pake.subpake('dir/pakefile.py task_a -C some_dir')
     
     
-    :raises: :py:class:`ValueError` if no command + optional arguments are provided.
-    :raises: :py:class:`FileNotFoundError` if the first argument (the pakefile) is not found.
-    :raises: :py:class:`pake.SubpakeException` if the called pakefile script encounters an error and **exit_on_error** is **False**.
+    :raises: :py:exc:`ValueError` if no command + optional arguments are provided.
+    :raises: :py:exc:`FileNotFoundError` if the first argument (the pakefile) is not found.
+    :raises: :py:exc:`pake.SubpakeException` if the called pakefile script encounters an error and **exit_on_error** is **False**.
     
     :param args: The script, and additional arguments to pass to the script
     :param stdout: The stream to write all of the scripts output to. (defaults to pake.conf.stdout)

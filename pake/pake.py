@@ -105,35 +105,38 @@ class TaskException(Exception):  # pragma: no cover
 
 
 class TaskExitException(Exception):
-    """Raised from :py:meth:`pake.Pake.run` when **exit()** is called inside of a task.
+    """
+    Raised when :py:exc:`SystemExit` or an exception derived from it is thrown inside a task.
+
+    This is raised from :py:meth:`pake.Pake.run` when **exit()**, :py:meth:`pake.terminate`,
+    or :py:meth:`pake.Pake.terminate` is called inside of a task.
     
     .. py:attribute:: task_name
        
        The name of the task in which **exit** was called.
-       
-       
-    .. py:attribute:: exit_exception
+
+    .. py:attribute:: exception
        
        Reference to the :py:exc:`SystemExit` exception which caused this exception to be raised.
 
     """
 
-    def __init__(self, task_name, exit_exception):
+    def __init__(self, task_name, exception):
         """
         
         :param task_name: The name of the task that raised the :py:exc:`SystemExit` exception.
-        :param exit_exception: Reference to the :py:exc:`SystemExit` exception raised inside the task.
+        :param exception: Reference to the :py:exc:`SystemExit` exception raised inside the task.
         """
         super().__init__('exit({code}) was called within task "{task}".'
-                         .format(code=exit_exception.code, task=task_name))
+                         .format(code=exception.code, task=task_name))
 
         self.task_name = task_name
-        self.exit_exception = exit_exception
+        self.exception = exception
 
     @property
     def return_code(self):
         """The return code passed to **exit()** inside the task."""
-        return self.exit_exception.code
+        return self.exception.code
 
     def print_traceback(self, file=None):
         """
@@ -143,9 +146,9 @@ class TaskExitException(Exception):
         """
 
         traceback.print_exception(
-            type(self.exit_exception),
-            self.exit_exception,
-            self.exit_exception.__traceback__,
+            type(self.exception),
+            self.exception,
+            self.exception.__traceback__,
             file=pake.conf.stderr if file is None else file)
 
 
@@ -374,7 +377,7 @@ class TaskContext:
         None of the process's **stdout/stderr** will go to the task IO queue, 
         and the command that was run will not be printed either.
         
-        This function raises :py:class:`pake.TaskSubprocessException` on non-zero
+        This function raises :py:exc:`pake.TaskSubprocessException` on non-zero
         return codes by default.  
         
         You should pass pass **ignore_errors=True** if you want this method to return 
@@ -385,13 +388,13 @@ class TaskContext:
         :py:attr:`pake.TaskSubprocessException.output` and :py:attr:`pake.TaskSubprocessException.output_stream`
         will **not** be available in the exception if you handle it.
         
-        :raises: :py:class:`pake.TaskSubprocessException` if **ignore_errors** is **False**
+        :raises: :py:exc:`pake.TaskSubprocessException` if **ignore_errors** is **False**
                  and the process exits with a non zero return code.
                  
-        :raises: :py:class:`OSError` (commonly) if a the executed command or file does not exist.
+        :raises: :py:exc:`OSError` (commonly) if a the executed command or file does not exist.
                  This exception will still be raised even if **ignore_errors** is **True**.
                  
-        :raises: :py:class:`ValueError` if no command + optional arguments are provided.
+        :raises: :py:exc:`ValueError` if no command + optional arguments are provided.
         
         :param args: Command arguments, same syntax as :py:meth:`pake.TaskContext.call`
         :param stdin: Optional file object to pipe into the called process's **stdin**.
@@ -428,7 +431,7 @@ class TaskContext:
         it can be decoded into a string by using the **decode()** method on pythons built 
         in **bytes** object.
         
-        This function raises :py:class:`pake.TaskSubprocessException` on non-zero
+        This function raises :py:exc:`pake.TaskSubprocessException` on non-zero
         return codes by default.  
         
         If you want to return possible error output from the called process's **stderr** 
@@ -441,13 +444,13 @@ class TaskContext:
         the output of the process if you handle the exception, the value will be 
         all of **stdout/stderr** as a **bytes** object that must be decoded into a string.
         
-        :raises: :py:class:`pake.TaskSubprocessException` if **ignore_errors** is False
+        :raises: :py:exc:`pake.TaskSubprocessException` if **ignore_errors** is False
                  and the process exits with a non zero return code.
 
-        :raises: :py:class:`OSError` (commonly) if a the executed command or file does not exist.
+        :raises: :py:exc:`OSError` (commonly) if a the executed command or file does not exist.
                  This exception will still be raised even if **ignore_errors** is **True**.
                  
-        :raises: :py:class:`ValueError` if no command + optional arguments are provided.
+        :raises: :py:exc:`ValueError` if no command + optional arguments are provided.
         
         :param args: Command arguments, same syntax as :py:meth:`pake.TaskContext.call`
         :param stdin: Optional file object to pipe into the called process's **stdin**.
@@ -538,18 +541,18 @@ class TaskContext:
         :param args: Process and arguments.
         :param stdin: Optional file object to pipe into the called process's **stdin**.
         :param shell: Whether or not to use the system shell for execution.
-        :param ignore_errors: Whether or not to raise a :py:class:`pake.TaskSubprocessException` on non 0 exit codes.
+        :param ignore_errors: Whether or not to raise a :py:exc:`pake.TaskSubprocessException` on non-zero exit codes.
         :param silent: Whether or not to silence **stdout/stderr** from the command.
         :param print_cmd: Whether or not to print the executed command line to the tasks output.
         
         :returns: The process return code.
         
-        :raises: :py:class:`pake.TaskSubprocessException` if *ignore_errors* is *False* and the process exits with a non 0 exit code.
+        :raises: :py:exc:`pake.TaskSubprocessException` if *ignore_errors* is *False* and the process exits with a non-zero exit code.
         
-        :raises: :py:class:`OSError` (commonly) if a the executed command or file does not exist.
+        :raises: :py:exc:`OSError` (commonly) if a the executed command or file does not exist.
          This exception will still be raised even if **ignore_errors** is **True**.
          
-        :raises: :py:class:`ValueError` if no command + optional arguments are provided.
+        :raises: :py:exc:`ValueError` if no command + optional arguments are provided.
         """
         args = pake.util.handle_shell_args(args)
 
@@ -979,7 +982,7 @@ class Pake:
         
         Which also produces **None** if the define does not exist.
 
-        See: :ref:`Specifying Defines` for documentation covering how
+        See: :ref:`Specifying define values` for documentation covering how
         to specify defines on the command line, as well as what types
         of values you can use for your defines.
         
@@ -1000,8 +1003,6 @@ class Pake:
 
     def terminate(self, return_code=pake.returncodes.SUCCESS):  # pragma: no cover
         """Shorthand for ``pake.terminate(this, return_code=return_code)``.
-        
-        Do not use this inside of tasks, this is meant to be used before any tasks are run.
 
         See for more details: :py:meth:`pake.terminate`
 
@@ -1289,7 +1290,7 @@ class Pake:
                # I will never run!
                pass
         
-        :raises: :py:class:`pake.UndefinedTaskException` if a given dependency is not a registered task function.
+        :raises: :py:exc:`pake.UndefinedTaskException` if a given dependency is not a registered task function.
         :param args: Tasks which this task depends on.
         :param i: Optional input files/directories for change detection.
         :param o: Optional output files/directories for change detection.
@@ -1322,7 +1323,7 @@ class Pake:
         :py:meth:`pake.Pake.add_task` is used to register the task.
         
         If a string is passed it is returned unmodified as long as the task exists, otherwise
-        a :py:class:`pake.UndefinedTaskException` is raised.
+        a :py:exc:`pake.UndefinedTaskException` is raised.
         
         Example:
         
@@ -1343,8 +1344,8 @@ class Pake:
         
         :param task: Task name string, or registered task callable.
         
-        :raises: :py:class:`ValueError` if the **task** parameter is not a string or a callable function/object.
-        :raises: :py:class:`pake.UndefinedTaskException` if the task function/callable is not registered to the pake context.
+        :raises: :py:exc:`ValueError` if the **task** parameter is not a string or a callable function/object.
+        :raises: :py:exc:`pake.UndefinedTaskException` if the task function/callable is not registered to the pake context.
 
         :return: Task name string.
         """
@@ -1365,8 +1366,8 @@ class Pake:
         """
         Get the :py:class:`pake.TaskContext` object for a specific task.
         
-        :raises: :py:class:`ValueError` if the **task** parameter is not a string or a callable function/object.
-        :raises: :py:class:`pake.UndefinedTaskException` if the task in not registered.
+        :raises: :py:exc:`ValueError` if the **task** parameter is not a string or a callable function/object.
+        :raises: :py:exc:`pake.UndefinedTaskException` if the task in not registered.
         
         :param task: Task function or function name as a string
         :return: :py:class:`pake.TaskContext`
@@ -1537,17 +1538,18 @@ class Pake:
         """
         Run all given tasks, with an optional level of concurrency.
 
-        :raises: :py:class:`ValueError` if **jobs** is less than 1,
+        :raises: :py:exc:`ValueError` if **jobs** is less than 1,
                  or if **tasks** is **None** or an empty list.
         
-        :raises: :py:class:`pake.TaskException` if an exception occurred while running a task.
+        :raises: :py:exc:`pake.TaskException` if an exception occurred while running a task.
         
-        :raises: :py:class:`pake.TaskExitException` if **exit()** is called inside of a task.
+        :raises: :py:exc:`pake.TaskExitException` if :py:exc:`SystemExit` or an exception derived from it
+                          such as :py:exc:`pake.program.TerminateException` is raised inside of a task.
         
-        :raises: :py:class:`pake.MissingOutputsException` if a task defines input files/directories without specifying any output files/directories.
-        :raises: :py:class:`pake.InputNotFoundException` if a task defines input files/directories but one of them was not found on disk.
-        :raises: :py:class:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
-        :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
+        :raises: :py:exc:`pake.MissingOutputsException` if a task defines input files/directories without specifying any output files/directories.
+        :raises: :py:exc:`pake.InputNotFoundException` if a task defines input files/directories but one of them was not found on disk.
+        :raises: :py:exc:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
+        :raises: :py:exc:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered.
         
         :param tasks: Single task, or Iterable of task functions to run (by ref or name).
         :param jobs: Maximum number of threads, defaults to 1. (must be >= 1)
@@ -1660,10 +1662,10 @@ class Pake:
         
         :raises: :py:exc:`ValueError` If **tasks** is **None** or an empty list.
 
-        :raises: :py:class:`pake.MissingOutputsException` if a task defines input files/directories without specifying any output files/directories.
-        :raises: :py:class:`pake.InputNotFoundException` if a task defines input files/directories but one of them was not found on disk.
-        :raises: :py:class:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
-        :raises: :py:class:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered. 
+        :raises: :py:exc:`pake.MissingOutputsException` if a task defines input files/directories without specifying any output files/directories.
+        :raises: :py:exc:`pake.InputNotFoundException` if a task defines input files/directories but one of them was not found on disk.
+        :raises: :py:exc:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
+        :raises: :py:exc:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered.
         
         :param tasks: Single task, or Iterable of task functions to run (by ref or name).
         """

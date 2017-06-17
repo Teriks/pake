@@ -62,82 +62,14 @@ running in the background when the exception occurred will finish, and then the 
 encountered exception will be printed at the very end of pake's output.
 
 
-Calls To exit() Inside Tasks
+pake.TaskSubprocessException
 ----------------------------
-
-
-You can exit pake with a specific return code from inside a task by simply calling **exit**.
-
-**exit** inside of a task is considered a global exit, even when a task is on another thread due to
-pake's **--jobs** parameter being greater than 1.  The return code passed to **exit** inside the task
-will become the return code for command line call to pake.
-
-If you exit with :py:attr:`pake.returncodes.SUCCESS`, no stack trace for the exit call will be printed.
-
-Pake handles calls to **exit** in the same manner as it handles exceptions, although this condition is
-instead signified by a :py:exc:`pake.TaskExitException` and the message sent to pake's output is slightly different.
-
-The behavior when running parallel pake is the same as when a normal exception is thrown.
-
-
-Example:
-
-.. code-block:: python
-
-    import pake
-    from pake import returncodes
-
-    pk = pake.init()
-
-    @pk.task
-    def test(ctx):
-        ctx.print('hello world')
-
-        # We could also use anything other than 0 to signify an error.
-        # returncodes.SUCCESS and returncodes.ERROR will always be 0 and 1.
-        exit(returncodes.ERROR)
-
-    pake.run(pk, tasks=test)
-
-    # If you were to use pk.run, a TaskExitException would be thrown
-
-    # try:
-    #     pk.run(tasks=test)
-    # except pake.TaskExitException as err:
-    #     print('\n'+str(err)+'\n')
-    #
-    #     # print to pake.conf.stderr by default
-    #     # file parameter can be used to change that
-    #     err.print_traceback()
-
-
-Yields Output:
-
-.. code-block:: bash
-
-    ===== Executing Task: "test"
-    hello world
-
-    exit(1) was called within task "test".
-
-    Traceback (most recent call last):
-      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1316, in func_wrapper
-        return func(*args, **kwargs)
-      File "{FULL_PAKEFILE_DIR_PATH}/pakefile.py", line 12, in test
-        exit(returncodes.ERROR)
-      File "{PYTHON_INSTALL_PATH}/lib/_sitebuiltins.py", line 26, in __call__
-        raise SystemExit(code)
-    SystemExit: 1
-
-
-pake.TaskSubprocessException Inside Tasks
------------------------------------------
 
 Special error reporting is implemented for :py:exc:`pake.TaskSubprocessException`, which is
 raised from :py:exc:`pake.TaskContext.call`, :py:exc:`pake.TaskContext.check_call`, and
 :py:exc:`pake.TaskContext.check_output`.
 
-When a process called through one of these process spawning methods returns with a non 0 return code,
+When a process called through one of these process spawning methods returns with a non-zero return code,
 a :py:exc:`pake.TaskSubprocessException` is raised by default.  That will always be true unless you have
 supplied **ignore_errors=True** as an argument to these functions.
 
@@ -155,12 +87,13 @@ Example:
 
     import pake
 
+
     pk = pake.init()
 
     @pk.task
     def test(ctx):
         # pake.TaskSubprocessException is raised because
-        # which cannot find the given command and returns non 0
+        # which cannot find the given command and returns non-zero
 
         # silent is specified, which means the process will not
         # send any output to the task IO queue, but the command
@@ -198,8 +131,8 @@ Yields Output:
 
 
 
-pake.SubpakeException Inside Tasks
-----------------------------------
+pake.SubpakeException
+---------------------
 
 :py:exc:`pake.SubpakeException` is derived from :py:exc:`pake.process.StreamingSubprocessException`
 just like :py:exc:`pake.TaskSubprocessException`, and produces similar error information when raised
@@ -233,7 +166,7 @@ Example: ``pakefile.py``
     def test(ctx):
         # pake.SubpakeException is raised because
         # 'subfolder/pakefile.py' raises an exception inside a task
-        # and returns with a non 0 exit code.
+        # and returns with a non-zero exit code.
 
         # Silent prevents the pakefiles output from being printed
         # to the task IO queue, keeping the output short for this example

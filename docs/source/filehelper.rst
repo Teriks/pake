@@ -1,5 +1,5 @@
-Manipulating Files / Dirs With FileHelper
-=========================================
+Manipulating Files / Dirs With pake.FileHelper
+==============================================
 
 :py:class:`pake.FileHelper` contains several useful filesystem manipulation
 methods that are common in software builds.  Operations include creating full
@@ -19,98 +19,97 @@ If you construct :py:class:`pake.FileHelper` without an argument, all operations
 silently.
 
 
-File / Folder Creation Methods
+File / Folder creation methods
 ------------------------------
 
 .. code-block:: python
 
+    @pk.task
+    def my_build(ctx):
 
-   @pk.task
-   def my_build(ctx):
+        fh = pake.FileHelper(ctx)
 
-       fh = pake.FileHelper(ctx)
+        # Create a directory or an entire directory tree
 
-       # Create a directory or an entire directory tree
+        fh.makedirs('dist/bin')
 
-       fh.makedirs('dist/bin')
+        # Touch a file
 
-       # Touch a file
-
-       fh.touch('somefile.txt')
+        fh.touch('somefile.txt')
 
 Output:
 
 .. code-block:: bash
 
-   ===== Executing Task: "my_build"
-   Created Directory(s): "dist/bin"
-   Touched File: "somefile.txt"
+    ===== Executing Task: "my_build"
+    Created Directory(s): "dist/bin"
+    Touched File: "somefile.txt"
 
 
-Copy / Move Methods
+Copy / Move methods
 -------------------
 
 .. code-block:: python
 
 
-   @pk.task
-   def my_build(ctx):
+    @pk.task
+    def my_build(ctx):
 
-       fh = pake.FileHelper(ctx)
+    fh = pake.FileHelper(ctx)
 
-       # Recursively copy and entire directory tree.
-       # In this case, 'bin' will be copied into 'dist'
-       # as a subfolder.
+    # Recursively copy and entire directory tree.
+    # In this case, 'bin' will be copied into 'dist'
+    # as a subfolder.
 
-       fh.copytree('bin', 'dist/bin')
-
-
-       # Recursively move an entire directory tree
-       # and it's contents.  In this case, 'lib' will
-       # be moved into 'dist' as a subfolder.
-
-       fh.move('lib', 'dist/lib')
+    fh.copytree('bin', 'dist/bin')
 
 
-       # Copy a file to a directory without
-       # renaming it.
+    # Recursively move an entire directory tree
+    # and it's contents.  In this case, 'lib' will
+    # be moved into 'dist' as a subfolder.
 
-       fh.copy('LICENCE.txt', 'dist')
-
-       # Copy with rename
-
-       fh.copy('LICENCE.txt', 'dist/licence.txt')
+    fh.move('lib', 'dist/lib')
 
 
-       # Move a file to a directory without
-       # renaming it.
+    # Copy a file to a directory without
+    # renaming it.
 
-       fh.move('README.txt', 'dist')
+    fh.copy('LICENCE.txt', 'dist')
 
-       # Move with rename
+    # Copy with rename
 
-       fh.move('README.rtf', 'dist/readme.rtf')
+    fh.copy('LICENCE.txt', 'dist/licence.txt')
+
+
+    # Move a file to a directory without
+    # renaming it.
+
+    fh.move('README.txt', 'dist')
+
+    # Move with rename
+
+    fh.move('README.rtf', 'dist/readme.rtf')
 
 Output:
 
 .. code-block:: bash
 
-   ===== Executing Task: "my_build"
-   Copied Tree: "bin" -> "dist/bin"
-   Moved Tree: "lib" -> "dist/lib"
-   Copied File: "LICENCE.txt" -> "dist"
-   Copied File: "LICENCE.txt" -> "dist/licence.txt"
-   Moved File: "README.txt" -> "dist"
-   Moved File: "README.rtf" -> "dist/readme.rtf"
+    ===== Executing Task: "my_build"
+    Copied Tree: "bin" -> "dist/bin"
+    Moved Tree: "lib" -> "dist/lib"
+    Copied File: "LICENCE.txt" -> "dist"
+    Copied File: "LICENCE.txt" -> "dist/licence.txt"
+    Moved File: "README.txt" -> "dist"
+    Moved File: "README.rtf" -> "dist/readme.rtf"
 
 
-Removal / Clean Related Methods
+Removal / Clean related methods
 -------------------------------
 
 .. code-block:: python
 
-   @pk.task
-   def my_clean(ctx):
+    @pk.task
+    def my_clean(ctx):
 
        fh = pake.FileHelper(ctx)
 

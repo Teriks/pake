@@ -50,7 +50,8 @@ from .program import \
     get_subpake_depth, \
     get_max_jobs, \
     get_init_file, \
-    get_init_dir
+    get_init_dir, \
+    TerminateException
 
 from .pake import TaskSubprocessException
 from .subpake import subpake, export, SubpakeException
@@ -83,4 +84,5 @@ __all__ = [
     'PakeUninitializedException',
     'CyclicGraphException',
     'SubpakeException',
+    'TerminateException',
 ]

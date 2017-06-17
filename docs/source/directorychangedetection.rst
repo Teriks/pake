@@ -13,18 +13,18 @@ Example:
 
 .. code-block:: python
 
-   import pake
-   import glob
-   import pathlib
+    import pake
+    import glob
+    import pathlib
 
-   pk = pake.init()
+    pk = pake.init()
 
-   # Whenever the modification time of 'my_directory' or
-   # 'my_directory_2' is more recent than the file 'my_big.png',
-   # this task will run.
+    # Whenever the modification time of 'my_directory' or
+    # 'my_directory_2' is more recent than the file 'my_big.png',
+    # this task will run.
 
-   @pk.task(i=['my_directory', 'my_directory_2'], o='my_big.png')
-   def concatenate_pngs(ctx):
+    @pk.task(i=['my_directory', 'my_directory_2'], o='my_big.png')
+    def concatenate_pngs(ctx):
        png_files = []
 
        for d in ctx.inputs:
@@ -35,6 +35,6 @@ Example:
        ctx.call('convert', png_files, '-append', ctx.outputs)
 
 
-   pake.run(pk, tasks=concatenate_pngs)
+    pake.run(pk, tasks=concatenate_pngs)
 
 
