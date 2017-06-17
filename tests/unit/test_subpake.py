@@ -71,3 +71,5 @@ class SubpakeTest(unittest.TestCase):
         pake.export('TERMINATE', True)
 
         self.assertEqual(pake.subpake(return_code_pakefile, silent=True, ignore_errors=True), 42)
+
+        pake.EXPORTS.clear()
