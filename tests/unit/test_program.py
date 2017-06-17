@@ -23,7 +23,7 @@ pake.conf.stderr = open_devnull() if pake.conf.stderr is sys.stderr else pake.co
 class ProgramTest(unittest.TestCase):
     def test_exceptions(self):
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         self.assertFalse(pake.program.is_init())
 
@@ -47,7 +47,7 @@ class ProgramTest(unittest.TestCase):
 
     def test_init(self):
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         self.assertFalse(pake.is_init())
 
@@ -77,24 +77,24 @@ class ProgramTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             pake.program.run(None)
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         pk = pake.init(args=['--jobs', '10'])
 
         self.assertEqual(pake.get_max_jobs(), 10)
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         with self.assertRaises(SystemExit) as cm:
             pake.init(args=['-D', 'TEST={ I am a bad define'])
 
         self.assertEqual(cm.exception.code, returncodes.BAD_DEFINE_VALUE)
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
     def test_run(self):
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         pk = pake.init()
 
@@ -134,7 +134,7 @@ class ProgramTest(unittest.TestCase):
         def test_run_helper(dry_run=False):
             nonlocal self
 
-            pake.shutdown(clear_conf=False)
+            pake.de_init(clear_conf=False)
 
             if dry_run:
                 pk = pake.init(args=['--dry-run'])
@@ -197,7 +197,7 @@ class ProgramTest(unittest.TestCase):
         # Test pake's reaction to bad argument combinations, code returncodes.BAD_ARGUMENTS
 
         def assert_bad_args(*args):
-            pake.shutdown(clear_conf=False)
+            pake.de_init(clear_conf=False)
 
             # There are two places pake might exit from, init and run
 
@@ -250,7 +250,7 @@ class ProgramTest(unittest.TestCase):
 
     def test_run_changedir(self):
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         start_dir = os.getcwd()
 
@@ -278,7 +278,7 @@ class ProgramTest(unittest.TestCase):
         # ==========================
         # Check that its forced quietly before run, even if it is changed prior
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         pk = pake.init(args=['-C', dest_dir])
 

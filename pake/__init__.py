@@ -19,14 +19,16 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
-.. :py:attribute:: EXPORTS
 
-    A dictionary object containing all current exports,
-    you are free to modify this dictionary directly.
+.. py:attribute:: EXPORTS
 
-    See: :py:meth:`pake.export` and :py:meth:`pake.subpake`.
+A dictionary object containing all current exports,
+you are free to modify this dictionary directly.
 
-    Be careful and make sure it remains a dictionary object.
+See: :py:meth:`pake.export` and :py:meth:`pake.subpake`.
+
+Be careful and make sure it remains a dictionary object.
+
 """
 
 __author__ = 'Teriks'
@@ -66,14 +68,14 @@ from .program import \
     get_init_file, \
     get_init_dir, \
     TerminateException, \
-    shutdown
+    de_init
 
 from .pake import TaskSubprocessException
 from .subpake import subpake, export, SubpakeException, EXPORTS
 
 __all__ = [
     'init',
-    'shutdown'
+    'de_init',
     'is_init',
     'run',
     'terminate',

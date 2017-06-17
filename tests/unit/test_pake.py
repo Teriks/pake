@@ -23,7 +23,7 @@ pake.conf.stderr = open_devnull() if pake.conf.stderr is sys.stderr else pake.co
 class PakeTest(unittest.TestCase):
     def test_registration_and_run(self):
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         pk = pake.init()
 
@@ -195,7 +195,7 @@ class PakeTest(unittest.TestCase):
         self.assertEqual(pk.run_count, 5)
 
     def _cyclic_exception_test(self, pake_args):
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         pk = pake.init(args=pake_args)
 
@@ -239,7 +239,7 @@ class PakeTest(unittest.TestCase):
             def __init__(self, *args):
                 super().__init__(*args)
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         pk = pake.init()
 
@@ -275,7 +275,7 @@ class PakeTest(unittest.TestCase):
             def __init__(self, *args):
                 super().__init__(*args)
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         pk = pake.init()
 
@@ -316,7 +316,7 @@ class PakeTest(unittest.TestCase):
             def __init__(self, *args):
                 super().__init__(*args)
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         pk = pake.init()
 

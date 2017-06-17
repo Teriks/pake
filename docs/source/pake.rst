@@ -27,13 +27,14 @@ Module: pake.process
 .. automodule:: pake.process
     :members:
     :show-inheritance:
+    :inherited-members:
 
 
 Module: pake.util
 -----------------
  
 .. automodule:: pake.util
-    :members:
+    :members:
 
 
 Module: pake.conf

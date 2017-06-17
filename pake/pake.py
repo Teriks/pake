@@ -1642,7 +1642,7 @@ class Pake:
             finally:
                 # Be very paranoid about object state
 
-                t_pool = self._threadpool  # t_pool shutdown might throw, maybe
+                t_pool = self._threadpool  # t_pool de_init might throw, maybe
 
                 # Fix object state
                 self._threadpool = None

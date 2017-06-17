@@ -22,7 +22,7 @@ class SubpakeTest(unittest.TestCase):
     def test_subpake_depth(self):
         assert_depth_script = os.path.join(script_dir, 'assert_subpake_depth.py')
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         with self.assertRaises(SystemExit) as err:
             pake.subpake(os.path.join(script_dir, 'throw.py'))
@@ -48,7 +48,7 @@ class SubpakeTest(unittest.TestCase):
     def test_subpake_ignore_errors(self):
         return_code_pakefile = os.path.join(script_dir, 'returncode_pakefile.py')
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         # ====== Non Silent Path =======
 
@@ -62,7 +62,7 @@ class SubpakeTest(unittest.TestCase):
 
         # ======= Silent Path =========
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         pake.export('RETURNCODE', 42)
 

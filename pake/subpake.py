@@ -18,19 +18,6 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""
-Module for running pakefiles as sub-processes.
-
-.. :py:attribute:: EXPORTS
-
-    A dictionary object containing all current exports,
-    you are free to modify this dictionary directly.
-
-    See: :py:meth:`pake.export` and :py:meth:`pake.subpake`.
-
-    Be careful and make sure it remains a dictionary object.
-"""
-
 import codecs
 import os.path
 import subprocess
@@ -49,6 +36,14 @@ import pake.conf
 __all__ = ['export', 'subpake', 'SubpakeException', 'EXPORTS']
 
 EXPORTS = dict()
+"""
+A dictionary object containing all current exports,
+you are free to modify this dictionary directly.
+
+See: :py:meth:`pake.export` and :py:meth:`pake.subpake`.
+
+Be careful and make sure it remains a dictionary object.
+"""
 
 
 class SubpakeException(pake.process.StreamingSubprocessException):

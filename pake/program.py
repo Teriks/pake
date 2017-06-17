@@ -42,7 +42,7 @@ __all__ = [
     'get_init_dir',
     'terminate',
     'TerminateException',
-    'shutdown'
+    'de_init'
 ]
 
 
@@ -158,10 +158,9 @@ def init(stdout=None, args=None):
     return pk
 
 
-def shutdown(
+def de_init(
         clear_conf=True,
-        clear_exports=True,
-        clear_args=True):
+        clear_exports=True):
     """
     Return the pake module to a pre-initialized state.
     
@@ -169,7 +168,6 @@ def shutdown(
 
     :param clear_conf: If **True**, call :py:meth:`pake.conf.reset`
     :param clear_exports: If **True**, call **clear** on :py:attr:`pake.EXPORTS`
-    :param clear_args: If **True**, call :py:attr:`pake.arguments.clear_args`
     """
 
     global _INIT_FILE, _INIT_DIR
@@ -177,8 +175,7 @@ def shutdown(
     _INIT_FILE = None
     _INIT_DIR = None
 
-    if clear_args:
-        pake.arguments.clear_args()
+    pake.arguments.clear_args()
 
     if clear_exports:
         pake.EXPORTS.clear()
@@ -235,7 +232,7 @@ def get_subpake_depth():
 
     args = pake.arguments.get_args()
 
-    return args._subpake_depth
+    return args.subpake_depth
 
 
 def get_init_file():

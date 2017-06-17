@@ -65,9 +65,9 @@ _ARG_PARSER.add_argument('-j', '--jobs', type=_create_gt_int(1, '--jobs must be 
                               'enables unrelated tasks to run in parallel with a '
                               'max of N tasks running at a time.')
 
-_ARG_PARSER.add_argument('--_subpake_depth', default=0, type=int, help=argparse.SUPPRESS)
+_ARG_PARSER.add_argument('--_subpake_depth', default=0, type=int, help=argparse.SUPPRESS,  dest='subpake_depth',)
 
-_ARG_PARSER.add_argument('--stdin-defines', action='store_true',
+_ARG_PARSER.add_argument('--stdin-defines', action='store_true', dest='stdin_defines',
                          help='Read defines from a Python Dictionary piped into stdin. '
                               'Defines read with this option can be overwritten by defines '
                               'specified on the command line with -D/--define.')

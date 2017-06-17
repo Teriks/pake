@@ -50,7 +50,7 @@ class ProcessTest(unittest.TestCase):
 
         # Check pake propagates the exception correctly
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         pk = pake.init()
 
@@ -81,7 +81,7 @@ class ProcessTest(unittest.TestCase):
 
         # Check pake propagates the exception correctly
 
-        pake.shutdown(clear_conf=False)
+        pake.de_init(clear_conf=False)
 
         pk = pake.init()
 
