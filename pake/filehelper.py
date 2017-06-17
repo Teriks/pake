@@ -45,7 +45,7 @@ class FileHelper:
 
         Any object which implements **print(\*args)** will work as a printer.
 
-        The only objects ever passed into the print function are strings, **file=** is never specified.
+        The only objects ever passed into the print function are strings, **file** is never specified.
 
         :param printer: An object implementing **print(\*args)**
 
