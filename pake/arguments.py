@@ -109,7 +109,7 @@ def _validate_arguments(parsed_args):
             return True, returncodes.BAD_ARGUMENTS
 
         if parsed_args.show_task_info:
-            print('-t/--show-task-info and --stdin-defines cannot be used together.',
+            print('-ti/--show-task-info and --stdin-defines cannot be used together.',
                   file=pake.conf.stderr)
             return True, returncodes.BAD_ARGUMENTS
 
