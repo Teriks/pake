@@ -259,8 +259,7 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
             ex = SubpakeException(cmd=args,
                                   returncode=exitcode,
                                   output_stream=output_copy_buffer,
-                                  message='An exceptional condition occurred '
-                                          'inside a pakefile ran by subpake.  return-code({code})'.format(code=exitcode))
+                                  message='A pakefile invoked by pake.subpake exited with a non-zero return code')
 
             if exit_on_error:
                 ex.write_info(pake.conf.stderr)

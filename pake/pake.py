@@ -643,8 +643,8 @@ class TaskContext:
                     raise TaskSubprocessException(cmd=args,
                                                   returncode=exitcode,
                                                   output_stream=output_copy_buffer,
-                                                  message='An error occurred while executing a system '
-                                                          'command inside a pake task.')
+                                                  message='A subprocess spawned by the task context exited with a '
+                                                          'non-zero return code inside of a pake task.')
 
                 output_copy_buffer.close()
                 return exitcode
