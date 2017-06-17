@@ -1716,7 +1716,7 @@ class Pake:
 
     def set_defines_dict(self, dictionary):  # pragma: no cover
         """
-        Set an overwrite all defines with a dictionary object.
+        Set and overwrite all defines with a dictionary object.
         
         :param dictionary: The dictionary object
         """

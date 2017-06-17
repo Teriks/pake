@@ -34,7 +34,7 @@ Be careful and make sure it remains a dictionary object.
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '0.14.0.0a1'
+__version__ = '0.14.0.1a1'
 
 # __version__ and friends needs to be above the imports, the
 # metadata above may be used elsewhere by the modules that follow
