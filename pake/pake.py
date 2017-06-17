@@ -265,6 +265,11 @@ class TaskContext:
     """
 
     def __init__(self, pake_obj, node):
+        """
+        :param pake_obj: Instance of :py:class:`pake.Pake`.
+        :param node: Instance of :py:class:`pake.TaskGraph`.
+        """
+
         self._pake = pake_obj
         self._node = node
         self._future = None
@@ -816,6 +821,9 @@ class MultitaskContext(Executor):
     """
 
     def __init__(self, ctx):
+        """
+        :param ctx: Instance of :py:class:`pake.TaskContext`.
+        """
         self._ctx = ctx
         self._threadpool = ctx.pake.threadpool
         self._pending = []
@@ -891,7 +899,9 @@ class Pake:
 
     def __init__(self, stdout=None):
         """
-        Create a pake object, optionally set stdout for the instance.
+        Create a pake object, optionally set :py:attr:`pake.Pake.stdout` for the instance.
+
+        Use :py:meth:`pake.init` to retrieve an instance of this object, do not instantiate directly.
         
         :param stdout: The stream all task output gets written to, (defaults to pake.conf.stdout)
         """
