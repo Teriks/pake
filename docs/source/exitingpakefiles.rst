@@ -148,8 +148,8 @@ Yields Output:
     SystemExit: 1
 
 
-Exit exception stack traces in tasks
-------------------------------------
+Stack traces from exit/terminate in tasks
+-----------------------------------------
 
 Calls to **exit()**, :py:meth:`pake.terminate`, or :py:meth:`pake.Pake.terminate` with non-zero return codes
 will result in a stack trace being printed with information about the location of the exit or terminate call.
