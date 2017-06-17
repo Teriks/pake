@@ -348,7 +348,10 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     :raises: :py:exc:`ValueError` if the **jobs** parameter is used, and is set less than 1.
 
     :param pake_obj: A :py:class:`pake.Pake` instance, usually created by :py:func:`pake.init`.
+
     :param tasks: A list of, or a single default task to run if no tasks are specified on the command line.
+                  Tasks specified on the command line completely override this argument.
+
     :param jobs: Call with an arbitrary number of max jobs, overriding the command line value of **--jobs**.
                  The default value of this parameter is **None**, which means the command line value or default of 1 is not overridden.
 
