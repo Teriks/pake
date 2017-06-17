@@ -643,7 +643,7 @@ class TaskContext:
                     raise TaskSubprocessException(cmd=args,
                                                   returncode=exitcode,
                                                   output_stream=output_copy_buffer,
-                                                  message='A subprocess spawned by the task context exited '
+                                                  message='A subprocess spawned by a task exited '
                                                           'with a non-zero return code.')
 
                 output_copy_buffer.close()

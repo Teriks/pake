@@ -116,7 +116,7 @@ Yields Output:
             line_number=9
     )
 
-    Message: A subprocess spawned by the task context exited with a non-zero return code.
+    Message: A subprocess spawned by a task exited with a non-zero return code.
 
     The following command exited with return code: 1
 
