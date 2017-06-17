@@ -87,7 +87,7 @@ def is_iterable_not_str(obj):
     return type(obj) is not str and is_iterable(obj)
 
 
-def str_is_float(s):
+def str_is_float(value):
     """Test if a string can be parsed into a float.
     
     :returns: True or False
@@ -95,13 +95,13 @@ def str_is_float(s):
     """
 
     try:
-        _ = float(s)
+        _ = float(value)
         return True
     except ValueError:
         return False
 
 
-def str_is_int(s):
+def str_is_int(value):
     """Test if a string can be parsed into an integer.
     
     :returns: True or False
@@ -109,7 +109,7 @@ def str_is_int(s):
     """
 
     try:
-        _ = int(s)
+        _ = int(value)
         return True
     except ValueError:
         return False
