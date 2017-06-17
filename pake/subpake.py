@@ -263,3 +263,4 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
                 raise ex
 
         output_copy_buffer.close()
+        return exitcode
