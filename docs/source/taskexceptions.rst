@@ -43,7 +43,7 @@ Yields Output:
     ===== Executing Task: "test"
     hello world
 
-    Exception "Exception" was called within task "test".
+    Exception "Exception" was raised within task "test".
 
     Traceback (most recent call last):
       File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1316, in func_wrapper

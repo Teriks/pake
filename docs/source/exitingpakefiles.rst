@@ -136,7 +136,7 @@ Yields Output:
     ===== Executing Task: "test"
     hello world
 
-    exit(1) was called within task "test".
+    Exit exception "SystemExit" with return-code(1) was raised in task "test".
 
     Traceback (most recent call last):
       File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1316, in func_wrapper

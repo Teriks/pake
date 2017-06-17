@@ -85,7 +85,7 @@ class TaskException(Exception):  # pragma: no cover
 
         self.exception_name = pake.util.qualified_name(exception)
 
-        super().__init__('Exception "{exc}" was called within task "{task}".'
+        super().__init__('Exception "{exc}" was raised within task "{task}".'
                          .format(exc=self.exception_name, task=task_name))
 
         self.exception = exception
