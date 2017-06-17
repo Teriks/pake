@@ -332,7 +332,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
 
     This function will not call **exit** if pake executes successfully with a return code of zero.
     
-    This function will return pake's exit code when **call_exit=False**. For all  return codes
+    This function will return pake's exit code when **call_exit=False**. For all return codes
     see: :py:mod:`pake.returncodes`.
 
     This function will never return :py:attr:`pake.returncodes.BAD_ARGUMENTS`,
