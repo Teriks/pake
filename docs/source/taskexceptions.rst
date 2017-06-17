@@ -116,7 +116,7 @@ Yields Output:
             line_number=9
     )
 
-    Message: An error occurred while executing a system command inside a pake task.
+    Message: A subprocess spawned by the task context exited with a non-zero return code.
 
     The following command exited with return code: 1
 
@@ -189,7 +189,7 @@ Yields Output:
             line_number=13
     )
 
-    Message: An exceptional condition occurred inside a pakefile ran by subpake.
+    Message: A pakefile invoked by pake.subpake exited with a non-zero return code.
 
     The following command exited with return code: 13
 
