@@ -41,7 +41,8 @@ __all__ = [
     'get_init_file',
     'get_init_dir',
     'terminate',
-    'TerminateException'
+    'TerminateException',
+    'shutdown'
 ]
 
 
@@ -81,7 +82,7 @@ def init(stdout=None, args=None):
     """
     Read command line arguments relevant to initialization, and return a :py:class:`pake.Pake` object.
     
-    :param stdout: The stdout object passed to the :py:class:`pake.Pake` instance. (defaults to pake.conf.stdout)
+    :param stdout: The stdout object passed to the :py:class:`pake.Pake` instance. (defaults to :py:attr:`pake.conf.stdout`)
     :param args: Optional command line arguments.
     
     :return: :py:class:`pake.Pake`
@@ -157,11 +158,18 @@ def init(stdout=None, args=None):
     return pk
 
 
-def shutdown():
+def shutdown(
+        clear_conf=True,
+        clear_exports=True,
+        clear_args=True):
     """
     Return the pake module to a pre-initialized state.
     
     Used primarily for unit tests.
+
+    :param clear_conf: If **True**, call :py:meth:`pake.conf.reset`
+    :param clear_exports: If **True**, call **clear** on :py:attr:`pake.EXPORTS`
+    :param clear_args: If **True**, call :py:attr:`pake.arguments.clear_args`
     """
 
     global _INIT_FILE, _INIT_DIR
@@ -169,7 +177,14 @@ def shutdown():
     _INIT_FILE = None
     _INIT_DIR = None
 
-    pake.arguments.clear_args()
+    if clear_args:
+        pake.arguments.clear_args()
+
+    if clear_exports:
+        pake.EXPORTS.clear()
+
+    if clear_conf:
+        pake.conf.reset()
 
 
 def is_init():

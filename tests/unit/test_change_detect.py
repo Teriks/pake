@@ -13,7 +13,7 @@ import pake
 
 class GraphTest(unittest.TestCase):
     def _basic_behavior_test(self, jobs):
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         ran = False
@@ -33,7 +33,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         ran = False
@@ -53,7 +53,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         ran = False
@@ -74,7 +74,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         ran = False
@@ -95,7 +95,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         ran = False
@@ -112,7 +112,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         ran = False
@@ -137,7 +137,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         ran = False
@@ -167,7 +167,7 @@ class GraphTest(unittest.TestCase):
 
         # Same test as above, except with multiple outputs
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         ran = False
@@ -194,7 +194,7 @@ class GraphTest(unittest.TestCase):
         self.assertTrue(ran)
 
     def _exceptions_test(self, jobs):
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         # MissingOutputFilesException, even if 'test' does not exist on disk
@@ -207,7 +207,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         # MissingOutputFilesException, even if 'test' does not exist on disk
@@ -220,7 +220,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         # MissingOutputFilesException, even if 'test' and 'test2' do not exist on disk
@@ -233,7 +233,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         # InputFileNotFoundException, since usage is valid but a.c is missing
@@ -246,7 +246,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         # Check the same case above, but this time the output exists
@@ -259,7 +259,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         # Check the same case as above but with multiple inputs
@@ -272,7 +272,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         # Check the same case as above but the output exists this time around.
@@ -286,7 +286,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         # Check the same case as above but with multiple inputs and outputs,
@@ -301,7 +301,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         # Check the same case as above but this time both outputs don't exist
@@ -315,7 +315,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         # Check the same case as above but this time there are
@@ -330,7 +330,7 @@ class GraphTest(unittest.TestCase):
 
         # ================
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
         pk = pake.init()
 
         # Check the same case as above but this time there are

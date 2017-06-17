@@ -18,10 +18,24 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""
+.. :py:attribute:: EXPORTS
+
+    A dictionary object containing all current exports,
+    you are free to modify this dictionary directly.
+
+    See: :py:meth:`pake.export` and :py:meth:`pake.subpake`.
+
+    Be careful and make sure it remains a dictionary object.
+"""
+
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
 __version__ = '0.14.0.0a1'
+
+# __version__ and friends needs to be above the imports, the
+# metadata above may be used elsewhere by the modules that follow
 
 from .filehelper import FileHelper
 
@@ -51,13 +65,15 @@ from .program import \
     get_max_jobs, \
     get_init_file, \
     get_init_dir, \
-    TerminateException
+    TerminateException, \
+    shutdown
 
 from .pake import TaskSubprocessException
-from .subpake import subpake, export, SubpakeException
+from .subpake import subpake, export, SubpakeException, EXPORTS
 
 __all__ = [
     'init',
+    'shutdown'
     'is_init',
     'run',
     'terminate',
@@ -66,6 +82,7 @@ __all__ = [
     'get_init_file',
     'get_init_dir',
     'export',
+    'EXPORTS',
     'subpake',
     'Pake',
     'TaskContext',

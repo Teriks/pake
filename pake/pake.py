@@ -370,10 +370,32 @@ class TaskContext:
         kwargs.pop('file', None)
         print(*args, file=self._io, **kwargs)
 
-    def subpake(self, *args, silent=False):
-        """Run :py:func:`pake.subpake` and direct all output to the task IO file stream."""
+    def subpake(self, *args, silent=False, ignore_errors=False):
+        """
+        Run :py:func:`pake.subpake` and direct all output to the task IO file stream.
 
-        pake.subpake(*args, stdout=self._io, silent=silent, exit_on_error=False)
+        :param args: The script, and additional arguments to pass to the script.
+                     You may pass a list, or use variadic arguments.
+
+        :param silent: If **True**, avoid printing output from the sub-pakefile to the tasks IO queue.
+
+        :param ignore_errors: If this is **True**, this function will not throw :py:exc:`pake.SubpakeException` if
+                              the executed pakefile returns with a non-zero exit code.  It will instead return the
+                              exit code from the subprocess to the caller.
+
+        :raises: :py:exc:`ValueError` if no command + optional command arguments are provided.
+
+        :raises: :py:exc:`FileNotFoundError` if the first argument (the pakefile) is not found.
+
+        :raises: :py:exc:`pake.SubpakeException` if the called pakefile script encounters an
+                 error and **ignore_errors=False** .
+
+        """
+
+        return pake.subpake(*args,
+                            stdout=self._io, silent=silent,
+                            ignore_errors=ignore_errors,
+                            exit_on_error=False)
 
     @staticmethod
     def check_call(*args, stdin=None, shell=False, ignore_errors=False):
@@ -604,6 +626,8 @@ class TaskContext:
                 except:  # pragma: no cover
                     output_copy_buffer.close()
                     raise
+                finally:
+                    process.stdout.close()
 
                 try:
                     exitcode = process.wait()
@@ -905,7 +929,7 @@ class Pake:
 
         Use :py:meth:`pake.init` to retrieve an instance of this object, do not instantiate directly.
         
-        :param stdout: The stream all task output gets written to, (defaults to pake.conf.stdout)
+        :param stdout: The stream all task output gets written to, (defaults to :py:attr:`pake.conf.stdout`)
         """
 
         self.stdout = stdout if stdout is not None else pake.conf.stdout

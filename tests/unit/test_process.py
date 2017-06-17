@@ -50,7 +50,7 @@ class ProcessTest(unittest.TestCase):
 
         # Check pake propagates the exception correctly
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
 
         pk = pake.init()
 
@@ -64,6 +64,7 @@ class ProcessTest(unittest.TestCase):
         self.assertEqual(type(exc.exception.exception), process.CalledProcessException)
 
     def test_check_output(self):
+
         cmd = [sys.executable, os.path.join(script_dir, 'timeout.py')]
 
         with self.assertRaises(process.TimeoutExpired) as exc:
@@ -80,7 +81,7 @@ class ProcessTest(unittest.TestCase):
 
         # Check pake propagates the exception correctly
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
 
         pk = pake.init()
 

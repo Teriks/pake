@@ -210,7 +210,7 @@ class TaskExceptionsTest(unittest.TestCase):
 
     def test_task_exit_exception(self):
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
 
         pk = pake.init()
 
@@ -245,7 +245,7 @@ class TaskExceptionsTest(unittest.TestCase):
 
     def test_task_terminate_exception(self):
 
-        pake.program.shutdown()
+        pake.shutdown(clear_conf=False)
 
         pk = pake.init()
 
