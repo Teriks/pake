@@ -127,8 +127,10 @@ class TaskExitException(Exception):
         :param task_name: The name of the task that raised the :py:exc:`SystemExit` exception.
         :param exception: Reference to the :py:exc:`SystemExit` or derived exception raised inside the task.
         """
-        super().__init__('exit({code}) was called within task "{task}".'
-                         .format(code=exception.code, task=task_name))
+        super().__init__('{cls}({code}) was raised within task "{task}".'
+                         .format(cls=pake.util.qualified_name(exception),
+                                 code=exception.code,
+                                 task=task_name))
 
         self.task_name = task_name
         self.exception = exception
