@@ -155,7 +155,7 @@ Calls to **exit()**, :py:meth:`pake.terminate`, or :py:meth:`pake.Pake.terminate
 will result in a stack trace being printed with information about the location of the exit or terminate call.
 
 This is not the case if you call **exit()** or pake's terminate functions with a return code of zero,
-there will be no stack trace or any information printed if the return code is zero (which indicates success).
+there will be no stack trace or any information printed if the return code indicates success.
 
 
 Example **exit(1)** stack trace:
