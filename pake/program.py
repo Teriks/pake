@@ -342,7 +342,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     For all return codes see: :py:mod:`pake.returncodes`.
 
     This function will never return :py:attr:`pake.returncodes.BAD_ARGUMENTS`,
-    because :py:meth:`pake.init` will already have immediately called exit.
+    because :py:meth:`pake.init` will have already called **exit**.
     
     :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :raises: :py:exc:`ValueError` if the **jobs** parameter is used, and is set less than 1.
