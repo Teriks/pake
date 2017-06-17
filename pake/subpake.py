@@ -78,7 +78,7 @@ class SubpakeException(pake.process.StreamingSubprocessException):
 
         :param output: (Optional) All output from the command as bytes.
 
-        :param output_stream: (Optional) A file like object containing the process output, at seek(0).
+        :param output_stream: (Optional) A file like object containing the process output, at **seek(0)**.
                                By providing this parameter instead of **output**, you give this object permission
                                to close the stream when it is garbage collected or when :py:meth:`pake.SubpakeException.write_info` is called.
 
