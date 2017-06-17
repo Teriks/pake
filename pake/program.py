@@ -81,10 +81,15 @@ _INIT_DIR = None
 def init(stdout=None, args=None):
     """
     Read command line arguments relevant to initialization, and return a :py:class:`pake.Pake` object.
+
+    This function will print information to :py:attr:`pake.conf.stderr` and call ``exit(pake.returncodes.BAD_ARGUMENTS)``
+    immediately if arguments parsed from the command line or passed to the **args** parameter do not pass validation.
     
     :param stdout: The stdout object passed to the :py:class:`pake.Pake` instance. (defaults to :py:attr:`pake.conf.stdout`)
     :param args: Optional command line arguments.
-    
+
+    :raises: :py:exc:`SystemExit` if bad command line arguments are parsed, or the **args** parameter contains bad arguments.
+
     :return: :py:class:`pake.Pake`
     """
 
