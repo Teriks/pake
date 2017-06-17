@@ -296,9 +296,52 @@ class PakeTest(unittest.TestCase):
             pk.run(tasks=[task_a, task_b, task_c], jobs=jobs)
         except pake.TaskException as err:
             if not isinstance(err.exception, TestException):
-                self.fail('Unexpected exception "{}" in pake.is_running exception test!'
+                self.fail('Unexpected exception "{}" in pake.is_running exception test!, '
+                          'expected TestException.'
                           .format(pake.util.qualified_name(err.__name__)))
             pass
+        else:
+            self.fail('Expected pake.TaskException, no exception was raised!')
+
+        self.assertEqual(pk.is_running, False)
+        self.assertEqual(pk.threadpool, None)
+
+    def _is_running_exit_test(self, jobs, exit_method):
+
+        # Test that the state of pk.is_running and pk.threadpool
+        # are correct even after pake experiences an exception inside
+        # of a task
+
+        class TestException(Exception):
+            def __init__(self, *args):
+                super().__init__(*args)
+
+        pake.program.shutdown()
+
+        pk = pake.init()
+
+        self.assertEqual(pk.is_running, False)
+        self.assertEqual(pk.threadpool, None)
+
+        @pk.task
+        def task_a(ctx):
+            exit_method(pk)
+
+        def task_b(ctx):
+            pass
+
+        def task_c(ctx):
+            pass
+
+        try:
+            pk.run(tasks=[task_a, task_b, task_c], jobs=jobs)
+        except pake.TaskExitException as err:
+            if not isinstance(err.exception, SystemExit):
+                self.fail('Unexpected exception "{}" in pake.is_running exit test!, '
+                          'expected SystemExit.'
+                          .format(pake.util.qualified_name(err.__name__)))
+        else:
+            self.fail('Expected pake.TaskExitException, no exception was raised!')
 
         self.assertEqual(pk.is_running, False)
         self.assertEqual(pk.threadpool, None)
@@ -308,3 +351,15 @@ class PakeTest(unittest.TestCase):
         self._is_running_test(10)
         self._is_running_exception_test()
         self._is_running_exception_test(10)
+
+        self._is_running_exit_test(jobs=10,
+                                   exit_method=lambda pk: exit(0))
+
+        self._is_running_exit_test(jobs=1,
+                                   exit_method=lambda pk: exit(0))
+
+        self._is_running_exit_test(jobs=10,
+                                   exit_method=lambda pk: pk.terminate(0))
+
+        self._is_running_exit_test(jobs=1,
+                                   exit_method=lambda pk: pk.terminate(0))

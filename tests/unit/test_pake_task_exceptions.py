@@ -238,6 +238,43 @@ class TaskExceptionsTest(unittest.TestCase):
         with self.assertRaises(pake.TaskExitException) as exc:
             pk.run(tasks=[test2, test3, test])
 
+        self.assertEqual(type(exc.exception.exception), SystemExit)
+
+        self.assertEqual(exc.exception.task_name, 'test')
+        self.assertEqual(exc.exception.return_code, 100)
+
+    def test_task_terminate_exception(self):
+
+        pake.program.shutdown()
+
+        pk = pake.init()
+
+        @pk.task
+        def test(ctx):
+            time.sleep(0.5)
+            pk.terminate(return_code=100)
+
+        @pk.task
+        def test2(ctx):
+            time.sleep(0.3)
+
+        @pk.task
+        def test3(ctx):
+            time.sleep(0.2)
+
+        # Make sure that terminate() effects even multithreaded builds
+
+        # The return code with call_exit=False should match the exit code in the task
+
+        self.assertEqual(pake.run(pk, tasks=[test2, test3, test], jobs=10, call_exit=False), 100)
+
+        self.assertEqual(pake.run(pk, tasks=[test2, test3, test], call_exit=False), 100)
+
+        with self.assertRaises(pake.TaskExitException) as exc:
+            pk.run(tasks=[test2, test3, test])
+
+        self.assertEqual(type(exc.exception.exception), pake.TerminateException)
+
         self.assertEqual(exc.exception.task_name, 'test')
         self.assertEqual(exc.exception.return_code, 100)
 
