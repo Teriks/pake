@@ -61,8 +61,8 @@ class ProcessException(Exception):
 
 class StreamingSubprocessException(ProcessException):
     """
-    A base class for process exceptions designed to deal with reporting huge amounts of process output (If necessary)
-    in the exception information when a process called from a task context fails.
+    A base class for sub-process exceptions which need to be able to handle reporting huge
+    amounts of process output when a process fails.
 
     This exception is used as a base class for process exceptions thrown from :py:meth:`pake.subpake`, and the
     process spawning methods in the :py:class:`pake.TaskContext` object.
