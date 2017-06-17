@@ -43,7 +43,7 @@ class FileHelper:
     def __init__(self, printer=None):
         """Build the FileHelper object around a printer instance which prints information about the file system operations being preformed.
 
-        Any object which implements **print(\*args)** in the same fashion as the python standard built in **print** function will work as the task context.
+        Any object which implements **print(\*args)** will work as a printer.
 
         The only objects ever passed into the print function are strings, **file=** is never specified.
 
