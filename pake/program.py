@@ -86,7 +86,7 @@ def init(stdout=None, args=None):
     immediately if arguments parsed from the command line or passed to the **args** parameter do not pass validation.
     
     :param stdout: The stdout object passed to the :py:class:`pake.Pake` instance. (defaults to :py:attr:`pake.conf.stdout`)
-    :param args: Optional command line arguments.
+    :param args: Optional command line arguments, if not provided they will be parsed from the command line.
 
     :raises: :py:exc:`SystemExit` if bad command line arguments are parsed, or the **args** parameter contains bad arguments.
 
