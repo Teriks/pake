@@ -8,8 +8,8 @@ You can also use :py:meth:`pake.Pake.terminate` on the pake context returned by 
 :py:meth:`pake.Pake.terminate` is just a shortcut for calling :py:meth:`pake.terminate` with the first argument filled out.
 
 These methods are for exiting pake with a given return code after it is initialized, they ensure
-that the proper 'leaving directory / exit subpake` messages are sent to pake's output in order
-to keep pake's output consistent.
+the proper 'leaving directory / exit subpake` messages are sent to pake's output if needed upon exit, and
+help keep logged output consistent.
 
 You should use these functions instead of **exit** when handling error conditions
 that occur outside of pake tasks before :py:meth:`pake.run` is called.
