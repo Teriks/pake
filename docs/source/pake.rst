@@ -22,10 +22,11 @@ Module: pake.graph
 
 
 Module: pake.process
-------------------------
+--------------------
 
 .. automodule:: pake.process
     :members:
+    :show-inheritance:
 
 
 Module: pake.util
