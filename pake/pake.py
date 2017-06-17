@@ -264,8 +264,8 @@ class TaskContext:
        Not available outside of a task, may only be used while a task is executing.
     """
 
-    def __init__(self, pake_instance, node):
-        self._pake = pake_instance
+    def __init__(self, pake_obj, node):
+        self._pake = pake_obj
         self._node = node
         self._future = None
         self._io = None
