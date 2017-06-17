@@ -6,7 +6,7 @@ and throwing them from :py:meth:`pake.Pake.run`.
 
 
 :py:meth:`pake.run` handles all of the exceptions from :py:meth:`pake.Pake.run` and prints the exception
-information to **pake.conf.stderr** in a way that is useful to the user/developer.
+information to :py:attr:`pake.conf.stderr` in a way that is useful to the user/developer.
 
 
 Example:

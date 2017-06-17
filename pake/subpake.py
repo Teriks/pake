@@ -155,7 +155,7 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
                           non-zero exit code.  It will instead return the exit code from the
                           subprocess to the caller.
     
-    :param exit_on_error: Whether or not to print to **pake.conf.stderr** and immediately
+    :param exit_on_error: Whether or not to print to :py:attr:`pake.conf.stderr` and immediately
                           **exit(1)** if the pakefile script encounters an error.  The value
                           of this parameter will be disregarded when **ignore_errors=True**.
 
