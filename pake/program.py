@@ -557,7 +557,7 @@ def terminate(pake_obj, return_code=returncodes.SUCCESS):  # pragma: no cover
 
     :py:meth:`pake.Pake.terminate` is a shortcut method which passes the **pake_obj** instance to this function for you.
 
-    :param pake_obj: Reference to the initialized pake object, for message io.
+    :param pake_obj: Reference to the initialized pake object.
 
     :param return_code: Return code to exit the pakefile with, see :py:mod:`pake.returncodes` for standard return codes.
                         Defaults to :py:attr:`pake.returncodes.SUCCESS`.  :py:attr:`pake.returncodes.ERROR` is intended
