@@ -104,7 +104,7 @@ class StreamingSubprocessException(ProcessException):
 
         :param output_stream: (Optional) A file like object containing the process output, at seek(0).
                                By providing this parameter instead of **output**, you give this object permission
-                               to close the stream when it is garbage collected or when :py:meth:`pake.TaskSubprocessException.write_info`
+                               to close the stream when it is garbage collected or when :py:meth:`pake.StreamingSubprocessException.write_info`
                                is called.  The passed stream should be a text mode stream.
 
         :param message: Optional exception message.

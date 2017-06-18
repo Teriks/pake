@@ -85,7 +85,9 @@ def init(stdout=None, args=None):
     This function will print information to :py:attr:`pake.conf.stderr` and call ``exit(pake.returncodes.BAD_ARGUMENTS)``
     immediately if arguments parsed from the command line or passed to the **args** parameter do not pass validation.
     
-    :param stdout: The stdout object passed to the :py:class:`pake.Pake` instance. (defaults to :py:attr:`pake.conf.stdout`)
+    :param stdout: The file object that task output gets written to, as well as `changing directory/entering & leaving subpake` messages.
+                   The default value is :py:attr:`pake.conf.stdout`.
+
     :param args: Optional command line arguments, if not provided they will be parsed from the command line.
 
     :raises: :py:exc:`SystemExit` if bad command line arguments are parsed, or the **args** parameter contains bad arguments.
@@ -285,44 +287,52 @@ def _format_task_info(max_name_width, task_name, task_doc):  # pragma: no cover
 
 
 def _list_tasks(pake_obj, default_tasks):  # pragma: no cover
-    if len(default_tasks):
-        pake_obj.print('# Default Tasks' + os.linesep)
-        for task in default_tasks:
-            pake_obj.print(pake_obj.get_task_name(task))
-        pake_obj.stdout.write(os.linesep)
-        pake_obj.stdout.flush()
+    """
 
-    pake_obj.print('# All Tasks' + os.linesep)
+    :type pake_obj: pake.Pake
+    """
+    if len(default_tasks):
+        print('# Default Tasks' + os.linesep, file=pake.conf.stdout)
+        for task in default_tasks:
+            print(pake_obj.get_task_name(task), file=pake.conf.stdout)
+        pake.conf.stdout.write(os.linesep)
+        pake.conf.stdout.flush()
+
+    print('# All Tasks' + os.linesep, file=pake.conf.stdout)
 
     if len(pake_obj.task_contexts):
         for ctx in pake_obj.task_contexts:
-            pake_obj.print(ctx.name)
+            print(ctx.name, file=pake.conf.stdout)
     else:
-        pake_obj.print('Not tasks present.')
+        print('No tasks present.', file=pake.conf.stdout)
 
 
 def _list_task_info(pake_obj, default_tasks):  # pragma: no cover
+    """
+
+    :type pake_obj: pake.Pake
+    """
     if len(default_tasks):
-        pake_obj.print('# Default Tasks' + os.linesep)
+        print('# Default Tasks' + os.linesep, file=pake.conf.stdout)
         for task in default_tasks:
-            pake_obj.print(pake_obj.get_task_name(task))
-        pake_obj.stdout.write(os.linesep)
-        pake_obj.stdout.flush()
+            print(pake_obj.get_task_name(task), file=pake.conf.stdout)
+        pake.conf.stdout.write(os.linesep)
+        pake.conf.stdout.flush()
 
     documented = [ctx for ctx in pake_obj.task_contexts if ctx.func.__doc__ is not None]
 
-    pake_obj.print('# Documented Tasks' + os.linesep)
+    print('# Documented Tasks' + os.linesep, file=pake.conf.stdout)
 
     if len(documented):
         max_name_width = len(max(documented, key=lambda x: len(x.name)).name)
 
         for ctx in documented:
-            pake_obj.print(_format_task_info(
+            print(_format_task_info(
                 max_name_width,
                 ctx.name,
-                ctx.func.__doc__))
+                ctx.func.__doc__), file=pake.conf.stdout)
     else:
-        pake_obj.print('No documented tasks present.')
+        print('No documented tasks present.', file=pake.conf.stdout)
 
 
 def run(pake_obj, tasks=None, jobs=None, call_exit=True):
@@ -360,6 +370,8 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
                       returned to the caller.
 
     :return: A return code from :py:mod:`pake.returncodes`.
+
+    :type pake_obj: pake.Pake
     """
 
     if not is_init():
@@ -382,8 +394,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         return code
 
     if pake_obj.task_count == 0:
-        print('*** No Tasks.  Stop.',
-              file=pake.conf.stderr)
+        print('*** No Tasks.  Stop.', file=pake.conf.stderr)
         return m_exit(returncodes.NO_TASKS_DEFINED)
 
     if parsed_args.show_tasks:  # pragma: no cover
@@ -400,7 +411,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     elif len(tasks):
         run_tasks += tasks
     else:
-        pake_obj.print("No tasks specified.")
+        print("No tasks specified.", file=pake.conf.stderr)
         return m_exit(returncodes.NO_TASKS_SPECIFIED)
 
     if parsed_args.directory and os.getcwd() != parsed_args.directory:
@@ -412,7 +423,8 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         try:
             pake_obj.dry_run(run_tasks)
             if pake_obj.run_count == 0:
-                pake_obj.print('Nothing to do, all tasks up to date.')
+                print('Nothing to do, all tasks up to date.',
+                      file=pake.conf.stdout)
             return 0
         except pake.InputNotFoundException as err:
             print(str(err), file=pake.conf.stderr)
@@ -440,7 +452,8 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         pake_obj.run(jobs=max_jobs, tasks=run_tasks)
 
         if pake_obj.run_count == 0:
-            pake_obj.print('Nothing to do, all tasks up to date.')
+            print('Nothing to do, all tasks up to date.',
+                  file=pake.conf.stdout)
 
     except pake.TaskExitException as err:
         return_code = err.return_code
@@ -564,6 +577,8 @@ def terminate(pake_obj, return_code=returncodes.SUCCESS):  # pragma: no cover
                         to be used with **terminate** to indicate a generic error, but other return codes may be used.
 
     :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
+
+    :type pake_obj: pake.Pake
     """
 
     def m_exit(code):
@@ -582,6 +597,10 @@ def terminate(pake_obj, return_code=returncodes.SUCCESS):  # pragma: no cover
 
 
 def _terminate(pake_obj, return_code, exit_func=exit):
+    """
+
+    :type pake_obj: pake.Pake
+    """
     if not is_init():
         raise pake.PakeUninitializedException()
 

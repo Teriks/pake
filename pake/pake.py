@@ -693,7 +693,7 @@ class TaskContext:
     def _i_submit_self(self, thread_pool):
         futures = [self.pake.get_task_context(i.name)._future for i in self.node.edges]
 
-        # Wait dependents, Raise pending exceptions
+        # Wait dependencies, Raise pending exceptions
         _wait_futures_and_raise(futures)
 
         # Submit self
@@ -919,7 +919,7 @@ class Pake:
     
     .. py:attribute:: stdout
     
-        (set-able) The stream all task output gets written to.
+        (set-able) The file object that task output gets written to, as well as `changing directory/entering & leaving subpake` messages.
     
     """
 
@@ -1211,7 +1211,7 @@ class Pake:
         
         .. code-block:: python
            
-           @pk.task(dependent_task_a, dependent_task_b)
+           @pk.task(dependency_task_a, dependency_task_b)
            def my_task(ctx):
                # Do your build task here
                pass
@@ -1222,7 +1222,7 @@ class Pake:
         
            # Dependencies come before input and output files.
            
-           @pk.task(dependent_task_a, dependent_task_b, i='main.c', o='main')
+           @pk.task(dependency_task_a, dependency_task_b, i='main.c', o='main')
            def my_task(ctx):
                # Do your build task here
                pass
@@ -1239,7 +1239,7 @@ class Pake:
            # Tasks with dependencies but no input or output files will also
            # always run when specified.
            
-           @pk.task(dependent_task_a, dependent_task_b)
+           @pk.task(dependency_task_a, dependency_task_b)
            def my_task(ctx):
                # I will always run when specified!
                pass
@@ -1497,7 +1497,7 @@ class Pake:
         
         :param name: The name of the task
         :param func: The task function (or callable class)
-        :param dependencies: List of dependent tasks or single task, by name or by reference
+        :param dependencies: List of task dependencies or single task, by name or by reference
         :param inputs: List of input files/directories, or a single input (accepts input file generators like :py:meth:`pake.glob`)
         :param outputs: List of output files/directories, or a single output (accepts output file generators like :py:meth:`pake.pattern`)
         :param no_header: Whether or not to avoid printing a task header when the task begins executing, defaults to **False** (Header is printed).
