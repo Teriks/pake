@@ -85,7 +85,7 @@ def init(stdout=None, args=None):
     This function will print information to :py:attr:`pake.conf.stderr` and call ``exit(pake.returncodes.BAD_ARGUMENTS)``
     immediately if arguments parsed from the command line or passed to the **args** parameter do not pass validation.
     
-    :param stdout: The file object that task output gets written to, as well as `changing directory/entering & leaving subpake` messages.
+    :param stdout: The file object that task output gets written to, as well as 'changing directory/entering & leaving subpake' messages.
                    The default value is :py:attr:`pake.conf.stdout`.
 
     :param args: Optional command line arguments, if not provided they will be parsed from the command line.

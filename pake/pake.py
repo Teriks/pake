@@ -919,7 +919,7 @@ class Pake:
     
     .. py:attribute:: stdout
     
-        (set-able) The file object that task output gets written to, as well as `changing directory/entering & leaving subpake` messages.
+        (set-able) The file object that task output gets written to, as well as 'changing directory/entering & leaving subpake' messages.
     
     """
 
