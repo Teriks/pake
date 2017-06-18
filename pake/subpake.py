@@ -146,7 +146,9 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
     :param args: The script, and additional arguments to pass to the script.
                  You may pass a list, or use variadic arguments.
 
-    :param stdout: The stream to write all of the scripts output to. (defaults to :py:attr:`pake.conf.stdout`)
+    :param stdout: The file output to write all of the pakefile's output to. (defaults to :py:attr:`pake.conf.stdout`)
+                   The pakefile's **stderr** will be redirected to it's **stdout**, so the passed file object will
+                   receive all output from the pakefile including error messages.
 
     :param silent: Whether or not to silence all output from the subpake script.
 
