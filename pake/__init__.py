@@ -22,12 +22,14 @@
 
 .. py:attribute:: EXPORTS
 
-A dictionary object containing all current exports,
+A dictionary object containing all current exports by name,
 you are free to modify this dictionary directly.
 
 See: :py:meth:`pake.export`, :py:meth:`pake.subpake` and :py:meth:`pake.TaskContext.subpake`.
 
 Be careful and make sure it remains a dictionary object.
+
+Export values must be able to **repr()** into parsable python literals.
 
 """
 

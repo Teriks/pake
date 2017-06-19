@@ -37,12 +37,14 @@ __all__ = ['export', 'subpake', 'SubpakeException', 'EXPORTS']
 
 EXPORTS = dict()
 """
-A dictionary object containing all current exports,
+A dictionary object containing all current exports by name,
 you are free to modify this dictionary directly.
 
-See: :py:meth:`pake.export` and :py:meth:`pake.subpake`.
+See: :py:meth:`pake.export`, :py:meth:`pake.subpake` and :py:meth:`pake.TaskContext.subpake`.
 
 Be careful and make sure it remains a dictionary object.
+
+Export values must be able to **repr()** into parsable python literals.
 """
 
 
@@ -102,11 +104,13 @@ class SubpakeException(pake.process.StreamingSubprocessException):
 
 def export(name, value):  # pragma: no cover
     """
-    Exports a define that can be retrieved in subpake scripts via :py:func:`~pake.Pake.get_define`.
+    Exports a define that can be retrieved in subpake scripts via :py:func:`pake.Pake.get_define`.
 
     This function can redefine the value of an existing export as well.
 
     The :py:attr:`pake.EXPORTS` dictionary can also be manipulated directly.
+
+    Export values must be able to **repr()** into parsable python literals.
     
     :param name: The name of the define.
     :param value: The value of the define.
