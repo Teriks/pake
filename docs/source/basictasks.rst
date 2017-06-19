@@ -27,28 +27,29 @@ Here's a contrived pake demo which demonstrates how tasks are written:
 
     pk = pake.init()
 
-    # Try to grab a command line define,
-    # in particular the value of -D CC=.. if
-    # it has been passed on the command line.
-    # CC will default to gcc in this case
+    # Try to grab a command line define.
+    # In particular the value of -D CC=..
+    # CC will default to 'gcc' in this case if
+    # it was not specified.
+
+    CC = pk.get_define('CC', 'gcc')
 
     # you can also use the syntax: pk["CC"] to
     # attempt to get the defines value, if it is not
     # defined then it will return None.
 
-    CC = pk.get_define("CC", "gcc")
-
+    # ===
 
     # If you just have a single input/output, there is no
     # need to pass a list to the tasks inputs/outputs
 
-    @pk.task(i="foo/foo.c", o="foo/foo.o")
+    @pk.task(i='foo/foo.c', o='foo/foo.o')
     def foo(ctx):
         # Execute a program (gcc) and print its stdout/stderr to the tasks output.
 
         # ctx.call can be passed a command line as variadic arguments, an iterable, or
         # as a string.  It will automatically flatten out non string iterables in your variadic
-        # arguments or iterable object, so you can just pass an iterable such as ctx.inputs
+        # arguments or iterable object, so you can pass an iterable such as ctx.inputs
         # as part of your full command line invocation instead of trying to create the command
         # line by concatenating lists or using the indexer on ctx.inputs/ctx.outputs
 
@@ -67,37 +68,37 @@ Here's a contrived pake demo which demonstrates how tasks are written:
     # can be used to get a generator over (input, output) pairs,
     # it is shorthand for zip(ctx.outdated_inputs, ctx.outdated_outputs)
 
-    @pk.task(i=pake.glob("bar/*.c"), o=pake.pattern('bar/%.o'))
+    @pk.task(i=pake.glob('bar/*.c'), o=pake.pattern('bar/%.o'))
     def bar(ctx):
 
         # zip together the outdated inputs and outputs, since they
         # correspond to each other, this iterates of a sequence of python
-        # tuple objects in the form ("input", "output")
+        # tuple objects in the form (input, output)
 
         for i, o in ctx.outdated_pairs:
             ctx.call(CC, '-c', i, '-o', o)
 
-    # This task depends on the foo and bar tasks, as
-    # specified with the decorators leading parameters,
-    # And only outputs "bin/baz" by taking the input "main.c"
+    # This task depends on the 'foo' and 'bar' tasks, as
+    # specified with the decorators leading parameters.
+    # It outputs 'bin/baz' by taking the input 'main.c'
     # and linking it to the object files produced in the other tasks.
 
-    # Documentation strings can be viewed by running 'pake -ti' in
-    # the directory the pakefile exists in, it will list all documented
-    # tasks with their python doc strings.
-
-    # The pake.FileHelper class can be used to preform basic file
-    # system operations while printing to the tasks output information
-    # about what said operation is doing.
-
-    @pk.task(foo, bar, o="bin/baz", i="main.c")
+    @pk.task(foo, bar, o='bin/baz', i='main.c')
     def baz(ctx):
         """Use this to build baz"""
+
+        # Documentation strings can be viewed by running 'pake -ti' in
+        # the directory the pakefile exists in, it will list all documented
+        # tasks with their python doc strings.
+
+        # The pake.FileHelper class can be used to preform basic file
+        # system operations while printing information about the operations
+        # it has completed to the tasks output.
 
         file_helper = pake.FileHelper(ctx)
 
         # Create a bin directory, this won't complain if it exists already
-        file_helper.makedirs("bin")
+        file_helper.makedirs('bin')
 
         # ctx.dependency_outputs contains a list of all outputs that this
         # tasks immediate dependencies produce
@@ -111,22 +112,25 @@ Here's a contrived pake demo which demonstrates how tasks are written:
 
         file_helper = pake.FileHelper(ctx)
 
-        # Clean up using a the FileHelper object
-        # Remove any bin directory, this wont complain if "bin"
+        # Clean up using the FileHelper object.
+        # Remove the bin directory, this wont complain if 'bin'
         # does not exist.
 
-        file_helper.rmtree("bin")
+        file_helper.rmtree('bin')
 
         # Glob remove object files from the foo and bar directories
 
-        file_helper.glob_remove("foo/*.o")
-        file_helper.glob_remove("bar/*.o")
+        file_helper.glob_remove('foo/*.o')
+        file_helper.glob_remove('bar/*.o')
 
 
-    # Run pake, the default task that will be executed when
-    # none are specified will be 'baz'. the tasks parameter
-    # is optional, if it is not specified then you will have to specify
-    # which tasks need to be run on the command line.
+    # Run pake; The default task that will be executed when
+    # none are specified on the command line will be 'baz' in
+    # this case.
+
+    # The tasks parameter is optional, but if it is not specified
+    # here, you will be required to specify a task or tasks on the
+    # command line.
 
     pake.run(pk, tasks=baz)
 
