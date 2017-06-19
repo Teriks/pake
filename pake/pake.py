@@ -1590,7 +1590,7 @@ class Pake:
         :raises: :py:exc:`pake.TaskException` if an exception occurred while running a task.
         
         :raises: :py:exc:`pake.TaskExitException` if :py:exc:`SystemExit` or an exception derived from it
-                          such as :py:exc:`pake.program.TerminateException` is raised inside of a task.
+                          such as :py:exc:`pake.TerminateException` is raised inside of a task.
         
         :raises: :py:exc:`pake.MissingOutputsException` if a task defines input files/directories without specifying any output files/directories.
         :raises: :py:exc:`pake.InputNotFoundException` if a task defines input files/directories but one of them was not found on disk.
