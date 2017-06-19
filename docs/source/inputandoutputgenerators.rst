@@ -32,6 +32,9 @@ once the values have been retrieved from them, to determine if the task should r
             # is an iterable object that produces file/directory
             # names as strings, it will work.
 
+            # You can also use 'yield' syntax in your input
+            # generator function, since the result is an iterable
+
             return glob.iglob(expression, recursive=True)
 
         return input_generator
