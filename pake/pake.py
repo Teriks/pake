@@ -782,20 +782,32 @@ def glob(expression):
            
     .. code-block:: python
     
-       @pk.task(build_c, i=pake.glob('obj/*.o'), o='main')
-       def build_exe(ctx):
-           ctx.call(['gcc'] + ctx.inputs + ['-o'] + ctx.outputs)
-           
-       @pk.task(build_c, i=[pake.glob('obj_a/*.o'), pake.glob('obj_b/*.o')], o='main')
-       def build_exe(ctx):
-           ctx.call(['gcc'] + ctx.inputs + ['-o'] + ctx.outputs)
-           
+        @pk.task(build_c, i=pake.glob('obj/*.o'), o='main')
+        def build_exe(ctx):
+           ctx.call('gcc', ctx.inputs, '-o', ctx.outputs)
+
+        @pk.task(build_c, i=[pake.glob('obj_a/*.o'), pake.glob('obj_b/*.o')], o='main')
+        def build_exe(ctx):
+           ctx.call('gcc', ctx.inputs, '-o', ctx.outputs)
+
+
+    Recursive Directory Search Example:
+
+    .. code-block:: python
+
+        @pk.task(i=pake.glob('src/**/*.c'), o=pake.pattern('{dir}/%.o'))
+        def build_c(ctx):
+            for i, o in ctx.outdated_pairs:
+                ctx.call('gcc', '-c', i, '-o', o)
+
+
     pake.glob returns a function similar to this:
     
     .. code-block:: python
     
        def input_generator():
            return glob.glob(expression)
+
     """
 
     def input_generator():
@@ -807,7 +819,7 @@ def glob(expression):
 def pattern(file_pattern):
     """Produce a substitution pattern that can be used in place of an output file.
     
-    The % character represents the file name, while {dir} and {ext} represent the directory of 
+    The **%** character represents the file name, while **{dir}** and **{ext}** represent the directory of
     the input file, and the input file extension.
     
     Example:
@@ -817,12 +829,12 @@ def pattern(file_pattern):
         @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
         def build_c(ctx):
             for i, o in ctx.outdated_pairs:
-                ctx.call(['gcc', '-c', i, '-o', o])
+                ctx.call('gcc', '-c', i, '-o', o)
                 
         @pk.task(i=[pake.glob('src_a/*.c'), pake.glob('src_b/*.c')], o=pake.pattern('{dir}/%.o'))
         def build_c(ctx):
             for i, o in ctx.outdated_pairs:
-                ctx.call(['gcc', '-c', i, '-o', o])
+                ctx.call('gcc', '-c', i, '-o', o)
                 
                 
     pake.pattern returns function similar to this:
