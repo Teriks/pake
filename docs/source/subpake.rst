@@ -11,7 +11,7 @@ called before pake is initialized.
 it handles writing to the task's output queue for you, without having to specify
 extra parameters to :py:meth:`pake.subpake` to get it working correctly.
 
-A :py:class:`pake.TaskContext` is passed into the single argument of each task function,
+A :py:class:`pake.TaskContext` instance is passed into the single argument of each task function,
 which you can in turn call **subpake** from.
 
 Defines can be exported to pakefiles ran with the **subpake** functions using :py:meth:`pake.export`.
