@@ -813,7 +813,7 @@ def glob(expression):
     .. code-block:: python
     
        def input_generator():
-           return glob.iglob(expression)
+           return glob.iglob(expression, recursive=True)
 
 
     :return: A callable function object, which returns a
@@ -852,7 +852,7 @@ def pattern(file_pattern):
     .. code-block:: python
     
        def output_generator(inputs):
-           # inputs is always a list, and a copy
+           # inputs is always a flat list, and a copy
            # inputs is safe to mutate
 
            for inp in inputs:
@@ -1223,7 +1223,7 @@ class Pake:
                
            def gen_output(pattern):
                def output_generator(inputs):
-                   # inputs is always a list, and a copy
+                   # inputs is always a flat list, and a copy
                    # inputs is safe to mutate if you want
 
                    for inp in inputs:
