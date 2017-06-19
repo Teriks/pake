@@ -84,7 +84,7 @@ once the values have been retrieved from them, to determine if the task should r
         # Your going to have an equal number of
         # inputs and outputs in this task, because
         # the output names are being generated from
-        # the input names
+        # the input names.
 
         for i, o in ctx.outdated_pairs:
             ctx.call('gcc', '-c', i, '-o', o)
@@ -151,7 +151,7 @@ Example with an output generator:
         # Your going to have an equal number of
         # inputs and outputs in this task, because
         # the output names are being generated from
-        # the input names
+        # the input names.
 
         for i, o in ctx.outdated_pairs:
             ctx.call('gcc', '-c', i, '-o', o)
