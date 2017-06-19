@@ -808,7 +808,7 @@ def glob(expression):
                 ctx.call('gcc', '-c', i, '-o', o)
 
 
-    pake.glob returns a function similar to this:
+    :py:meth:`pake.glob` returns a function similar to this:
     
     .. code-block:: python
     
@@ -844,7 +844,7 @@ def pattern(file_pattern):
                 ctx.call('gcc', '-c', i, '-o', o)
                 
                 
-    pake.pattern returns function similar to this:
+    :py:meth:`pake.pattern` returns function similar to this:
     
     .. code-block:: python
     
