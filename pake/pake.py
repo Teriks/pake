@@ -25,7 +25,7 @@ import tempfile
 import threading
 import traceback
 from functools import wraps
-from glob import glob as file_glob
+from glob import iglob as glob_iglob
 
 import os
 import sys
@@ -813,12 +813,15 @@ def glob(expression):
     .. code-block:: python
     
        def input_generator():
-           return glob.glob(expression)
+           return glob.iglob(expression)
 
+
+    :return: A callable function object, which returns a
+             generator over the file glob results as strings.
     """
 
     def input_generator():
-        return file_glob(expression, recursive=True)
+        return glob_iglob(expression, recursive=True)
 
     return input_generator
 
@@ -1077,30 +1080,32 @@ class Pake:
 
     @staticmethod
     def _process_i_o_params(i, o):
+        # Process i / o parameters of add_task, and task decorator.
+
+        # Collapse input and output generators like pake.glob etc..
+
+        # return i / o as a list always according to the allowed syntax
+        # of the task decorators input and output parameters, which can
+        # accept single strings, list of strings, input or output generators,
+        # or list of input or output generators
+
         if i is None:
             i = []
-        if o is None:
-            o = []
-
-        if callable(i):
-            i = list(i())
+        elif callable(i):
+            i = i()
         elif type(i) is str or not pake.util.is_iterable_not_str(i):
             i = [i]
-
-        for idx, inp in enumerate(i):
-            if callable(inp):
-                i[idx] = inp()
+        else:
+            i = map(lambda inp: inp() if callable(inp) else inp, i)
 
         i = list(pake.util.flatten_non_str(i))
 
+        if o is None:
+            o = []
         if callable(o):
-            o = list(o(i))
+            o = o(i)
         elif type(o) is str or not pake.util.is_iterable_not_str(o):
             o = [o]
-
-        for idx, outp in enumerate(i):
-            if callable(outp):
-                o[idx] = outp(i)
 
         o = list(pake.util.flatten_non_str(o))
 
