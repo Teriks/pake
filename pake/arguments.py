@@ -30,14 +30,16 @@ __all__ = ['parse_args', 'get_parser', 'args_are_parsed', 'get_args']
 _ARG_PARSER = argparse.ArgumentParser(prog='pake')
 
 
+def _print_err(*args):
+    print(*args, file=pake.conf.stderr)
+
+
 def _create_gt_int(minimum, less_message):
     def _gt_zero_int(val):
         val = int(val)
         if val < minimum:
             _ARG_PARSER.print_usage(pake.conf.stderr)
-            print('{}: error: {}'
-                  .format(_ARG_PARSER.prog, less_message),
-                  file=pake.conf.stderr)
+            _print_err('{}: error: {}'.format(_ARG_PARSER.prog, less_message))
             exit(pake.returncodes.BAD_ARGUMENTS)
         return val
 
@@ -49,9 +51,8 @@ def _absolute_directory(directory):
         return os.path.abspath(directory)
     else:
         _ARG_PARSER.print_usage(pake.conf.stderr)
-        print('{prog}: error: Directory "{dir}" does not exist.'
-              .format(prog=_ARG_PARSER.prog, dir=directory),
-              file=pake.conf.stderr)
+        _print_err('{prog}: error: Directory "{dir}" does not exist.'
+                   .format(prog=_ARG_PARSER.prog, dir=directory))
         exit(pake.returncodes.BAD_ARGUMENTS)
 
 
@@ -104,56 +105,46 @@ def _validate_arguments(parsed_args):
 
     if parsed_args.stdin_defines:
         if parsed_args.show_tasks:
-            print('-t/--show-tasks and --stdin-defines cannot be used together.',
-                  file=pake.conf.stderr)
+            _print_err('-t/--show-tasks and --stdin-defines cannot be used together.')
             return True, returncodes.BAD_ARGUMENTS
 
         if parsed_args.show_task_info:
-            print('-ti/--show-task-info and --stdin-defines cannot be used together.',
-                  file=pake.conf.stderr)
+            _print_err('-ti/--show-task-info and --stdin-defines cannot be used together.')
             return True, returncodes.BAD_ARGUMENTS
 
     if parsed_args.show_tasks and parsed_args.show_task_info:
-        print('-t/--show-tasks and -ti/--show-task-info cannot be used together.',
-              file=pake.conf.stderr)
+        _print_err('-t/--show-tasks and -ti/--show-task-info cannot be used together.')
         return True, returncodes.BAD_ARGUMENTS
 
     if parsed_args.dry_run:
         if parsed_args.jobs:
-            print("-n/--dry-run and -j/--jobs cannot be used together.",
-                  file=pake.conf.stderr)
+            _print_err("-n/--dry-run and -j/--jobs cannot be used together.")
             return True, returncodes.BAD_ARGUMENTS
 
         if parsed_args.show_tasks:
-            print("-n/--dry-run and the -t/--show-tasks option cannot be used together.",
-                  file=pake.conf.stderr)
+            _print_err("-n/--dry-run and the -t/--show-tasks option cannot be used together.")
             return True, returncodes.BAD_ARGUMENTS
 
         if parsed_args.show_task_info:
-            print("-n/--dry-run and the -ti/--show-task-info option cannot be used together.",
-                  file=pake.conf.stderr)
+            _print_err("-n/--dry-run and the -ti/--show-task-info option cannot be used together.")
             return True, returncodes.BAD_ARGUMENTS
 
     if parsed_args.tasks and len(parsed_args.tasks) > 0:
         if parsed_args.show_tasks:
-            print("Run tasks may not be specified when using the -t/--show-tasks option.",
-                  file=pake.conf.stderr)
+            _print_err("Run tasks may not be specified when using the -t/--show-tasks option.")
             return True, returncodes.BAD_ARGUMENTS
 
         if parsed_args.show_task_info:
-            print("Run tasks may not be specified when using the -ti/--show-task-info option.",
-                  file=pake.conf.stderr)
+            _print_err("Run tasks may not be specified when using the -ti/--show-task-info option.")
             return True, returncodes.BAD_ARGUMENTS
 
     if parsed_args.jobs:
         if parsed_args.show_tasks:
-            print('-t/--show-tasks and -j/--jobs cannot be used together.',
-                  file=pake.conf.stderr)
+            _print_err('-t/--show-tasks and -j/--jobs cannot be used together.')
             return True, returncodes.BAD_ARGUMENTS
 
         if parsed_args.show_task_info:
-            print('-ti/--show-task-info and -j/--jobs cannot be used together.',
-                  file=pake.conf.stderr)
+            _print_err('-ti/--show-task-info and -j/--jobs cannot be used together.')
             return True, returncodes.BAD_ARGUMENTS
 
     return False, 0

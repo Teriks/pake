@@ -46,6 +46,14 @@ __all__ = [
 ]
 
 
+def _print_err(*args):
+    print(*args, file=pake.conf.stderr)
+
+
+def _print(*args):
+    print(*args, file=pake.conf.stdout)
+
+
 class PakeUninitializedException(Exception):
     """
     Thrown if a function is called which depends on :py:func:`pake.init` being called first.
@@ -111,19 +119,17 @@ def init(stdout=None, args=None):
             parsed_stdin_defines = ast.literal_eval(sys.stdin.read())
 
             if type(parsed_stdin_defines) != dict:
-                print('The --stdin-defines option expects that a python dictionary '
-                      'object be written to stdin.  A literal of type "{}" was '
-                      'deserialized instead.'.format(type(parsed_stdin_defines).__name__),
-                      file=pake.conf.stderr)
+                _print_err('The --stdin-defines option expects that a python dictionary '
+                           'object be written to stdin.  A literal of type "{}" was '
+                           'deserialized instead.'.format(type(parsed_stdin_defines).__name__))
 
                 exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
 
         except Exception as err:
 
-            print('Syntax error parsing defines from standard input '''
-                  'with --stdin-defines option:' + os.linesep,
-                  file=pake.conf.stderr)
-            print(str(err), file=pake.conf.stderr)
+            _print_err('Syntax error parsing defines from standard input '''
+                       'with --stdin-defines option:' + os.linesep)
+            _print_err(str(err))
 
             exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
         else:
@@ -132,7 +138,7 @@ def init(stdout=None, args=None):
     try:
         parsed_cmd_arg_defines = _defines_to_dict(parsed_args.define)
     except ValueError as err:
-        print(str(err), file=pake.conf.stderr)
+        _print_err(str(err))
         exit(returncodes.BAD_DEFINE_VALUE)
     else:
         pk.merge_defines_dict(parsed_cmd_arg_defines)
@@ -292,19 +298,19 @@ def _list_tasks(pake_obj, default_tasks):  # pragma: no cover
     :type pake_obj: pake.Pake
     """
     if len(default_tasks):
-        print('# Default Tasks' + os.linesep, file=pake.conf.stdout)
+        _print('# Default Tasks' + os.linesep)
         for task in default_tasks:
-            print(pake_obj.get_task_name(task), file=pake.conf.stdout)
+            _print(pake_obj.get_task_name(task))
         pake.conf.stdout.write(os.linesep)
         pake.conf.stdout.flush()
 
-    print('# All Tasks' + os.linesep, file=pake.conf.stdout)
+    _print('# All Tasks' + os.linesep)
 
     if len(pake_obj.task_contexts):
         for ctx in pake_obj.task_contexts:
-            print(ctx.name, file=pake.conf.stdout)
+            _print(ctx.name)
     else:
-        print('No tasks present.', file=pake.conf.stdout)
+        _print('No tasks present.')
 
 
 def _list_task_info(pake_obj, default_tasks):  # pragma: no cover
@@ -313,26 +319,26 @@ def _list_task_info(pake_obj, default_tasks):  # pragma: no cover
     :type pake_obj: pake.Pake
     """
     if len(default_tasks):
-        print('# Default Tasks' + os.linesep, file=pake.conf.stdout)
+        _print('# Default Tasks' + os.linesep)
         for task in default_tasks:
-            print(pake_obj.get_task_name(task), file=pake.conf.stdout)
+            _print(pake_obj.get_task_name(task))
         pake.conf.stdout.write(os.linesep)
         pake.conf.stdout.flush()
 
     documented = [ctx for ctx in pake_obj.task_contexts if ctx.func.__doc__ is not None]
 
-    print('# Documented Tasks' + os.linesep, file=pake.conf.stdout)
+    _print('# Documented Tasks' + os.linesep)
 
     if len(documented):
         max_name_width = len(max(documented, key=lambda x: len(x.name)).name)
 
         for ctx in documented:
-            print(_format_task_info(
-                max_name_width,
-                ctx.name,
-                ctx.func.__doc__), file=pake.conf.stdout)
+            _print(_format_task_info(
+                   max_name_width,
+                   ctx.name,
+                   ctx.func.__doc__))
     else:
-        print('No documented tasks present.', file=pake.conf.stdout)
+        _print('No documented tasks present.')
 
 
 def run(pake_obj, tasks=None, jobs=None, call_exit=True):
@@ -394,7 +400,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         return code
 
     if pake_obj.task_count == 0:
-        print('*** No Tasks.  Stop.', file=pake.conf.stderr)
+        _print_err('*** No Tasks.  Stop.')
         return m_exit(returncodes.NO_TASKS_DEFINED)
 
     if parsed_args.show_tasks:  # pragma: no cover
@@ -411,7 +417,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     elif len(tasks):
         run_tasks += tasks
     else:
-        print("No tasks specified.", file=pake.conf.stderr)
+        _print_err("No tasks specified.")
         return m_exit(returncodes.NO_TASKS_SPECIFIED)
 
     if parsed_args.directory and os.getcwd() != parsed_args.directory:
@@ -423,20 +429,19 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         try:
             pake_obj.dry_run(run_tasks)
             if pake_obj.run_count == 0:
-                print('Nothing to do, all tasks up to date.',
-                      file=pake.conf.stdout)
+                _print('Nothing to do, all tasks up to date.')
             return 0
         except pake.InputNotFoundException as err:
-            print(str(err), file=pake.conf.stderr)
+            _print_err(str(err))
             return m_exit(returncodes.TASK_INPUT_NOT_FOUND)
         except pake.MissingOutputsException as err:
-            print(str(err), file=pake.conf.stderr)
+            _print_err(str(err))
             return m_exit(returncodes.TASK_OUTPUT_MISSING)
         except pake.UndefinedTaskException as err:
-            print(str(err), file=pake.conf.stderr)
+            _print_err(str(err))
             return m_exit(returncodes.UNDEFINED_TASK)
         except pake.CyclicGraphException as err:
-            print(str(err), file=pake.conf.stderr)
+            _print_err(str(err))
             return m_exit(returncodes.CYCLIC_DEPENDENCY)
 
     return_code = 0
@@ -452,29 +457,28 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         pake_obj.run(jobs=max_jobs, tasks=run_tasks)
 
         if pake_obj.run_count == 0:
-            print('Nothing to do, all tasks up to date.',
-                  file=pake.conf.stdout)
+            _print('Nothing to do, all tasks up to date.')
 
     except pake.TaskExitException as err:
         return_code = err.return_code
 
         if return_code != returncodes.SUCCESS:
             # Print info only for error conditions
-            print(os.linesep + str(err) + os.linesep, file=pake.conf.stderr)
+            _print_err(os.linesep + str(err) + os.linesep)
             err.print_traceback(file=pake.conf.stderr)
             pake.conf.stderr.write(os.linesep)
 
     except pake.InputNotFoundException as err:
-        print(str(err), file=pake.conf.stderr)
+        _print_err(str(err))
         return_code = returncodes.TASK_INPUT_NOT_FOUND
     except pake.MissingOutputsException as err:
-        print(str(err), file=pake.conf.stderr)
+        _print_err(str(err))
         return_code = returncodes.TASK_OUTPUT_MISSING
     except pake.UndefinedTaskException as err:
-        print(str(err), file=pake.conf.stderr)
+        _print_err(str(err))
         return_code = returncodes.UNDEFINED_TASK
     except pake.CyclicGraphException as err:
-        print(str(err), file=pake.conf.stderr)
+        _print_err(str(err))
         return_code = returncodes.CYCLIC_DEPENDENCY
     except pake.TaskException as err:
         inner_err = err.exception
@@ -494,7 +498,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
             return_code = returncodes.TASK_SUBPROCESS_EXCEPTION
 
         else:
-            print(os.linesep + str(err) + os.linesep, file=pake.conf.stderr)
+            _print_err(os.linesep + str(err) + os.linesep)
             err.print_traceback(file=pake.conf.stderr)
             pake.conf.stderr.write(os.linesep)
 

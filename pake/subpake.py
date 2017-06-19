@@ -265,7 +265,7 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
                                   message='A pakefile invoked by pake.subpake exited with a non-zero return code.')
 
             if exit_on_error:
-                ex.write_info(pake.conf.stderr)
+                ex.write_info(file=pake.conf.stderr)
                 exit(returncodes.SUBPAKE_EXCEPTION)
             else:
                 raise ex
