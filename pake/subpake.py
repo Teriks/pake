@@ -105,6 +105,8 @@ def export(name, value):  # pragma: no cover
     Exports a define that can be retrieved in subpake scripts via :py:func:`~pake.Pake.get_define`.
 
     This function can redefine the value of an existing export as well.
+
+    The :py:attr:`pake.EXPORTS` dictionary can also be manipulated directly.
     
     :param name: The name of the define.
     :param value: The value of the define.
