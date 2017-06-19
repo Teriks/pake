@@ -852,6 +852,9 @@ def pattern(file_pattern):
     .. code-block:: python
     
        def output_generator(inputs):
+           # inputs is always a list, and a copy
+           # inputs is safe to mutate
+
            for inp in inputs:
                dir = os.path.dirname(inp)
                name, ext = os.path.splitext(os.path.basename(inp))
@@ -1220,10 +1223,14 @@ class Pake:
                
            def gen_output(pattern):
                def output_generator(inputs):
+                   # inputs is always a list, and a copy
+                   # inputs is safe to mutate if you want
+
                    for inp in inputs:
                        dir = os.path.dirname(inp)
                        name, ext = os.path.splitext(os.path.basename(inp))
                        yield pattern.replace('{dir}', dir).replace('%', name).replace('{ext}', ext)
+
                return output_generator
            
            @pk.task(i=gen_inputs('*.c'), o=gen_outputs('%.o'))
