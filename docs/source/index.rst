@@ -52,7 +52,7 @@ Guides / Help
 
     Running Pake <runningpake>
     Writing Basic Tasks <basictasks>
-    Task Input And Output Name Generators <inputandoutputgenerators>
+    Input/Output Name Generators & Globbing <inputandoutputgenerators>
     Change Detection Against Directories <directorychangedetection>
     Exiting Pakefiles Gracefully <exitingpakefiles>
     Adding Tasks Programmatically <programmaticlyaddtasks>

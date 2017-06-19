@@ -1,5 +1,5 @@
-Task Input And Output Name Generators
-=====================================
+Input/Output Name Generators & Globbing
+=======================================
 
 Pake can accept callables as task inputs, this is how :py:meth:`pake.glob` and :py:meth:`pake.pattern` are
 implemented under the hood.  They both take the pattern you give them and return a new function, which
