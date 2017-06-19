@@ -174,7 +174,7 @@ class CallerDetail(namedtuple('CallerDetail', ['filename', 'function_name', 'lin
 
 
 def get_pakefile_caller_detail():
-    """Get the full pakefile path, called function name and function call line number of the first
+    """Get the full pakefile path, called function name, and line number of the first
     function call in the current call tree which exists inside of a pakefile.
        
     This function traverses up the stack frame looking for the first occurrence of
