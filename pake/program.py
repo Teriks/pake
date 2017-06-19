@@ -94,7 +94,9 @@ def init(stdout=None, args=None):
     immediately if arguments parsed from the command line or passed to the **args** parameter do not pass validation.
     
     :param stdout: The file object that task output gets written to, as well as 'changing directory/entering & leaving subpake' messages.
-                   The default value is :py:attr:`pake.conf.stdout`.
+                   The default value is :py:attr:`pake.conf.stdout`.  If you set this, make sure that you set it to an actual file object
+                   that implements **fileno()**. :py:class:`io.StringIO` and pseudo file objects with no **fileno()** will not work with
+                   all of pake's subprocess spawning functions.
 
     :param args: Optional command line arguments, if not provided they will be parsed from the command line.
 
@@ -215,6 +217,11 @@ def get_max_jobs():
     Be aware, the value this function returns will not be affected by the optional
     **jobs** argument of :py:meth:`pake.run` and :py:meth:`pake.Pake.run`.  It is purely
     for retrieving the value passed on the command line.
+
+    If you have overridden the command line or default job count using the **jobs** argument
+    of the methods mentioned above, you can use the :py:attr:`pake.Pake.max_jobs` property on the
+    :py:class:`pake.Pake` instance returned by :py:meth:`pake.init` to get the correct value inside
+    of a task while pake is running.
     
     :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: The max number of jobs from the **--jobs** command line argument. (an integer >= 1)

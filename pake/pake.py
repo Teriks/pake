@@ -689,12 +689,18 @@ class TaskContext:
         )
 
     def _i_io_open(self):
-        self._io = tempfile.TemporaryFile(mode='w+', newline='\n')
+        if self._pake.threadpool:
+            self._io = tempfile.TemporaryFile(mode='w+', newline='\n')
+        else:
+            self._io = self.pake.stdout
 
     def _i_io_close(self):
-        self._io.seek(0)
-        shutil.copyfileobj(self._io, self.pake.stdout)
-        self._io.close()
+        if self._pake.threadpool:
+            self._io.seek(0)
+            shutil.copyfileobj(self._io, self.pake.stdout)
+            self._io.close()
+        else:
+            self._io.flush()
 
     def _i_submit_self(self, thread_pool):
         futures = [self.pake.get_task_context(i.name)._future for i in self.node.edges]
@@ -951,6 +957,8 @@ class Pake:
     .. py:attribute:: stdout
     
         (set-able) The file object that task output gets written to, as well as 'changing directory/entering & leaving subpake' messages.
+                   If you set this, make sure that you set it to an actual file object that implements **fileno()**. :py:class:`io.StringIO`
+                   and pseudo file objects with no **fileno()** will not work with all of pake's subprocess spawning functions.
     
     """
 
@@ -979,7 +987,21 @@ class Pake:
         self._is_running = False
         self._run_count_lock = threading.Lock()
         self._run_count = 0
-        self._cur_job_count = 0
+        self._cur_max_jobs = 1
+
+    @property
+    def max_jobs(self):
+        """Returns the value of the **jobs** parameter used in the last invocation of :py:meth:`pake.Pake.run`.
+
+        This can be used inside of a task to determine if pake is running in multithreaded mode, and the
+        maximum amount of threads it has been allowed to use for the current invocation.
+
+        A **max_jobs** value of **1** indicates that pake is running all tasks in the current thread,
+        anything greater than **1** means pake is sending tasks to a threadpool.
+
+        See Also:  :py:attr:`pake.Pake.threadpool`
+        """
+        return self._cur_max_jobs
 
     @property
     def task_count(self):
@@ -1115,7 +1137,7 @@ class Pake:
         return i, o
 
     def _increment_run_count(self):
-        if self._cur_job_count > 1:
+        if self._cur_max_jobs > 1:
             with self._run_count_lock:
                 self._run_count += 1
         else:
@@ -1641,7 +1663,7 @@ class Pake:
         if not pake.util.is_iterable_not_str(tasks):
             tasks = [tasks]
 
-        self._cur_job_count = jobs
+        self._cur_max_jobs = jobs
         self._run_count = 0
 
         task_graphs = (self.get_task_context(task).node.topological_sort() for task in tasks)
