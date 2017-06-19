@@ -28,7 +28,7 @@ once the values have been retrieved from them, to determine if the task should r
         def input_generator():
 
             # Input generators can return generators or lists.
-            # as long as whatever the input generator returns
+            # As long as whatever the input generator returns
             # is an iterable object that produces file/directory
             # names as strings, it will work.
 
@@ -37,7 +37,7 @@ once the values have been retrieved from them, to determine if the task should r
         return input_generator
 
 
-    # pattern generates a callable that you can
+    # pake.pattern generates a callable that you can
     # pass as a pake output, into the "i" parameter
     # of the task decorator, or even to the "inputs"
     # parameter of pk.add_task
