@@ -73,13 +73,17 @@ When a process called through one of these process spawning methods returns with
 a :py:exc:`pake.TaskSubprocessException` is raised by default.  That will always be true unless you have
 supplied **ignore_errors=True** as an argument to these functions.
 
+This exception derives from :py:exc:`pake.process.StreamingSubprocessException`, an exception
+base class which incrementally reads process output that has been buffered to disk when reporting
+error information.  Buffering the output to disk and reading it back incrementally helps keep huge
+amounts of process output from crashing pake when it reports a sub-process error.
+
 The reported exception information will contain the full path to your pakefile, the name of the process
 spawning function, and the line number where it was called.  All of this will be at the very top of the
 error message.
 
 All output from the failed command will be mentioned at the bottom in a block surrounded by brackets,
 which is labeled with **"Command Output: "**
-
 
 Example:
 
