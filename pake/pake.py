@@ -969,8 +969,8 @@ class Pake:
     def run_count(self):
         """Contains the number of tasks ran/visited by the last invocation of :py:meth:`pake.Pake.run` or :py:meth:`pake.Pake.dry_run`
         
-        If a task did not run because change detection on input/output files decided it did not need to, then it does 
-        not count towards this total.  This also applies when doing a dry run with :py:meth:`pake.Pake.dry_run`
+        If a task did not run because change detection decided it did not need to, then it does  not count towards this total.
+        This also applies when doing a dry run with :py:meth:`pake.Pake.dry_run`
         
         :returns: Number of tasks last run.
         """
