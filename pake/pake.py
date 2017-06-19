@@ -795,6 +795,13 @@ def glob(expression):
 
     .. code-block:: python
 
+        # Find everything under 'src' that is a .c file, including
+        # in sub directories of 'src' and all the way to the bottom of
+        # the directory tree
+
+        # pake.pattern is used to put the object file for each .c file
+        # next to it in the same directory
+
         @pk.task(i=pake.glob('src/**/*.c'), o=pake.pattern('{dir}/%.o'))
         def build_c(ctx):
             for i, o in ctx.outdated_pairs:
