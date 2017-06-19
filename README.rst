@@ -106,6 +106,7 @@ Here's a contrived pake demo which demonstrates how tasks are written:
         for i, o in ctx.outdated_pairs:
             ctx.call(CC, '-c', i, '-o', o)
 
+
     # This task depends on the 'foo' and 'bar' tasks, as
     # specified with the decorators leading parameters.
     # It outputs 'bin/baz' by taking the input 'main.c'
