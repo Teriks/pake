@@ -70,7 +70,7 @@ Example Use Case:
     # try:
     #     pk.run(tasks=test)
     # except pake.TaskExitException as err:
-    #     print('\n'+str(err)+'\n')
+    #     print('\n' + str(err) + '\n')
     #
     #     # print to pake.conf.stderr by default
     #     # file parameter can be used to change that
@@ -122,7 +122,7 @@ Example:
     # try:
     #     pk.run(tasks=test)
     # except pake.TaskExitException as err:
-    #     print('\n'+str(err)+'\n')
+    #     print('\n' + str(err) + '\n')
     #
     #     # print to pake.conf.stderr by default
     #     # file parameter can be used to change that

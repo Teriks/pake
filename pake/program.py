@@ -129,7 +129,7 @@ def init(stdout=None, args=None):
 
             _print_err('Syntax error parsing defines from standard input '''
                        'with --stdin-defines option:' + os.linesep)
-            _print_err(str(err))
+            _print_err(err)
 
             exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
         else:
@@ -138,7 +138,7 @@ def init(stdout=None, args=None):
     try:
         parsed_cmd_arg_defines = _defines_to_dict(parsed_args.define)
     except ValueError as err:
-        _print_err(str(err))
+        _print_err(err)
         exit(returncodes.BAD_DEFINE_VALUE)
     else:
         pk.merge_defines_dict(parsed_cmd_arg_defines)
@@ -432,16 +432,16 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
                 _print('Nothing to do, all tasks up to date.')
             return 0
         except pake.InputNotFoundException as err:
-            _print_err(str(err))
+            _print_err(err)
             return m_exit(returncodes.TASK_INPUT_NOT_FOUND)
         except pake.MissingOutputsException as err:
-            _print_err(str(err))
+            _print_err(err)
             return m_exit(returncodes.TASK_OUTPUT_MISSING)
         except pake.UndefinedTaskException as err:
-            _print_err(str(err))
+            _print_err(err)
             return m_exit(returncodes.UNDEFINED_TASK)
         except pake.CyclicGraphException as err:
-            _print_err(str(err))
+            _print_err(err)
             return m_exit(returncodes.CYCLIC_DEPENDENCY)
 
     return_code = 0
@@ -469,16 +469,16 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
             pake.conf.stderr.write(os.linesep)
 
     except pake.InputNotFoundException as err:
-        _print_err(str(err))
+        _print_err(err)
         return_code = returncodes.TASK_INPUT_NOT_FOUND
     except pake.MissingOutputsException as err:
-        _print_err(str(err))
+        _print_err(err)
         return_code = returncodes.TASK_OUTPUT_MISSING
     except pake.UndefinedTaskException as err:
-        _print_err(str(err))
+        _print_err(err)
         return_code = returncodes.UNDEFINED_TASK
     except pake.CyclicGraphException as err:
-        _print_err(str(err))
+        _print_err(err)
         return_code = returncodes.CYCLIC_DEPENDENCY
     except pake.TaskException as err:
         inner_err = err.exception
