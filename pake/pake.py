@@ -569,7 +569,7 @@ class TaskContext:
         
         :param args: The process command/executable, and additional arguments to pass
                      to the process. You may pass the command words as a single iterable,
-                     string, or as variadic arguments.
+                     a string, or as variadic arguments.
 
         :param stdin: Optional file object to pipe into the called process's **stdin**.
         :param shell: Whether or not to use the system shell for execution of the command.
@@ -1336,8 +1336,9 @@ class Pake:
         :param args: Tasks which this task depends on.
         :param i: Optional input files/directories for change detection.
         :param o: Optional output files/directories for change detection.
-        :param no_header: Whether or not to avoid printing a task header when the task begins executing, defaults to **False** (Header is printed).
-                  This does not apply to dry run visits, the task header will still be printed during dry runs.
+        :param no_header: Whether or not to avoid printing a task header when the task begins executing,
+                          defaults to **False** (Header is printed). This does not apply to dry run visits, the
+                          task name/header will still be printed during dry runs even if **no_header=True**.
         """
 
         if len(args) == 1 and inspect.isfunction(args[0]):

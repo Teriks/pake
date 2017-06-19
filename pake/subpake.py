@@ -149,7 +149,7 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
     
 
     :param args: The script, and additional arguments to pass to the script.
-                 You may pass the command words as a single iterable, string, or as
+                 You may pass the command words as a single iterable, a string, or as
                  variadic arguments.
 
     :param stdout: The file output to write all of the pakefile's output to. (defaults to :py:attr:`pake.conf.stdout`)
@@ -168,7 +168,7 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
                           of this parameter will be disregarded when **ignore_errors=True**.
 
     :raises: :py:exc:`ValueError` if no command + optional command arguments are provided.
-    :raises: :py:exc:`FileNotFoundError` if the first argument (the pakefile) is not found.
+    :raises: :py:exc:`FileNotFoundError` if the first argument *(the pakefile)* is not found.
     :raises: :py:exc:`pake.SubpakeException` if the called pakefile script encounters an error
              and the following is true: **exit_on_error=False** and **ignore_errors=False**.
 
