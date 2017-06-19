@@ -203,7 +203,7 @@ class StreamingSubprocessException(ProcessException):
             # os.linesep is a string, * 2 duplicates it twice
             file.write('Message: ' + self.message + (os.linesep * 2))
 
-        file.write('The following command exited with return code: {code}{sep}{sep}{cmd}' \
+        file.write('The following command exited with return code: {code}{sep}{sep}{cmd}'
                    .format(code=self.returncode, sep=os.linesep, cmd=' '.join(self.cmd)))
 
         if self._output or self._output_stream:

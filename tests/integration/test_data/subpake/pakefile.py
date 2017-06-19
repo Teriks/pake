@@ -39,7 +39,7 @@ assert pk.get_define('TEST_EXPORT5') == ''
 
 
 @pk.task(i="test.c", o="test.o")
-def all(ctx):
+def build(ctx):
     file_helper = pake.FileHelper(ctx)
     file_helper.touch(ctx.outputs[0])
     ctx.print(ctx.inputs[0])

@@ -516,8 +516,8 @@ class TerminateException(SystemExit):
     If this exception is raised inside of a task, :py:meth:`pake.Pake.run` with raise a
     :py:exc:`pake.TaskExitException` in response.
     """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)  # pragma: no cover
+    def __init__(self, *args):
+        super().__init__(*args)
 
 
 def terminate(pake_obj, return_code=returncodes.SUCCESS):  # pragma: no cover

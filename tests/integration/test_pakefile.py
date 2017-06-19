@@ -109,8 +109,8 @@ def do_all(ctx):
 
     file_helper.touch(ctx.outputs[0])
 
-    # Run a test pakefile.py script in a subdirectory, build 'all' task
-    ctx.subpake('test_data/subpake/pakefile.py', 'all')
+    # Run a test pakefile.py script in a subdirectory, build 'build' task
+    ctx.subpake('test_data/subpake/pakefile.py', 'build')
 
 
 # Basically a dummy task (if nothing actually depended on it)
@@ -192,7 +192,7 @@ def directory_create_test(ctx):
 
 
 @pk.task(do_all, directory_compare_test, directory_create_test, glob_and_pattern_test2, 'toucher_func_task_c', o='test_data/main')
-def all(ctx):
+def build(ctx):
     file_helper = pake.FileHelper(ctx)
     file_helper.touch(ctx.outputs[0])
 
@@ -289,7 +289,7 @@ class IntegrationTest(unittest.TestCase):
         fh.glob_remove(os.path.join(script_dir, '**', '*.o'))
         fh.remove(os.path.join(script_dir, 'test_data', 'main'))
 
-        self.assertEqual(pake.run(pk, tasks=[print_define, all], call_exit=False), 0)
+        self.assertEqual(pake.run(pk, tasks=[print_define, build], call_exit=False), 0)
 
         self._check_outputs()
 
@@ -306,7 +306,7 @@ class IntegrationTest(unittest.TestCase):
         fh.glob_remove(os.path.join(script_dir, '**', '*.o'))
         fh.remove(os.path.join(script_dir, 'test_data', 'main'))
 
-        self.assertEqual(pake.run(pk, tasks=[print_define, all], jobs=10, call_exit=False), 0)
+        self.assertEqual(pake.run(pk, tasks=[print_define, build], jobs=10, call_exit=False), 0)
 
         self._check_outputs()
 

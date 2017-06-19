@@ -6,17 +6,14 @@ import sys
 if sys.version_info < (3, 5):
     sys.exit('Python < 3.5 is not supported.  You are currently running Python {}.{}.{}'.format(*sys.version_info[:3]))
 
-version = ''
 with open('pake/__init__.py') as f:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
 
 if not version:
     raise RuntimeError('version is not set.')
 
-readme = ''
 with open('README.rst', 'r', encoding='utf-8') as f:
     readme = f.read()
-
 
 setup(name='python-pake',
       author='Teriks',
