@@ -2,12 +2,17 @@ Running Sub Pakefiles
 =====================
 
 Pake is able to run itself through the use of :py:meth:`pake.TaskContext.subpake`
-or even :py:meth:`pake.subpake`.
+and :py:meth:`pake.subpake`.
 
-:py:meth:`pake.TaskContext.subpake` is preferred because it handles writing program
-output to the tasks output queue in a synchronized manner when multiple jobs are running.
+:py:meth:`pake.subpake` is meant to be used outside of tasks, and can even be
+called before pake is initialized.
 
-A :py:class:`pake.TaskContext` is passed into the single argument of each task function.
+:py:meth:`pake.TaskContext.subpake` is preferred for use inside of tasks because
+it handles writing to the task's output queue for you, without having to specify the right
+parameters to :py:meth:`pake.subpake` in order to get it working correctly.
+
+A :py:class:`pake.TaskContext` is passed into the single argument of each task function,
+which you can in turn call **subpake** from.
 
 Defines can be exported to pakefiles ran with the **subpake** functions using :py:meth:`pake.export`.
 
