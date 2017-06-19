@@ -225,7 +225,7 @@ def get_pakefile_caller_detail():  # pragma: no cover
 
 def parse_define_value(value):
     """
-    Used to interpret the value of a define declared on the command line with the -D/--define option.
+    Used to interpret the value of a define declared on the command line with the **-D/--define** option.
 
     -D excepts all forms of python literal as define values.
 
