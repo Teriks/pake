@@ -173,31 +173,27 @@ class CallerDetail(namedtuple('CallerDetail', ['filename', 'function_name', 'lin
     pass
 
 
-def get_pakefile_caller_detail():  # pragma: no cover
+def get_pakefile_caller_detail():
     """Get the full pakefile path, called function name and function call line number of the first
     function call in the current call tree which exists inside of a pakefile.
        
     This function traverses up the stack frame looking for the first occurrence of
     a source file with the same path that :py:meth:`pake.get_init_file` returns.
        
-    If a pakefile is not found in the call tree, this function returns **None**.
+    If :py:meth:`pake.init` has not been called, this function returns **None**.
        
     :returns: A named tuple: :py:class:`pake.util.CallerDetail` or **None**.
     """
+
+    if not pake.is_init():
+        return None
 
     last = None
 
     cur_frame = inspect.currentframe()
 
-    try:
-        init_file = pake.program.get_init_file()
-        init_dir = pake.program.get_init_dir()
-    except pake.program.PakeUninitializedException:
-        init_file = None
-        init_dir = None
-
-    if init_file is None:
-        return None
+    init_file = pake.program.get_init_file()
+    init_dir = pake.program.get_init_dir()
 
     try:
         for frame_detail in inspect.getouterframes(cur_frame):

@@ -1,3 +1,4 @@
+import inspect
 import sys
 import unittest
 
@@ -213,3 +214,39 @@ class UtilTest(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             pake.util.parse_define_value("  'bad'  string'  ")
+
+    def test_get_pakefile_caller_detail(self):
+
+        def get_line():
+            return inspect.getframeinfo(inspect.stack()[1][0]).lineno
+
+        pake.de_init()
+
+        pake.init()  # This file is the init file now
+
+        caller_detail, line = pake.util.get_pakefile_caller_detail(), get_line()
+
+        self.assertEqual(caller_detail.line_number, line)
+
+        # This is the init file
+
+        self.assertEqual(caller_detail.filename, os.path.join(script_dir, __file__))
+
+        # Because get_pakefile_caller_detail is the first pake module function
+        # in the stack that was called inside the init file, which is this file
+
+        self.assertEqual(caller_detail.function_name, 'get_pakefile_caller_detail')
+
+        # ====
+
+        # Test without init
+
+        pake.de_init()
+
+        caller_detail = pake.util.get_pakefile_caller_detail()
+
+        # Cant figure it out without knowing the init file
+
+        self.assertEqual(caller_detail, None)
+
+
