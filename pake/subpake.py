@@ -121,7 +121,7 @@ def export(name, value):  # pragma: no cover
 
 def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error=True):
     """
-    Execute a pakefile.py script, changing directories if necessary.
+    Execute a ``pakefile.py`` script, changing directories if necessary.
     
     This function should not be used inside tasks, use: :py:meth:`pake.TaskContext.subpake` instead.
     A :py:meth:`pake.TaskContext` instance is passed into the single parameter of each task, usually named **ctx**.
