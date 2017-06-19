@@ -50,12 +50,13 @@ def touch(file_name, mode=0o666, exist_ok=True):  # pragma: no cover
     """
     Create a file at this given path. 
     If mode is given, it is combined with the process’ umask value to determine the file mode and access flags.
-    If the file already exists, the function succeeds if exist_ok is true (and its modification time is updated to the current time), otherwise *FileExistsError* is raised.
+    If the file already exists, the function succeeds if **exist_ok** is true (and its modification time is updated to the current time),
+    otherwise :py:exc:`FileExistsError` is raised.
 
     
     :param file_name: The file name.
     :param mode: The mode (octal perms mask) defaults to **0o666**.
-    :param exist_ok: Whether or not it is okay for the file to exist when touched, if not a *FileExistsError* is thrown.
+    :param exist_ok: Whether or not it is okay for the file to exist when touched, if not a :py:exc:`FileExistsError` is thrown.
     :return: 
     """
     pathlib.Path(file_name).touch(mode=mode, exist_ok=exist_ok)
