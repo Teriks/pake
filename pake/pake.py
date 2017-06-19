@@ -60,7 +60,7 @@ __all__ = ['pattern',
            'MissingOutputsException']
 
 
-class TaskException(Exception):  # pragma: no cover
+class TaskException(Exception):
     """
     Raised by :py:meth:`pake.Pake.run` if an exception is encountered running/visiting a task.
     
@@ -154,7 +154,7 @@ class TaskExitException(Exception):
             file=pake.conf.stderr if file is None else file)
 
 
-class MissingOutputsException(Exception):  # pragma: no cover
+class MissingOutputsException(Exception):
     """
     Raised by :py:meth:`pake.Pake.run` and :py:meth:`pake.Pake.dry_run` if a task declares input files without
     specifying any output files/directories.
@@ -166,7 +166,7 @@ class MissingOutputsException(Exception):  # pragma: no cover
         )
 
 
-class InputNotFoundException(Exception):  # pragma: no cover
+class InputNotFoundException(Exception):
     """
     Raised by :py:meth:`pake.Pake.run` and :py:meth:`pake.Pake.dry_run` if a task with inputs
     declared cannot find an input file/directory on disk.
