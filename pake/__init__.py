@@ -25,7 +25,7 @@
 A dictionary object containing all current exports,
 you are free to modify this dictionary directly.
 
-See: :py:meth:`pake.export` and :py:meth:`pake.subpake`.
+See: :py:meth:`pake.export`, :py:meth:`pake.subpake` and :py:meth:`pake.TaskContext.subpake`.
 
 Be careful and make sure it remains a dictionary object.
 
