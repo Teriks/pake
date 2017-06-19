@@ -59,7 +59,7 @@ Here's a contrived pake demo which demonstrates how tasks are written:
     # in particular the value of -D CC=.. if
     # it has been passed on the command line.
     # CC will default to gcc in this case
-    #
+
     # you can also use the syntax: pk["CC"] to
     # attempt to get the defines value, if it is not
     # defined then it will return None.
@@ -73,6 +73,13 @@ Here's a contrived pake demo which demonstrates how tasks are written:
     @pk.task(i="foo/foo.c", o="foo/foo.o")
     def foo(ctx):
         # Execute a program (gcc) and print its stdout/stderr to the tasks output.
+
+        # ctx.call can be passed a command line as variadic arguments, an iterable, or
+        # as a string.  It will automatically flatten out non string iterables in your variadic
+        # arguments or iterable object, so you can just pass an iterable such as ctx.inputs
+        # as part of your full command line invocation instead of trying to create the command
+        # line by concatenating lists or using the indexer on ctx.inputs/ctx.outputs
+
         ctx.call(CC, '-c', ctx.inputs, '-o', ctx.outputs)
 
 
@@ -80,13 +87,14 @@ Here's a contrived pake demo which demonstrates how tasks are written:
     # and outputs. If the amount of inputs is different from
     # the amount of outputs, the task is considered to be out
     # of date if any input file is newer than any output file.
-    #
+
     # When the amount of inputs is equal to the amount of outputs,
     # pake will compare each input to its corresponding output
     # and collect out of date input/outputs into ctx.outdated_inputs
     # and ctx.outdated_outputs respectively.  ctx.outdated_pairs
     # can be used to get a generator over (input, output) pairs,
     # it is shorthand for zip(ctx.outdated_inputs, ctx.outdated_outputs)
+
     @pk.task(i=pake.glob("bar/*.c"), o=pake.pattern('bar/%.o'))
     def bar(ctx):
 
@@ -105,10 +113,11 @@ Here's a contrived pake demo which demonstrates how tasks are written:
     # Documentation strings can be viewed by running 'pake -ti' in
     # the directory the pakefile exists in, it will list all documented
     # tasks with their python doc strings.
-    #
+
     # The pake.FileHelper class can be used to preform basic file
     # system operations while printing to the tasks output information
     # about what said operation is doing.
+
     @pk.task(foo, bar, o="bin/baz", i="main.c")
     def baz(ctx):
         """Use this to build baz"""
@@ -118,13 +127,9 @@ Here's a contrived pake demo which demonstrates how tasks are written:
         # Create a bin directory, this won't complain if it exists already
         file_helper.makedirs("bin")
 
-        # Execute gcc with ctx.call, using the list argument form
-        # instead of a string, this allows easily concatenating all the
-        # immediate dependencies outputs to the command line arguments
-        #
         # ctx.dependency_outputs contains a list of all outputs that this
         # tasks immediate dependencies produce
-        #
+
         ctx.call(CC, '-o', ctx.outputs, ctx.inputs, ctx.dependency_outputs)
 
 
@@ -137,9 +142,11 @@ Here's a contrived pake demo which demonstrates how tasks are written:
         # Clean up using a the FileHelper object
         # Remove any bin directory, this wont complain if "bin"
         # does not exist.
+
         file_helper.rmtree("bin")
 
         # Glob remove object files from the foo and bar directories
+
         file_helper.glob_remove("foo/*.o")
         file_helper.glob_remove("bar/*.o")
 
@@ -242,7 +249,7 @@ Export / Subpake Example:
     # Export the CC variable's value to all invocations
     # of pake.subpake or ctx.subpake as a define that can be
     # retrieved with pk.get_define()
-    #
+
     pake.export('CC', CC)
 
 
@@ -307,19 +314,19 @@ Output from the example above:
 
 .. code-block:: bash
 
-   *** enter subpake[1]:
-   pake[1]: Entering Directory "(REST OF PATH...)/paketest/sometasks"
-   ===== Executing Task: "dotasks"
-   Do Tasks
-   pake[1]: Exiting Directory "(REST OF PATH...)/paketest/sometasks"
-   *** exit subpake[1]:
-   ===== Executing Task: "my_phony_task"
-   *** enter subpake[1]:
-   pake[1]: Entering Directory "(REST OF PATH...)/paketest/library"
-   ===== Executing Task: "foo"
-   Foo!
-   pake[1]: Exiting Directory "(REST OF PATH...)/paketest/library"
-   *** exit subpake[1]:
+    *** enter subpake[1]:
+    pake[1]: Entering Directory "(REST OF PATH...)/paketest/sometasks"
+    ===== Executing Task: "dotasks"
+    Do Tasks
+    pake[1]: Exiting Directory "(REST OF PATH...)/paketest/sometasks"
+    *** exit subpake[1]:
+    ===== Executing Task: "my_phony_task"
+    *** enter subpake[1]:
+    pake[1]: Entering Directory "(REST OF PATH...)/paketest/library"
+    ===== Executing Task: "foo"
+    Foo!
+    pake[1]: Exiting Directory "(REST OF PATH...)/paketest/library"
+    *** exit subpake[1]:
 
 
 Running pake

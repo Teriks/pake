@@ -31,7 +31,7 @@ Export / Subpake Example:
     # Export the CC variable's value to all invocations
     # of pake.subpake or ctx.subpake as a define that can be
     # retrieved with pk.get_define()
-    #
+
     pake.export('CC', CC)
 
 
