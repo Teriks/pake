@@ -36,8 +36,8 @@ class _DummyPrinter:
 class FileHelper:
     """A helper class for dealing with common file operations inside and outside of pake tasks.  Instantiating this class
     with the **printer** parameter set to a :py:class:`pake.TaskContext` instance will cause it to print information about
-    file system operations it performs to the tasks output queue.  Each function can be silenced using the **silent**
-    parameter of the function.
+    file system operations it performs to the tasks output queue.  Each function can be silenced by setting the **silent**
+    parameter of the function to **True**.
     """
 
     def __init__(self, printer=None):
