@@ -223,7 +223,7 @@ def parse_define_value(value):
     """
     Used to interpret the value of a define declared on the command line with the **-D/--define** option.
 
-    -D excepts all forms of python literal as define values.
+    *-D* excepts all forms of python literal as define values.
 
     This function can parse strings, integers, floats, lists, tuples, dictionaries and sets.
 

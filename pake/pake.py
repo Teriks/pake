@@ -418,7 +418,7 @@ class TaskContext:
         will **not** be available in the exception if you handle it.
         
         :raises: :py:exc:`pake.TaskSubprocessException` if **ignore_errors** is **False**
-                 and the process exits with a non zero return code.
+                 and the process exits with a non-zero return code.
                  
         :raises: :py:exc:`OSError` (commonly) if a the executed command or file does not exist.
                  This exception will still be raised even if **ignore_errors** is **True**.
@@ -427,8 +427,8 @@ class TaskContext:
         
         :param args: Command arguments, same syntax as :py:meth:`pake.TaskContext.call`
         :param stdin: Optional file object to pipe into the called process's **stdin**.
-        :param shell: Whether to execute in shell mode or not.
-        :param ignore_errors: Whether to ignore non zero return codes and return the return code anyway.
+        :param shell: Whether or not to use the system shell for execution of the command.
+        :param ignore_errors: Whether to ignore non-zero return codes and return the code anyway.
         :return: Integer return code.
         """
 
@@ -474,7 +474,7 @@ class TaskContext:
         all of **stdout/stderr** as a **bytes** object that must be decoded into a string.
         
         :raises: :py:exc:`pake.TaskSubprocessException` if **ignore_errors** is False
-                 and the process exits with a non zero return code.
+                 and the process exits with a non-zero return code.
 
         :raises: :py:exc:`OSError` (commonly) if a the executed command or file does not exist.
                  This exception will still be raised even if **ignore_errors** is **True**.
@@ -483,8 +483,8 @@ class TaskContext:
         
         :param args: Command arguments, same syntax as :py:meth:`pake.TaskContext.call`
         :param stdin: Optional file object to pipe into the called process's **stdin**.
-        :param shell: Whether or not to use the system shell for execution.
-        :param ignore_errors: Whether to ignore non zero return codes and return the output anyway.
+        :param shell: Whether or not to use the system shell for execution of the command.
+        :param ignore_errors: Whether to ignore non-zero return codes and return the output anyway.
         :return: Bytes object (program output data)
         """
 
@@ -567,9 +567,12 @@ class TaskContext:
                            print_cmd=False,   # Don't print the command line executed
                            silent=True)  # Don't print stdout/stderr to task IO
         
-        :param args: Process and arguments.
+        :param args: The process command/executable, and additional arguments to pass
+                     to the process. You may pass the command words as a single iterable,
+                     string, or as variadic arguments.
+
         :param stdin: Optional file object to pipe into the called process's **stdin**.
-        :param shell: Whether or not to use the system shell for execution.
+        :param shell: Whether or not to use the system shell for execution of the command.
         :param ignore_errors: Whether or not to raise a :py:exc:`pake.TaskSubprocessException` on non-zero exit codes.
         :param silent: Whether or not to silence **stdout/stderr** from the command.
         :param print_cmd: Whether or not to print the executed command line to the tasks output.

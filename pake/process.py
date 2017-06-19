@@ -439,7 +439,7 @@ def check_call(*args, stdin=None, stdout=None, stderr=None, shell=False, timeout
     :param shell: Execute in shell mode.
     :param timeout: Program execution timeout value in seconds.
 
-    :raises: :py:exc:`pake.process.CalledProcessException` If the process exits with a non zero return code.
+    :raises: :py:exc:`pake.process.CalledProcessException` If the process exits with a non-zero return code.
     :raises: :py:exc:`pake.process.TimeoutExpired` If the process does not exit before timeout is up.
     """
     args = pake.util.handle_shell_args(args)
@@ -461,7 +461,7 @@ def check_output(*args, stdin=None, stderr=None, shell=False, timeout=None, **kw
     :param shell: Execute in shell mode.
     :param timeout: Program execution timeout value in seconds.
 
-    :raises: :py:exc:`pake.process.CalledProcessException` If the process exits with a non zero return code.
+    :raises: :py:exc:`pake.process.CalledProcessException` If the process exits with a non-zero return code.
     :raises: :py:exc:`pake.process.TimeoutExpired` If the process does not exit before timeout is up.
     """
     args = pake.util.handle_shell_args(args)

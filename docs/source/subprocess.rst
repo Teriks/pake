@@ -60,8 +60,8 @@ Examples:
 
         ctx.call('echo "goodbye!"')
 
-        # Try some command and ignore any errors (non zero return codes)
-        # Otherwise, 'call' raises a 'pake.TaskSubprocessException' on non zero
+        # Try some command and ignore any errors (non-zero return codes)
+        # Otherwise, 'call' raises a 'pake.TaskSubprocessException' on non-zero
         # return codes.
 
         ctx.call(['do_something_bad'], ignore_errors=True)
@@ -126,7 +126,7 @@ Examples:
 .. code-block:: python
 
     # 'which' is a unix command that returns the full path of a command's binary.
-    # The exit code is non zero if the command given does not exist.  So
+    # The exit code is non-zero if the command given does not exist.  So
     # it will be easy enough to use for this example.
 
     @pk.task
@@ -159,7 +159,7 @@ TaskContext.check_call
 :py:meth:`pake.TaskContext.check_call` has an identical signature to :py:meth:`pake.TaskContext.check_output`,
 except it returns the return code of the called process.
 
-The **ignore_errors** argument allows you to return the value of non zero return codes without
+The **ignore_errors** argument allows you to return the value of non-zero return codes without
 having to handle an exception such as with :py:meth:`subprocess.check_call` from pythons built
 in subprocess module.
 

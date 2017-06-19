@@ -208,7 +208,7 @@ def is_init():
 
 def get_max_jobs():
     """
-    Get the max number of jobs passed from the --jobs command line argument.
+    Get the max number of jobs passed from the **--jobs** command line argument.
     
     The minimum number of jobs allowed is 1.
 
@@ -343,12 +343,12 @@ def _list_task_info(pake_obj, default_tasks):  # pragma: no cover
 
 def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     """
-    Run pake (the program) given a :py:class:`pake.Pake` instance and default tasks.
+    Run pake *(the program)* given a :py:class:`pake.Pake` instance and default tasks.
 
     This function should be used to invoke pake at the end of your pakefile.
     
     This function will call **exit(return_code)** upon handling any exceptions from :py:meth:`pake.Pake.run`
-    or :py:meth:`pake.Pake.dry_run` if **call_exit** is **True**, and will print information to
+    or :py:meth:`pake.Pake.dry_run` if **call_exit=True**, and will print information to
     :py:attr:`pake.Pake.stderr` if necessary.
 
     This function will not call **exit** if pake executes successfully with a return code of zero.
@@ -363,7 +363,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :raises: :py:exc:`ValueError` if the **jobs** parameter is used, and is set less than 1.
 
-    :param pake_obj: A :py:class:`pake.Pake` instance, usually created by :py:func:`pake.init`.
+    :param pake_obj: A :py:class:`pake.Pake` instance, created by :py:func:`pake.init`.
 
     :param tasks: A list of, or a single default task to run if no tasks are specified on the command line.
                   Tasks specified on the command line completely override this argument.
@@ -574,11 +574,12 @@ def terminate(pake_obj, return_code=returncodes.SUCCESS):  # pragma: no cover
 
     :py:meth:`pake.Pake.terminate` is a shortcut method which passes the **pake_obj** instance to this function for you.
 
-    :param pake_obj: Reference to the initialized pake object.
+    :param pake_obj: A :py:class:`pake.Pake` instance, created by :py:func:`pake.init`.
 
     :param return_code: Return code to exit the pakefile with, see :py:mod:`pake.returncodes` for standard return codes.
-                        Defaults to :py:attr:`pake.returncodes.SUCCESS`.  :py:attr:`pake.returncodes.ERROR` is intended
-                        to be used with **terminate** to indicate a generic error, but other return codes may be used.
+                        The default return code for this function is :py:attr:`pake.returncodes.SUCCESS`.
+                        :py:attr:`pake.returncodes.ERROR` is intended to be used with **terminate** to indicate a
+                        generic error, but other return codes may be used.
 
     :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
 
