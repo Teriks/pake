@@ -43,7 +43,8 @@ Export / Subpake Example:
     # You can also export lists, dictionaries sets and tuples,
     # as long as they only contain literal values.
     # Literal values being: strings, integers, floats; and
-    # other lists, dicts, sets and tuples (if they only contain literals)
+    # other lists, dicts, sets and tuples.  Collections must only
+    # contain literals, or objects that repr() into a parsable literal.
 
     pake.export('CC_FLAGS', ['-Wextra', '-Wall'])
 

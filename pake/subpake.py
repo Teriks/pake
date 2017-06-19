@@ -208,7 +208,7 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
                               stderr=subprocess.STDOUT,
                               stdin=subprocess.PIPE) as process:
 
-            process.stdin.write(str(EXPORTS).encode())
+            process.stdin.write(repr(EXPORTS).encode())
             process.stdin.flush()
             process.stdin.close()
             try:
@@ -223,7 +223,7 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
                           stderr=subprocess.STDOUT,
                           stdin=subprocess.PIPE) as process:
 
-        process.stdin.write(str(EXPORTS).encode())
+        process.stdin.write(repr(EXPORTS).encode())
         process.stdin.flush()
         process.stdin.close()
 

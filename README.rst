@@ -225,17 +225,22 @@ Running Sub Pakefiles
 =====================
 
 Pake is able to run itself through the use of **pake.TaskContext.subpake**
-or even **pake.subpake**.
+and **pake.subpake**.
 
-**pake.TaskContext.subpake** is preferred because it handles writing program
-output to the tasks output queue in a synchronized manner when multiple jobs are running.
+**pake.subpake** is meant to be used outside of tasks, and can even be
+called before pake is initialized.
 
-A **pake.TaskContext** is passed into the single argument of each task function.
+**pake.TaskContext.subpake** is preferred for use inside of tasks because
+it handles writing to the task's output queue for you, without having to specify
+extra parameters to **pake.subpake** to get it working correctly.
+
+**pake.TaskContext** instance is passed into the single argument of each task function,
+which you can in turn call **subpake** from.
 
 Defines can be exported to pakefiles ran with the **subpake** functions using **pake.export**.
 
-**pake.subpake** and **pake.TaskContext.subpake** use the **--stdin-defines** option of pake to
-pass exported define values into the new process instance, which means you can overwrite your
+**pake.subpake** and **pake.TaskContext.subpake** use the **--stdin-defines** option of
+pake to pass exported define values into the new process instance, which means you can overwrite your
 exported define values with **-D/--define** in the subpake command arguments if you need to.
 
 Export / Subpake Example:
@@ -261,7 +266,8 @@ Export / Subpake Example:
     # You can also export lists, dictionaries sets and tuples,
     # as long as they only contain literal values.
     # Literal values being: strings, integers, floats; and
-    # other lists, dicts, sets and tuples (if they only contain literals)
+    # other lists, dicts, sets and tuples.  Collections must only
+    # contain literals, or objects that repr() into a parsable literal.
 
     pake.export('CC_FLAGS', ['-Wextra', '-Wall'])
 
