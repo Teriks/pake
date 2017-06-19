@@ -211,7 +211,7 @@ def get_max_jobs():
     for retrieving the value passed on the command line.
     
     :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
-    :return: The max number of jobs from the --jobs command line argument. (an integer >= 1)
+    :return: The max number of jobs from the **--jobs** command line argument. (an integer >= 1)
     """
 
     if not is_init():
