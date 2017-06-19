@@ -1103,7 +1103,7 @@ class Pake:
         if o is None:
             o = []
         if callable(o):
-            o = o(i)
+            o = o(list(i))
         elif type(o) is str or not pake.util.is_iterable_not_str(o):
             o = [o]
 
