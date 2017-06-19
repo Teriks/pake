@@ -366,7 +366,10 @@ class TaskContext:
         return self._io
 
     def print(self, *args, **kwargs):
-        """Prints to the task IO file stream using the builtin print function."""
+        """Prints to the task IO file stream using the builtin print function.
+
+        Shorthand for: ``print(..., file=ctx.io)``
+        """
         kwargs.pop('file', None)
         print(*args, file=self._io, **kwargs)
 
@@ -1736,7 +1739,10 @@ class Pake:
         self._defines.update(dictionary)
 
     def print(self, *args, **kwargs):  # pragma: no cover
-        """Shorthand for print(..., file=this_instance.stdout)"""
+        """Print to the file object assigned to :py:attr:`pake.Pake.stdout`
+
+        Shorthand for: ``print(..., file=pk.stdout)``
+        """
 
         kwargs.pop('file', None)
         print(*args, file=self.stdout, **kwargs)
