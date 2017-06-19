@@ -8,8 +8,8 @@ and :py:meth:`pake.subpake`.
 called before pake is initialized.
 
 :py:meth:`pake.TaskContext.subpake` is preferred for use inside of tasks because
-it handles writing to the task's output queue for you, without having to specify the right
-parameters to :py:meth:`pake.subpake` in order to get it working correctly.
+it handles writing to the task's output queue for you, without having to specify
+extra parameters to :py:meth:`pake.subpake` to get it working correctly.
 
 A :py:class:`pake.TaskContext` is passed into the single argument of each task function,
 which you can in turn call **subpake** from.
