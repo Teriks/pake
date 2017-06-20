@@ -231,7 +231,7 @@ the **--jobs** command line argument or the *jobs* parameter of
        # Utilizing the automatic non string iterable
        # flattening here to pass ctx.inputs and ctx.outputs
 
-       ctx.call(['gcc', ctx.inputs, '-o', ctx.outputs])
+       ctx.call('gcc', ctx.inputs, '-o', ctx.outputs)
 
 
     pake.run(pk, tasks=build)
