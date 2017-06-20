@@ -89,4 +89,5 @@ class TaskContextProcessTest(unittest.TestCase):
 
     def test_call(self):
         self._call_test(1)
-        self._call_test(2)
+        self._call_test(5)
+

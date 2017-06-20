@@ -208,6 +208,28 @@ class TaskExceptionsTest(unittest.TestCase):
         subprocess_test_helper('check_call')
         subprocess_test_helper('check_output')
 
+        def collect_output_test_helper(jobs):
+            pk = pake.init()
+
+            @pk.task
+            def call1(ctx):
+                ctx.call(sys.executable, os.path.join(script_dir, 'throw.py'), collect_output=True)  # Raise pake.TaskSubprocessException
+
+            # Test pake.TaskSubprocessException propagation
+
+            with self.assertRaises(pake.TaskException) as exc:
+                pk.run(tasks=call1, jobs=jobs)
+
+            self.assertEqual(type(exc.exception.exception), pake.TaskSubprocessException)
+
+            self.assertEqual(type(exc.exception.exception.output), bytes)
+
+            # Just to test for exceptions writing the TaskSubprocessException.output prop
+            exc.exception.exception.write_info(pake.conf.stdout)
+
+        collect_output_test_helper(1)
+        collect_output_test_helper(5)
+
     def test_task_exit_exception(self):
 
         pake.de_init(clear_conf=False)
