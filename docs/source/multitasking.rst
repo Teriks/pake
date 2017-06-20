@@ -9,6 +9,19 @@ This is done using the :py:class:`pake.MultitaskContext` returned by :py:meth:`p
 :py:class:`pake.MultitaskContext` implements an **Executor** with an identical interface to
 :py:class:`concurrent.futures.ThreadPoolExecutor` from the built-in python module :py:mod:`concurrent.futures`
 
+When you use multitasking inside of a task, you are responsible for any output synchronization
+that may be necessary, if you need to run a process that writes multiple times **stdout** or **stderr**,
+you will need to collect the process output and write it in one big chunk (one write) to the tasks
+IO queue (:py:attr:`pake.TaskContext.io`).
+
+If any of the gcc invocations below experience an error, they will have multiple lines
+of output that might get scrambled in with output from other commands as they finish running.
+
+However, ctx.call duplicates process output to a file and pake reads it back upon error.
+And since exceptions will propagate out of the tasks submitted to the multitasking context,
+pake would report the :py:pake:`pake.TaskSubprocessException` that occurred with the full
+unscrambled command output at the bottom of the build log.
+
 Example:
 
 .. code-block:: python
