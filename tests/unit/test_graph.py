@@ -60,6 +60,22 @@ class GraphTest(unittest.TestCase):
         self.assertTrue(result == [C, B, D, A] or result == [C, D, B, A],
                         msg='Topological sort mutual dependency graph, unexpected result.')
 
+        # Test another form of mutual dependency
+        # A depends B and C,  B depends C
+
+        # order of build should be C, B, A
+
+        A = pake.graph.Graph()
+        B = pake.graph.Graph()
+        C = pake.graph.Graph()
+
+        A.add_edge(B)
+        A.add_edge(C)
+        B.add_edge(C)
+
+        self.assertListEqual([C, B, A], list(A.topological_sort()),
+                             msg='Topological sort mutual dependency graph, unexpected result.')
+
         # Duplicate dependencies in a task should just be ignored
 
         A = pake.graph.Graph()

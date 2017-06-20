@@ -75,7 +75,6 @@ class Graph:
         """
 
         visited = {self}
-
         for i in self.edges:
             if i not in visited:
                 yield from self._topological_sort(i, visited)
