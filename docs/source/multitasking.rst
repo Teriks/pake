@@ -64,6 +64,10 @@ task IO queue.
 This usually means writing anything that needs to come in a guaranteed order
 in one big chunk to the :py:attr:`pake.TaskContext.io` file object.
 
+If you know that the function or subprocess you are calling is only ever going to write
+once to the task IO queue (such as the functions in :py:class:`pake.FileHelper`),
+then there is no need to synchronize the output.
+
 :py:meth:`pake.subpake`, :py:meth:`pake.TaskContext.subpake`, and :py:meth:`pake.call`
 all have an argument named **collect_output** which will do this for simple cases.
 
