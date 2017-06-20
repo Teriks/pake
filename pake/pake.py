@@ -358,9 +358,8 @@ class TaskContext:
         
         Any output to be displayed for the task should be written to this file object.
         
-        This file object is a text mode stream with no newline conversion, it can be used
-        with the built in **print** function an other methods that can write text data
-        to a file like object.
+        This file object is a text mode stream, it can be used with the built in **print** function and
+        other methods that can write text data to a file like object.
         
         """
         return self._io
