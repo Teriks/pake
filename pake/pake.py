@@ -352,14 +352,22 @@ class TaskContext:
     @property
     def io(self):  # pragma: no cover
         """
-        
         Task IO file stream, a file like object that is only open for writing during a tasks execution.
         
         Any output to be displayed for the task should be written to this file object.
         
-        This file object is a text mode stream, it can be used with the built in **print** function and
-        other methods that can write text data to a file like object.
-        
+        This file object is a text mode stream, it can be used with the built in **print** function
+        and other methods that can write text data to a file like object.
+
+        When you run pake with more than one job, this will be a reference to a temporary file unless
+        :py:attr:`pake.Pake.sync_output` is **False** (It is **False** when **--no-sync-output** is used on the command line).
+
+        The temporary file queues up task output when in use, and the task context acquires a lock
+        and writes it incrementally to :py:attr:`pake.Pake.stdout` when the task finishes. This is
+        done to avoid having concurrent task's writing interleaved output to :py:attr:`pake.Pake.stdout`.
+
+        If you run pake with only 1 job or :py:attr:`pake.Pake.sync_output` is **False**, this
+        property will return a direct reference to :py:attr:`pake.Pake.stdout`.
         """
         return self._io
 
