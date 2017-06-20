@@ -20,6 +20,7 @@
 
 import codecs
 import os.path
+import shutil
 import subprocess
 import sys
 
@@ -119,7 +120,7 @@ def export(name, value):  # pragma: no cover
     EXPORTS[name] = value
 
 
-def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error=True, readline=True):
+def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error=True, readline=True, collect_output=False):
     """
     Execute a ``pakefile.py`` script, changing directories if necessary.
     
@@ -172,6 +173,12 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
                      output to a terminal is not required, such as when writing to a file on disk, setting
                      this parameter to **False** results in more efficient writes. This parameter defaults to **True**
 
+    :param collect_output: Whether or not to collect all subpake output and write it with one
+                           single giant write to the **stdout** parameter, this is dangerous to
+                           use with pakefiles that produce a lot of output.  This is useful
+                           for synchronizing writes to the file object if you are running
+                           multiple pakefiles in parallel.
+
     :raises: :py:exc:`ValueError` if no command + optional command arguments are provided.
     :raises: :py:exc:`FileNotFoundError` if the first argument *(the pakefile)* is not found.
     :raises: :py:exc:`pake.SubpakeException` if the called pakefile script encounters an error
@@ -208,12 +215,14 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
 
     if ignore_errors:
         if silent:
-            stdout = subprocess.DEVNULL
+            p_stdout = subprocess.DEVNULL
+        elif collect_output:
+            p_stdout = subprocess.PIPE
         else:
-            stdout.flush()
+            p_stdout = stdout
 
         with subprocess.Popen(args,
-                              stdout=stdout,
+                              stdout=p_stdout,
                               stderr=subprocess.STDOUT,
                               stdin=subprocess.PIPE,
                               universal_newlines=True) as process:
@@ -221,12 +230,21 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
             process.stdin.write(repr(EXPORTS))
             process.stdin.flush()
             process.stdin.close()
+
+            if collect_output and not silent:
+                # Dump all of the pipe output at once to both places
+                all_pipe_data = process.stdout.buffer.read().decode()
+                stdout.write(all_pipe_data)
+                process.stdout.close()
+
             try:
                 return process.wait()
             except:  # pragma: no cover
                 process.kill()
                 process.wait()
                 raise
+
+    # Log a copy to disk, for possible error reporting later
 
     with subprocess.Popen(args,
                           stdout=subprocess.PIPE,
@@ -241,9 +259,20 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
         output_copy_buffer = tempfile.TemporaryFile(mode='w+', newline='\n')
         try:
             if not silent:
-                pake.util.copyfileobj_tee(process.stdout, [stdout, output_copy_buffer], readline=readline)
+                if collect_output:
+                    # Dump all of the pipe output at once to both places
+                    all_pipe_data = process.stdout.buffer.read().decode()
+                    stdout.write(all_pipe_data)
+                    output_copy_buffer.write(all_pipe_data)
+                else:
+                    # Incremental copy
+                    pake.util.copyfileobj_tee(process.stdout, [stdout, output_copy_buffer], readline=readline)
             else:  # pragma: no cover
-                pake.util.copyfileobj_tee(process.stdout, [output_copy_buffer])
+
+                # Only need to copy to the output_copy_buffer, for error reporting
+                # when silent = True
+                shutil.copyfileobj(process.stdout, [output_copy_buffer])
+
         except:  # pragma: no cover
             output_copy_buffer.close()
             raise

@@ -372,7 +372,7 @@ class TaskContext:
         kwargs.pop('file', None)
         print(*args, file=self._io, **kwargs)
 
-    def subpake(self, *args, silent=False, ignore_errors=False):
+    def subpake(self, *args, silent=False, ignore_errors=False, collect_output=False):
         """
         Run :py:func:`pake.subpake` and direct all output to the task IO file stream.
 
@@ -384,6 +384,11 @@ class TaskContext:
         :param ignore_errors: If this is **True**, this function will not throw :py:exc:`pake.SubpakeException` if
                               the executed pakefile returns with a non-zero exit code.  It will instead return the
                               exit code from the subprocess to the caller.
+
+        :param collect_output: Whether or not to collect all process output and write it with one
+                               single giant write to the task IO queue, this can synchronize process
+                               output when using :py:meth:`pake.TaskContext.multitask` with **subpake**, but
+                               it is dangerous to use with pakefiles that produce a lot of output.
 
         :raises: :py:exc:`ValueError` if no command + optional command arguments are provided.
 
@@ -397,7 +402,9 @@ class TaskContext:
         return pake.subpake(*args,
                             stdout=self._io, silent=silent,
                             ignore_errors=ignore_errors,
-                            exit_on_error=False)
+                            exit_on_error=False,
+                            readline=self.pake.threadpool is None,
+                            collect_output=collect_output)
 
     @staticmethod
     def check_call(*args, stdin=None, shell=False, ignore_errors=False):
@@ -507,7 +514,7 @@ class TaskContext:
                                           message='An error occurred while executing a system '
                                                   'command inside a pake task.')
 
-    def call(self, *args, stdin=None, shell=False, ignore_errors=False, silent=False, print_cmd=True):
+    def call(self, *args, stdin=None, shell=False, ignore_errors=False, silent=False, print_cmd=True, collect_output=False):
         """
         Calls a sub process and returns it's return code.
          
@@ -578,6 +585,11 @@ class TaskContext:
         :param ignore_errors: Whether or not to raise a :py:exc:`pake.TaskSubprocessException` on non-zero exit codes.
         :param silent: Whether or not to silence **stdout/stderr** from the command.
         :param print_cmd: Whether or not to print the executed command line to the tasks output.
+
+        :param collect_output: Whether or not to collect all process output and write it with one
+                               single giant write to the task IO queue, this can synchronize process
+                               output when using :py:meth:`pake.TaskContext.multitask` with **call**, but
+                               it is dangerous to use with processes that produce a lot of output.
         
         :returns: The process return code.
         
@@ -594,66 +606,107 @@ class TaskContext:
             raise ValueError('Not enough arguments provided.  '
                              'Must provide at least one argument, IE. the command.')
 
-        self._io.flush()
+        if collect_output:
+            return self._call_collect_output(args, stdin, shell, ignore_errors, silent, print_cmd)
 
         if print_cmd:
             self.print(' '.join(args))
 
         if ignore_errors:
-            if silent:
-                stdout = subprocess.DEVNULL
+            return self._call_ignore_errors(args, stdin, shell, silent)
+
+        # Log a copy to disk, for possible error reporting later
+        return self._call_with_errors(args,stdin,shell,silent)
+
+    def _call_collect_output(self, args, stdin, shell, ignore_errors, silent, print_cmd):
+        if ignore_errors and silent:
+            if print_cmd:
+                self.print(' '.join(args))
+            return self._call_ignore_errors(args, stdin=stdin, shell=shell, silent=True)
+
+        header = ' '.join(args)+'\n' if print_cmd else ''
+
+        try:
+            self._io.write(header +
+                           subprocess.check_output(
+                               args,
+                               stdin=stdin,
+                               shell=shell,
+                               stderr=subprocess.STDOUT
+                           ).decode())
+
+            return pake.returncodes.SUCCESS
+        except subprocess.CalledProcessError as err:
+            if ignore_errors:
+                self._io.write(header+err.output.decode())
+                return err.returncode
             else:
-                stdout = self._io
-                stdout.flush()
+                if print_cmd:
+                    self._io.write(header)
+                raise TaskSubprocessException(cmd=args,
+                                              returncode=err.returncode,
+                                              output=err.output,
+                                              message='A subprocess spawned by a task exited '
+                                                      'with a non-zero return code.')
 
-            return subprocess.call(args,
-                                   stdout=stdout, stderr=subprocess.STDOUT,
-                                   stdin=stdin, shell=shell)
-        else:
+    def _call_with_errors(self, args, stdin, shell, silent):
+        with subprocess.Popen(args,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.STDOUT,
+                              stdin=stdin, shell=shell,
+                              universal_newlines=True) as process:
 
-            with subprocess.Popen(args,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT,
-                                  stdin=stdin, shell=shell,
-                                  universal_newlines=True) as process:
+            output_copy_buffer = tempfile.TemporaryFile(mode='w+', newline='\n')
+            try:
+                if not silent:
+                    # Use readline for live output to self._io when max jobs == 1
+                    # The task is on the current thread, and self._io is a direct
+                    # unbuffered reference this.stdout.  Otherwise copy fix sized
+                    # chunks of data until EOF
+                    pake.util.copyfileobj_tee(process.stdout,
+                                              [self._io, output_copy_buffer],
+                                              readline=self.pake.max_jobs == 1)
+                else:  # pragma: no cover
 
-                output_copy_buffer = tempfile.TemporaryFile(mode='w+', newline='\n')
-                try:
-                    if not silent:
-                        # Use readline for live output to self._io when max jobs == 1
-                        # The task is on the current thread, and self._io is a direct
-                        # unbuffered reference this.stdout
-                        pake.util.copyfileobj_tee(process.stdout,
-                                                  [self._io, output_copy_buffer],
-                                                  readline=self.pake.max_jobs == 1)
-                    else:  # pragma: no cover
-                        pake.util.copyfileobj_tee(process.stdout, [output_copy_buffer])
+                    # Only need to copy to the output_copy_buffer, for error reporting
+                    # when silent = True
 
-                except:  # pragma: no cover
-                    output_copy_buffer.close()
-                    raise
-                finally:
-                    process.stdout.close()
+                    shutil.copyfileobj(process.stdout, output_copy_buffer)
 
-                try:
-                    exitcode = process.wait()
-                except:  # pragma: no cover
-                    output_copy_buffer.close()
-                    process.kill()
-                    process.wait()
-                    raise
-
-                if exitcode:
-                    output_copy_buffer.seek(0)
-                    # Giving up responsibility to close output_copy_buffer here
-                    raise TaskSubprocessException(cmd=args,
-                                                  returncode=exitcode,
-                                                  output_stream=output_copy_buffer,
-                                                  message='A subprocess spawned by a task exited '
-                                                          'with a non-zero return code.')
-
+            except:  # pragma: no cover
                 output_copy_buffer.close()
-                return exitcode
+                raise
+            finally:
+                process.stdout.close()
+
+            try:
+                exitcode = process.wait()
+            except:  # pragma: no cover
+                output_copy_buffer.close()
+                process.kill()
+                process.wait()
+                raise
+
+            if exitcode:
+                output_copy_buffer.seek(0)
+                # Giving up responsibility to close output_copy_buffer here
+                raise TaskSubprocessException(cmd=args,
+                                              returncode=exitcode,
+                                              output_stream=output_copy_buffer,
+                                              message='A subprocess spawned by a task exited '
+                                                      'with a non-zero return code.')
+
+            output_copy_buffer.close()
+            return exitcode
+
+    def _call_ignore_errors(self, args, stdin, shell, silent):
+        if silent:
+            stdout = subprocess.DEVNULL
+        else:
+            stdout = self._io
+        return subprocess.call(args,
+                               stdout=stdout, stderr=subprocess.STDOUT,
+                               stdin=stdin, shell=shell)
 
     @property
     def dependencies(self):

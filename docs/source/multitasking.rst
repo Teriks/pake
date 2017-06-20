@@ -1,32 +1,22 @@
 Parallelism Inside Tasks
 ========================
 
-Work can be submitted to the threadpool pake is running it's tasks on in order to achieve a predictable level
-of parallelism that is limited by the **--jobs** command line argument or the **jobs** parameter of :py:meth:`pake.Pake.run`.
+Work can be submitted to the threadpool pake is running it's tasks on in order
+to achieve a predictable level of parallelism that is limited by the **--jobs** command
+line argument or the **jobs** parameter of :py:meth:`pake.Pake.run`.
 
 This is done using the :py:class:`pake.MultitaskContext` returned by :py:meth:`pake.TaskContext.multitask`.
 
 :py:class:`pake.MultitaskContext` implements an **Executor** with an identical interface to
 :py:class:`concurrent.futures.ThreadPoolExecutor` from the built-in python module :py:mod:`concurrent.futures`
 
-When you use multitasking inside of a task, you are responsible for any output synchronization
-that may be necessary, if you need to run a process that writes multiple times **stdout** or **stderr**,
-you will need to collect the process output and write it in one big chunk (one write) to the tasks
-IO queue (:py:attr:`pake.TaskContext.io`).
-
-If any of the gcc invocations below experience an error, they will have multiple lines
-of output that might get scrambled in with output from other commands as they finish running.
-
-However, ctx.call duplicates process output to a file and pake reads it back upon error.
-And since exceptions will propagate out of the tasks submitted to the multitasking context,
-pake would report the :py:pake:`pake.TaskSubprocessException` that occurred with the full
-unscrambled command output at the bottom of the build log.
 
 Example:
 
 .. code-block:: python
 
     import pake
+    from functools import partial
 
     pk=pake.init()
 
@@ -37,9 +27,20 @@ Example:
 
        with ctx.multitask() as mt:
            for i, o in ctx.outdated_pairs:
-               # Submit a work function with arguments to the threadpool
 
-               mt.submit(ctx.call, ['gcc', '-c', i, '-o', o])
+               # Force ctx.call to write all process output as one chunk
+               # when we are running with more than one job, by binding
+               # the collect_output argument using functools.partial
+
+               # this prevents the output from being scrambled in with
+               # the output from other invocations if there happens to
+               # be error or warning information printed to the tasks
+               # io queue
+
+               sync_call = partial(ctx.call, collect_output=pk.max_jobs > 1)
+
+               # Submit a work function with arguments to the threadpool
+               mt.submit(sync_call, ['gcc', '-c', i, '-o', o])
 
 
     @pk.task(build_c, i=pake.glob('obj/*.o'), o='main')
@@ -52,3 +53,68 @@ Example:
 
 
     pake.run(pk, tasks=build)
+
+
+Output (Task IO) Synchronization
+--------------------------------
+
+If you are using :py:meth:`pake.Pake.multitask` to add parallelism to
+the inside of a task, you are in charge of synchronizing output to the
+task IO queue.
+
+This usually means writing anything that needs to come in a guaranteed order
+in one big chunk to the :py:attr:`pake.TaskContext.io` file object.
+
+:py:meth:`pake.subpake`, :py:meth:`pake.TaskContext.subpake`, and :py:meth:`pake.call`
+all have an argument named **collect_output** which will do this for simple cases.
+
+**collect_output** may cause problems if your subprocess or sub-pakefile produces
+huge amounts of output, because all of the output will need to be read into memory
+and written in one go, and that may be happening simultaneously in multiple threads
+during parallel builds.
+
+The **collect_output** parameter can be bound to a certain value with :py:meth:`functools.partial`
+which works well with :py:meth:`pake.MultitaskContext.map` and the other methods of the multitasking
+context, as shown below.
+
+
+Example:
+
+
+.. code-block:: python
+
+    import pake
+    from functools import partial
+
+    pk=pake.init()
+
+    @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
+    def compile_c(ctx):
+
+        file_helper = pake.FileHelper(ctx)
+        file_helper.makedirs(obj_dir)
+
+        # Generate a command for every invocation of GCC that is needed
+
+        compiler_commands = (['gcc', '-c', i, '-o', o] for i, o in ctx.outdated_pairs)
+
+        # Only use collect_output when the number of jobs is greater than 1.
+        # You can bind any other arguments to ctx.call you might need this way too.
+
+        sync_call = partial(ctx.call, collect_output=pk.max_jobs > 1)
+
+        with ctx.multitask() as mt:
+
+            # Apply sync_call to every argument
+            # list in the compiler_args list with map,
+            # and force execution of the returned generator
+            # by passing it to a list constructor
+
+            # This will execute GCC invocations in
+            # parallel on the task threadpool if pake's
+            # --jobs argument is > 1
+
+            list(mt.map(sync_call, compiler_args))
+
+
+    pake.run(pk, tasks=compile_c)
