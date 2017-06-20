@@ -16,6 +16,9 @@ class GraphTest(unittest.TestCase):
         # Tasks which have been visited are ignored
 
         A = pake.graph.Graph()
+
+        self.assertListEqual([A], list(A.topological_sort()))
+
         B = pake.graph.Graph()
 
         A.add_edge(B)
