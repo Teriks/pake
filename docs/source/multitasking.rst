@@ -61,6 +61,11 @@ If you are using :py:meth:`pake.Pake.multitask` to add parallelism to
 the inside of a task, you are in charge of synchronizing output to the
 task IO queue.
 
+Pake will synchronize writing a pake task's whole IO queue when the task finishes
+if you do not specify **--no-sync-output** on the command line, but it will not
+be able to synchronize the output from tasks you submit to it's threadpool by
+yourself.
+
 This usually means writing anything that needs to come in a guaranteed order
 in one big chunk to the :py:attr:`pake.TaskContext.io` file object.
 
