@@ -90,6 +90,8 @@ class ProgramTest(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, returncodes.BAD_DEFINE_VALUE)
 
+        pake.init(args=['-D', 'TEST= {"I am a bad good define" } '])
+
         pake.de_init(clear_conf=False)
 
     def test_run(self):
