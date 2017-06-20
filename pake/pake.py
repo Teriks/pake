@@ -956,9 +956,11 @@ class Pake:
     
     .. py:attribute:: stdout
     
-        (set-able) The file object that task output gets written to, as well as 'changing directory/entering & leaving subpake' messages.
-                   If you set this, make sure that you set it to an actual file object that implements **fileno()**. :py:class:`io.StringIO`
-                   and pseudo file objects with no **fileno()** will not work with all of pake's subprocess spawning functions.
+        The file object that task output gets written to, as well as 'changing directory/entering & leaving subpake' messages.
+        If you set this, make sure that you set it to an actual file object that implements **fileno()**. :py:class:`io.StringIO`
+        and pseudo file objects with no **fileno()** will not work with all of pake's subprocess spawning functions.
+
+        This attribute can be modified.
     
     """
 
