@@ -50,15 +50,49 @@ class SubpakeTest(unittest.TestCase):
 
         pake.de_init(clear_conf=False)
 
+        def assert_return_code(code, ignore_errors,  **kwargs):
+            nonlocal self
+            if ignore_errors:
+                self.assertEqual(pake.subpake(return_code_pakefile, ignore_errors=True, **kwargs), code)
+            else:
+                try:
+                    self.assertEqual(pake.subpake(
+                        return_code_pakefile, ignore_errors=False, exit_on_error=False, **kwargs), code)
+
+                except pake.SubpakeException as err:
+                    self.assertEqual(err.returncode, code)
+
         # ====== Non Silent Path =======
+
+        pake.de_init(clear_conf=False)
 
         pake.export('RETURNCODE', 42)
 
-        self.assertEqual(pake.subpake(return_code_pakefile, ignore_errors=True), 42)
+        assert_return_code(42, ignore_errors=True)
+        assert_return_code(42, ignore_errors=False)
 
         pake.export('TERMINATE', True)
 
-        self.assertEqual(pake.subpake(return_code_pakefile, ignore_errors=True), 42)
+        assert_return_code(42, ignore_errors=True)
+        assert_return_code(42, ignore_errors=False)
+
+        pake.EXPORTS.clear()
+
+        # ====== Non Silent / Collect Output Path =======
+
+        pake.de_init(clear_conf=False)
+
+        pake.export('RETURNCODE', 42)
+
+        assert_return_code(42, ignore_errors=True, collect_output=True)
+        assert_return_code(42, ignore_errors=False, collect_output=True)
+
+        pake.export('TERMINATE', True)
+
+        assert_return_code(42, ignore_errors=True, collect_output=True)
+        assert_return_code(42, ignore_errors=False, collect_output=True)
+
+        pake.EXPORTS.clear()
 
         # ======= Silent Path =========
 
@@ -66,10 +100,28 @@ class SubpakeTest(unittest.TestCase):
 
         pake.export('RETURNCODE', 42)
 
-        self.assertEqual(pake.subpake(return_code_pakefile, silent=True, ignore_errors=True), 42)
+        assert_return_code(42, ignore_errors=True, silent=True)
+        assert_return_code(42, ignore_errors=False, silent=True)
 
         pake.export('TERMINATE', True)
 
-        self.assertEqual(pake.subpake(return_code_pakefile, silent=True, ignore_errors=True), 42)
+        assert_return_code(42, ignore_errors=True, silent=True)
+        assert_return_code(42, ignore_errors=False, silent=True)
+
+        pake.EXPORTS.clear()
+
+        # ======= Silent / Collect Output Path =========
+
+        pake.de_init(clear_conf=False)
+
+        pake.export('RETURNCODE', 42)
+
+        assert_return_code(42, ignore_errors=True, silent=True, collect_output=True)
+        assert_return_code(42, ignore_errors=False, silent=True, collect_output=True)
+
+        pake.export('TERMINATE', True)
+
+        assert_return_code(42, ignore_errors=True, silent=True, collect_output=True)
+        assert_return_code(42, ignore_errors=False, silent=True, collect_output=True)
 
         pake.EXPORTS.clear()

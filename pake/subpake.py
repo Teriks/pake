@@ -271,7 +271,7 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
 
                 # Only need to copy to the output_copy_buffer, for error reporting
                 # when silent = True
-                shutil.copyfileobj(process.stdout, [output_copy_buffer])
+                shutil.copyfileobj(process.stdout, output_copy_buffer)
 
         except:  # pragma: no cover
             output_copy_buffer.close()
