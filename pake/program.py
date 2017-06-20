@@ -30,6 +30,7 @@ import pake.pake
 import pake.util
 import pake.returncodes as returncodes
 import ast
+import signal
 
 __all__ = [
     'PakeUninitializedException',
@@ -103,13 +104,14 @@ def init(stdout=None, args=None):
     :raises: :py:exc:`SystemExit` if bad command line arguments are parsed, or the **args** parameter contains bad arguments.
 
     :return: :py:class:`pake.Pake`
+    :rtype: pake.Pake
     """
 
     global _INIT_FILE, _INIT_DIR
 
     parsed_args = pake.arguments.parse_args(args=args)
 
-    pk = pake.Pake(stdout=stdout)
+    pk = pake.Pake(stdout=stdout, sync_output=not parsed_args.no_sync_output)
 
     if parsed_args.stdin_defines:  # pragma: no cover
 
@@ -225,6 +227,7 @@ def get_max_jobs():
     
     :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: The max number of jobs from the **--jobs** command line argument. (an integer >= 1)
+    :rtype: int
     """
 
     if not is_init():
@@ -245,6 +248,7 @@ def get_subpake_depth():
     
     :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: The current depth of execution (an integer >= 0)
+    :rtype: int
     """
 
     if not is_init():
@@ -259,7 +263,8 @@ def get_init_file():
     """Gets the full path to the file :py:meth:`pake.init` was called in.
     
     :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
-    :return: Full path to pakes entrypoint file, or **None** 
+    :return: Full path to pakes entrypoint file, or **None**
+    :rtype: str
     """
 
     if not is_init():
@@ -275,6 +280,7 @@ def get_init_dir():
     
     :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: Full path to init dir, or **None**
+    :rtype: str
     """
 
     if not is_init():
@@ -383,6 +389,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
 
     :return: A return code from :py:mod:`pake.returncodes`.
 
+    :rtype: int
     :type pake_obj: pake.Pake
     """
 

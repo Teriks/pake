@@ -57,7 +57,6 @@ def touch(file_name, mode=0o666, exist_ok=True):  # pragma: no cover
     :param file_name: The file name.
     :param mode: The mode (octal perms mask) defaults to **0o666**.
     :param exist_ok: Whether or not it is okay for the file to exist when touched, if not a :py:exc:`FileExistsError` is thrown.
-    :return: 
     """
     pathlib.Path(file_name).touch(mode=mode, exist_ok=exist_ok)
 
@@ -68,6 +67,7 @@ def is_iterable(obj):
     
     :param obj: The object to test.
     :return: True if the object is iterable, False otherwise.
+    :rtype: bool
     """
     # noinspection PyBroadException
     try:
@@ -83,6 +83,7 @@ def is_iterable_not_str(obj):
     
     :param obj: The object to test.
     :return: True if the object is an iterable non string, False otherwise.
+    :rtype: bool
     """
 
     return type(obj) is not str and is_iterable(obj)
@@ -128,7 +129,7 @@ def flatten_non_str(iterable):
        # val == ['this', 'is', 'an', 'example']
     
     :returns: A generator that iterates over the flattened iterable.
-    
+    :rtype: generator[str]
     """
 
     for x in iterable:
@@ -145,6 +146,7 @@ def handle_shell_args(args):
     It allows shell arguments to be passed as a list object, variadic parameters, or a single string.
     
     :returns: A list of shell argument strings.
+    :rtype: list[str]
     """
 
     if len(args) == 1:
@@ -183,6 +185,7 @@ def get_pakefile_caller_detail():
     If :py:meth:`pake.init` has not been called, this function returns **None**.
        
     :returns: A named tuple: :py:class:`pake.util.CallerDetail` or **None**.
+    :rtype: pake.util.CallerDetail
     """
 
     if not pake.is_init():
@@ -274,6 +277,7 @@ def qualified_name(object_instance):
     
     :param object_instance: Object instance.
     :return: Fully qualified name string.
+    :rtype: str
     """
 
     if hasattr(object_instance, '__module__'):
@@ -314,6 +318,7 @@ def is_more_recent(input, output):
     :param input: Path to a file or directory
     :param output: Path to a file or directory
     :return: **True** if **input** is more recent than **output**, else **False**
+    :rtype: bool
     """
 
     return path.getmtime(input) > path.getmtime(output)

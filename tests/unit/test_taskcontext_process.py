@@ -15,17 +15,22 @@ import pake.arguments
 
 from tests import open_devnull
 
-pake.conf.stdout = open_devnull() if pake.conf.stdout is sys.stdout else pake.conf.stdout
-pake.conf.stderr = open_devnull() if pake.conf.stderr is sys.stderr else pake.conf.stderr
+pake.conf.stdout = open_devnull()
+pake.conf.stderr = open_devnull()
 
 
 class TaskContextProcessTest(unittest.TestCase):
-    def test_call(self):
 
+    def _call_test(self, jobs):
         exit_10 = os.path.join(script_dir, 'exit_10.py')
         exit_0 = os.path.join(script_dir, 'exit_0.py')
 
-        pk = pake.init()
+        pake.de_init(clear_conf=False)
+
+        pk = pake.init(args=['--jobs', str(jobs)])
+
+        # Just so this path gets hit at least once
+        pk.sync_output = False
 
         class TestFailException:
             def __init__(self, expected, code):
@@ -81,3 +86,7 @@ class TaskContextProcessTest(unittest.TestCase):
                           format(err.exception.expected, err.exception.code))
             else:
                 raise err.exception
+
+    def test_call(self):
+        self._call_test(1)
+        self._call_test(2)

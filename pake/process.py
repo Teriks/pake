@@ -108,6 +108,9 @@ class StreamingSubprocessException(ProcessException):
                                is called.  The passed stream should be a text mode stream.
 
         :param message: Optional exception message.
+
+        :type output_stream: bytes
+        :type returncode: int
         """
 
         super().__init__(message)

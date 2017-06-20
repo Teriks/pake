@@ -254,8 +254,8 @@ Command line options
 
 .. code-block:: none
 
-    usage: pake [-h] [-v] [-D DEFINE] [-j JOBS] [--stdin-defines] [-n]
-                [-C DIRECTORY] [-t] [-ti] [-f FILE]
+    usage: pake [-h] [-v] [-D DEFINE] [--stdin-defines] [-j JOBS] [-n]
+                [-C DIRECTORY] [-t] [-ti] [--no-sync-output] [-f FILE]
                 [tasks [tasks ...]]
 
     positional arguments:
@@ -266,13 +266,13 @@ Command line options
       -v, --version         show program's version number and exit
       -D DEFINE, --define DEFINE
                             Add defined value.
-      -j JOBS, --jobs JOBS  Max number of parallel jobs. Using this option enables
-                            unrelated tasks to run in parallel with a max of N
-                            tasks running at a time.
       --stdin-defines       Read defines from a Python Dictionary piped into
                             stdin. Defines read with this option can be
                             overwritten by defines specified on the command line
                             with -D/--define.
+      -j JOBS, --jobs JOBS  Max number of parallel jobs. Using this option enables
+                            unrelated tasks to run in parallel with a max of N
+                            tasks running at a time.
       -n, --dry-run         Use to preform a dry run, lists all tasks that will be
                             executed in the next actual invocation.
       -C DIRECTORY, --directory DIRECTORY
@@ -281,6 +281,10 @@ Command line options
       -ti, --show-task-info
                             List all tasks along side their doc string. Only tasks
                             with doc strings present will be shown.
+      --no-sync-output      Force pake to disable synchronization of task output
+                            when running with multiple jobs. Console output can
+                            get scrambled under the right circumstances with this
+                            turned off, but pake will run slightly faster.
       -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
                             once, all specified pakefiles will be executed in
                             order with the current directory as the working

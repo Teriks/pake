@@ -58,21 +58,21 @@ def _absolute_directory(directory):
 
 _ARG_PARSER.add_argument('-v', '--version', action='version', version='pake ' + pake.__version__)
 
+_ARG_PARSER.add_argument('--_subpake_depth', default=0, type=int, help=argparse.SUPPRESS,  dest='subpake_depth',)
+
 _ARG_PARSER.add_argument('tasks', type=str, nargs='*', help='Build tasks.')
 
 _ARG_PARSER.add_argument('-D', '--define', action='append', help='Add defined value.')
-
-_ARG_PARSER.add_argument('-j', '--jobs', type=_create_gt_int(1, '--jobs must be greater than zero.'),
-                         help='Max number of parallel jobs.  Using this option '
-                              'enables unrelated tasks to run in parallel with a '
-                              'max of N tasks running at a time.')
-
-_ARG_PARSER.add_argument('--_subpake_depth', default=0, type=int, help=argparse.SUPPRESS,  dest='subpake_depth',)
 
 _ARG_PARSER.add_argument('--stdin-defines', action='store_true', dest='stdin_defines',
                          help='Read defines from a Python Dictionary piped into stdin. '
                               'Defines read with this option can be overwritten by defines '
                               'specified on the command line with -D/--define.')
+
+_ARG_PARSER.add_argument('-j', '--jobs', type=_create_gt_int(1, '--jobs must be greater than zero.'),
+                         help='Max number of parallel jobs.  Using this option '
+                              'enables unrelated tasks to run in parallel with a '
+                              'max of N tasks running at a time.')
 
 _ARG_PARSER.add_argument('-n', '--dry-run', action='store_true', dest='dry_run',
                          help='Use to preform a dry run, lists all tasks that '
@@ -87,6 +87,12 @@ _ARG_PARSER.add_argument('-t', '--show-tasks', action='store_true', dest='show_t
 _ARG_PARSER.add_argument('-ti', '--show-task-info', action='store_true', dest='show_task_info',
                          help='List all tasks along side their doc string. '
                               'Only tasks with doc strings present will be shown.')
+
+_ARG_PARSER.add_argument('--no-sync-output', action='store_true', dest='no_sync_output',
+                         help='Force pake to disable synchronization of task output when '
+                              'running with multiple jobs.  Console output can get scrambled '
+                              'under the right circumstances with this turned off, but pake '
+                              'will run slightly faster.')
 
 _PARSED_ARGS = None
 

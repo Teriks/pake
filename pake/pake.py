@@ -17,7 +17,7 @@
 # LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-import codecs
+
 import inspect
 import shutil
 import subprocess
@@ -28,7 +28,6 @@ from functools import wraps
 from glob import iglob as glob_iglob
 
 import os
-import sys
 
 import pake
 import pake.conf
@@ -742,37 +741,44 @@ class TaskContext:
         )
 
     def _i_io_open(self):
-        if self._pake.threadpool:
+        if self._pake.threadpool and self.pake.sync_output:
             self._io = tempfile.TemporaryFile(mode='w+', newline='\n')
         else:
             self._io = self.pake.stdout
 
     def _i_io_close(self):
-        if self._pake.threadpool:
+        if self.pake.threadpool and self.pake.sync_output:
             self._io.seek(0)
             with self.pake._stdout_lock:
                 shutil.copyfileobj(self._io, self.pake.stdout)
             self._io.close()
 
-    def _i_submit_self(self, thread_pool):
-        futures = [self.pake.get_task_context(i.name)._future for i in self.node.edges]
+    def _i_submit_self(self):
+
+        futures = [self.pake.get_task_context(i.name)._future for i in self._node.edges]
 
         # Wait dependencies, Raise pending exceptions
         _wait_futures_and_raise(futures)
 
         # Submit self
-        self._future = thread_pool.submit(self.node.func)
+        self._future = self._pake.threadpool.submit(self._node.func)
 
         return self._future
 
     @property
     def node(self):
-        """The :py:class:`pake.TaskGraph` node for the task."""
+        """The :py:class:`pake.TaskGraph` node for the task.
+
+        :rtype : pake.TaskGraph
+        """
         return self._node
 
     @property
     def pake(self):
-        """The :py:class:`pake.Pake` instance the task is registered to."""
+        """The :py:class:`pake.Pake` instance the task is registered to.
+
+        :rtype : pake.Pake
+        """
         return self._pake
 
 
@@ -1013,10 +1019,19 @@ class Pake:
         and pseudo file objects with no **fileno()** will not work with all of pake's subprocess spawning functions.
 
         This attribute can be modified.
-    
+
+    .. py:attribute:: sync_output
+
+        Whether or not the pake instance should queue task output and write it in
+        a synchronized fashion when running with more than 1 job.  This defaults
+        to **True** if the command line option **no-output-sync** is not used.
+
+        If this is disabled (Set to **False**), task output may become interleaved
+        and scrambled when running pake with more than one job.  Pake will run
+        somewhat faster however.
     """
 
-    def __init__(self, stdout=None):
+    def __init__(self, stdout=None, sync_output=True):
         """
         Create a pake object, optionally set :py:attr:`pake.Pake.stdout` for the instance.
 
@@ -1025,7 +1040,9 @@ class Pake:
         :param stdout: The stream all task output gets written to, (defaults to :py:attr:`pake.conf.stdout`)
         """
 
+        self.sync_output = sync_output
         self.stdout = stdout if stdout is not None else pake.conf.stdout
+
         self._stdout_lock = threading.Lock()
 
         self._graph = TaskGraph("_", lambda: None)
@@ -1088,6 +1105,8 @@ class Pake:
         Pake is considered to be running when :py:attr:`pake.Pake.is_running` equals **True**.
         
         If pake is running with a job count of 1, no threadpool is used so this property will be **None**.
+
+        :rtype: concurrent.futures.ThreadPoolExecutor
         """
         return self._threadpool
 
@@ -1144,7 +1163,9 @@ class Pake:
         """
         Retrieve the task context objects for all registered tasks.
         
-        :return: List of :py:class:`pake.TaskContext`. 
+        :return: List of :py:class:`pake.TaskContext`.
+
+        :rtype: list
         """
         return self._task_contexts.values()
 
@@ -1502,6 +1523,8 @@ class Pake:
         :raises: :py:exc:`pake.UndefinedTaskException` if the task function/callable is not registered to the pake context.
 
         :return: Task name string.
+
+        :rtype: str
         """
         if type(task) is str:
             ctx = self._task_contexts.get(task, None)
@@ -1525,6 +1548,8 @@ class Pake:
         
         :param task: Task function or function name as a string
         :return: :py:class:`pake.TaskContext`
+
+        :rtype: pake.TaskContext
         """
 
         task = self.get_task_name(task)
@@ -1618,6 +1643,8 @@ class Pake:
         :param no_header: Whether or not to avoid printing a task header when the task begins executing, defaults to **False** (Header is printed).
                           This does not apply to dry run visits, the task header will still be printed during dry runs.
         :return: The :py:class:`pake.TaskContext` for the new task.
+
+        :rtype: pake.TaskContext
         """
 
         if name in self._task_contexts:
@@ -1744,7 +1771,7 @@ class Pake:
             for graph in task_graphs:
                 for i in (i for i in graph if i is not self._graph):
                     context = self.get_task_context(i.name)
-                    pending_futures.append(context._i_submit_self(self._threadpool))
+                    pending_futures.append(context._i_submit_self())
         finally:
             all_futures_waited = False
             try:
@@ -1804,6 +1831,8 @@ class Pake:
 
 
         :return:  **True** if pake is currently running tasks, **False** otherwise.
+
+        :rtype: bool
         """
         return self._is_running
 
