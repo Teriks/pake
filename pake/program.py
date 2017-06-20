@@ -309,7 +309,7 @@ def _list_tasks(pake_obj, default_tasks):  # pragma: no cover
         for task in default_tasks:
             _print(pake_obj.get_task_name(task))
         pake.conf.stdout.write('\n')
-        pake.conf.stdout.flush()
+
 
     _print('# All Tasks\n')
 
@@ -330,7 +330,6 @@ def _list_task_info(pake_obj, default_tasks):  # pragma: no cover
         for task in default_tasks:
             _print(pake_obj.get_task_name(task))
         pake.conf.stdout.write('\n')
-        pake.conf.stdout.flush()
 
     documented = [ctx for ctx in pake_obj.task_contexts if ctx.func.__doc__ is not None]
 

@@ -750,10 +750,9 @@ class TaskContext:
     def _i_io_close(self):
         if self._pake.threadpool:
             self._io.seek(0)
-            shutil.copyfileobj(self._io, self.pake.stdout)
+            with self.pake._stdout_lock:
+                shutil.copyfileobj(self._io, self.pake.stdout)
             self._io.close()
-        else:
-            self._io.flush()
 
     def _i_submit_self(self, thread_pool):
         futures = [self.pake.get_task_context(i.name)._future for i in self.node.edges]
@@ -1027,6 +1026,7 @@ class Pake:
         """
 
         self.stdout = stdout if stdout is not None else pake.conf.stdout
+        self._stdout_lock = threading.Lock()
 
         self._graph = TaskGraph("_", lambda: None)
 
