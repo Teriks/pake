@@ -90,7 +90,17 @@ class ProgramTest(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, returncodes.BAD_DEFINE_VALUE)
 
-        pake.init(args=['-D', 'TEST= {"I am a bad good define" } '])
+        # These should not throw
+
+        pake.init(args=['-D', 'TEST= {"I am a good define" } '])
+
+        pake.init(args=['-D', 'TEST= "I am a good define" '])
+
+        pake.init(args=['-D', 'TEST= 1 am a good define '])
+
+        # they are strings
+        pake.init(args=['-D', 'TEST= 1 2 3 '])
+        pake.init(args=['-D', 'TEST=1 2 3 '])
 
         pake.de_init(clear_conf=False)
 

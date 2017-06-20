@@ -165,6 +165,8 @@ class UtilTest(unittest.TestCase):
         self.assertEqual(pake.util.parse_define_value(' none '), None)
         self.assertEqual(pake.util.parse_define_value(' noNe '), None)
 
+        self.assertEqual(pake.util.parse_define_value('1 2 3 '), '1 2 3 ')
+
         self.assertEqual(pake.util.parse_define_value('1'), 1)
         self.assertEqual(type(pake.util.parse_define_value('1')), int)
 
