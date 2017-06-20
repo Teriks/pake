@@ -112,7 +112,7 @@ error information to the task output.
 in that you cannot specify an **stderr** parameter, and an **ignore_errors**
 option is added which can prevent the method from raising an exception on non
 zero return codes from the process.  All of the process's **stderr** is directed
-to it's **stdout**.
+to its **stdout**.
 
 **ignore_errors** allows you to directly return the output of a command even if it errors
 without having to handle an exception to get the output.

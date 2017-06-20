@@ -127,7 +127,7 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
     This function should not be used inside tasks, use: :py:meth:`pake.TaskContext.subpake` instead.
     A :py:meth:`pake.TaskContext` instance is passed into the single parameter of each task, usually named **ctx**.
 
-    :py:meth:`pake.subpake` allows similar syntax to :py:meth:`pake.TaskContext.call` for it's **\*args** parameter.
+    :py:meth:`pake.subpake` allows similar syntax to :py:meth:`pake.TaskContext.call` for its **\*args** parameter.
     
     Subpake scripts do not inherit the **--jobs** argument from the parent script, if you want
     to run them with multithreading enabled you need to pass your own **--jobs** argument manually.
@@ -154,7 +154,7 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
                  variadic arguments.
 
     :param stdout: The file output to write all of the pakefile's output to. (defaults to :py:attr:`pake.conf.stdout`)
-                   The pakefile's **stderr** will be redirected to it's **stdout**, so the passed file object will
+                   The pakefile's **stderr** will be redirected to its **stdout**, so the passed file object will
                    receive all output from the pakefile including error messages.
 
     :param silent: Whether or not to silence all output from the subpake script.

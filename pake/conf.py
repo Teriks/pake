@@ -42,7 +42,7 @@ stdout = sys.stdout
 
 
 def reset():  # pragma: no cover
-    """Reset all configuration to it's default state."""
+    """Reset all configuration to its default state."""
 
     global stderr, stdout
 

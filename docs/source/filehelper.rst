@@ -65,7 +65,7 @@ Copy / Move methods
 
 
     # Recursively move an entire directory tree
-    # and it's contents.  In this case, 'lib' will
+    # and its contents.  In this case, 'lib' will
     # be moved into 'dist' as a subfolder.
 
     fh.move('lib', 'dist/lib')

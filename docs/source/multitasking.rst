@@ -1,7 +1,7 @@
 Parallelism Inside Tasks
 ========================
 
-Work can be submitted to the threadpool pake is running it's tasks on in order
+Work can be submitted to the threadpool pake is running its tasks on in order
 to achieve a predictable level of parallelism that is limited by the **--jobs** command
 line argument or the **jobs** parameter of :py:meth:`pake.Pake.run`.
 
@@ -57,13 +57,13 @@ Example:
 Output (Task IO) Synchronization
 --------------------------------
 
-If you are using :py:meth:`pake.Pake.multitask` to add concurrency to
+If you are using :py:meth:`pake.TaskContext.multitask` to add concurrency to
 the inside of a task, you are in charge of synchronizing output to the
 task IO queue.
 
 Pake will synchronize writing a pake task's whole IO queue when the task finishes
 if you do not specify **--no-sync-output** on the command line, but it will not
-be able to synchronize the output from tasks you submit to it's threadpool by
+be able to synchronize the output from tasks you submit to its threadpool by
 yourself.
 
 This usually means writing anything that needs to come in a guaranteed order

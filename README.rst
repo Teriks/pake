@@ -190,7 +190,7 @@ Output from command ``pake clean``:
 Parallelism Inside Tasks
 ========================
 
-Work can be submitted to the threadpool pake is running it's tasks on in
+Work can be submitted to the threadpool pake is running its tasks on in
 order to achieve a predictable level of parallelism that is limited by
 the **--jobs** command line argument or the *jobs* parameter of
 **pake.Pake.run**.

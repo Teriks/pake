@@ -79,7 +79,7 @@ def do_multiple_2(ctx):
 
 
 # Rebuild the input on the left that corresponds to the output in the same position
-# on the right when that specific input is out of date, or it's output is missing.
+# on the right when that specific input is out of date, or its output is missing.
 
 @pk.task(i=['test_data/one.c', 'test_data/two.c'],
          o=['test_data/do_multiple_3_1.o', 'test_data/do_multiple_3_2.o'])

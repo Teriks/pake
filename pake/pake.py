@@ -469,7 +469,7 @@ class TaskContext:
     def check_output(*args, stdin=None, shell=False, ignore_errors=False):
         """
         Return the output of a system command as a bytes object, without printing
-        it's **stdout/stderr** to the task IO queue.  The process command line that
+        its **stdout/stderr** to the task IO queue.  The process command line that
         was run will not be printed either.
         
         The returned bytes output will include **stdout** and **stderr** combined, and 
@@ -523,14 +523,14 @@ class TaskContext:
 
     def call(self, *args, stdin=None, shell=False, ignore_errors=False, silent=False, print_cmd=True, collect_output=False):
         """
-        Calls a sub process and returns it's return code.
+        Calls a sub process and returns its return code.
          
         all **stdout/stderr** is written to the task IO file stream.  The full command line 
         which was used to start the process is printed to the task IO queue before the 
         output of the command, unless **print_cmd=False**.
         
         
-        You can prevent the process from sending it's **stdout/stderr** to the task IO queue
+        You can prevent the process from sending its **stdout/stderr** to the task IO queue
         by specifying **silent=True**
         
         
@@ -1108,7 +1108,7 @@ class Pake:
     def threadpool(self):
         """Current execution thread pool.
 
-        This will never be anything other than **None** unless pake is running, and it's max job count is greater than 1.
+        This will never be anything other than **None** unless pake is running, and its max job count is greater than 1.
 
         Pake is considered to be running when :py:attr:`pake.Pake.is_running` equals **True**.
         
@@ -1398,7 +1398,7 @@ class Pake:
                pass
         
         
-           # Single input and single output, 'main.c' has it's creation time checked
+           # Single input and single output, 'main.c' has its creation time checked
            # against 'main'
            
            @pk.task(i='main.c', o='main')
@@ -1408,7 +1408,7 @@ class Pake:
                
                
            # When multiple input files exist and there is only one output file, each input file
-           # has it's creation time checked against the output files creation time.
+           # has its creation time checked against the output files creation time.
            
            @pk.task(i=['otherstuff.c', 'main.c'], o='main')
            def my_task(ctx):
