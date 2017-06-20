@@ -105,8 +105,8 @@ Example:
 
         with ctx.multitask() as mt:
 
-            # Apply sync_call to every argument
-            # list in the compiler_args list with map,
+            # Apply sync_call to every command
+            # in the compiler_commands list with map,
             # and force execution of the returned generator
             # by passing it to a list constructor
 
