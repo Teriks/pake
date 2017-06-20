@@ -12,47 +12,53 @@ import pake.graph
 
 
 class GraphTest(unittest.TestCase):
-    def test_detect_cycle(self):
+    def test_cycle(self):
+        # Tasks which have been visited are ignored
 
-        graph = pake.graph.Graph()
+        A = pake.graph.Graph()
+        B = pake.graph.Graph()
 
-        edge1 = pake.graph.Graph()
-        edge2 = pake.graph.Graph()
-        edge3 = pake.graph.Graph()
-        edge4 = pake.graph.Graph()
-        edge5 = pake.graph.Graph()
+        A.add_edge(B)
+        B.add_edge(A)
 
-        graph.add_edge(edge1)
-        graph.add_edge(edge2)
-        graph.add_edge(edge3)
+        # A -> B -> (A ignored)
+        self.assertListEqual([A, B], list(B.topological_sort()),
+                             msg='Topological sort short cyclic graph, unexpected result.')
 
-        edge3.add_edge(edge4)
-        edge4.add_edge(edge5)
-        edge5.add_edge(graph)
+        A = pake.graph.Graph()
+        B = pake.graph.Graph()
+        C = pake.graph.Graph()
+        D = pake.graph.Graph()
 
-        with self.assertRaises(pake.graph.CyclicGraphException):
-            list(graph.topological_sort())
+        # A -> B -> C -> D -> (A ignored)
+        A.add_edge(B)
+        B.add_edge(C)
+        C.add_edge(D)
+        D.add_edge(A)
 
-        graph = pake.graph.Graph()
+        self.assertListEqual([D, C, B, A], list(A.topological_sort()),
+                             msg='Topological sort long cyclic graph, unexpected result.')
 
-        edge1 = pake.graph.Graph()
-        edge2 = pake.graph.Graph()
-        edge3 = pake.graph.Graph()
-        edge4 = pake.graph.Graph()
-        edge5 = pake.graph.Graph()
+        # Test mutual dependencies, both of A's
+        # dependencies (D and B) depend on C
 
-        graph.add_edge(edge1)
-        graph.add_edge(edge2)
-        graph.add_edge(edge3)
+        A = pake.graph.Graph()
+        B = pake.graph.Graph()
+        C = pake.graph.Graph()
+        D = pake.graph.Graph()
 
-        edge3.add_edge(edge4)
-        edge4.add_edge(edge5)
+        A.add_edge(D)
+        A.add_edge(B)
+        B.add_edge(C)
+        D.add_edge(C)
 
-        try:
-            # force generator to run
-            list(graph.topological_sort())
-        except pake.graph.CyclicDependencyException:
-            self.fail('Topological sort threw CyclicDependencyException on non cyclic graph')
+        result = list(A.topological_sort())
+
+        # The order of D and B are random
+        # C needs to build first, then (B, D) or (D, B) then A can build
+
+        self.assertTrue(result == [C, B, D, A] or result == [C, D, B, A],
+                        msg='Topological sort mutual dependency graph, unexpected result.')
 
     def test_sort(self):
         # Two dependencies of the same node can come in any order.
@@ -73,18 +79,10 @@ class GraphTest(unittest.TestCase):
         expect = [e, d, c, b, a]
         or_expect = [d, e, c, b, a]
 
-        for idx, node in enumerate(a.topological_sort()):
-            if expect[idx] is not node:
-                expect = False
-                break
+        result = list(a.topological_sort())
 
-        for idx, node in enumerate(a.topological_sort()):
-            if or_expect[idx] is not node:
-                or_expect = False
-                break
-
-        if not expect and not or_expect:
-            self.fail("Topological sort of simple graph is out of order.")
+        self.assertTrue(result == expect or result == or_expect,
+                        msg='Topological sort on graph, unexpected result.')
 
 
 if __name__ == 'main':

@@ -1647,7 +1647,6 @@ class Pake:
         
         :raises: :py:exc:`pake.MissingOutputsException` if a task defines input files/directories without specifying any output files/directories.
         :raises: :py:exc:`pake.InputNotFoundException` if a task defines input files/directories but one of them was not found on disk.
-        :raises: :py:exc:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
         :raises: :py:exc:`pake.UndefinedTaskException` if one of the default tasks given in the *tasks* parameter is unregistered.
         
         :param tasks: Single task, or Iterable of task functions to run (by ref or name).
@@ -1763,7 +1762,6 @@ class Pake:
 
         :raises: :py:exc:`pake.MissingOutputsException` if a task defines input files/directories without specifying any output files/directories.
         :raises: :py:exc:`pake.InputNotFoundException` if a task defines input files/directories but one of them was not found on disk.
-        :raises: :py:exc:`pake.CyclicGraphException` if a cycle is found in the dependency graph.
         :raises: :py:exc:`pake.UndefinedTaskException` if one of the default tasks given in the **tasks** parameter is unregistered.
         
         :param tasks: Single task, or Iterable of task functions to run (by ref or name).

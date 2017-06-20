@@ -194,42 +194,6 @@ class PakeTest(unittest.TestCase):
 
         self.assertEqual(pk.run_count, 5)
 
-    def _cyclic_exception_test(self, pake_args):
-        pake.de_init(clear_conf=False)
-
-        pk = pake.init(args=pake_args)
-
-        @pk.task
-        def dep_one():
-            pass
-
-        @pk.task(dep_one)
-        def task_one():
-            pass
-
-        # task_two depends on dep_one.
-        # but it also depends on task_one, which in turn
-        # depends on dep_one again.
-
-        # Pake considers this a cyclic dependency, and it is (I think) the
-        # only way you can write a pakefile with a cycle in it, given how
-        # you must define tasks before they are referenced.
-
-        @pk.task(task_one, dep_one)
-        def task_two():
-            pass
-
-        with self.assertRaises(pake.CyclicGraphException):
-            pk.run(tasks=task_two)
-
-        self.assertEqual(pake.run(pk, tasks=task_two, call_exit=False),
-                         pake.returncodes.CYCLIC_DEPENDENCY)
-
-    def test_cyclic_exception(self):
-        self._cyclic_exception_test(None)
-        self._cyclic_exception_test(['--jobs', '10'])
-        self._cyclic_exception_test(['--dry-run'])
-
     def _is_running_test(self, jobs=1):
 
         # Test that the is_running and threadpool properties

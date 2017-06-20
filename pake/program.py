@@ -447,9 +447,6 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         except pake.UndefinedTaskException as err:
             _print_err(err)
             return m_exit(returncodes.UNDEFINED_TASK)
-        except pake.CyclicGraphException as err:
-            _print_err(err)
-            return m_exit(returncodes.CYCLIC_DEPENDENCY)
 
     return_code = 0
 
@@ -484,9 +481,6 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     except pake.UndefinedTaskException as err:
         _print_err(err)
         return_code = returncodes.UNDEFINED_TASK
-    except pake.CyclicGraphException as err:
-        _print_err(err)
-        return_code = returncodes.CYCLIC_DEPENDENCY
     except pake.TaskException as err:
         inner_err = err.exception
 

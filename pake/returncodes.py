@@ -61,29 +61,25 @@ Pake return codes.
 .. data:: UNDEFINED_TASK
 
     9. An undefined task was referenced.
-    
-.. data:: CYCLIC_DEPENDENCY
-
-    10. A cyclic dependency was detected.
 
 .. data:: TASK_SUBPROCESS_EXCEPTION
 
-    11. An unhandled :py:exc:`pake.TaskSubprocessException` was raised inside a task.
+    10. An unhandled :py:exc:`pake.TaskSubprocessException` was raised inside a task.
     
 .. data:: SUBPAKE_EXCEPTION
 
-    12. An exceptional condition occurred running a subpake script.
+    11. An exceptional condition occurred running a subpake script.
     
 
     Or if a pakefile invoked with :py:meth:`pake.subpake` returns non-zero and the subpake parameter  **exit_on_error** is set to **True**.
 
 .. data:: TASK_EXCEPTION
 
-    13. An unhandled exception occurred inside a task.
+    12. An unhandled exception occurred inside a task.
 
 .. data:: STDIN_DEFINES_SYNTAX_ERROR
 
-    14. A syntax error was encountered parsing the defines dictionary passed into
+    13. A syntax error was encountered parsing the defines dictionary passed into
         **stdin** while using the **--stdin-defines** option.
 
 """
@@ -98,8 +94,7 @@ NO_TASKS_SPECIFIED = 6
 TASK_INPUT_NOT_FOUND = 7
 TASK_OUTPUT_MISSING = 8
 UNDEFINED_TASK = 9
-CYCLIC_DEPENDENCY = 10
-TASK_SUBPROCESS_EXCEPTION = 11
-SUBPAKE_EXCEPTION = 12
-TASK_EXCEPTION = 13
-STDIN_DEFINES_SYNTAX_ERROR = 14
+TASK_SUBPROCESS_EXCEPTION = 10
+SUBPAKE_EXCEPTION = 11
+TASK_EXCEPTION = 12
+STDIN_DEFINES_SYNTAX_ERROR = 13

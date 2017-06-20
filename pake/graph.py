@@ -19,16 +19,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-__all__ = ['CyclicGraphException', 'Graph']
-
-
-class CyclicGraphException(Exception):
-    """
-    Thrown if a graph is determined to be cyclic upon running topological sort on it.
-    """
-
-    def __init__(self, *args):
-        super().__init__(*args)
+__all__ = ['Graph']
 
 
 class Graph:
@@ -71,29 +62,22 @@ class Graph:
         for i in vertex.edges:
             if i not in visited:
                 yield from Graph._topological_sort(i, visited)
-            else:
-                raise CyclicGraphException(
-                    'cycle detected, node: "{}" already seen.'.format(i)
-                )
 
         yield vertex
 
     def topological_sort(self):
         """
         Return a generator object that runs topological sort as it is iterated over.
-        
-        :raises: :py:exc:`pake.CyclicGraphException` if a cycle is found in the graph.
+
+        Nodes that have been visited will not be revisited, making infinite recursion impossible.
+
         :return: A generator that produces :py:class:`pake.graph.Graph` nodes.
         """
 
-        visited = set()
+        visited = {self}
 
         for i in self.edges:
             if i not in visited:
                 yield from self._topological_sort(i, visited)
-            else:  # pragma: no cover
-                raise CyclicGraphException(
-                    'Cyclic graph detected, node: "{}" already seen.'.format(i)
-                )
 
         yield self
