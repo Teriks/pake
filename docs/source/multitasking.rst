@@ -57,7 +57,7 @@ Example:
 Output (Task IO) Synchronization
 --------------------------------
 
-If you are using :py:meth:`pake.Pake.multitask` to add parallelism to
+If you are using :py:meth:`pake.Pake.multitask` to add concurrency to
 the inside of a task, you are in charge of synchronizing output to the
 task IO queue.
 
