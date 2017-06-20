@@ -104,7 +104,7 @@ def init(stdout=None, args=None):
     :raises: :py:exc:`SystemExit` if bad command line arguments are parsed, or the **args** parameter contains bad arguments.
 
     :return: :py:class:`pake.Pake`
-    :rtype: pake.Pake
+
     """
 
     global _INIT_FILE, _INIT_DIR
@@ -227,7 +227,7 @@ def get_max_jobs():
     
     :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: The max number of jobs from the **--jobs** command line argument. (an integer >= 1)
-    :rtype: int
+
     """
 
     if not is_init():
@@ -248,7 +248,7 @@ def get_subpake_depth():
     
     :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: The current depth of execution (an integer >= 0)
-    :rtype: int
+
     """
 
     if not is_init():
@@ -264,7 +264,7 @@ def get_init_file():
     
     :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: Full path to pakes entrypoint file, or **None**
-    :rtype: str
+
     """
 
     if not is_init():
@@ -280,7 +280,7 @@ def get_init_dir():
     
     :raises: :py:exc:`pake.PakeUninitializedException` if :py:class:`pake.init` has not been called.
     :return: Full path to init dir, or **None**
-    :rtype: str
+
     """
 
     if not is_init():
@@ -389,7 +389,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
 
     :return: A return code from :py:mod:`pake.returncodes`.
 
-    :rtype: int
+
     :type pake_obj: pake.Pake
     """
 

@@ -35,7 +35,6 @@ class Graph:
         Add an edge to the graph.
         
         :param edge: The edge to add (another :py:class:`pake.graph.Graph` object)
-        :rtype: pake.graph.Graph
         """
         self._edges.add(edge)
 
@@ -44,7 +43,7 @@ class Graph:
         Remove an edge from the graph by reference.
         
         :param edge: Reference to a :py:class:`pake.graph.Graph` object.
-        :rtype: pake.graph.Graph
+
         """
         self._edges.remove(edge)
 
@@ -54,7 +53,7 @@ class Graph:
         Retrieve a set of edges from this graph node.
         
         :return: A set() of adjacent nodes.
-        :rtype: set[pake.graph.Graph]
+
         """
         return self._edges
 

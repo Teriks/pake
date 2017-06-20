@@ -1114,7 +1114,7 @@ class Pake:
         
         If pake is running with a job count of 1, no threadpool is used so this property will be **None**.
 
-        :rtype: concurrent.futures.ThreadPoolExecutor
+
         """
         return self._threadpool
 
@@ -1173,7 +1173,7 @@ class Pake:
         
         :return: List of :py:class:`pake.TaskContext`.
 
-        :rtype: list
+
         """
         return self._task_contexts.values()
 
@@ -1532,7 +1532,7 @@ class Pake:
 
         :return: Task name string.
 
-        :rtype: str
+
         """
         if type(task) is str:
             ctx = self._task_contexts.get(task, None)
@@ -1557,7 +1557,7 @@ class Pake:
         :param task: Task function or function name as a string
         :return: :py:class:`pake.TaskContext`
 
-        :rtype: pake.TaskContext
+
         """
 
         task = self.get_task_name(task)
@@ -1652,7 +1652,7 @@ class Pake:
                           This does not apply to dry run visits, the task header will still be printed during dry runs.
         :return: The :py:class:`pake.TaskContext` for the new task.
 
-        :rtype: pake.TaskContext
+
         """
 
         if name in self._task_contexts:
@@ -1840,7 +1840,7 @@ class Pake:
 
         :return:  **True** if pake is currently running tasks, **False** otherwise.
 
-        :rtype: bool
+
         """
         return self._is_running
 
