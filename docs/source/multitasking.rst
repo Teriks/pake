@@ -34,8 +34,7 @@ Example:
 
                # this prevents the output from being scrambled in with
                # the output from other invocations if there happens to
-               # be error or warning information printed to the tasks
-               # io queue
+               # be error or warning information printed to the tasks output
 
                sync_call = partial(ctx.call, collect_output=pk.max_jobs > 1)
 

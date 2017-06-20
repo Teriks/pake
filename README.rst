@@ -199,27 +199,43 @@ the **--jobs** command line argument or the *jobs* parameter of
 
 
     import pake
+    from functools import partial
 
     pk=pake.init()
 
     @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
-    def build_c(ctx):
+    def build_c(ctx)
 
-        # Start multitasking
+       # Start multitasking
 
-        with ctx.multitask() as mt:
-            for i, o in ctx.outdated_pairs:
-                # Submit a work function with arguments to the threadpool
+       with ctx.multitask() as mt:
+           for i, o in ctx.outdated_pairs:
 
-                mt.submit(ctx.call, ['gcc', '-c', i, '-o', o])
+               # Force ctx.call to write all process output as one chunk
+               # when we are running with more than one job, by binding
+               # the collect_output argument using functools.partial
+
+               # this prevents the output from being scrambled in with
+               # the output from other invocations if there happens to
+               # be error or warning information printed to the tasks output
+
+               sync_call = partial(ctx.call, collect_output=pk.max_jobs > 1)
+
+               # Submit a work function with arguments to the threadpool
+               mt.submit(sync_call, ['gcc', '-c', i, '-o', o])
 
 
     @pk.task(build_c, i=pake.glob('obj/*.o'), o='main')
     def build(ctx):
-        ctx.call('gcc', ctx.inputs, '-o', ctx.outputs)
+
+       # Utilizing the automatic non string iterable
+       # flattening here to pass ctx.inputs and ctx.outputs
+
+       ctx.call(['gcc', ctx.inputs, '-o', ctx.outputs])
 
 
     pake.run(pk, tasks=build)
+
 
 Running Sub Pakefiles
 =====================
