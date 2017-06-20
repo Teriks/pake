@@ -352,7 +352,7 @@ class TaskContext:
     @property
     def io(self):  # pragma: no cover
         """
-        Task IO file stream, a file like object that is only open for writing during a tasks execution.
+        The task IO file stream, a file like object that is only open for writing during a tasks execution.
         
         Any output to be displayed for the task should be written to this file object.
         
