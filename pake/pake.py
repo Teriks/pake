@@ -615,19 +615,20 @@ class TaskContext:
             with subprocess.Popen(args,
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
-                                  stdin=stdin, shell=shell) as process:
+                                  stdin=stdin, shell=shell,
+                                  universal_newlines=True) as process:
 
                 output_copy_buffer = tempfile.TemporaryFile(mode='w+', newline='\n')
-
-                stdout_encoding = 'utf-8' if sys.stdout.encoding is None else sys.stdout.encoding  # pragma: no cover
-
                 try:
-                    process_stdout = codecs.getreader(stdout_encoding)(process.stdout)
-
                     if not silent:
-                        pake.util.copyfileobj_tee(process_stdout, [self._io, output_copy_buffer])
+                        # Use readline for live output to self._io when max jobs == 1
+                        # The task is on the current thread, and self._io is a direct
+                        # unbuffered reference this.stdout
+                        pake.util.copyfileobj_tee(process.stdout,
+                                                  [self._io, output_copy_buffer],
+                                                  readline=self.pake.max_jobs == 1)
                     else:  # pragma: no cover
-                        pake.util.copyfileobj_tee(process_stdout, [output_copy_buffer])
+                        pake.util.copyfileobj_tee(process.stdout, [output_copy_buffer])
 
                 except:  # pragma: no cover
                     output_copy_buffer.close()

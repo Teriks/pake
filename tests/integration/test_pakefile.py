@@ -300,7 +300,7 @@ class IntegrationTest(unittest.TestCase):
         print('===== FINISHED INTEGRATION TEST =====')
 
     def test_integrated_parallel(self):
-        print('===== STARTING PARALLEL INTEGRATION TEST ====='+os.linesep)
+        print('===== STARTING PARALLEL INTEGRATION TEST =====\n')
 
         fh = pake.FileHelper()
         fh.glob_remove(os.path.join(script_dir, '**', '*.o'))

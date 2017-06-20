@@ -282,16 +282,25 @@ def qualified_name(object_instance):
         return type(object_instance).__name__
 
 
-def copyfileobj_tee(fsrc, destinations, length=16 * 1024):
+def copyfileobj_tee(fsrc, destinations, length=16 * 1024, readline=False):
     """copy data from file-like object **fsrc** to multiple file like objects.
 
     :param fsrc: Source file object.
     :param destinations: List of destination file objects.
-    :param length: Read chunk size.
+    :param length: Read chunk size, default is 16384 bytes.
+    :param readline: If **True** readline will be used to read from **fsrc**, the **length**
+                     parameter will be ignored.
     """
 
+    if readline:
+        def m_read():
+            return fsrc.readline()
+    else:
+        def m_read():
+            return fsrc.read(length)
+
     while 1:
-        buf = fsrc.read(length)
+        buf = m_read()
         if not buf:
             break
         for fdst in destinations:

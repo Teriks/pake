@@ -130,7 +130,7 @@ def init(stdout=None, args=None):
         except Exception as err:
 
             _print_err('Syntax error parsing defines from standard input '''
-                       'with --stdin-defines option:' + os.linesep)
+                       'with --stdin-defines option:\n')
             _print_err(err)
 
             exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
@@ -295,8 +295,8 @@ def _format_task_info(max_name_width, task_name, task_doc):  # pragma: no cover
         for i in range(1, lines_len):
             lines[i] = ' ' * (max_name_width + len(field_sep)) + lines[i]
 
-    spacing = (os.linesep if len(lines) > 1 else '')
-    return spacing + task_name + field_sep + os.linesep.join(lines) + spacing
+    spacing = ('\n' if len(lines) > 1 else '')
+    return spacing + task_name + field_sep + '\n'.join(lines) + spacing
 
 
 def _list_tasks(pake_obj, default_tasks):  # pragma: no cover
@@ -305,13 +305,13 @@ def _list_tasks(pake_obj, default_tasks):  # pragma: no cover
     :type pake_obj: pake.Pake
     """
     if len(default_tasks):
-        _print('# Default Tasks' + os.linesep)
+        _print('# Default Tasks\n')
         for task in default_tasks:
             _print(pake_obj.get_task_name(task))
-        pake.conf.stdout.write(os.linesep)
+        pake.conf.stdout.write('\n')
         pake.conf.stdout.flush()
 
-    _print('# All Tasks' + os.linesep)
+    _print('# All Tasks\n')
 
     if len(pake_obj.task_contexts):
         for ctx in pake_obj.task_contexts:
@@ -326,15 +326,15 @@ def _list_task_info(pake_obj, default_tasks):  # pragma: no cover
     :type pake_obj: pake.Pake
     """
     if len(default_tasks):
-        _print('# Default Tasks' + os.linesep)
+        _print('# Default Tasks\n')
         for task in default_tasks:
             _print(pake_obj.get_task_name(task))
-        pake.conf.stdout.write(os.linesep)
+        pake.conf.stdout.write('\n')
         pake.conf.stdout.flush()
 
     documented = [ctx for ctx in pake_obj.task_contexts if ctx.func.__doc__ is not None]
 
-    _print('# Documented Tasks' + os.linesep)
+    _print('# Documented Tasks\n')
 
     if len(documented):
         max_name_width = len(max(documented, key=lambda x: len(x.name)).name)
@@ -471,9 +471,9 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
 
         if return_code != returncodes.SUCCESS:
             # Print info only for error conditions
-            _print_err(os.linesep + str(err) + os.linesep)
+            _print_err('\n{}\n'.format(err))
             err.print_traceback(file=pake.conf.stderr)
-            pake.conf.stderr.write(os.linesep)
+            pake.conf.stderr.write('\n')
 
     except pake.InputNotFoundException as err:
         _print_err(err)
@@ -491,23 +491,23 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         inner_err = err.exception
 
         if isinstance(inner_err, pake.SubpakeException):
-            pake.conf.stderr.write(os.linesep)
+            pake.conf.stderr.write('\n')
             inner_err.write_info(file=pake.conf.stderr)
-            pake.conf.stderr.write(os.linesep)
+            pake.conf.stderr.write('\n')
 
             return_code = returncodes.SUBPAKE_EXCEPTION
 
         elif isinstance(inner_err, pake.TaskSubprocessException):
-            pake.conf.stderr.write(os.linesep)
+            pake.conf.stderr.write('\n')
             inner_err.write_info(file=pake.conf.stderr)
-            pake.conf.stderr.write(os.linesep)
+            pake.conf.stderr.write('\n')
 
             return_code = returncodes.TASK_SUBPROCESS_EXCEPTION
 
         else:
-            _print_err(os.linesep + str(err) + os.linesep)
+            _print_err('\n{}\n'.format(err))
             err.print_traceback(file=pake.conf.stderr)
-            pake.conf.stderr.write(os.linesep)
+            pake.conf.stderr.write('\n')
 
             return_code = returncodes.TASK_EXCEPTION
 

@@ -194,20 +194,20 @@ class StreamingSubprocessException(ProcessException):
 
         if len(template):
             file.write('{myname}({sep}\t{template}{sep}){sep}{sep}'.
-                       format(myname=class_name, template=(',' + os.linesep + '\t').join(template), sep=os.linesep))
+                       format(myname=class_name, template=',\n\t'.join(template), sep='\n'))
         else:
-            file.write('{myname}(){sep}{sep}'.format(myname=class_name, sep=os.linesep))
+            file.write('{myname}(){sep}{sep}'.format(myname=class_name, sep='\n'))
 
         if self.message:
             # noinspection PyTypeChecker
-            # os.linesep is a string, * 2 duplicates it twice
-            file.write('Message: ' + self.message + (os.linesep * 2))
+            # str * 2 duplicates str twice
+            file.write('Message: ' + self.message + ('\n' * 2))
 
         file.write('The following command exited with return code: {code}{sep}{sep}{cmd}'
-                   .format(code=self.returncode, sep=os.linesep, cmd=' '.join(self.cmd)))
+                   .format(code=self.returncode, sep='\n', cmd=' '.join(self.cmd)))
 
         if self._output or self._output_stream:
-            file.write("{sep}{sep}Command Output: {{{sep}{sep}".format(sep=os.linesep))
+            file.write("{sep}{sep}Command Output: {{{sep}{sep}".format(sep='\n'))
 
             if self._output_stream:
                 try:
@@ -220,7 +220,7 @@ class StreamingSubprocessException(ProcessException):
             else:
                 file.write(self._output.decode())
 
-            file.write("{sep}{sep}}}{sep}".format(sep=os.linesep))
+            file.write("{sep}{sep}}}{sep}".format(sep='\n'))
 
 
 class TimeoutExpired(ProcessException):
@@ -293,9 +293,9 @@ class TimeoutExpired(ProcessException):
 
         if len(template):  # pragma: no cover
             out_str += ('{myname}({sep}\t{template}{sep}){sep}{sep}'.
-                        format(myname=class_name, template=(',' + os.linesep + '\t').join(template), sep=os.linesep))
+                        format(myname=class_name, template=',\n\t'.join(template), sep='\n'))
         else:
-            out_str += ('{myname}(){sep}{sep}'.format(myname=class_name, sep=os.linesep))
+            out_str += ('{myname}(){sep}{sep}'.format(myname=class_name, sep='\n'))
 
         out_str += "Command {} timed out after {} seconds".format(self.cmd, self.timeout)
 
@@ -381,9 +381,9 @@ class CalledProcessException(ProcessException):
 
         if len(template):  # pragma: no cover
             out_str += ('{myname}({sep}\t{template}{sep}){sep}{sep}'.
-                        format(myname=class_name, template=(',' + os.linesep + '\t').join(template), sep=os.linesep))
+                        format(myname=class_name, template=',\n\t'.join(template), sep='\n'))
         else:
-            out_str += ('{myname}(){sep}{sep}'.format(myname=class_name, sep=os.linesep))
+            out_str += ('{myname}(){sep}{sep}'.format(myname=class_name, sep='\n'))
 
         if self.returncode and self.returncode < 0:  # pragma: no cover
             # subprocess module uses this same logic

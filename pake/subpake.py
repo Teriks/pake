@@ -119,7 +119,7 @@ def export(name, value):  # pragma: no cover
     EXPORTS[name] = value
 
 
-def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error=True):
+def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error=True, readline=True):
     """
     Execute a ``pakefile.py`` script, changing directories if necessary.
     
@@ -167,6 +167,11 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
                           **exit(1)** if the pakefile script encounters an error.  The value
                           of this parameter will be disregarded when **ignore_errors=True**.
 
+    :param readline: Whether or not to use **readline** for reading process output when **ignore_errors**
+                     and **silent** are **False**,  this is necessary for live output in that case. When live
+                     output to a terminal is not required, such as when writing to a file on disk, setting
+                     this parameter to **False** results in more efficient writes. This parameter defaults to **True**
+
     :raises: :py:exc:`ValueError` if no command + optional command arguments are provided.
     :raises: :py:exc:`FileNotFoundError` if the first argument *(the pakefile)* is not found.
     :raises: :py:exc:`pake.SubpakeException` if the called pakefile script encounters an error
@@ -210,9 +215,10 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
         with subprocess.Popen(args,
                               stdout=stdout,
                               stderr=subprocess.STDOUT,
-                              stdin=subprocess.PIPE) as process:
+                              stdin=subprocess.PIPE,
+                              universal_newlines=True) as process:
 
-            process.stdin.write(repr(EXPORTS).encode())
+            process.stdin.write(repr(EXPORTS))
             process.stdin.flush()
             process.stdin.close()
             try:
@@ -225,22 +231,19 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
     with subprocess.Popen(args,
                           stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT,
-                          stdin=subprocess.PIPE) as process:
+                          stdin=subprocess.PIPE,
+                          universal_newlines=True) as process:
 
-        process.stdin.write(repr(EXPORTS).encode())
+        process.stdin.write(repr(EXPORTS))
         process.stdin.flush()
         process.stdin.close()
 
         output_copy_buffer = tempfile.TemporaryFile(mode='w+', newline='\n')
-        stdout_encoding = 'utf-8' if sys.stdout.encoding is None else sys.stdout.encoding  # pragma: no cover
-
         try:
-            process_stdout = codecs.getreader(stdout_encoding)(process.stdout)
-
             if not silent:
-                pake.util.copyfileobj_tee(process_stdout, [stdout, output_copy_buffer])
+                pake.util.copyfileobj_tee(process.stdout, [stdout, output_copy_buffer], readline=readline)
             else:  # pragma: no cover
-                pake.util.copyfileobj_tee(process_stdout, [output_copy_buffer])
+                pake.util.copyfileobj_tee(process.stdout, [output_copy_buffer])
         except:  # pragma: no cover
             output_copy_buffer.close()
             raise
