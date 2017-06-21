@@ -1022,7 +1022,7 @@ def pattern(file_pattern):
 class MultitaskContext(Executor):
     """Returned by :py:meth:`pake.TaskContext.multitask` (see for more details).
 
-    This object has (for the most part) the exact same behavior and interface as
+    This object has (for the most part) has the exact same behavior and interface as
     :py:class:`concurrent.futures.ThreadPoolExecutor` from the built in Python module
     :py:class:`concurrent.futures`.
 
