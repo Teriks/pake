@@ -1031,7 +1031,9 @@ class MultitaskContext(Executor):
 
     This object is meant to be used in a **with** statement.  At the end of the **with**
     statement all of your submitted work will be waited on, so you do not have to do it
-    manually with :py:meth:`pake.MultitaskContext`.  Using a **with** statement is exception safe.
+    manually with :py:meth:`pake.MultitaskContext.shutdown`.
+
+    Using a **with** statement is also exception safe.
     """
 
     def __init__(self, ctx):
