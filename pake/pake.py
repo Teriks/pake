@@ -647,8 +647,13 @@ class TaskContext:
         :param stdin: Optional file object to pipe into the called process's **stdin**.
         :param shell: Whether or not to use the system shell for execution of the command.
         :param ignore_errors: Whether or not to raise a :py:exc:`pake.TaskSubprocessException` on non-zero exit codes.
-        :param silent: Whether or not to silence **stdout/stderr** from the command.
+        
+        :param silent: Whether or not to silence **stdout/stderr** from the command.  This does keep pake
+                       from printing what command line was run, see the **print_cmd** argument for that.
+                       
         :param print_cmd: Whether or not to print the executed command line to the tasks output.
+                          The **silent** argument will not keep pake from printing the executed command,
+                          only this argument can do that.
 
         :param collect_output: Whether or not to collect all process output to a temporary file
                                and then incrementally write it back to :py:class:`pake.TaskContext.io`
@@ -729,6 +734,8 @@ class TaskContext:
 
                     if collect_output and print_cmd:
                         output_copy_buffer.write(' '.join(args) + '\n')
+                    elif print_cmd:
+                        self.print(' '.join(args))
 
                     shutil.copyfileobj(process.stdout, output_copy_buffer)
 
