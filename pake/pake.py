@@ -794,6 +794,10 @@ class TaskContext:
                                    shell=shell)
         finally:
             if use_temp_file_for_collect:
+
+                # Rewind the temp file first
+                p_stdout.seek(0)
+
                 with self.io_lock:
                     shutil.copyfileobj(p_stdout, self._io)
                 p_stdout.close()

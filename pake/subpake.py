@@ -273,6 +273,10 @@ def _subpake_ignore_errors(args, stdout, silent, collect_output, collect_output_
                 raise
     finally:
         if use_temp_file_for_collect:
+
+            # Rewind the temp file first
+            p_stdout.seek(0)
+
             if collect_output_lock:
                 with collect_output_lock:
                     shutil.copyfileobj(p_stdout, stdout)
