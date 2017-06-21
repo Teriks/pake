@@ -184,7 +184,7 @@ def subpake(*args,
                            and then write it incrementally to the **stdout** parameter when
                            the process finishes.  This can help prevent crashes when dealing with lots of output.
                            When you pass **True** to this parameter, the **readline** parameter is ignored.
-                           See: :ref:`Output synchronization with ctx.call & ctx.subpake `
+                           See: :ref:`Output synchronization with ctx.call & ctx.subpake`
 
     :param collect_output_lock: If you provide a lockable object such as :py:class:`threading.Lock` or
                                 :py:class:`threading.RLock`, The subpake function will try to acquire the lock before

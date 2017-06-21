@@ -194,8 +194,16 @@ Output synchronization with ctx.call & ctx.subpake
 --------------------------------------------------
 
 :py:meth:`pake.TaskContext.subpake`, and :py:meth:`pake.call` both have an argument
-named **collect_output** which will do all the locking required to synchronize output
-for subprocess in an efficient manner.
+named **collect_output** which will do all the work required to synchronize output
+for a sub-pakefile/process in a memory efficient manner.
+
+    **Note:**
+
+    :py:meth:`pake.subpake` also has this argument, but you need to pass a lockable context manager object to
+    **collect_output_lock** in order to properly synchronize its output to the **stdio** parameter.
+    :py:meth:`pake.TaskContext.subpake` does all of this for you and a few extra things to make sure
+    everything works right, so use for this instead.  It passes in the :py:attr:`pake.TaskContext.io_lock`
+    object, just FYI.
 
 When **collect_output** is **True** and their **silent** parameter is **False**,
 these functions will buffer all process output to a temporary file while the process is doing work.
