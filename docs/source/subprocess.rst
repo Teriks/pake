@@ -163,9 +163,9 @@ The **ignore_errors** argument allows you to return the value of non-zero return
 having to handle an exception such as with :py:meth:`subprocess.check_call` from pythons built
 in subprocess module.
 
-In addition if an exception is thrown, pake will be able to print comprehensible error output
-about the location of the exception to the task IO queue same as the other functions dealing
-with processes in the task context;  Without printing a huge stack trace.
+In addition, if an exception is thrown, pake will be able to print comprehensible error info
+about the location of the exception to the task IO queue while avoiding a huge stack trace.
+The same is true for the other functions dealing with processes in the task context.
 
 
 Examples:
