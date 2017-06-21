@@ -60,6 +60,7 @@ class SubpakeTest(unittest.TestCase):
                         return_code_pakefile, ignore_errors=False, exit_on_error=False, **kwargs), code)
 
                 except pake.SubpakeException as err:
+                    err.write_info(pake.conf.stdout)  # Prevent unit test resource warnings
                     self.assertEqual(err.returncode, code)
 
         # ====== Non Silent Path =======

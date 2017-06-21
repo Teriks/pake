@@ -32,7 +32,7 @@ class TaskContextProcessTest(unittest.TestCase):
         # Just so this path gets hit at least once
         pk.sync_output = False
 
-        class TestFailException:
+        class TestFailException(Exception):
             def __init__(self, expected, code):
                 self.code = code
                 self.expected = expected
@@ -73,6 +73,7 @@ class TaskContextProcessTest(unittest.TestCase):
                           'expected {}, got: {}'.
                           format(err.exception.expected, err.exception.code))
             else:
+                print(str(err.exception))
                 raise err.exception
 
         try:

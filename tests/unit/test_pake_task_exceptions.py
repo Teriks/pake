@@ -187,10 +187,14 @@ class TaskExceptionsTest(unittest.TestCase):
 
             self.assertEqual(type(exc.exception.exception), pake.TaskSubprocessException)
 
+            exc.exception.exception.write_info(pake.conf.stdout)  # avoid unit test resource warning
+
             with self.assertRaises(pake.TaskException) as exc:
                 pk.run(tasks=call3, jobs=10)
 
             self.assertEqual(type(exc.exception.exception), pake.TaskSubprocessException)
+
+            exc.exception.exception.write_info(pake.conf.stdout)  # avoid unit test resource warning
 
             try:
                 pk.run(tasks=call4)
@@ -222,10 +226,12 @@ class TaskExceptionsTest(unittest.TestCase):
 
             self.assertEqual(type(exc.exception.exception), pake.TaskSubprocessException)
 
-            self.assertEqual(type(exc.exception.exception.output), bytes)
+            self.assertEqual(exc.exception.exception.output_stream.tell(), 0)
 
             # Just to test for exceptions writing the TaskSubprocessException.output prop
             exc.exception.exception.write_info(pake.conf.stdout)
+
+            self.assertEqual(exc.exception.exception.output_stream, None)
 
         collect_output_test_helper(1)
         collect_output_test_helper(5)

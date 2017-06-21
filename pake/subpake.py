@@ -120,7 +120,14 @@ def export(name, value):  # pragma: no cover
     EXPORTS[name] = value
 
 
-def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error=True, readline=True, collect_output=False):
+def subpake(*args,
+            stdout=None,
+            silent=False,
+            ignore_errors=False,
+            exit_on_error=True,
+            readline=True,
+            collect_output=False,
+            collect_output_lock=None):
     """
     Execute a ``pakefile.py`` script, changing directories if necessary.
     
@@ -173,11 +180,17 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
                      output to a terminal is not required, such as when writing to a file on disk, setting
                      this parameter to **False** results in more efficient writes. This parameter defaults to **True**
 
-    :param collect_output: Whether or not to collect all subpake output and write it with one
-                           single giant write to the **stdout** parameter, this is dangerous to
-                           use with pakefiles that produce a lot of output.  This is useful
-                           for synchronizing writes to the file object if you are running
-                           multiple pakefiles in parallel.
+    :param collect_output: Whether or not to collect all subpake output to a temporary file
+                           and then write it incrementally to the **stdout** parameter when
+                           the process finishes.  This can help prevent crashes when dealing with lots of output.
+                           When you pass **True** to this parameter, the **readline** parameter is ignored.
+                           See: :ref:`Output (Task IO) Synchronization`
+
+    :param collect_output_lock: If you provide a lockable object such as :py:class:`threading.Lock` or
+                                :py:class:`threading.RLock`, The subpake function will try to acquire the lock before
+                                incrementally writing to the **stdout** parameter when **collect_output=True**.
+                                The lock you pass is only required to implement a context manager and be usable
+                                in a **with** statement, no methods are called on the lock.
 
     :raises: :py:exc:`ValueError` if no command + optional command arguments are provided.
     :raises: :py:exc:`FileNotFoundError` if the first argument *(the pakefile)* is not found.
@@ -214,13 +227,30 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
     args = [sys.executable, script] + extra_args + list(str(i) for i in args)
 
     if ignore_errors:
-        if silent:
-            p_stdout = subprocess.DEVNULL
-        elif collect_output:
-            p_stdout = subprocess.PIPE
-        else:
-            p_stdout = stdout
+        return _subpake_ignore_errors(
+            args=args,
+            stdout=stdout,
+            silent=silent,
+            collect_output=collect_output,
+            collect_output_lock=collect_output_lock)
 
+    return _subpake_with_errors(args=args,
+                                stdout=stdout,
+                                silent=silent,
+                                exit_on_error=exit_on_error,
+                                readline=readline,
+                                collect_output=collect_output,
+                                collect_output_lock=collect_output_lock)
+
+
+def _subpake_ignore_errors(args, stdout, silent, collect_output, collect_output_lock):
+    if silent:
+        p_stdout = subprocess.DEVNULL
+    elif collect_output:
+        p_stdout = tempfile.TemporaryFile(mode='w+', newline='\n')
+    else:
+        p_stdout = stdout
+    try:
         with subprocess.Popen(args,
                               stdout=p_stdout,
                               stderr=subprocess.STDOUT,
@@ -231,21 +261,23 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
             process.stdin.flush()
             process.stdin.close()
 
-            if collect_output and not silent:
-                # Dump all of the pipe output at once to both places
-                all_pipe_data = process.stdout.buffer.read().decode()
-                stdout.write(all_pipe_data)
-                process.stdout.close()
-
             try:
                 return process.wait()
             except:  # pragma: no cover
                 process.kill()
                 process.wait()
                 raise
+    finally:
+        if collect_output and not silent:
+            if collect_output_lock:
+                with collect_output_lock:
+                    shutil.copyfileobj(p_stdout, stdout)
+            else:
+                shutil.copyfileobj(p_stdout, stdout)
+            p_stdout.close()
 
-    # Log a copy to disk, for possible error reporting later
 
+def _subpake_with_errors(args, stdout, silent, exit_on_error, readline, collect_output, collect_output_lock):
     with subprocess.Popen(args,
                           stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT,
@@ -257,23 +289,31 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
         process.stdin.close()
 
         output_copy_buffer = tempfile.TemporaryFile(mode='w+', newline='\n')
+
+        def do_collect_output(seek0_before, seek0_after):
+            if seek0_before:
+                output_copy_buffer.seek(0)
+
+            if collect_output and not silent:
+                if collect_output_lock:
+                    with collect_output_lock:
+                        shutil.copyfileobj(output_copy_buffer, stdout)
+                else:
+                    shutil.copyfileobj(output_copy_buffer, stdout)
+
+                if seek0_after:
+                    output_copy_buffer.seek(0)
+
         try:
             if not silent:
-                if collect_output:
-                    # Dump all of the pipe output at once to both places
-                    all_pipe_data = process.stdout.buffer.read().decode()
-                    stdout.write(all_pipe_data)
-                    output_copy_buffer.write(all_pipe_data)
-                else:
-                    # Incremental copy
-                    pake.util.copyfileobj_tee(process.stdout, [stdout, output_copy_buffer], readline=readline)
+                pake.util.copyfileobj_tee(process.stdout, [stdout, output_copy_buffer], readline=readline)
             else:  # pragma: no cover
-
                 # Only need to copy to the output_copy_buffer, for error reporting
                 # when silent = True
                 shutil.copyfileobj(process.stdout, output_copy_buffer)
 
         except:  # pragma: no cover
+            do_collect_output(seek0_before=True, seek0_after=False)
             output_copy_buffer.close()
             raise
         finally:
@@ -282,6 +322,7 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
         try:
             exitcode = process.wait()
         except:  # pragma: no cover
+            do_collect_output(seek0_before=True, seek0_after=False)
             output_copy_buffer.close()
             process.kill()
             process.wait()
@@ -289,6 +330,7 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
 
         if exitcode:
             output_copy_buffer.seek(0)
+            do_collect_output(seek0_before=False, seek0_after=True)
 
             # Giving up responsibility to close output_copy_buffer here
             ex = SubpakeException(cmd=args,
@@ -302,5 +344,6 @@ def subpake(*args, stdout=None, silent=False, ignore_errors=False, exit_on_error
             else:
                 raise ex
 
+        do_collect_output(seek0_before=True, seek0_after=False)
         output_copy_buffer.close()
         return exitcode

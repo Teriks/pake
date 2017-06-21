@@ -26,6 +26,7 @@ import threading
 import traceback
 from functools import wraps
 from glob import iglob as glob_iglob
+from contextlib import contextmanager
 
 import os
 
@@ -275,10 +276,50 @@ class TaskContext:
         self._node = node
         self._future = None
         self._io = None
+        self._io_lock = threading.RLock()
         self.inputs = []
         self.outputs = []
         self.outdated_inputs = []
         self.outdated_outputs = []
+
+    @property
+    def io_lock(self):
+        """
+        A contextual lock for acquiring exclusive access to :py:attr:`pake.TaskContext.io`.
+
+        This context manager acquires an internal lock for :py:attr:`pake.Pake.stdout`
+        that exists on the :py:class:`pake.Pake` object when :py:attr:`pake.Pake.max_jobs` is **1**.
+
+        Otherwise, it will acquire a lock for :py:attr:`pake.TaskContext.io` that
+        exists inside of the task context, since the task will be buffering output
+        to an individual temporary file when :py:attr:`pake.Pake.max_jobs` is greater
+        than **1**.
+
+        If :py:attr:`pake.Pake.sync_output` is **False**, the context manager
+        returned by this property will not attempt to acquire any lock.
+
+        :return: A context manager object that can be used in a **with** statement.
+        """
+
+        if self.pake.max_jobs > 1:
+            # Lock the task IO queue, since that
+            # is what is being written to
+            output_lock = self._io_lock
+        else:
+            # Lock the pake instances stdout, since
+            # we are writing directly to it if
+            # multiple jobs are not running
+            output_lock = self.pake._stdout_lock
+
+        @contextmanager
+        def context():
+            if self.pake.sync_output:
+                with output_lock:
+                    yield
+            else:
+                yield
+
+        return context()
 
     def multitask(self):
         """
@@ -377,7 +418,9 @@ class TaskContext:
         Shorthand for: ``print(..., file=ctx.io)``
         """
         kwargs.pop('file', None)
-        print(*args, file=self._io, **kwargs)
+
+        with self.io_lock:
+            print(*args, file=self._io, **kwargs)
 
     def subpake(self, *args, silent=False, ignore_errors=False, collect_output=False):
         """
@@ -392,10 +435,12 @@ class TaskContext:
                               the executed pakefile returns with a non-zero exit code.  It will instead return the
                               exit code from the subprocess to the caller.
 
-        :param collect_output: Whether or not to collect all process output and write it with one
-                               single giant write to the task IO queue, this can synchronize process
-                               output when using :py:meth:`pake.TaskContext.multitask` with **subpake**, but
-                               it is dangerous to use with pakefiles that produce a lot of output.
+        :param collect_output: Whether or not to collect all subpake output to a temporary file
+                               and then incrementally write it back to :py:class:`pake.TaskContext.io`
+                               in a synchronized fashion, so that all command output is guaranteed to
+                               come in order and not become interleaved with the output of other tasks
+                               when using :py:meth:`pake.TaskContext.multitask`.
+                               See: :ref:`Output (Task IO) Synchronization`
 
         :raises: :py:exc:`ValueError` if no command + optional command arguments are provided.
 
@@ -406,12 +451,20 @@ class TaskContext:
 
         """
 
+        collect_output_lock = None if collect_output is False else self.io_lock
+
+        # Suggest readline usage when running without
+        # multiple jobs, for live output to the console
+        # readline parameter is ignored when collect_output is True
+        readline = self.pake.threadpool is None
+
         return pake.subpake(*args,
                             stdout=self._io, silent=silent,
                             ignore_errors=ignore_errors,
                             exit_on_error=False,
-                            readline=self.pake.threadpool is None,
-                            collect_output=collect_output)
+                            readline=readline,
+                            collect_output=collect_output,
+                            collect_output_lock=collect_output_lock)
 
     @staticmethod
     def check_call(*args, stdin=None, shell=False, ignore_errors=False):
@@ -521,7 +574,8 @@ class TaskContext:
                                           message='An error occurred while executing a system '
                                                   'command inside a pake task.')
 
-    def call(self, *args, stdin=None, shell=False, ignore_errors=False, silent=False, print_cmd=True, collect_output=False):
+    def call(self, *args, stdin=None, shell=False, ignore_errors=False, silent=False, print_cmd=True,
+             collect_output=False):
         """
         Calls a sub process and returns its return code.
          
@@ -593,10 +647,12 @@ class TaskContext:
         :param silent: Whether or not to silence **stdout/stderr** from the command.
         :param print_cmd: Whether or not to print the executed command line to the tasks output.
 
-        :param collect_output: Whether or not to collect all process output and write it with one
-                               single giant write to the task IO queue, this can synchronize process
-                               output when using :py:meth:`pake.TaskContext.multitask` with **call**, but
-                               it is dangerous to use with processes that produce a lot of output.
+        :param collect_output: Whether or not to collect all process output to a temporary file
+                               and then incrementally write it back to :py:class:`pake.TaskContext.io`
+                               in a synchronized fashion, so that all command output is guaranteed to
+                               come in order and not become interleaved with the output of other tasks
+                               when using :py:meth:`pake.TaskContext.multitask`.
+                               See: :ref:`Output (Task IO) Synchronization`
         
         :returns: The process return code.
         
@@ -613,50 +669,23 @@ class TaskContext:
             raise ValueError('Not enough arguments provided.  '
                              'Must provide at least one argument, IE. the command.')
 
-        if collect_output:
-            return self._call_collect_output(args, stdin, shell, ignore_errors, silent, print_cmd)
-
-        if print_cmd:
-            self.print(' '.join(args))
-
         if ignore_errors:
-            return self._call_ignore_errors(args, stdin, shell, silent)
+            return self._call_ignore_errors(args=args,
+                                            stdin=stdin,
+                                            shell=shell,
+                                            silent=silent,
+                                            print_cmd=print_cmd,
+                                            collect_output=collect_output)
 
         # Log a copy to disk, for possible error reporting later
-        return self._call_with_errors(args,stdin,shell,silent)
+        return self._call_with_errors(args=args,
+                                      stdin=stdin,
+                                      shell=shell,
+                                      silent=silent,
+                                      print_cmd=print_cmd,
+                                      collect_output=collect_output)
 
-    def _call_collect_output(self, args, stdin, shell, ignore_errors, silent, print_cmd):
-        if ignore_errors and silent:
-            if print_cmd:
-                self.print(' '.join(args))
-            return self._call_ignore_errors(args, stdin=stdin, shell=shell, silent=True)
-
-        header = ' '.join(args)+'\n' if print_cmd else ''
-
-        try:
-            self._io.write(header +
-                           subprocess.check_output(
-                               args,
-                               stdin=stdin,
-                               shell=shell,
-                               stderr=subprocess.STDOUT
-                           ).decode())
-
-            return pake.returncodes.SUCCESS
-        except subprocess.CalledProcessError as err:
-            if ignore_errors:
-                self._io.write(header+err.output.decode())
-                return err.returncode
-            else:
-                if print_cmd:
-                    self._io.write(header)
-                raise TaskSubprocessException(cmd=args,
-                                              returncode=err.returncode,
-                                              output=err.output,
-                                              message='A subprocess spawned by a task exited '
-                                                      'with a non-zero return code.')
-
-    def _call_with_errors(self, args, stdin, shell, silent):
+    def _call_with_errors(self, args, stdin, shell, silent, print_cmd, collect_output):
         with subprocess.Popen(args,
                               stdout=subprocess.PIPE,
                               stderr=subprocess.STDOUT,
@@ -664,23 +693,44 @@ class TaskContext:
                               universal_newlines=True) as process:
 
             output_copy_buffer = tempfile.TemporaryFile(mode='w+', newline='\n')
+
+            def do_collect_output(seek0_before, seek0_after):
+                if seek0_before:
+                    output_copy_buffer.seek(0)
+
+                if collect_output and not silent:
+                    with self.io_lock:
+                        shutil.copyfileobj(output_copy_buffer, self._io)
+
+                    if seek0_after:
+                        output_copy_buffer.seek(0)
+
             try:
-                if not silent:
+                if not silent and not collect_output:
                     # Use readline for live output to self._io when max jobs == 1
                     # The task is on the current thread, and self._io is a direct
                     # unbuffered reference this.stdout.  Otherwise copy fix sized
                     # chunks of data until EOF
+
+                    if print_cmd:
+                        self.print(' '.join(args))
+
                     pake.util.copyfileobj_tee(process.stdout,
                                               [self._io, output_copy_buffer],
                                               readline=self.pake.max_jobs == 1)
-                else:  # pragma: no cover
+                else:
 
-                    # Only need to copy to the output_copy_buffer, for error reporting
-                    # when silent = True
+                    # Only need to copy to the output_copy_buffer, for error
+                    # reporting when silent = True, and incremental write
+                    # when collect_output = True
+
+                    if collect_output and print_cmd:
+                        output_copy_buffer.write(' '.join(args) + '\n')
 
                     shutil.copyfileobj(process.stdout, output_copy_buffer)
 
             except:  # pragma: no cover
+                do_collect_output(seek0_before=True, seek0_after=False)
                 output_copy_buffer.close()
                 raise
             finally:
@@ -689,6 +739,7 @@ class TaskContext:
             try:
                 exitcode = process.wait()
             except:  # pragma: no cover
+                do_collect_output(seek0_before=True, seek0_after=False)
                 output_copy_buffer.close()
                 process.kill()
                 process.wait()
@@ -696,6 +747,8 @@ class TaskContext:
 
             if exitcode:
                 output_copy_buffer.seek(0)
+                do_collect_output(seek0_before=False, seek0_after=True)
+
                 # Giving up responsibility to close output_copy_buffer here
                 raise TaskSubprocessException(cmd=args,
                                               returncode=exitcode,
@@ -703,17 +756,36 @@ class TaskContext:
                                               message='A subprocess spawned by a task exited '
                                                       'with a non-zero return code.')
 
+            do_collect_output(seek0_before=True, seek0_after=False)
             output_copy_buffer.close()
             return exitcode
 
-    def _call_ignore_errors(self, args, stdin, shell, silent):
-        if silent:
-            stdout = subprocess.DEVNULL
+    def _call_ignore_errors(self, args, stdin, shell, silent, print_cmd, collect_output):
+
+        if collect_output and not silent:
+            p_stdout = tempfile.TemporaryFile(mode='w+', newline='\n')
+            if print_cmd:
+                p_stdout.write(' '.join(args) + '\n')
+
         else:
-            stdout = self._io
-        return subprocess.call(args,
-                               stdout=stdout, stderr=subprocess.STDOUT,
-                               stdin=stdin, shell=shell)
+            if print_cmd:
+                self.print(' '.join(args))
+            if silent:
+                p_stdout = subprocess.DEVNULL
+            else:
+                p_stdout = self._io
+
+        try:
+            return subprocess.call(args,
+                                   stdout=p_stdout,
+                                   stderr=subprocess.STDOUT,
+                                   stdin=stdin,
+                                   shell=shell)
+        finally:
+            if collect_output and not silent:
+                with self.io_lock:
+                    shutil.copyfileobj(p_stdout, self._io)
+                p_stdout.close()
 
     @property
     def dependencies(self):
@@ -1051,7 +1123,7 @@ class Pake:
         self.sync_output = sync_output
         self.stdout = stdout if stdout is not None else pake.conf.stdout
 
-        self._stdout_lock = threading.Lock()
+        self._stdout_lock = threading.RLock()
 
         self._graph = TaskGraph("_", lambda: None)
 
@@ -1888,7 +1960,12 @@ class Pake:
         """
 
         kwargs.pop('file', None)
-        print(*args, file=self.stdout, **kwargs)
+
+        if self.sync_output:
+            with self._stdout_lock:
+                print(*args, file=self.stdout, **kwargs)
+        else:
+            print(*args, file=self.stdout, **kwargs)
 
 
 class TaskSubprocessException(StreamingSubprocessException):
