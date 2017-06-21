@@ -1119,6 +1119,8 @@ class MultitaskContext(Executor):
     
     It is not necessary to call this function if you are using the context in a **with** statement. 
     
+    If you specify **wait=False**, this method will not propagate any exceptions out of your submitted tasks.
+    
     :param wait: Whether or not to wait on all submitted tasks, default is true.
         """
         if wait and len(self._pending):
