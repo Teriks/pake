@@ -1026,8 +1026,8 @@ class MultitaskContext(Executor):
     :py:class:`concurrent.futures.ThreadPoolExecutor` from the built in Python module
     :py:class:`concurrent.futures`.
 
-    If you need further reference on how these functions behave you can also
-    consult the official Python doc for that class.
+    If you need further reference on how its member functions behave,
+    you can also consult the official Python doc for that class.
 
     This object is meant to be used in a **with** statement.  At the end of the **with**
     statement all of your submitted work will be waited on, so you do not have to do it
