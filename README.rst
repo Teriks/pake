@@ -190,36 +190,46 @@ Output from command ``pake clean``:
 Concurrency Inside Tasks
 ========================
 
-Work can be submitted to the threadpool pake is running its tasks on in
-order to achieve a predictable level of concurrency that is limited by
-the **--jobs** command line argument or the *jobs* parameter of
-**pake.Pake.run**.
+Work can be submitted to the threadpool pake is running its tasks on to achieve a
+predictable level of concurrency for sub tasks that is limited by the **--jobs** command line argument,
+or the **jobs** parameter of **pake.run** and **pake.Pake.run**.
+
+Example:
 
 .. code-block:: python
 
-
     import pake
+
+    # functools.partial is used for binding argument values to functions
+
     from functools import partial
 
-    pk=pake.init()
+
+    pk = pake.init()
+
 
     @pk.task(i=pake.glob('src/*.c'), o=pake.pattern('obj/%.o'))
     def build_c(ctx)
+
+       file_helper = pake.FileHelper(ctx)
+
+       # Make 'obj' directory if it does not exist.
+       # This does not complain if it is already there.
+
+       file_helper.makedirs('obj')
 
        # Start multitasking
 
        with ctx.multitask() as mt:
            for i, o in ctx.outdated_pairs:
 
-               # Force ctx.call to write all process output as one chunk
-               # when we are running with more than one job, by binding
-               # the collect_output argument using functools.partial
+               # Read the section 'Output synchronization with ctx.call & ctx.subpake'
+               # in the 'Concurrency Inside Tasks` page on http://pake.readthedocs.io
+               # for an explanation of 'sync_call' below, and how output
+               # synchronization is achieved for ctx.call and ctx.subpake
 
-               # this prevents the output from being scrambled in with
-               # the output from other invocations if there happens to
-               # be error or warning information printed to the tasks output
-
-               sync_call = partial(ctx.call, collect_output=pk.max_jobs > 1)
+               sync_call = partial(ctx.call,
+                                   collect_output=pk.max_jobs > 1)
 
                # Submit a work function with arguments to the threadpool
                mt.submit(sync_call, ['gcc', '-c', i, '-o', o])
