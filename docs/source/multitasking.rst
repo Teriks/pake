@@ -77,12 +77,12 @@ If you are using :py:meth:`pake.TaskContext.multitask` to add concurrency to
 the inside of a task, you are in charge of synchronizing output to the
 task IO queue.
 
-Pake will synchronize writing a pake task's IO queue when the task finishes
-if you do not specify **--no-sync-output** on the command line, but it will not
-be able to synchronize the output from tasks you submit to its threadpool by
-yourself without your help.
+Pake will synchronize writing the whole task IO queue when the task finishes
+if **--no-sync-output** is not specified on the command line, but it will not
+be able to synchronize the output from sub tasks you submit to its threadpool by
+yourself without help.
 
-When doing multiple writes to :py:meth:`pake.TaskContext.io` from inside of a task
+When performing multiple writes to :py:meth:`pake.TaskContext.io` from inside of a task
 submitted to :py:meth:`pake.MultitaskContext`, you need to acquire a lock on
 :py:attr:`pake.TaskContext.io_lock` if you want to sure all your writes show
 up in the order you made them.
@@ -197,9 +197,9 @@ Output synchronization with ctx.call & ctx.subpake
 
 :py:meth:`pake.TaskContext.subpake`, and :py:meth:`pake.call` both have an argument
 named **collect_output** which will do all the work required to synchronize output
-for a sub-pakefile/process in a memory efficient manner.
+from sub-pakefiles/processes in a memory efficient manner.
 
-    **Note:**
+    *Note:*
 
     :py:meth:`pake.subpake` also has this argument, but you need to pass a lockable context manager object to
     **collect_output_lock** in order to properly synchronize its output to the **stdout** parameter.
@@ -207,15 +207,16 @@ for a sub-pakefile/process in a memory efficient manner.
     everything works right, so use it for multitasking inside tasks instead.  It passes in the
     :py:attr:`pake.TaskContext.io_lock` object as a lock, just FYI.
 
-When **collect_output** is **True** and their **silent** parameter is **False**,
-these functions will buffer all process output to a temporary file while the process is doing work.
+When the **collect_output** is **True** and the **silent** parameter of these functions is **False**,
+they will buffer all process output to a temporary file while the process is doing work.
 
-When the process finishes, theses functions will get a lock on :py:attr:`pake.TaskContext.io_lock`
-and write all their output to the task's IO incrementally.  This way the sub-pakefile/process output
-will not get scrambled in with output from other things that are running concurrently.
+When the process finishes, theses functions will acquire a lock on :py:attr:`pake.TaskContext.io_lock`
+and write all their output to the task's IO queue incrementally.  This way the sub-pakefile/process output
+will not get scrambled in with output from other sub tasks that are running concurrently.
 
 Reading process output incrementally from a temporary file after a process
 completes will occur much faster than it takes for the actual process to finish.
+
 This means that other processes which may have output can do work and write concurrently,
 and pake only needs to lock the task IO queue when it has to relay the output from a
 completed process (which is faster than locking while the process is writing).
