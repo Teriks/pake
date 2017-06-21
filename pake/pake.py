@@ -344,7 +344,7 @@ class TaskContext:
     @property
     def outdated_pairs(self):
         """
-        Short hand for: zip(ctx.outdated_inputs, ctx.outdated_outputs)
+        Short hand for: ``zip(ctx.outdated_inputs, ctx.outdated_outputs)``
            
         Returns a generator object over outdated (input, output) pairs.
        
