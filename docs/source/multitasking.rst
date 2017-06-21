@@ -1,8 +1,8 @@
-Parallelism Inside Tasks
+Concurrency Inside Tasks
 ========================
 
 Work can be submitted to the threadpool pake is running its tasks on to achieve a
-predictable level of parallelism that is limited by the **--jobs** commandline argument,
+predictable level of concurrency that is limited by the **--jobs** commandline argument,
 or the **jobs** parameter of :py:meth:`pake.run` and :py:meth:`pake.Pake.run`.
 
 This is done using the :py:class:`pake.MultitaskContext` returned by :py:meth:`pake.TaskContext.multitask`.

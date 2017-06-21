@@ -57,7 +57,7 @@ Guides / Help
     Exiting Pakefiles Gracefully <exitingpakefiles>
     Adding Tasks Programmatically <programmaticlyaddtasks>
     Exceptions Inside Tasks <taskexceptions>
-    Parallelism Inside Tasks <multitasking>
+    Concurrency Inside Tasks <multitasking>
     Manipulating Files / Dirs With pake.FileHelper <filehelper>
     Running Commands / Sub Processes <subprocess>
     Running Sub Pakefiles <subpake>

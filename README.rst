@@ -187,11 +187,11 @@ Output from command ``pake clean``:
     Glob Removed Files: "bar/*.o"
 
 
-Parallelism Inside Tasks
+Concurrency Inside Tasks
 ========================
 
 Work can be submitted to the threadpool pake is running its tasks on in
-order to achieve a predictable level of parallelism that is limited by
+order to achieve a predictable level of concurrency that is limited by
 the **--jobs** command line argument or the *jobs* parameter of
 **pake.Pake.run**.
 
