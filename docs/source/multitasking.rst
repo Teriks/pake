@@ -299,3 +299,17 @@ Example:
 
     pake.run(pk, tasks=compile_c)
 
+
+
+Sub task exceptions
+-------------------
+
+If an exception occurs inside one of the sub tasks submitted to :py:meth:`pake.MultitaskContext.submit`
+or :py:meth:`pake.MultitaskContext.map`, it will be propagated out of the context manager at the end
+of your **with** statement.
+
+If more than one task completes with an exception, the one that was submitted
+first will be the one to have its exception propagated out of the multitasking context.
+
+If you are not using a **with** statement, the exception will propagate out of
+:py:meth:`pake.MultitaskContext.shutdown` when you call it manually.
