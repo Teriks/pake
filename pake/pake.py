@@ -387,7 +387,10 @@ class TaskContext:
 
     @property
     def name(self):
-        """Task name."""
+        """The task name.
+
+        :return: The task name, as a string.
+        """
         return self._node.name
 
     @property
@@ -903,7 +906,10 @@ class TaskGraph(pake.graph.Graph):
 
     @property
     def name(self):  # pragma: no cover
-        """The task name."""
+        """The task name.
+
+        :return: The task name, as a string.
+        """
         return self._name
 
     def __str__(self):  # pragma: no cover
