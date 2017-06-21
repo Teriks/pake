@@ -93,7 +93,9 @@ in a **with** statement does not actually acquire any lock.
 
 If you know that the function or subprocess you are calling is only ever going to write
 **once** to the task IO queue (such as the functions in :py:class:`pake.FileHelper`),
-then there is no need to synchronize the output.
+then there is no need to synchronize the output.  The single write may come out
+of order with respect to other sub tasks, but the message as a whole will be
+intact/in-order.
 
 Example:
 
