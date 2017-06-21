@@ -245,12 +245,15 @@ def subpake(*args,
 
 
 def _subpake_ignore_errors(args, stdout, silent, collect_output, collect_output_lock):
-    if silent:
-        p_stdout = subprocess.DEVNULL
-    elif collect_output:
+    use_temp_file_for_collect = collect_output and not silent
+
+    if use_temp_file_for_collect:
         p_stdout = tempfile.TemporaryFile(mode='w+', newline='\n')
+    elif silent:
+        p_stdout = subprocess.DEVNULL
     else:
         p_stdout = stdout
+
     try:
         with subprocess.Popen(args,
                               stdout=p_stdout,
@@ -269,7 +272,7 @@ def _subpake_ignore_errors(args, stdout, silent, collect_output, collect_output_
                 process.wait()
                 raise
     finally:
-        if collect_output and not silent:
+        if use_temp_file_for_collect:
             if collect_output_lock:
                 with collect_output_lock:
                     shutil.copyfileobj(p_stdout, stdout)

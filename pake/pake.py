@@ -764,8 +764,9 @@ class TaskContext:
             return exitcode
 
     def _call_ignore_errors(self, args, stdin, shell, silent, print_cmd, collect_output):
+        use_temp_file_for_collect = collect_output and not silent
 
-        if collect_output and not silent:
+        if use_temp_file_for_collect:
             p_stdout = tempfile.TemporaryFile(mode='w+', newline='\n')
             if print_cmd:
                 p_stdout.write(' '.join(args) + '\n')
@@ -785,7 +786,7 @@ class TaskContext:
                                    stdin=stdin,
                                    shell=shell)
         finally:
-            if collect_output and not silent:
+            if use_temp_file_for_collect:
                 with self.io_lock:
                     shutil.copyfileobj(p_stdout, self._io)
                 p_stdout.close()

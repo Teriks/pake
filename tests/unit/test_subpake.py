@@ -1,4 +1,5 @@
 import sys
+import threading
 import unittest
 
 import os
@@ -65,6 +66,8 @@ class SubpakeTest(unittest.TestCase):
 
         # ====== Non Silent Path =======
 
+        collect_output_test_lock = threading.Lock()
+
         pake.de_init(clear_conf=False)
 
         pake.export('RETURNCODE', 42)
@@ -87,6 +90,12 @@ class SubpakeTest(unittest.TestCase):
 
         assert_return_code(42, ignore_errors=True, collect_output=True)
         assert_return_code(42, ignore_errors=False, collect_output=True)
+
+        assert_return_code(42, ignore_errors=True, collect_output=True,
+                           collect_output_lock=collect_output_test_lock)
+
+        assert_return_code(42, ignore_errors=False, collect_output=True,
+                           collect_output_lock=collect_output_test_lock)
 
         pake.export('TERMINATE', True)
 
@@ -120,9 +129,21 @@ class SubpakeTest(unittest.TestCase):
         assert_return_code(42, ignore_errors=True, silent=True, collect_output=True)
         assert_return_code(42, ignore_errors=False, silent=True, collect_output=True)
 
+        assert_return_code(42, ignore_errors=True, silent=True, collect_output=True,
+                           collect_output_lock=collect_output_test_lock)
+
+        assert_return_code(42, ignore_errors=False, silent=True, collect_output=True,
+                           collect_output_lock=collect_output_test_lock)
+
         pake.export('TERMINATE', True)
 
         assert_return_code(42, ignore_errors=True, silent=True, collect_output=True)
         assert_return_code(42, ignore_errors=False, silent=True, collect_output=True)
+
+        assert_return_code(42, ignore_errors=True, silent=True, collect_output=True,
+                           collect_output_lock=collect_output_test_lock)
+
+        assert_return_code(42, ignore_errors=False, silent=True, collect_output=True,
+                           collect_output_lock=collect_output_test_lock)
 
         pake.EXPORTS.clear()
