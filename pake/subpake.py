@@ -191,7 +191,7 @@ def subpake(*args,
                                 incrementally writing to the **stdout** parameter when **collect_output=True**.
                                 The lock you pass is only required to implement a context manager and be usable
                                 in a **with** statement, no methods are called on the lock. :py:meth:`pake.TaskContext.subpake`
-                                will pass :py:meth:`pake.TaskContext.io_lock` for you if **collect_output=True**.
+                                will pass :py:attr:`pake.TaskContext.io_lock` for you if **collect_output=True**.
 
     :raises: :py:exc:`ValueError` if no command + optional command arguments are provided.
     :raises: :py:exc:`FileNotFoundError` if the first argument *(the pakefile)* is not found.

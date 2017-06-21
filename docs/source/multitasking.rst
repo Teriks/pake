@@ -84,11 +84,11 @@ yourself without your help.
 
 When doing multiple writes to :py:meth:`pake.TaskContext.io` from inside of a task
 submitted to :py:meth:`pake.MultitaskContext`, you need to acquire a lock on
-:py:meth:`pake.TaskContext.io_lock` if you want to sure all your writes show
+:py:attr:`pake.TaskContext.io_lock` if you want to sure all your writes show
 up in the order you made them.
 
 If **--no-sync-output** is specified on the command line or :py:attr:`pake.Pake.sync_output`
-is set to **False** manually in the pakefile, then using :py:meth:`pake.TaskContext.io_lock`
+is set to **False** manually in the pakefile, then using :py:attr:`pake.TaskContext.io_lock`
 in a **with** statement does not actually acquire any lock.
 
 If you know that the function or subprocess you are calling is only ever going to write
@@ -208,7 +208,7 @@ for a sub-pakefile/process in a memory efficient manner.
 When **collect_output** is **True** and their **silent** parameter is **False**,
 these functions will buffer all process output to a temporary file while the process is doing work.
 
-When the process finishes, theses functions will get a lock on :py:meth:`pake.TaskContext.io_lock`
+When the process finishes, theses functions will get a lock on :py:attr:`pake.TaskContext.io_lock`
 and write all their output to the task's IO incrementally.  This way the sub-pakefile/process output
 will not get scrambled in with output from other things that are running concurrently.
 
