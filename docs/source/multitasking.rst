@@ -52,7 +52,7 @@ Example:
                # ctx.call and ctx.subpake
 
                sync_call = partial(ctx.call,
-                                   collect_output=pk.max_jobs > 1 and pk.sync_output)
+                                   collect_output=pk.max_jobs > 1)
 
                # Submit a work function with arguments to the threadpool
                mt.submit(sync_call, ['gcc', '-c', i, '-o', o])
