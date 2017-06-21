@@ -184,13 +184,14 @@ def subpake(*args,
                            and then write it incrementally to the **stdout** parameter when
                            the process finishes.  This can help prevent crashes when dealing with lots of output.
                            When you pass **True** to this parameter, the **readline** parameter is ignored.
-                           See: :ref:`Output (Task IO) Synchronization`
+                           See: :ref:`Output synchronization with ctx.call & ctx.subpake `
 
     :param collect_output_lock: If you provide a lockable object such as :py:class:`threading.Lock` or
                                 :py:class:`threading.RLock`, The subpake function will try to acquire the lock before
                                 incrementally writing to the **stdout** parameter when **collect_output=True**.
                                 The lock you pass is only required to implement a context manager and be usable
-                                in a **with** statement, no methods are called on the lock.
+                                in a **with** statement, no methods are called on the lock. :py:meth:`pake.TaskContext.subpake`
+                                will pass :py:meth:`pake.TaskContext.io_lock` for you if **collect_output=True**.
 
     :raises: :py:exc:`ValueError` if no command + optional command arguments are provided.
     :raises: :py:exc:`FileNotFoundError` if the first argument *(the pakefile)* is not found.

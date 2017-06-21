@@ -440,7 +440,7 @@ class TaskContext:
                                in a synchronized fashion, so that all command output is guaranteed to
                                come in order and not become interleaved with the output of other tasks
                                when using :py:meth:`pake.TaskContext.multitask`.
-                               See: :ref:`Output (Task IO) Synchronization`
+                               See: :ref:`Output synchronization with ctx.call & ctx.subpake`
 
         :raises: :py:exc:`ValueError` if no command + optional command arguments are provided.
 
@@ -652,7 +652,7 @@ class TaskContext:
                                in a synchronized fashion, so that all command output is guaranteed to
                                come in order and not become interleaved with the output of other tasks
                                when using :py:meth:`pake.TaskContext.multitask`.
-                               See: :ref:`Output (Task IO) Synchronization`
+                               See: :ref:`Output synchronization with ctx.call & ctx.subpake`
         
         :returns: The process return code.
         
