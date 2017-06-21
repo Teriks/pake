@@ -1066,7 +1066,7 @@ class MultitaskContext(Executor):
         :param chunksize: The size of the chunks the iterable will be broken into.
         :return: An iterator equivalent to: ``map(func, *iterables)`` but the calls may be evaluated out-of-order.
         :raises: :py:exc:`TimeoutError` If the entire result iterator could not be generated before the given timeout.
-        :raises: :py:exc:`If ``fn(*args)`` raises for any values.
+        :raises: :py:exc:`Exception` If ``fn(*args)`` raises for any values.
         """
 
         return super().map(fn, *iterables, timeout=timeout, chunksize=chunksize)
