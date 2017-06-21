@@ -99,8 +99,12 @@ def init(stdout=None, args=None):
                    that implements **fileno()**. :py:class:`io.StringIO` and pseudo file objects with no **fileno()** will not work with
                    all of pake's subprocess spawning functions.
 
-    :param args: Optional command line arguments, if not provided they will be parsed from the command line.
-
+    :param args: Optional command line arguments as an iterable, if not provided they will be parsed from the command line.
+                 This parameter is passed through :py:meth:`pake.util.handle_shell_args`, so you may pass an arguments
+                 iterable containing nested non-string iterables, as well as plain values like Python integers if
+                 your specifying the **--jobs** argument for example.
+                 
+                 
     :raises: :py:exc:`SystemExit` if bad command line arguments are parsed, or the **args** parameter contains bad arguments.
 
     :return: :py:class:`pake.Pake`
@@ -108,6 +112,11 @@ def init(stdout=None, args=None):
     """
 
     global _INIT_FILE, _INIT_DIR
+
+    if args:
+        # Make sure they are flattened and stringified
+        # if the user passes them in manually
+        args = pake.util.handle_shell_args(args)
 
     parsed_args = pake.arguments.parse_args(args=args)
 

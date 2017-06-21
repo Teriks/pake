@@ -145,6 +145,8 @@ def handle_shell_args(args):
     
     It allows shell arguments to be passed as a list object, variadic parameters, or a single string.
     
+    Any non-string object you pass that is not an iterable will be stringified.
+    
     :returns: A list of shell argument strings.
 
     """
