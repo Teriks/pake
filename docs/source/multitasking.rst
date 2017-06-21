@@ -80,7 +80,7 @@ task IO queue.
 Pake will synchronize writing a pake task's IO queue when the task finishes
 if you do not specify **--no-sync-output** on the command line, but it will not
 be able to synchronize the output from tasks you submit to its threadpool by
-yourself.
+yourself without your help.
 
 When doing multiple writes to :py:meth:`pake.TaskContext.io` from inside of a task
 submitted to :py:meth:`pake.MultitaskContext`, you need to acquire a lock on
