@@ -800,6 +800,7 @@ class TaskContext:
 
                 with self.io_lock:
                     shutil.copyfileobj(p_stdout, self._io)
+
                 p_stdout.close()
 
     @property

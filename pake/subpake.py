@@ -282,6 +282,7 @@ def _subpake_ignore_errors(args, stdout, silent, collect_output, collect_output_
                     shutil.copyfileobj(p_stdout, stdout)
             else:
                 shutil.copyfileobj(p_stdout, stdout)
+
             p_stdout.close()
 
 
