@@ -215,7 +215,8 @@ class ProgramTest(unittest.TestCase):
                 pake.init(args=list(args))
             except SystemExit as err:
                 exit_init_code = err.code
-                self.assertEqual(exit_init_code, returncodes.BAD_ARGUMENTS)
+                self.assertEqual(exit_init_code, returncodes.BAD_ARGUMENTS,
+                                 msg='Passed bad command line arguments, exited with 0 (success).')
             else:
                 self.fail('Bad command line arguments were passed to pake.init and it did not exit!')
 
@@ -251,6 +252,69 @@ class ProgramTest(unittest.TestCase):
         # Cant show info and run a target.
         assert_bad_args('--show-task-info', 'dummy')
         assert_bad_args('--show-tasks', 'dummy')
+
+        def assert_exit_code(*args,
+                             no_tasks=False,
+                             all_up_to_date=False,
+                             code=returncodes.SUCCESS):
+
+            pake.de_init(clear_conf=False)
+
+            try:
+                pk = pake.init(args=list(args))
+
+                if no_tasks is False:
+                    # Make all tasks up to date, pake does not care
+                    # if the input file is the same as the output
+                    # it just compares the modification time of whatever is there
+                    in_out = os.path.join(script_dir, 'test_data', 'in1') if all_up_to_date else None
+                    pk.add_task('dummy', lambda ctx: None, inputs=in_out, outputs=in_out)
+                    pk.add_task('dummy2', lambda ctx: None, inputs=in_out, outputs=in_out)
+
+                got_code = pake.run(pk)
+
+                self.assertEqual(got_code, code,
+                                 msg='Command line argument resulted in an unexpected exit code. '
+                                 'expected {}, but got {}.'.format(code, got_code))
+
+            except SystemExit as err:
+                self.assertEqual(err.code, code,
+                                 msg='Command line argument resulted in an unexpected exit code. '
+                                     'expected {}, but got {}.'.format(code, err.code))
+
+        # These assert returncodes.SUCCESS
+
+        assert_exit_code('-ti')
+        assert_exit_code('-t')
+
+        assert_exit_code('--show-task-info')
+        assert_exit_code('--show-tasks')
+
+        assert_exit_code('dummy')
+        assert_exit_code('dummy', '--no-sync-output')
+        assert_exit_code('dummy', '--jobs', '10')
+        assert_exit_code('dummy', '--jobs', '10', '--no-sync-output')
+
+        assert_exit_code('dummy', 'dummy2')
+        assert_exit_code('dummy', 'dummy2', '--no-sync-output')
+        assert_exit_code('dummy', 'dummy2', '--jobs', '10')
+        assert_exit_code('dummy', 'dummy2', '--jobs', '10', '--no-sync-output')
+
+        assert_exit_code('dummy', all_up_to_date=True)
+        assert_exit_code('dummy', 'dummy2', all_up_to_date=True)
+
+        assert_exit_code('dummy', '--dry-run', all_up_to_date=True)
+        assert_exit_code('dummy', 'dummy2', '--dry-run', all_up_to_date=True)
+
+        assert_exit_code('dummy', '--dry-run')
+        assert_exit_code('dummy', 'dummy2', '--dry-run')
+
+        # These assert failures
+
+        assert_exit_code(code=returncodes.NO_TASKS_SPECIFIED)
+        assert_exit_code(no_tasks=True, code=returncodes.NO_TASKS_DEFINED)
+
+        assert_exit_code(all_up_to_date=True, code=returncodes.NO_TASKS_SPECIFIED)
 
     def test_run_changedir(self):
 

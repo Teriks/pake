@@ -408,7 +408,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     parsed_args = pake.arguments.get_args()
 
     def m_exit(code):
-        if call_exit and code != returncodes.SUCCESS:  # pragma: no cover
+        if call_exit and code != returncodes.SUCCESS:
             exit(code)
         return code
 
@@ -416,11 +416,11 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
         _print_err('*** No Tasks.  Stop.')
         return m_exit(returncodes.NO_TASKS_DEFINED)
 
-    if parsed_args.show_tasks:  # pragma: no cover
+    if parsed_args.show_tasks:
         _list_tasks(pake_obj, tasks)
         return m_exit(returncodes.SUCCESS)
 
-    if parsed_args.show_task_info:  # pragma: no cover
+    if parsed_args.show_task_info:
         _list_task_info(pake_obj, tasks)
         return m_exit(returncodes.SUCCESS)
 
@@ -443,7 +443,7 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
             pake_obj.dry_run(run_tasks)
             if pake_obj.run_count == 0:
                 _print('Nothing to do, all tasks up to date.')
-            return 0
+            return m_exit(returncodes.SUCCESS)
         except pake.InputNotFoundException as err:
             _print_err(err)
             return m_exit(returncodes.TASK_INPUT_NOT_FOUND)

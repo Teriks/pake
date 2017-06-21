@@ -48,6 +48,13 @@ class TaskContextProcessTest(unittest.TestCase):
             return_code = ctx.call(sys.executable, exit_10,
                                    ignore_errors=True,
                                    silent=True,
+                                   print_cmd=False)
+            if return_code != 10:
+                raise TestFailException(10, return_code)
+
+            return_code = ctx.call(sys.executable, exit_10,
+                                   ignore_errors=True,
+                                   silent=True,
                                    collect_output=True)
             if return_code != 10:
                 raise TestFailException(10, return_code)
@@ -55,12 +62,31 @@ class TaskContextProcessTest(unittest.TestCase):
         @pk.task
         def test_0(ctx):
             return_code = ctx.call(sys.executable, exit_0,
-                                   ignore_errors=True)
+                                   ignore_errors=True,
+                                   collect_output=True)
+            if return_code != 0:
+                raise TestFailException(0, return_code)
+
+            return_code = ctx.call(sys.executable, exit_0,
+                                   ignore_errors=True,
+                                   collect_output=True,
+                                   print_cmd=False)
             if return_code != 0:
                 raise TestFailException(0, return_code)
 
             return_code = ctx.call(sys.executable, exit_0,
                                    collect_output=True)
+            if return_code != 0:
+                raise TestFailException(0, return_code)
+
+            return_code = ctx.call(sys.executable, exit_0,
+                                   print_cmd=False)
+            if return_code != 0:
+                raise TestFailException(0, return_code)
+
+            return_code = ctx.call(sys.executable, exit_0,
+                                   silent=True,
+                                   print_cmd=False)
             if return_code != 0:
                 raise TestFailException(0, return_code)
 

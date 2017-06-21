@@ -1221,7 +1221,7 @@ class Pake:
         """
         return self._threadpool
 
-    def set_define(self, name, value):  # pragma: no cover
+    def set_define(self, name, value):
         """
         Set a defined value.
         
@@ -1230,7 +1230,7 @@ class Pake:
         """
         self._defines[name] = value
 
-    def __getitem__(self, item):  # pragma: no cover
+    def __getitem__(self, item):
         """
         Access a define using the indexing operator []
         
@@ -1239,7 +1239,7 @@ class Pake:
         """
         return self.get_define(item)
 
-    def get_define(self, name, default=None):  # pragma: no cover
+    def get_define(self, name, default=None):
         """Get a defined value.
            
         This is used to get defines off the command line, as well as retrieve
@@ -1576,9 +1576,11 @@ class Pake:
                pass
         
         :raises: :py:exc:`pake.UndefinedTaskException` if a given dependency is not a registered task function.
-        :param args: Tasks which this task depends on.
+        
+        :param args: Tasks which this task depends on, this may be passed as variadic arguments or a single iterable object.
         :param i: Optional input files/directories for change detection.
         :param o: Optional output files/directories for change detection.
+        
         :param no_header: Whether or not to avoid printing a task header when the task begins executing,
                           defaults to **False** (Header is printed). This does not apply to dry run visits, the
                           task name/header will still be printed during dry runs even if **no_header=True**.
@@ -1590,8 +1592,8 @@ class Pake:
                 self.add_task(func.__name__, func, no_header=no_header)
                 return func
 
-        if len(args) > 1 and pake.util.is_iterable_not_str(args[0]):
-            dependencies = args[0]
+        if len(args) == 1 and pake.util.is_iterable_not_str(args[0]):
+            dependencies = list(args[0])
         else:
             dependencies = args
 
@@ -1659,16 +1661,11 @@ class Pake:
         
         :param task: Task function or function name as a string
         :return: :py:class:`pake.TaskContext`
-
-
         """
 
-        task = self.get_task_name(task)
+        # self.get_task_name will raise if the task is undefined
 
-        context = self._task_contexts.get(task, None)
-        if context is None:
-            raise UndefinedTaskException(task)
-        return context
+        return self._task_contexts.get(self.get_task_name(task))
 
     @staticmethod
     def _should_run_task(ctx, inputs, outputs):

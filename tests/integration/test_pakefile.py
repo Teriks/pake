@@ -96,10 +96,7 @@ def do_multiple_3(ctx):
 
 
 @pk.task(
-    do_single_2,
-    do_multiple,
-    do_multiple_2,
-    do_multiple_3,
+    [do_single_2, do_multiple, do_multiple_2, do_multiple_3],
     i='test_data/one.c', o='test_data/do_all.o'
 )
 def do_all(ctx):

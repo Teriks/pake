@@ -103,7 +103,7 @@ class SubpakeException(pake.process.StreamingSubprocessException):
                          message=message)
 
 
-def export(name, value):  # pragma: no cover
+def export(name, value):
     """
     Exports a define that can be retrieved in subpake scripts via :py:func:`pake.Pake.get_define`.
 
@@ -311,7 +311,7 @@ def _subpake_with_errors(args, stdout, silent, exit_on_error, readline, collect_
         try:
             if not silent:
                 pake.util.copyfileobj_tee(process.stdout, [stdout, output_copy_buffer], readline=readline)
-            else:  # pragma: no cover
+            else:
                 # Only need to copy to the output_copy_buffer, for error reporting
                 # when silent = True
                 shutil.copyfileobj(process.stdout, output_copy_buffer)
