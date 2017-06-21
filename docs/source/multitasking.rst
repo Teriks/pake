@@ -46,7 +46,7 @@ Example:
        with ctx.multitask() as mt:
            for i, o in ctx.outdated_pairs:
 
-               # Read the section 'Subprocess/Subpake IO Synchronization'
+               # Read the section 'Output synchronization with ctx.call & ctx.subpake'
                # near the bottom of this page for an explanation of 'sync_call'
                # below, and how output synchronization is achieved for
                # ctx.call and ctx.subpake
