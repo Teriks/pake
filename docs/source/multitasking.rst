@@ -70,7 +70,7 @@ Example:
     pake.run(pk, tasks=build)
 
 
-Output Synchronization with ctx.print & ctx.io.write
+Output synchronization with ctx.print & ctx.io.write
 ----------------------------------------------------
 
 If you are using :py:meth:`pake.TaskContext.multitask` to add concurrency to
@@ -190,7 +190,7 @@ Example Output (Will vary of course):
     Weird
 
 
-Output Synchronization with ctx.call & ctx.subpake
+Output synchronization with ctx.call & ctx.subpake
 --------------------------------------------------
 
 :py:meth:`pake.TaskContext.subpake`, and :py:meth:`pake.call` both have an argument
