@@ -1020,9 +1020,17 @@ def pattern(file_pattern):
 
 
 class MultitaskContext(Executor):
-    """Returned by :py:meth:`pake.TaskContext.multitask` (see for more details).  
+    """Returned by :py:meth:`pake.TaskContext.multitask` (see for more details).
 
-    This object is meant to be used in a **with** statement.
+    This object has (for the most part) the exact same behavior and interface as
+    :py:class:`concurrent.futures.ThreadPoolExecutor` from the built in Python module
+    :py:class:`concurrent.futures`.
+
+    If you need further reference on how these functions behave you can also
+    consult the official Python doc for that class.
+
+    This object is meant to be used in a **with** statement.  At the end of the **with**
+    statement all of your submitted work will be waited on, so you do not have to do it manually.
     """
 
     def __init__(self, ctx):
@@ -1045,6 +1053,20 @@ class MultitaskContext(Executor):
         else:
             future.set_result(result)
         return future
+
+    def map(self, fn, *iterables, timeout=None, chunksize=1):
+        """
+        Returns an iterator equivalent to ``map(fn, iter)``.
+
+        :param fn: A callable that will take as many arguments as there are passed iterables.
+        :param timeout: The maximum number of seconds to wait. If None, then there is no limit on the wait time.
+        :param chunksize: The size of the chunks the iterable will be broken into.
+        :return: An iterator equivalent to: ``map(func, *iterables)`` but the calls may be evaluated out-of-order.
+        :raises: :py:exc:`TimeoutError` If the entire result iterator could not be generated before the given timeout.
+        :raises: :py:exc:`If ``fn(*args)`` raises for any values.
+        """
+
+        return super().map(fn, *iterables, timeout=timeout, chunksize=chunksize)
 
     def submit(self, fn, *args, **kwargs):
         """Submit a task to pakes current threadpool.
