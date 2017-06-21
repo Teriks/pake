@@ -216,8 +216,9 @@ will not get scrambled in with output from other things that are running concurr
 
 Reading process output incrementally from a temporary file after a process
 completes will occur much faster than it takes for the actual process to finish.
-This means other tasks can do work while the process is running, and pake only has to
-lock to relay the output from the fully completed process.
+This means that other processes which may have output can do work and write concurrently,
+and pake only needs to lock the task IO queue when it has to relay the output from a
+completed process (which is faster than locking while the process is writing).
 
 When pake relays sub-pakefile/process output and **collect_output** is **True**,
 the output will be read/written in chunks to prevent possible memory issues with
