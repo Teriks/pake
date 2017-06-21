@@ -202,8 +202,8 @@ for a sub-pakefile/process in a memory efficient manner.
     :py:meth:`pake.subpake` also has this argument, but you need to pass a lockable context manager object to
     **collect_output_lock** in order to properly synchronize its output to the **stdio** parameter.
     :py:meth:`pake.TaskContext.subpake` does all of this for you and a few extra things to make sure
-    everything works right, so use for this instead.  It passes in the :py:attr:`pake.TaskContext.io_lock`
-    object, just FYI.
+    everything works right, so use it for multitasking inside tasks instead.  It passes in the
+    :py:attr:`pake.TaskContext.io_lock` object as a lock, just FYI.
 
 When **collect_output** is **True** and their **silent** parameter is **False**,
 these functions will buffer all process output to a temporary file while the process is doing work.
