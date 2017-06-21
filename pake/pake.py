@@ -849,7 +849,6 @@ class TaskContext:
     def node(self):
         """The :py:class:`pake.TaskGraph` node for the task.
 
-        :rtype : pake.TaskGraph
         """
         return self._node
 
@@ -857,7 +856,6 @@ class TaskContext:
     def pake(self):
         """The :py:class:`pake.Pake` instance the task is registered to.
 
-        :rtype : pake.Pake
         """
         return self._pake
 
