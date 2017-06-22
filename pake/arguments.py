@@ -107,7 +107,8 @@ _ARG_PARSER.add_argument('--sync-output', type=_validate_sync_output, dest='sync
                               'under the right circumstances with this turned off, but pake '
                               'will run slightly faster.  This option will override any value '
                               'in the PAKE_SYNC_OUTPUT environmental variable, and is inherited '
-                              'by subpake invocations.')
+                              'by subpake invocations unless the argument is re-passed with a '
+                              'different value.')
 
 _PARSED_ARGS = None
 
