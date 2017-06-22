@@ -289,47 +289,47 @@ Command line options
 
 .. code-block:: none
 
-usage: pake [-h] [-v] [-D DEFINE] [--stdin-defines] [-j JOBS] [-n]
-                [-C DIRECTORY] [-t] [-ti] [--sync-output {True, False, 1, 0}]
-                [-f FILE]
-                [tasks [tasks ...]]
+    usage: pake [-h] [-v] [-D DEFINE] [--stdin-defines] [-j JOBS] [-n]
+                    [-C DIRECTORY] [-t] [-ti] [--sync-output {True, False, 1, 0}]
+                    [-f FILE]
+                    [tasks [tasks ...]]
 
-    positional arguments:
-      tasks                 Build tasks.
+        positional arguments:
+          tasks                 Build tasks.
 
-    optional arguments:
-      -h, --help            show this help message and exit
-      -v, --version         show program's version number and exit
-      -D DEFINE, --define DEFINE
-                            Add defined value.
-      --stdin-defines       Read defines from a Python Dictionary piped into
-                            stdin. Defines read with this option can be
-                            overwritten by defines specified on the command line
-                            with -D/--define.
-      -j JOBS, --jobs JOBS  Max number of parallel jobs. Using this option enables
-                            unrelated tasks to run in parallel with a max of N
-                            tasks running at a time.
-      -n, --dry-run         Use to preform a dry run, lists all tasks that will be
-                            executed in the next actual invocation.
-      -C DIRECTORY, --directory DIRECTORY
-                            Change directory before executing.
-      -t, --show-tasks      List all task names.
-      -ti, --show-task-info
-                            List all tasks along side their doc string. Only tasks
-                            with doc strings present will be shown.
-      --sync-output {True, False, 1, 0}
-                            Tell pake whether it should synchronize task output
-                            when running with multiple jobs. Console output can
-                            get scrambled under the right circumstances with this
-                            turned off, but pake will run slightly faster. This
-                            option will override any value in the PAKE_SYNC_OUTPUT
-                            environmental variable, and is inherited by subpake
-                            invocations unless the argument is re-passed with a
-                            different value.
-      -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
-                            once, all specified pakefiles will be executed in
-                            order with the current directory as the working
-                            directory (unless -C is specified).
+        optional arguments:
+          -h, --help            show this help message and exit
+          -v, --version         show program's version number and exit
+          -D DEFINE, --define DEFINE
+                                Add defined value.
+          --stdin-defines       Read defines from a Python Dictionary piped into
+                                stdin. Defines read with this option can be
+                                overwritten by defines specified on the command line
+                                with -D/--define.
+          -j JOBS, --jobs JOBS  Max number of parallel jobs. Using this option enables
+                                unrelated tasks to run in parallel with a max of N
+                                tasks running at a time.
+          -n, --dry-run         Use to preform a dry run, lists all tasks that will be
+                                executed in the next actual invocation.
+          -C DIRECTORY, --directory DIRECTORY
+                                Change directory before executing.
+          -t, --show-tasks      List all task names.
+          -ti, --show-task-info
+                                List all tasks along side their doc string. Only tasks
+                                with doc strings present will be shown.
+          --sync-output {True, False, 1, 0}
+                                Tell pake whether it should synchronize task output
+                                when running with multiple jobs. Console output can
+                                get scrambled under the right circumstances with this
+                                turned off, but pake will run slightly faster. This
+                                option will override any value in the PAKE_SYNC_OUTPUT
+                                environmental variable, and is inherited by subpake
+                                invocations unless the argument is re-passed with a
+                                different value.
+          -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
+                                once, all specified pakefiles will be executed in
+                                order with the current directory as the working
+                                directory (unless -C is specified).
 
 
 Return codes
