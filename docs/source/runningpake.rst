@@ -270,8 +270,8 @@ The **sync_output** argument of :py:meth:`pake.init` can be used to permanently 
 both the **--sync-output** and ``PAKE_SYNC_OUTPUT`` environmental variable from inside
 a pakefile.
 
-The **--sync-output** option controls whether pake tries to synchronize task output by
-queueing it during parallel builds, it also disables the IO locking behavior of :py:class:`pake.TaskContext.subake`
+The **--sync-output** option controls whether pake tries to synchronize task output by queueing it
+when running with more than one job. It also disables the IO locking behavior of :py:class:`pake.TaskContext.subake`
 and :py:class:`pake.TaskContext.call` when their **collect_output** parameter is **True**.
 
 In addition, **--sync-output=False** causes :py:class:`pake.TaskContext.subake` to yield a lock
