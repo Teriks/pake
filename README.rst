@@ -443,7 +443,7 @@ Command Line Options
                             option will override any value in the PAKE_SYNC_OUTPUT
                             environmental variable, and is inherited by subpake
                             invocations unless the argument is re-passed with a
-                            different value.
+                            different value or overridden in pake.init.
       -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
                             once, all specified pakefiles will be executed in
                             order with the current directory as the working
