@@ -275,10 +275,10 @@ environmental variable from inside of a pakefile.
 The **--sync-output** option controls whether pake tries to synchronize task output
 by queueing it when running with more than one job.
 
-**--sync-output=False** causes :py:class:`pake.TaskContext.subake` to yield a lock
+**--sync-output=False** causes :py:class:`pake.TaskContext.io_lock` to yield a lock
 object which actually does nothing when it is acquired, and it also forces pake
-to write to :py:attr:`pake.Pake.stdout` instead of task output queues even when
-running tasks concurrently.
+to write all run output to :py:attr:`pake.Pake.stdout` instead of task output
+queues, even when running tasks concurrently.
 
 The output synchronization setting is inherited by all :py:meth:`pake.subpake`
 and :py:meth:`pake.Pake.subpake` invocations.
