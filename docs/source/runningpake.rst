@@ -261,28 +261,31 @@ Environmental variables
 
 Pake currently recognizes only one environmental variable named ``PAKE_SYNC_OUTPUT``.
 
-This variable corresponds to the command line option **--sync-output**, which will override
-the environmental variable upon use.
+This variable corresponds to the command line option **--sync-output**.
+Using the **--sync-output** option will override the environmental variable however.
+Pake will use the value from the command line option instead of the value in the environment.
 
-When this environmental variable is not defined, pake assumes that its value is ``PAKE_SYNC_OUTPUT=1``
+When this environmental variable and **--sync-output** are not defined/specified,
+the default value pake uses is **--sync-output=True**.
 
-The **sync_output** argument of :py:meth:`pake.init` can be used to override
-both the **--sync-output** command line option and the ``PAKE_SYNC_OUTPUT`` environmental
-variable from inside of a pakefile.
+:py:meth:`pake.init` has an argument named **sync_output** that can also be used to
+permanently override both the **--sync-output** switch and the ``PAKE_SYNC_OUTPUT``
+environmental variable from inside of a pakefile.
 
-The **--sync-output** option controls whether pake tries to synchronize task output by queueing it
-when running with more than one job. It also disables the IO locking behavior of :py:class:`pake.TaskContext.subake`
-and :py:class:`pake.TaskContext.call` when their **collect_output** parameter is **True**.
+The **--sync-output** option controls whether pake tries to synchronize task output
+by queueing it when running with more than one job.
 
-In addition, **--sync-output=False** causes :py:class:`pake.TaskContext.subake` to yield a lock
-object which actually does nothing when it is acquired.
+**--sync-output=False** causes :py:class:`pake.TaskContext.subake` to yield a lock
+object which actually does nothing when it is acquired, and it also forces pake
+to write to :py:attr:`pake.Pake.stdout` instead of task output queues even when
+running tasks concurrently.
 
-The output synchronization setting is inherited by all :py:meth:`pake.subpake` invocations,
-including those that are started inside of tasks with :py:meth:`pake.Pake.subpake`.
+The output synchronization setting is inherited by all :py:meth:`pake.subpake`
+and :py:meth:`pake.Pake.subpake` invocations.
 
 You can stop this inheritance by manually passing a different value for **--sync-output**
-as an shell argument when you are using one of the **subpake** functions.  The new value
-will be inherited by every child of the pakefile you invoked with **subpake**.
+as a shell argument when using one of the **subpake** functions.  The new value will
+be inherited by the pakefile you invoked with **subpake** and all of its children.
 
 
 Command line options
