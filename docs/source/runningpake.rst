@@ -256,18 +256,32 @@ Example Commands:
     False
 
 
-Environmental Variables
+Environmental variables
 -----------------------
 
-Pake reserves only one environmental variable named ``PAKE_SYNC_OUTPUT``.
+Pake currently reserves only one environmental variable named ``PAKE_SYNC_OUTPUT``.
 
 This variable corresponds to the command line option **--sync-output**, which will override
 the environmental variable upon use.
 
 When this environmental variable is not defined, pake assumes that its value is ``PAKE_SYNC_OUTPUT=1``
 
-The **sync_output** argument of :py:meth:`pake.init` can be used to override both the
-**--sync-output** and ``PAKE_SYNC_OUTPUT`` environmental variable from inside the pakefile.
+The **sync_output** argument of :py:meth:`pake.init` can be used to permanently override
+both the **--sync-output** and ``PAKE_SYNC_OUTPUT`` environmental variable from inside
+the pakefile.
+
+The **--sync-output** option controls whether pake tries to synchronize task output by
+queueing it during parallel builds, it also disables the IO locking behavior of :py:class:`pake.TaskContext.subake`
+and :py:class:`pake.TaskContext.call` when their **collect_output** parameter is **True**.
+
+In addition, **--sync-output=False** causes :py:class:`pake.TaskContext.subake` to yield a lock
+object which actually does nothing when it is acquired.
+
+The output synchronization setting is inherited by all :py:meth:`pake.subpake` invocations,
+including those that are started inside of tasks with :py:meth:`pake.Pake.subpake`.
+
+You can stop this inheritance by manually passing **--sync-output** as an shell argument
+when you are using one of the **subpake** functions.
 
 
 Command line options
