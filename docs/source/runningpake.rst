@@ -268,7 +268,7 @@ When this environmental variable is not defined, pake assumes that its value is 
 
 The **sync_output** argument of :py:meth:`pake.init` can be used to permanently override
 both the **--sync-output** and ``PAKE_SYNC_OUTPUT`` environmental variable from inside
-the pakefile.
+a pakefile.
 
 The **--sync-output** option controls whether pake tries to synchronize task output by
 queueing it during parallel builds, it also disables the IO locking behavior of :py:class:`pake.TaskContext.subake`
