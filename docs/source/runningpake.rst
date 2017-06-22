@@ -259,7 +259,7 @@ Example Commands:
 Environmental variables
 -----------------------
 
-Pake currently reserves only one environmental variable named ``PAKE_SYNC_OUTPUT``.
+Pake currently recognizes only one environmental variable named ``PAKE_SYNC_OUTPUT``.
 
 This variable corresponds to the command line option **--sync-output**, which will override
 the environmental variable upon use.
