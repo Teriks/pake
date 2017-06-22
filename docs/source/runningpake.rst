@@ -280,8 +280,9 @@ object which actually does nothing when it is acquired.
 The output synchronization setting is inherited by all :py:meth:`pake.subpake` invocations,
 including those that are started inside of tasks with :py:meth:`pake.Pake.subpake`.
 
-You can stop this inheritance by manually passing **--sync-output** as an shell argument
-when you are using one of the **subpake** functions.
+You can stop this inheritance by manually passing a different value for **--sync-output**
+as an shell argument when you are using one of the **subpake** functions.  The new value
+will be inherited by every child of the pakefile you invoked with **subpake**.
 
 
 Command line options
