@@ -408,7 +408,8 @@ Command Line Options
 ::
 
     usage: pake [-h] [-v] [-D DEFINE] [--stdin-defines] [-j JOBS] [-n]
-                [-C DIRECTORY] [-t] [-ti] [--no-sync-output] [-f FILE]
+                [-C DIRECTORY] [-t] [-ti] [--sync-output {True, False, 1, 0}]
+                [-f FILE]
                 [tasks [tasks ...]]
 
     positional arguments:
@@ -434,10 +435,14 @@ Command Line Options
       -ti, --show-task-info
                             List all tasks along side their doc string. Only tasks
                             with doc strings present will be shown.
-      --no-sync-output      Force pake to disable synchronization of task output
-                            when running with multiple jobs. Console output can
-                            get scrambled under the right circumstances with this
-                            turned off, but pake will run slightly faster.
+      --sync-output {True, False, 1, 0}
+                            Tell pake whether it should synchronize task output when
+                            running with multiple jobs. Console output can get
+                            scrambled under the right circumstances with this
+                            turned off, but pake will run slightly faster. This
+                            option will override any value in the PAKE_SYNC_OUTPUT
+                            environmental variable, and is inherited by subpake
+                            invocations.
       -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
                             once, all specified pakefiles will be executed in
                             order with the current directory as the working

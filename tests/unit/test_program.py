@@ -291,14 +291,23 @@ class ProgramTest(unittest.TestCase):
         assert_exit_code('--show-tasks')
 
         assert_exit_code('dummy')
-        assert_exit_code('dummy', '--no-sync-output')
+
+        assert_exit_code('dummy', '--sync-output', 'True')
+        assert_exit_code('dummy', '--sync-output', 'true')
+
+        assert_exit_code('dummy', '--sync-output', 'False')
+        assert_exit_code('dummy', '--sync-output', 'false')
+
+        assert_exit_code('dummy', '--sync-output', '1')
+        assert_exit_code('dummy', '--sync-output', '0')
+
         assert_exit_code('dummy', '--jobs', '10')
-        assert_exit_code('dummy', '--jobs', 10, '--no-sync-output')
+        assert_exit_code('dummy', '--jobs', 10, '--sync-output', False)
 
         assert_exit_code('dummy', 'dummy2')
-        assert_exit_code('dummy', 'dummy2', '--no-sync-output')
+        assert_exit_code('dummy', 'dummy2', '--sync-output', False)
         assert_exit_code('dummy', 'dummy2', '--jobs', 10)
-        assert_exit_code('dummy', 'dummy2', '--jobs', 10, '--no-sync-output')
+        assert_exit_code('dummy', 'dummy2', '--jobs', 10, '--sync-output', False)
 
         assert_exit_code('dummy', all_up_to_date=True)
         assert_exit_code('dummy', 'dummy2', all_up_to_date=True)

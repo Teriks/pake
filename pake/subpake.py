@@ -124,7 +124,7 @@ def subpake(*args,
             stdout=None,
             silent=False,
             ignore_errors=False,
-            exit_on_error=True,
+            call_exit=True,
             readline=True,
             collect_output=False,
             collect_output_lock=None):
@@ -171,9 +171,9 @@ def subpake(*args,
                           non-zero exit code.  It will instead return the exit code from the
                           subprocess to the caller.
     
-    :param exit_on_error: Whether or not to print to :py:attr:`pake.conf.stderr` and immediately
-                          call **exit** if the pakefile script encounters an error.  The value
-                          of this parameter will be disregarded when **ignore_errors=True**.
+    :param call_exit: Whether or not to print to :py:attr:`pake.conf.stderr` and immediately
+                      call **exit** if the pakefile script encounters an error.  The value
+                      of this parameter will be disregarded when **ignore_errors=True**.
 
     :param readline: Whether or not to use **readline** for reading process output when **ignore_errors**
                      and **silent** are **False**,  this is necessary for live output in that case. When live
@@ -238,7 +238,7 @@ def subpake(*args,
     return _subpake_with_errors(args=args,
                                 stdout=stdout,
                                 silent=silent,
-                                exit_on_error=exit_on_error,
+                                call_exit=call_exit,
                                 readline=readline,
                                 collect_output=collect_output,
                                 collect_output_lock=collect_output_lock)
@@ -286,7 +286,7 @@ def _subpake_ignore_errors(args, stdout, silent, collect_output, collect_output_
             p_stdout.close()
 
 
-def _subpake_with_errors(args, stdout, silent, exit_on_error, readline, collect_output, collect_output_lock):
+def _subpake_with_errors(args, stdout, silent, call_exit, readline, collect_output, collect_output_lock):
     with subprocess.Popen(args,
                           stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT,
@@ -347,7 +347,7 @@ def _subpake_with_errors(args, stdout, silent, exit_on_error, readline, collect_
                                   output_stream=output_copy_buffer,
                                   message='A pakefile invoked by pake.subpake exited with a non-zero return code.')
 
-            if exit_on_error:
+            if call_exit:
                 ex.write_info(file=pake.conf.stderr)
                 exit(returncodes.SUBPAKE_EXCEPTION)
             else:

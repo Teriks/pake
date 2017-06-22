@@ -64,7 +64,7 @@ class PakeUninitializedException(Exception):
         super().__init__('pake.init() has not been called yet.')
 
 
-def _defines_to_dict(defines):
+def _define_arguments_to_dict(defines):
     if defines is None:
         return dict()
 
@@ -87,23 +87,33 @@ _INIT_FILE = None
 _INIT_DIR = None
 
 
-def init(stdout=None, args=None):
+def init(args=None, **kwargs):
     """
     Read command line arguments relevant to initialization, and return a :py:class:`pake.Pake` object.
 
     This function will print information to :py:attr:`pake.conf.stderr` and call ``exit(pake.returncodes.BAD_ARGUMENTS)``
     immediately if arguments parsed from the command line or passed to the **args** parameter do not pass validation.
-    
-    :param stdout: The file object that task output gets written to, as well as 'changing directory/entering & leaving subpake' messages.
-                   The default value is :py:attr:`pake.conf.stdout`.  If you set this, make sure that you set it to an actual file object
-                   that implements **fileno()**. :py:class:`io.StringIO` and pseudo file objects with no **fileno()** will not work with
-                   all of pake's subprocess spawning functions.
 
     :param args: Optional command line arguments as an iterable, if not provided they will be parsed from the command line.
-                 This parameter is passed through :py:meth:`pake.util.handle_shell_args`, so you may pass an arguments
-                 iterable containing nested non-string iterables, as well as plain values like Python integers if
-                 your specifying the **--jobs** argument for example.
-                 
+             This parameter is passed through :py:meth:`pake.util.handle_shell_args`, so you may pass an arguments
+             iterable containing nested non-string iterables, as well as plain values like Python integers if
+             your specifying the **--jobs** argument for example.
+
+    :param \**kwargs:
+        See below
+
+    :Keyword Arguments:
+        * **stdout** --
+          Sets the value of :py:attr:`pake.Pake.stdout`
+        * **show_task_headers** (``bool``) --
+          Sets the value of :py:attr:`pake.Pake.show_task_headers`
+        * **sync_output** (``bool``) --
+          Sets the value of :py:attr:`pake.Pake.sync_output`, overriding the **--sync-output** option and
+          the **PAKE_SYNC_OUTPUT** environmental variable.  The default behavior of pake is to synchronize task output when
+          tasks are running in parallel, unless it is overridden from the environment, command line, or here (in order of
+          increasing override priority). Setting this value to **None** is the same as leaving it unspecified,
+          no override will take place, and the default value of True, the environment, or the **--sync-output** specified
+          value will be used in that order.
                  
     :raises: :py:exc:`SystemExit` if bad command line arguments are parsed, or the **args** parameter contains bad arguments.
 
@@ -120,36 +130,28 @@ def init(stdout=None, args=None):
 
     parsed_args = pake.arguments.parse_args(args=args)
 
-    pk = pake.Pake(stdout=stdout, sync_output=not parsed_args.no_sync_output)
+    # _init_should_sync_output consumes and removes the
+    # sync_output argument from this functions **kwargs if it exists
 
-    if parsed_args.stdin_defines:  # pragma: no cover
+    sync_output = _init_should_sync_output(kwargs, parsed_args)
 
-        # This is all covered by unit test 'test_stdin_defines.py'
-        # Confirmed by debugger, coverage.py is not picking it
-        # up though.
+    # Enforce child processes pick up the correct environmental variable
+    # So that the setting is inherited by scripts ran with subpake
+    os.environ['__PAKE_SYNC_OUTPUT'] = '1' if sync_output else '0'
 
-        try:
-            parsed_stdin_defines = ast.literal_eval(sys.stdin.read())
+    pk = pake.Pake(sync_output=sync_output, **kwargs)
 
-            if type(parsed_stdin_defines) != dict:
-                _print_err('The --stdin-defines option expects that a python dictionary '
-                           'object be written to stdin.  A literal of type "{}" was '
-                           'deserialized instead.'.format(type(parsed_stdin_defines).__name__))
+    # Parse python dictionary from stdin if there is one waiting.
+    # Add it to the pake instance, reads from in memory cache
+    # if this has already been done before
 
-                exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
+    _init_set_stdin_defines(pk, parsed_args)
 
-        except Exception as err:
-
-            _print_err('Syntax error parsing defines from standard input '''
-                       'with --stdin-defines option:\n')
-            _print_err(err)
-
-            exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
-        else:
-            pk.merge_defines_dict(parsed_stdin_defines)
+    # Parse defines off the command line and merge them in
+    # overriding stdin defines
 
     try:
-        parsed_cmd_arg_defines = _defines_to_dict(parsed_args.define)
+        parsed_cmd_arg_defines = _define_arguments_to_dict(parsed_args.define)
     except ValueError as err:
         _print_err(err)
         exit(returncodes.BAD_DEFINE_VALUE)
@@ -184,22 +186,135 @@ def init(stdout=None, args=None):
     return pk
 
 
+# this should not be cleared by pake.de_init because there is no way for
+# pake.init to read it again from STDIN once it is already read
+_STDIN_DEFINES = None
+
+
+def _init_set_stdin_defines(pk, parsed_args):
+    global _STDIN_DEFINES
+
+    if parsed_args.stdin_defines:  # pragma: no cover
+
+        if _STDIN_DEFINES:
+            # Don't try to read from STDIN twice
+            pk.merge_defines_dict(_STDIN_DEFINES)
+            return
+
+        # This is all covered by unit test 'test_stdin_defines.py'
+        # Confirmed by debugger, coverage.py is not picking it
+        # up though.
+
+        try:
+            parsed_stdin_defines = ast.literal_eval(sys.stdin.read())
+
+            if type(parsed_stdin_defines) != dict:
+                _print_err('The --stdin-defines option expects that a python dictionary '
+                           'object be written to stdin.  A literal of type "{}" was '
+                           'deserialized instead.'.format(type(parsed_stdin_defines).__name__))
+
+                exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
+
+            # Set the cache for next time
+            _STDIN_DEFINES = parsed_stdin_defines
+
+            pk.merge_defines_dict(parsed_stdin_defines)
+
+        except Exception as err:
+
+            _print_err('Syntax error parsing defines from standard input '''
+                       'with --stdin-defines option:\n')
+            _print_err(err)
+
+            exit(returncodes.STDIN_DEFINES_SYNTAX_ERROR)
+
+
+def _init_should_sync_output(kwargs, parsed_args):
+
+    # Use the 'sync_output` kwarg, unless it does not exist, otherwise
+    # check the command line for --no-sync-output, and then check
+    # the environment if the command line does not specify
+
+    if parsed_args.sync_output is not None:
+        # The command line overrides the environmental variable
+        sync_output_env = parsed_args.sync_output
+    else:
+        # Check the environment, if it is not defined
+        # default to '1' which is True
+
+        # __PAKE_SYNC_OUTPUT is an internal alias
+        # that gets set by pake to export the setting to
+        # subprocesses, it takes precedence over PAKE_SYNC_OUTPUT
+        # defined by the user during the top level invocation.
+
+        # The top level of pake will determine the best value
+        # For __PAKE_SYNC_OUTPUT, this ensures overriding
+        # from the command line works, because pake will
+        # export __PAKE_SYNC_OUTPUT to subprocesses with
+        # the override value, and they will ignore stuff
+        # in PAKE_SYNC_OUTPUT
+
+        # The top level of pake will always export
+        #  __PAKE_SYNC_DEFINES to subprocesses, with
+        # the correct value if it has been overridden
+        # on the command line, or in pake.init etc..
+
+        sync_output_env = os.environ.get(
+            '__PAKE_SYNC_OUTPUT',
+            os.environ.get('PAKE_SYNC_OUTPUT', '1')
+        ).strip().lower()
+
+        sync_output_env = sync_output_env == '1'
+
+    if 'sync_output' in kwargs:
+        # Check the init argument, which overrides both the other two
+
+        sync_output_init_arg = kwargs.pop('sync_output')
+
+        if sync_output_init_arg is None:
+            # If it is None, it is the same as not specifying it at all
+            # Use the command line option or the environment, whichever
+            # one won-out above
+            sync_output = sync_output_env
+        else:
+            # Use the value of the init parameter
+            sync_output = sync_output_init_arg
+    else:
+        # If the init parameter is not defined at all,
+        # just use the command line option or the environment, whichever
+        # one of them won
+        sync_output = sync_output_env
+
+    return sync_output
+
+
 def de_init(
         clear_conf=True,
-        clear_exports=True):
+        clear_exports=True,
+        clear_env=True):
     """
     Return the pake module to a pre-initialized state.
     
     Used primarily for unit tests.
 
-    :param clear_conf: If **True**, call :py:meth:`pake.conf.reset`
-    :param clear_exports: If **True**, call **clear** on :py:attr:`pake.EXPORTS`
+    Defines read from STDIN via the **--stdin-defines** option
+    are cached in memory after being read and not affected by
+    this function, secondary calls to :py:meth:`pake.init` will
+    cause them to be read back from cache.
+
+    :param clear_conf: If **True**, call :py:meth:`pake.conf.reset`.
+    :param clear_exports: If **True**, call **clear** on :py:attr:`pake.EXPORTS`.
+    :param clear_env: If **True**, clear any environmental variables pake.init has set.
     """
 
     global _INIT_FILE, _INIT_DIR
 
     _INIT_FILE = None
     _INIT_DIR = None
+
+    if clear_env:
+        if '__PAKE_SYNC_OUTPUT' in os.environ:
+            del os.environ['__PAKE_SYNC_OUTPUT']
 
     pake.arguments.clear_args()
 

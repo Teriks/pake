@@ -207,6 +207,13 @@ Any defines that are set this way can be overwritten by defines set on the comma
 The dictionary that you pipe in is parsed into a python literal using the built in :py:mod:`ast` module,
 so you can use complex types such as lists, sets, tuples, dictionaries ect.. as the value for your defines.
 
+Pake reads the defines from **stdin** on the first call to :py:meth:`pake.init` and caches them in memory.
+Later calls to **init** will read the specified defines back from cache and apply them to a newly created
+:py:class:`pake.Pake` instance.
+
+Calls to :py:meth:`pake.de_init` will not clear cached defines read from **stdin**.
+
+
 Example Pakefile:
 
 .. code-block:: python
@@ -249,13 +256,28 @@ Example Commands:
     False
 
 
+Environmental Variables
+-----------------------
+
+Pake reserves only one environmental variable named ``PAKE_SYNC_OUTPUT``.
+
+This variable corresponds to the command line option **--sync-output**, which will override
+the environmental variable upon use.
+
+When this environmental variable is not defined, pake assumes that its value is ``PAKE_SYNC_OUTPUT=1``
+
+The **sync_output** argument of :py:meth:`pake.init` can be used to override both the
+**--sync-output** and ``PAKE_SYNC_OUTPUT`` environmental variable from inside the pakefile.
+
+
 Command line options
 --------------------
 
 .. code-block:: none
 
     usage: pake [-h] [-v] [-D DEFINE] [--stdin-defines] [-j JOBS] [-n]
-                [-C DIRECTORY] [-t] [-ti] [--no-sync-output] [-f FILE]
+                [-C DIRECTORY] [-t] [-ti] [--sync-output {True, False, 1, 0}]
+                [-f FILE]
                 [tasks [tasks ...]]
 
     positional arguments:
@@ -281,10 +303,14 @@ Command line options
       -ti, --show-task-info
                             List all tasks along side their doc string. Only tasks
                             with doc strings present will be shown.
-      --no-sync-output      Force pake to disable synchronization of task output
-                            when running with multiple jobs. Console output can
-                            get scrambled under the right circumstances with this
-                            turned off, but pake will run slightly faster.
+      --sync-output {True, False, 1, 0}
+                            Tell pake whether it should synchronize task output when
+                            running with multiple jobs. Console output can get
+                            scrambled under the right circumstances with this
+                            turned off, but pake will run slightly faster. This
+                            option will override any value in the PAKE_SYNC_OUTPUT
+                            environmental variable, and is inherited by subpake
+                            invocations.
       -f FILE, --file FILE  Pakefile path(s). This switch can be used more than
                             once, all specified pakefiles will be executed in
                             order with the current directory as the working

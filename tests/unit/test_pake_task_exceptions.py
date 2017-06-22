@@ -3,8 +3,6 @@ import unittest
 import os
 import time
 
-import pake.pake
-
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 sys.path.insert(1, os.path.abspath(
@@ -12,6 +10,7 @@ sys.path.insert(1, os.path.abspath(
 
 import pake
 import pake.conf
+import pake.pake
 
 from tests import open_devnull
 

@@ -29,12 +29,12 @@ class SubpakeTest(unittest.TestCase):
             pake.subpake(os.path.join(script_dir, 'throw.py'))
 
         with self.assertRaises(pake.SubpakeException) as err:
-            pake.subpake(os.path.join(script_dir, 'throw.py'), exit_on_error=False)
+            pake.subpake(os.path.join(script_dir, 'throw.py'), call_exit=False)
 
         # If pake is not initialized, there is no depth tracking
 
         try:
-            pake.subpake(assert_depth_script, '-D', 'DEPTH=0', exit_on_error=False)
+            pake.subpake(assert_depth_script, '-D', 'DEPTH=0', call_exit=False)
         except pake.SubpakeException as err:
             self.fail('subpake depth=0 assertion failed, return code {}.'.format(err.returncode))
 
@@ -42,7 +42,7 @@ class SubpakeTest(unittest.TestCase):
         pake.init()
 
         try:
-            pake.subpake(assert_depth_script, '-D', 'DEPTH=1', exit_on_error=False)
+            pake.subpake(assert_depth_script, '-D', 'DEPTH=1', call_exit=False)
         except pake.SubpakeException as err:
             self.fail('subpake depth=1 assertion failed, return code {}.'.format(err.returncode))
 
@@ -58,7 +58,7 @@ class SubpakeTest(unittest.TestCase):
             else:
                 try:
                     self.assertEqual(pake.subpake(
-                        return_code_pakefile, ignore_errors=False, exit_on_error=False, **kwargs), code)
+                        return_code_pakefile, ignore_errors=False, call_exit=False, **kwargs), code)
 
                 except pake.SubpakeException as err:
                     err.write_info(pake.conf.stdout)  # Prevent unit test resource warnings

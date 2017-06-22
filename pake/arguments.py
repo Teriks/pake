@@ -56,6 +56,18 @@ def _absolute_directory(directory):
         exit(pake.returncodes.BAD_ARGUMENTS)
 
 
+def _validate_sync_output(value):
+    value = value.lower()
+    if value == 'true' or value == '1':
+        return True
+    elif value == 'false' or value == '0':
+        return False
+    else:
+        _ARG_PARSER.print_usage(pake.conf.stderr)
+        _print_err('{prog}: error: --sync-output only accepts the values True, False, 1, and 0. (Case insensitive).'
+                   .format(prog=_ARG_PARSER.prog))
+
+
 _ARG_PARSER.add_argument('-v', '--version', action='version', version='pake ' + pake.__version__)
 
 _ARG_PARSER.add_argument('--_subpake_depth', default=0, type=int, help=argparse.SUPPRESS,  dest='subpake_depth',)
@@ -88,11 +100,14 @@ _ARG_PARSER.add_argument('-ti', '--show-task-info', action='store_true', dest='s
                          help='List all tasks along side their doc string. '
                               'Only tasks with doc strings present will be shown.')
 
-_ARG_PARSER.add_argument('--no-sync-output', action='store_true', dest='no_sync_output',
-                         help='Force pake to disable synchronization of task output when '
+_ARG_PARSER.add_argument('--sync-output', type=_validate_sync_output, dest='sync_output', default=None,
+                         metavar='{True, False, 1, 0}',
+                         help='Tell pake whether it should synchronize task output when '
                               'running with multiple jobs.  Console output can get scrambled '
                               'under the right circumstances with this turned off, but pake '
-                              'will run slightly faster.')
+                              'will run slightly faster.  This option will override any value '
+                              'in the PAKE_SYNC_OUTPUT environmental variable, and is inherited '
+                              'by subpake invocations.')
 
 _PARSED_ARGS = None
 

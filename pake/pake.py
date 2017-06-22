@@ -464,7 +464,7 @@ class TaskContext:
         return pake.subpake(*args,
                             stdout=self._io, silent=silent,
                             ignore_errors=ignore_errors,
-                            exit_on_error=False,
+                            call_exit=False,
                             readline=readline,
                             collect_output=collect_output,
                             collect_output_lock=collect_output_lock)
@@ -1154,18 +1154,32 @@ class Pake:
         If this is disabled (Set to **False**), task output may become interleaved
         and scrambled when running pake with more than one job.  Pake will run
         somewhat faster however.
+
+    .. py:attribute:: show_task_headers
+
+        Whether or not pake should print **Executing Task:* headers for tasks that are
+        about to execute, the default value is **True**. If you set this to **False** task
+        headers will be disabled for all tasks except ones that explicitly specify **show_header=True**.
+        See the **show_header** parameter of :py:meth:`pake.Pake.task` and :py:meth:`pake.Pake.add_task`,
+        which allows you to disable or force enable the task header for a specific task.
     """
 
-    def __init__(self, stdout=None, sync_output=True):
+    def __init__(self, stdout=None, sync_output=True, show_task_headers=True):
         """
         Create a pake object, optionally set :py:attr:`pake.Pake.stdout` for the instance.
 
         Use :py:meth:`pake.init` to retrieve an instance of this object, do not instantiate directly.
         
         :param stdout: The stream all task output gets written to, (defaults to :py:attr:`pake.conf.stdout`)
+        :param show_task_headers: Whether or not to show **Executing Task:* headers by default.
+        :param sync_output: Whether or not to synchronize task output, setting this value to **None**
+                            causes the default value of **True** to be used.
         """
 
         self.sync_output = sync_output
+
+        self.show_task_headers = show_task_headers
+
         self.stdout = stdout if stdout is not None else pake.conf.stdout
 
         self._stdout_lock = threading.RLock()
@@ -1252,6 +1266,18 @@ class Pake:
         :return: The defines value, or *None*
         """
         return self.get_define(item)
+
+    def has_define(self, name):
+        """Test if a define with a given name was provided to pake.
+
+        This is useful if **None** might be a valid value for your define,
+        and you just want to know if it was actually specified on the command
+        line or with **--stdin-defines**.
+
+        :param name: The name of the define.
+        :return: **True** if a define with the given name exists.
+        """
+        return name in self._defines
 
     def get_define(self, name, default=None):
         """Get a defined value.
@@ -1426,7 +1452,7 @@ class Pake:
                     outdated_inputs.append(input_object)
                     outdated_outputs.append(output_object)
 
-    def task(self, *args, i=None, o=None, no_header=False):
+    def task(self, *args, i=None, o=None, show_header=None):
         """
         Decorator for registering pake tasks.
         
@@ -1595,15 +1621,18 @@ class Pake:
         :param i: Optional input files/directories for change detection.
         :param o: Optional output files/directories for change detection.
         
-        :param no_header: Whether or not to avoid printing a task header when the task begins executing,
-                          defaults to **False** (Header is printed). This does not apply to dry run visits, the
-                          task name/header will still be printed during dry runs even if **no_header=True**.
+        :param show_header: Whether or not to print an **Executing Task:** header when the task begins executing.
+                            This defaults to **None**, which means the header is printed unless :py:attr:`pake.Pake.show_task_header`
+                            is set to **False**.  If you specify **True** and :py:attr:`pake.Pake.show_task_header` is set to
+                            **False**, it will force the task header to print anyway.  By explicitly specifying **True** you
+                            override the :py:attr:`pake.Pake.show_task_header` setting.
+
         """
 
         if len(args) == 1 and inspect.isfunction(args[0]):
             if args[0].__name__ not in self._task_contexts:
                 func = args[0]
-                self.add_task(func.__name__, func, no_header=no_header)
+                self.add_task(func.__name__, func, show_header=show_header)
                 return func
 
         if len(args) == 1 and pake.util.is_iterable_not_str(args[0]):
@@ -1612,7 +1641,7 @@ class Pake:
             dependencies = args
 
         def outer(task_func):
-            self.add_task(task_func.__name__, task_func, dependencies, i, o, no_header=no_header)
+            self.add_task(task_func.__name__, task_func, dependencies, i, o, show_header=show_header)
             return task_func
 
         return outer
@@ -1699,7 +1728,7 @@ class Pake:
 
         return False
 
-    def add_task(self, name, func, dependencies=None, inputs=None, outputs=None, no_header=False):
+    def add_task(self, name, func, dependencies=None, inputs=None, outputs=None, show_header=None):
         """
         Method for programmatically registering pake tasks.
         
@@ -1762,8 +1791,12 @@ class Pake:
         :param dependencies: List of task dependencies or single task, by name or by reference
         :param inputs: List of input files/directories, or a single input (accepts input file generators like :py:meth:`pake.glob`)
         :param outputs: List of output files/directories, or a single output (accepts output file generators like :py:meth:`pake.pattern`)
-        :param no_header: Whether or not to avoid printing a task header when the task begins executing, defaults to **False** (Header is printed).
-                          This does not apply to dry run visits, the task header will still be printed during dry runs.
+
+        :param show_header: Whether or not to print an **Executing Task:** header when the task begins executing.
+                            This defaults to **None**, which means the header is printed unless :py:attr:`pake.Pake.show_task_header` is set to **False**.
+                            If you specify **True** and :py:attr:`pake.Pake.show_task_header` is set to **False**, it will force the task header to print
+                            anyway.  By explicitly specifying **True** you override :py:attr:`pake.Pake.show_task_header`.
+
         :return: The :py:class:`pake.TaskContext` for the new task.
 
 
@@ -1787,9 +1820,19 @@ class Pake:
                 if self._dry_run_mode:
                     ctx.print('Visited Task: "{}"'.format(ctx.name))
                 else:
-                    if not no_header:
+
+                    # If the show_header parameter is True, force the task
+                    # to print a header regardless of what pake.show_task_headers
+                    # says to do
+
+                    # If the show_header parameter is left unspecified (None), check
+                    # pake.show_task_headers to see if it should be printed
+
+                    if show_header is True or (show_header is None and ctx.pake.show_task_headers):
                         ctx.print('===== Executing Task: "{}"'.format(ctx.name))
+
                     return func(*args, **kwargs)
+
             except BaseException as err:
                 _handle_task_exception(ctx, err)
             finally:
