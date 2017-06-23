@@ -79,7 +79,7 @@ Pake return codes.
 
 .. data:: AGGREGATE_EXCEPTION
 
-    14. An aggregate exception was raised from a usage of :py:meth:`pake.TaskContext.multitask`
+    13. An aggregate exception was raised from a usage of :py:meth:`pake.TaskContext.multitask`
         where the **aggregate_exceptions** parameter of :py:meth:`pake.TaskContext.multitask`
         was set to **True**.
 
