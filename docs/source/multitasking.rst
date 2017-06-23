@@ -78,7 +78,7 @@ the inside of a task, you are in charge of synchronizing output to the
 task IO queue.
 
 Pake will synchronize writing the whole task IO queue when the task finishes
-if **--sync-output=False** is not specified on the command line, but it will not
+if **--sync-output False** is not specified on the command line, but it will not
 be able to synchronize the output from sub tasks you submit to its threadpool by
 yourself without help.
 
@@ -87,7 +87,7 @@ submitted to :py:meth:`pake.MultitaskContext`, you need to acquire a lock on
 :py:attr:`pake.TaskContext.io_lock` if you want to sure all your writes show
 up in the order you made them.
 
-If **--sync-output=False** is specified on the command line or :py:attr:`pake.Pake.sync_output`
+If **--sync-output False** is specified on the command line or :py:attr:`pake.Pake.sync_output`
 is set to **False** manually in the pakefile, then using :py:attr:`pake.TaskContext.io_lock`
 in a **with** statement does not actually acquire any lock.
 

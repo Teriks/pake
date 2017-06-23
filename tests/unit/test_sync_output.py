@@ -92,22 +92,22 @@ class SyncOutputTest(unittest.TestCase):
         m_init()
 
         set_expected_value(False)
-        assert_subpake_success('--sync-output', False, msg='pake.sync_output did not match --sync-output=False.')
+        assert_subpake_success('--sync-output', False, msg='pake.sync_output did not match --sync-output False.')
 
         m_init()
 
         set_expected_value(True)
-        assert_subpake_success('--sync-output', True, msg='pake.sync_output did not match --sync-output=True.')
+        assert_subpake_success('--sync-output', True, msg='pake.sync_output did not match --sync-output True.')
 
         m_init()
 
         set_expected_value(False)
-        assert_subpake_success('--sync-output', 0, msg='pake.sync_output did not match --sync-output=0.')
+        assert_subpake_success('--sync-output', 0, msg='pake.sync_output did not match --sync-output 0.')
 
         m_init()
 
         set_expected_value(True)
-        assert_subpake_success('--sync-output', 1, msg='pake.sync_output did not match --sync-output=1.')
+        assert_subpake_success('--sync-output', 1, msg='pake.sync_output did not match --sync-output 1.')
 
         m_init()
 
@@ -138,10 +138,10 @@ class SyncOutputTest(unittest.TestCase):
         del_init_sync_output_value()
         set_expected_value(True)
         assert_subpake_success('--sync-output', True,
-                               msg='pake.sync_output --sync-output=True should override the environmental '
+                               msg='pake.sync_output --sync-output True should override the environmental '
                                    'variable PAKE_SYNC_OUTPUT=0.')
 
-        # Test override False ENV from command line with --sync-output=1
+        # Test override False ENV from command line with --sync-output 1
 
         os.environ['PAKE_SYNC_OUTPUT'] = '0'
 
@@ -150,10 +150,10 @@ class SyncOutputTest(unittest.TestCase):
         del_init_sync_output_value()
         set_expected_value(True)
         assert_subpake_success('--sync-output', 1,
-                               msg='pake.sync_output --sync-output=1 should override the environmental '
+                               msg='pake.sync_output --sync-output 1 should override the environmental '
                                    'variable PAKE_SYNC_OUTPUT=0.')
 
-        # Test override True ENV from command line with --sync-output=False
+        # Test override True ENV from command line with --sync-output False
 
         os.environ['PAKE_SYNC_OUTPUT'] = '1'
 
@@ -162,10 +162,10 @@ class SyncOutputTest(unittest.TestCase):
         del_init_sync_output_value()
         set_expected_value(False)
         assert_subpake_success('--sync-output', False,
-                               msg='pake.sync_output --sync-output=False should override the environmental '
+                               msg='pake.sync_output --sync-output False should override the environmental '
                                    'variable PAKE_SYNC_OUTPUT=1.')
 
-        # Test override True ENV from command line with --sync-output=0
+        # Test override True ENV from command line with --sync-output 0
 
         os.environ['PAKE_SYNC_OUTPUT'] = '1'
 
@@ -174,7 +174,7 @@ class SyncOutputTest(unittest.TestCase):
         del_init_sync_output_value()
         set_expected_value(False)
         assert_subpake_success('--sync-output', 0,
-                               msg='pake.sync_output --sync-output=0 should override the environmental '
+                               msg='pake.sync_output --sync-output 0 should override the environmental '
                                    'variable PAKE_SYNC_OUTPUT=1.')
 
         clean_env()
@@ -182,7 +182,7 @@ class SyncOutputTest(unittest.TestCase):
         # Test overriding the command line from pake.init
         # ===============================================
 
-        # Test override command line --sync-output=True with pake.init(sync_output=False)
+        # Test override command line --sync-output True with pake.init(sync_output=False)
 
         m_init()
 
@@ -192,7 +192,7 @@ class SyncOutputTest(unittest.TestCase):
                                msg='setting pake.init(sync_output=...) should override --sync-output and the '
                                    'environmental variable PAKE_SYNC_OUTPUT.')
 
-        # Test override command line --sync-output=False with pake.init(sync_output=True)
+        # Test override command line --sync-output False with pake.init(sync_output=True)
 
         m_init()
 
@@ -202,7 +202,7 @@ class SyncOutputTest(unittest.TestCase):
                                msg='setting pake.init(sync_output=...) should override --sync-output and the '
                                    'environmental variable PAKE_SYNC_OUTPUT.')
 
-        # Test override command line --sync-output=1 with pake.init(sync_output=False)
+        # Test override command line --sync-output 1 with pake.init(sync_output=False)
 
         m_init()
 
@@ -212,7 +212,7 @@ class SyncOutputTest(unittest.TestCase):
                                msg='setting pake.init(sync_output=...) should override --sync-output and the '
                                    'environmental variable PAKE_SYNC_OUTPUT.')
 
-        # Test override command line --sync-output=0 with pake.init(sync_output=True)
+        # Test override command line --sync-output 0 with pake.init(sync_output=True)
 
         m_init()
 
@@ -222,7 +222,7 @@ class SyncOutputTest(unittest.TestCase):
                                msg='setting pake.init(sync_output=...) should override --sync-output and the '
                                    'environmental variable PAKE_SYNC_OUTPUT.')
 
-        # Test that --sync-output=True is not overridden when pake.init(sync_output=None)
+        # Test that --sync-output True is not overridden when pake.init(sync_output=None)
 
         m_init()
 
@@ -232,7 +232,7 @@ class SyncOutputTest(unittest.TestCase):
                                msg='setting pake.init(sync_output=None) should NOT override --sync-output or the '
                                    'environmental variable PAKE_SYNC_OUTPUT.')
 
-        # Test that --sync-output=False is not overridden when pake.init(sync_output=None)
+        # Test that --sync-output False is not overridden when pake.init(sync_output=None)
 
         m_init()
 
@@ -242,7 +242,7 @@ class SyncOutputTest(unittest.TestCase):
                                msg='setting pake.init(sync_output=None) should NOT override --sync-output or the '
                                    'environmental variable PAKE_SYNC_OUTPUT.')
 
-        # Test that --sync-output=1 is not overridden when pake.init(sync_output=None)
+        # Test that --sync-output 1 is not overridden when pake.init(sync_output=None)
 
         m_init()
 
@@ -252,7 +252,7 @@ class SyncOutputTest(unittest.TestCase):
                                msg='setting pake.init(sync_output=None) should NOT override --sync-output or the '
                                    'environmental variable PAKE_SYNC_OUTPUT.')
 
-        # Test that --sync-output=0 is not overridden when pake.init(sync_output=None)
+        # Test that --sync-output 0 is not overridden when pake.init(sync_output=None)
 
         m_init()
 
@@ -322,9 +322,9 @@ class SyncOutputTest(unittest.TestCase):
         set_expected_value(True)
         assert_subpake_success('--sync-output', 0,
                                msg='pake.sync_output pake.init(sync_output=True) should override '
-                                   'both --sync-output=0 and PAKE_SYNC_OUTPUT=0.')
+                                   'both --sync-output 0 and PAKE_SYNC_OUTPUT=0.')
 
-        # Test override False ENV from command line with --sync-output=1
+        # Test override False ENV from command line with --sync-output 1
 
         os.environ['PAKE_SYNC_OUTPUT'] = '0'
 
@@ -334,9 +334,9 @@ class SyncOutputTest(unittest.TestCase):
         set_expected_value(True)
         assert_subpake_success('--sync-output', False,
                                msg='pake.sync_output pake.init(sync_output=True) should override '
-                                   'both --sync-output=False and PAKE_SYNC_OUTPUT=0.')
+                                   'both --sync-output False and PAKE_SYNC_OUTPUT=0.')
 
-        # Test override True ENV from command line with --sync-output=False
+        # Test override True ENV from command line with --sync-output False
 
         os.environ['PAKE_SYNC_OUTPUT'] = '1'
 
@@ -346,9 +346,9 @@ class SyncOutputTest(unittest.TestCase):
         set_expected_value(False)
         assert_subpake_success('--sync-output', True,
                                msg='pake.sync_output pake.init(sync_output=False) should override '
-                                   'both --sync-output=True and PAKE_SYNC_OUTPUT=1.')
+                                   'both --sync-output True and PAKE_SYNC_OUTPUT=1.')
 
-        # Test override True ENV from command line with --sync-output=0
+        # Test override True ENV from command line with --sync-output 0
 
         os.environ['PAKE_SYNC_OUTPUT'] = '1'
 
@@ -358,7 +358,7 @@ class SyncOutputTest(unittest.TestCase):
         set_expected_value(False)
         assert_subpake_success('--sync-output', 1,
                                msg='pake.sync_output pake.init(sync_output=False) should override '
-                                   'both --sync-output=1 and PAKE_SYNC_OUTPUT=1.')
+                                   'both --sync-output 1 and PAKE_SYNC_OUTPUT=1.')
 
         clean_env()
 
@@ -374,7 +374,7 @@ class SyncOutputTest(unittest.TestCase):
         set_expected_value(False)
         assert_subpake_success('--sync-output', 0,
                                msg='pake.sync_output pake.init(sync_output=False) should override '
-                                   'both --sync-output=0 and PAKE_SYNC_OUTPUT=1.')
+                                   'both --sync-output 0 and PAKE_SYNC_OUTPUT=1.')
 
         os.environ['PAKE_SYNC_OUTPUT'] = '0'
 
@@ -384,7 +384,7 @@ class SyncOutputTest(unittest.TestCase):
         set_expected_value(False)
         assert_subpake_success('--sync-output', 1,
                                msg='pake.sync_output pake.init(sync_output=False) should override '
-                                   'both --sync-output=1 and PAKE_SYNC_OUTPUT=0.')
+                                   'both --sync-output 1 and PAKE_SYNC_OUTPUT=0.')
 
         os.environ['PAKE_SYNC_OUTPUT'] = '0'
 
@@ -394,7 +394,7 @@ class SyncOutputTest(unittest.TestCase):
         set_expected_value(True)
         assert_subpake_success('--sync-output', 1,
                                msg='pake.sync_output pake.init(sync_output=True) should override '
-                                   'both --sync-output=1 and PAKE_SYNC_OUTPUT=0.')
+                                   'both --sync-output 1 and PAKE_SYNC_OUTPUT=0.')
 
         os.environ['PAKE_SYNC_OUTPUT'] = '1'
 
@@ -404,7 +404,7 @@ class SyncOutputTest(unittest.TestCase):
         set_expected_value(True)
         assert_subpake_success('--sync-output', 0,
                                msg='pake.sync_output pake.init(sync_output=False) should override '
-                                   'both --sync-output=0 and PAKE_SYNC_OUTPUT=1.')
+                                   'both --sync-output 0 and PAKE_SYNC_OUTPUT=1.')
 
         os.environ['PAKE_SYNC_OUTPUT'] = '1'
 
@@ -414,7 +414,7 @@ class SyncOutputTest(unittest.TestCase):
         set_expected_value(False)  # Because the command line option overrides the environment
         assert_subpake_success('--sync-output', 0,
                                msg='pake.sync_output pake.init(sync_output=False) should override '
-                                   'both --sync-output=0 and PAKE_SYNC_OUTPUT=1.')
+                                   'both --sync-output 0 and PAKE_SYNC_OUTPUT=1.')
 
         os.environ['PAKE_SYNC_OUTPUT'] = '0'
 
@@ -424,6 +424,6 @@ class SyncOutputTest(unittest.TestCase):
         set_expected_value(True)  # Because the command line option overrides the environment
         assert_subpake_success('--sync-output', 1,
                                msg='pake.sync_output pake.init(sync_output=False) should override '
-                                   'both --sync-output=0 and PAKE_SYNC_OUTPUT=1.')
+                                   'both --sync-output 0 and PAKE_SYNC_OUTPUT=1.')
 
         clean_env()

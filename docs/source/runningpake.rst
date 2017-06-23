@@ -266,7 +266,7 @@ Using the **--sync-output** option will override the environmental variable howe
 Pake will use the value from the command line option instead of the value in the environment.
 
 When this environmental variable and **--sync-output** are not defined/specified,
-the default value pake uses is **--sync-output=True**.
+the default value pake uses is **--sync-output True**.
 
 :py:meth:`pake.init` has an argument named **sync_output** that can also be used to
 permanently override both the **--sync-output** switch and the ``PAKE_SYNC_OUTPUT``
@@ -275,7 +275,7 @@ environmental variable from inside of a pakefile.
 The **--sync-output** option controls whether pake tries to synchronize task output
 by queueing it when running with more than one job.
 
-**--sync-output=False** causes :py:class:`pake.TaskContext.io_lock` to yield a lock
+**--sync-output False** causes :py:class:`pake.TaskContext.io_lock` to yield a lock
 object which actually does nothing when it is acquired, and it also forces pake
 to write all run output to :py:attr:`pake.Pake.stdout` instead of task output
 queues, even when running tasks concurrently.
