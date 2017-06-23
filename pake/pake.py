@@ -1149,7 +1149,7 @@ class Pake:
 
         Whether or not the pake instance should queue task output and write it in
         a synchronized fashion when running with more than one job.  This defaults
-        to **True** unless the environmental variable **PAKE_SYNC_OUTPUT** is set to **0**,
+        to **True** unless the environmental variable ``PAKE_SYNC_OUTPUT`` is set to **0**,
         or the command line option **--output-sync False** is specified.
 
         If this is disabled (Set to **False**), task output may become interleaved
