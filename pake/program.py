@@ -254,7 +254,7 @@ def _init_should_sync_output(kwargs, parsed_args):
         # the override value, and they will ignore stuff
         # in PAKE_SYNC_OUTPUT
 
-        # The top level of pake will always export
+        # pake.init will always export
         #  __PAKE_SYNC_DEFINES to subprocesses, with
         # the correct value if it has been overridden
         # on the command line, or in pake.init etc..
