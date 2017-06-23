@@ -1160,7 +1160,7 @@ class Pake:
 
     .. py:attribute:: show_task_headers
 
-        Whether or not pake should print **Executing Task:* headers for tasks that are
+        Whether or not pake should print **Executing Task:** headers for tasks that are
         about to execute, the default value is **True**. If you set this to **False** task
         headers will be disabled for all tasks except ones that explicitly specify **show_header=True**.
         See the **show_header** parameter of :py:meth:`pake.Pake.task` and :py:meth:`pake.Pake.add_task`,
@@ -1176,7 +1176,7 @@ class Pake:
         Use :py:meth:`pake.init` to retrieve an instance of this object, do not instantiate directly.
         
         :param stdout: The stream all task output gets written to, (defaults to :py:attr:`pake.conf.stdout`)
-        :param show_task_headers: Whether or not to show **Executing Task:* headers by default.
+        :param show_task_headers: Whether or not to show **Executing Task:** headers by default.
         :param sync_output: Whether or not to synchronize task output, setting this value to **None**
                             causes the default value of **True** to be used.
         """
