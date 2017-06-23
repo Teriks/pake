@@ -1143,7 +1143,7 @@ class Pake:
         If you set this, make sure that you set it to an actual file object that implements **fileno()**. :py:class:`io.StringIO`
         and pseudo file objects with no **fileno()** will not work with all of pake's subprocess spawning functions.
 
-        This attribute can be modified.
+        This attribute can be modified directly.
 
     .. py:attribute:: sync_output
 
@@ -1155,6 +1155,8 @@ class Pake:
         and scrambled when running pake with more than one job.  Pake will run
         somewhat faster however.
 
+        This attribute can be modified directly.
+
     .. py:attribute:: show_task_headers
 
         Whether or not pake should print **Executing Task:* headers for tasks that are
@@ -1162,6 +1164,8 @@ class Pake:
         headers will be disabled for all tasks except ones that explicitly specify **show_header=True**.
         See the **show_header** parameter of :py:meth:`pake.Pake.task` and :py:meth:`pake.Pake.add_task`,
         which allows you to disable or force enable the task header for a specific task.
+
+        This attribute can be modified directly.
     """
 
     def __init__(self, stdout=None, sync_output=True, show_task_headers=True):
