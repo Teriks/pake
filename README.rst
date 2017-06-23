@@ -44,7 +44,7 @@ https://github.com/Teriks/libasm\_io
 Writing Basic Tasks
 ===================
 
-Here's a contrived pake demo which demonstrates how tasks are written:
+Here's a contrived pake demo:
 
 .. code-block:: python
 

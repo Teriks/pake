@@ -9,14 +9,12 @@ as inputs or outputs interchangeably and in combination.
 
 **Note:**
 
-    each registered task receives a :py:class:`pake.TaskContext` instance as a single argument when run.
-
+    Each registered task receives a :py:class:`pake.TaskContext` instance as a single argument when run.
     In this example the argument is named **ctx**, but it can be named however you like.
-
     It is not an error to leave this argument undefined, but you will most likely be using it.
 
 
-Here's a contrived pake demo which demonstrates how tasks are written:
+Example:
 
 .. code-block:: python
 
