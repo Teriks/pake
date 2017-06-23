@@ -341,7 +341,7 @@ class TaskContext:
         found then the default behavior is to re-raise it on the foreground thread.
 
         You can specify **aggregate_exceptions=True** if you want all of the exceptions
-        to be collected into a :py:class:`pake.AggregateException`, which will then be raised
+        to be collected into a :py:exc:`pake.AggregateException`, which will then be raised
         when :py:meth:`pake.MultitaskContext.shutdown` is called with **wait=True**.
 
 
@@ -351,7 +351,7 @@ class TaskContext:
 
         :param aggregate_exceptions: Whether or not the returned executor should collect
                                      exceptions from all tasks that ended due to an exception,
-                                     and then raise a :py:class:`pake.AggregateException` containing
+                                     and then raise a :py:exc:`pake.AggregateException` containing
                                      them upon shutdown.
 
         :returns: :py:class:`pake.MultitaskContext`
@@ -1123,7 +1123,7 @@ class MultitaskContext(Executor):
 
         Whether or not the multitasking context should collect all exceptions
         that occurred inside of submitted tasks upon shutdown, and then raise
-        a :py:class:`pake.AggregateException` containing them.
+        a :py:exc:`pake.AggregateException` containing them.
 
         This is **False** by default, the normal behaviour is to search
         the tasks in the order of submission for exceptions upon shutdown, and
