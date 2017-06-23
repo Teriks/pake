@@ -7,14 +7,14 @@ the documentation for the :py:meth:`pake.Pake.task` function decorator.
 Pake is capable of handling change detection against both files and directories, and the two can be used
 as inputs or outputs interchangeably and in combination.
 
-
 **Note:**
 
-each registered task receives a :py:class:`pake.TaskContext` instance as a single argument when run.
+    each registered task receives a :py:class:`pake.TaskContext` instance as a single argument when run.
 
-In this example the argument is named **ctx**, but it can be named however you like.
+    In this example the argument is named **ctx**, but it can be named however you like.
 
-It is not an error to leave this argument undefined, but you will most likely be using it.
+    It is not an error to leave this argument undefined, but you will most likely be using it.
+
 
 Here's a contrived pake demo which demonstrates how tasks are written:
 
