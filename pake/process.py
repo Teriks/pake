@@ -401,11 +401,8 @@ class CalledProcessException(ProcessException):
 
     @property
     def stdout(self):  # pragma: no cover
+        """Alias for **output**"""
         return self.output
-
-    @stdout.setter
-    def stdout(self, value):  # pragma: no cover
-        self.output = value
 
 
 DEVNULL = subprocess.DEVNULL
@@ -452,7 +449,7 @@ def check_call(*args, stdin=None, stdout=None, stderr=None, shell=False, timeout
     except subprocess.TimeoutExpired as err:
         raise TimeoutExpired(err.args, err.timeout, err.stdout, err.stdout)
     except subprocess.CalledProcessError as err:
-        raise CalledProcessException(args, err.returncode, output=err.output, stderr=err.stdout)
+        raise CalledProcessException(args, err.returncode, output=err.output, stderr=err.stderr)
 
 
 def check_output(*args, stdin=None, stderr=None, shell=False, timeout=None, **kwargs):
@@ -473,4 +470,4 @@ def check_output(*args, stdin=None, stderr=None, shell=False, timeout=None, **kw
     except subprocess.TimeoutExpired as err:
         raise TimeoutExpired(err.args, err.timeout, err.stdout, err.stdout)
     except subprocess.CalledProcessError as err:
-        raise CalledProcessException(args, err.returncode, output=err.output, stderr=err.stdout)
+        raise CalledProcessException(args, err.returncode, output=err.output, stderr=err.stderr)

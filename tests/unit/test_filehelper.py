@@ -204,6 +204,8 @@ class SubpakeTest(unittest.TestCase):
         past_cwd = os.getcwd()
         os.chdir(script_dir)
 
+        pake.FileHelper().rmtree('test_data/filehelper')
+
         self.file_helper_test_stub(SilentTestCtx(), silent=True)
 
         self.file_helper_test_stub(TestCtx(), silent=False)

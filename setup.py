@@ -3,8 +3,10 @@ import re
 
 import sys
 
+install_requires = []
+
 if sys.version_info < (3, 5):
-    sys.exit('Python < 3.5 is not supported.  You are currently running Python {}.{}.{}'.format(*sys.version_info[:3]))
+    exit('Python < 3.5 is not supported.  You are currently running Python {}.{}.{}'.format(*sys.version_info[:3]))
 
 with open('pake/__init__.py') as f:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
@@ -25,7 +27,7 @@ setup(name='python-pake',
       description='A make-like build utility entirely in python.',
       long_description=readme,
       include_package_data=True,
-      install_requires=[],
+      install_requires=install_requires,
       entry_points={
           'console_scripts': [
               'pake = pake.entry_points.pake_command:main'
