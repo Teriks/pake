@@ -344,7 +344,10 @@ Example:
             for i in range(0, 3):
                 mt.submit(my_sub_task)
 
-    pake.run(pk, tasks=my_tasks)
+    # Force this example to run with 10 jobs
+    # regardless of what the command line says
+
+    pake.run(pk, tasks=my_task, jobs=10)
 
 
 Output:
@@ -356,13 +359,13 @@ Output:
     Exception "pake.pake.AggregateException" was raised within task "my_task".
 
     Traceback (most recent call last):
-      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1937, in func_wrapper
+      File "{PAKE_INSTALL_DIR}/pake/pake.py", line 1937, in func_wrapper
         return func(*args, **kwargs)
-      File "{PAKEFILE_DIR}/pakefile.py", line 17, in my_task
+      File "{PAKEFILE_DIR}/pakefile.py", line 19, in my_task
         mt.submit(my_sub_task)
-      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1228, in __exit__
+      File "{PAKE_INSTALL_DIR}/pake/pake.py", line 1228, in __exit__
         self.shutdown()
-      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1225, in shutdown
+      File "{PAKE_INSTALL_DIR}/pake/pake.py", line 1225, in shutdown
         raise AggregateException(exceptions)
     pake.pake.AggregateException: [MyException('Hello World!',), MyException('Hello World!',), MyException('Hello World!',)]
 
@@ -373,9 +376,9 @@ Output:
     ===================
 
     Traceback (most recent call last):
-      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1155, in _submit_this_thread
-        result = fn(*args, **kwargs)
-      File "{PAKEFILE_DIR}/pakefile.py", line 6, in my_sub_task
+      File "{PYTHON_INSTALL_DIR}/lib/concurrent/futures/thread.py", line 55, in run
+        result = self.fn(*self.args, **self.kwargs)
+      File "{PAKEFILE_DIR}/pakefile.py", line 9, in my_sub_task
         raise MyException('Hello World!')
     MyException: Hello World!
 
@@ -383,9 +386,9 @@ Output:
     ===================
 
     Traceback (most recent call last):
-      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1155, in _submit_this_thread
-        result = fn(*args, **kwargs)
-      File "{PAKEFILE_DIR}/pakefile.py", line 6, in my_sub_task
+      File "{PYTHON_INSTALL_DIR}/lib/concurrent/futures/thread.py", line 55, in run
+        result = self.fn(*self.args, **self.kwargs)
+      File "{PAKEFILE_DIR}/pakefile.py", line 9, in my_sub_task
         raise MyException('Hello World!')
     MyException: Hello World!
 
@@ -393,9 +396,9 @@ Output:
     ===================
 
     Traceback (most recent call last):
-      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1155, in _submit_this_thread
-        result = fn(*args, **kwargs)
-      File "{PAKEFILE_DIR}/pakefile.py", line 6, in my_sub_task
+      File "{PYTHON_INSTALL_DIR}/lib/concurrent/futures/thread.py", line 55, in run
+        result = self.fn(*self.args, **self.kwargs)
+      File "{PAKEFILE_DIR}/pakefile.py", line 9, in my_sub_task
         raise MyException('Hello World!')
     MyException: Hello World!
 
