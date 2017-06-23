@@ -1088,7 +1088,7 @@ class AggregateException(Exception):
             if isinstance(err, pake.process.StreamingSubprocessException):
 
                 print('Exception Number {}:\n'
-                      '================={}\n'
+                      '=================={}\n'
                       .format(human_idx, section_sep_extra), file=file)
 
                 err.write_info(file=file)
@@ -1096,7 +1096,7 @@ class AggregateException(Exception):
             else:
 
                 print('Exception Number {}\n'
-                      '================={}:\n'
+                      '=================={}:\n'
                       .format(human_idx, section_sep_extra), file=file)
 
                 traceback.print_exception(
