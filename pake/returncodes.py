@@ -77,9 +77,15 @@ Pake return codes.
 
     12. An unhandled exception occurred inside a task.
 
+.. data:: AGGREGATE_EXCEPTION
+
+    14. An aggregate exception was raised from a usage of :py:meth:`pake.TaskContext.multitask`
+        where the **aggregate_exceptions** parameter of :py:meth:`pake.TaskContext.multitask`
+        was set to **True**.
+
 .. data:: STDIN_DEFINES_SYNTAX_ERROR
 
-    13. A syntax error was encountered parsing the defines dictionary passed into
+    14. A syntax error was encountered parsing the defines dictionary passed into
         **stdin** while using the **--stdin-defines** option.
 
 """
@@ -97,4 +103,5 @@ UNDEFINED_TASK = 9
 TASK_SUBPROCESS_EXCEPTION = 10
 SUBPAKE_EXCEPTION = 11
 TASK_EXCEPTION = 12
-STDIN_DEFINES_SYNTAX_ERROR = 13
+AGGREGATE_EXCEPTION = 13
+STDIN_DEFINES_SYNTAX_ERROR = 14

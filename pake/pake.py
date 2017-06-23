@@ -57,7 +57,8 @@ __all__ = ['pattern',
            'TaskException',
            'TaskExitException',
            'InputNotFoundException',
-           'MissingOutputsException']
+           'MissingOutputsException',
+           'AggregateException']
 
 
 class TaskException(Exception):
@@ -321,7 +322,7 @@ class TaskContext:
 
         return context()
 
-    def multitask(self):
+    def multitask(self, aggregate_exceptions=False):
         """
         Returns a contextual object for submitting work to pake's current thread pool.
 
@@ -336,10 +337,32 @@ class TaskContext:
 
         At the end of the **with** statement, all submitted tasks are simultaneously waited on.
 
+        The tasks will be checked in order of submission for exceptions, if an exception is
+        found then the default behavior is to re-raise it on the foreground thread.
+
+        You can specify **aggregate_exceptions=True** if you want all of the exceptions
+        to be collected into a :py:class:`pake.AggregateException`, which will then be raised
+        when :py:meth:`pake.MultitaskContext.shutdown` is called with **wait=True**.
+
+
+        **shutdown** is called at the end of your **with** statement with the **wait**
+        parameter set to **True**.
+
+
+        :param aggregate_exceptions: Whether or not the returned executor should collect
+                                     exceptions from all tasks that ended due to an exception,
+                                     and then raise a :py:class:`pake.AggregateException` containing
+                                     them on :py:pake:`pake.MultitaskContext.shutdown`.  If you are
+                                     using a **with** statement, this means the aggregate exception
+                                     will be raised at the end of the statement.  The default behavior
+                                     is to re-raise the first exception found among the submitted task,
+                                     the tasks will be searched in the order you submitted them.
+
         :returns: :py:class:`pake.MultitaskContext`
         """
 
-        return MultitaskContext(self)
+        return MultitaskContext(self,
+                                aggregate_exceptions=aggregate_exceptions)
 
     @property
     def outdated_pairs(self):
@@ -1032,6 +1055,58 @@ def pattern(file_pattern):
     return output_generator
 
 
+class AggregateException(Exception):
+    """
+    Thrown upon :py:meth:`pake.MultitaskContext.shutdown` if the context had
+    its :py:attr:`pake.MultitaskContext.aggregate_exceptions` setting set to **True**
+    and one or more submitted tasks encountered an exception.
+
+    See the **aggregate_exceptions** parameter of :py:meth:`pake.TaskContext.multitask`.
+    """
+
+    def __init__(self, exceptions):
+        self.exceptions = exceptions
+
+    def write_info(self, file=None):
+        """
+        Write information about all the encountered exceptions to a file like object.
+        If you specify the file as **None**, the default is :py:attr:`pake.conf.stderr`
+
+        :param file: A text mode file like object to write information to.
+        """
+
+        file = pake.conf.stderr if file is None else file
+
+        print('All Aggregated Exceptions:\n', file=file)
+
+        for idx, err in enumerate(self.exceptions):
+            human_idx = idx+1
+
+            human_idx_len = len(str(human_idx))
+            section_sep_extra = '=' * human_idx_len
+
+            if isinstance(err, pake.process.StreamingSubprocessException):
+
+                print('Exception Number {}:\n'
+                      '================={}\n'
+                      .format(human_idx, section_sep_extra), file=file)
+
+                err.write_info(file=file)
+                file.write('\n')
+            else:
+
+                print('Exception Number {}\n'
+                      '================={}:\n'
+                      .format(human_idx, section_sep_extra), file=file)
+
+                traceback.print_exception(
+                    type(err),
+                    err,
+                    err.__traceback__,
+                    file=pake.conf.stderr if file is None else file)
+                file.write('\n')
+
+
 class MultitaskContext(Executor):
     """Returned by :py:meth:`pake.TaskContext.multitask` (see for more details).
 
@@ -1039,23 +1114,34 @@ class MultitaskContext(Executor):
     :py:class:`concurrent.futures.ThreadPoolExecutor` from the built in Python module
     :py:class:`concurrent.futures`.
 
-    If you need further reference on how its member functions behave,
-    you can also consult the official Python doc for that class.
+    If you need further reference on how its member functions behave, you can also consult
+    the official Python doc for that class.
 
     This object is meant to be used in a **with** statement.  At the end of the **with**
     statement all of your submitted work will be waited on, so you do not have to do it
     manually with :py:meth:`pake.MultitaskContext.shutdown`.
 
     Using a **with** statement is also exception safe.
+
+    .. py:attribute:: aggregate_exceptions
+
+        Whether or not the multitasking context should collect all exceptions
+        that occurred inside of submitted tasks upon shutdown, and then raise
+        a :py:class:`pake.AggregateException` containing them.
+
+        This is **False** by default, the normal behaviour is to search
+        the tasks in the order of submission for exceptions upon shutdown, and
+        then re-raise the first exception that was encountered on the foreground thread.
     """
 
-    def __init__(self, ctx):
+    def __init__(self, ctx, aggregate_exceptions=False):
         """
         :param ctx: Instance of :py:class:`pake.TaskContext`.
         """
         self._ctx = ctx
         self._threadpool = ctx.pake.threadpool
         self._pending = []
+        self.aggregate_exceptions = aggregate_exceptions
 
     @staticmethod
     def _submit_this_thread(fn, *args, **kwargs):
@@ -1117,14 +1203,23 @@ class MultitaskContext(Executor):
     def shutdown(self, wait=True):
         """Shutdown multitasking and free resources, optionally wait on all submitted tasks.
     
-    It is not necessary to call this function if you are using the context in a **with** statement. 
-    
-    If you specify **wait=False**, this method will not propagate any exceptions out of your submitted tasks.
-    
-    :param wait: Whether or not to wait on all submitted tasks, default is true.
+           It is not necessary to call this function if you are using the context in a **with** statement.
+
+           If you specify **wait=False**, this method will not propagate any exceptions out of your submitted tasks.
+
+           :param wait: Whether or not to wait on all submitted tasks, default is true.
         """
-        if wait and len(self._pending):
-            _wait_futures_and_raise(self._pending)
+
+        if not self.aggregate_exceptions:
+            if wait and len(self._pending):
+                _wait_futures_and_raise(self._pending)
+        elif wait:
+            futures_wait(self._pending)
+            exceptions = [
+                e for e in (future.exception() for future in self._pending) if e is not None
+            ]
+            if len(exceptions):
+                raise AggregateException(exceptions)
 
     def __exit__(self, exc_type, exc_value, tb):
         self.shutdown()

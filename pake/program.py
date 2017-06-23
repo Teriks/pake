@@ -614,7 +614,19 @@ def run(pake_obj, tasks=None, jobs=None, call_exit=True):
     except pake.TaskException as err:
         inner_err = err.exception
 
-        if isinstance(inner_err, pake.SubpakeException):
+        if isinstance(inner_err, pake.AggregateException):
+
+            _print_err('\n{}\n'.format(err))
+            err.print_traceback(file=pake.conf.stderr)
+            pake.conf.stderr.write('\n')
+
+            pake.conf.stderr.write('\n')
+            inner_err.write_info(file=pake.conf.stderr)
+            pake.conf.stderr.write('\n')
+
+            return_code = returncodes.AGGREGATE_EXCEPTION
+
+        elif isinstance(inner_err, pake.SubpakeException):
             pake.conf.stderr.write('\n')
             inner_err.write_info(file=pake.conf.stderr)
             pake.conf.stderr.write('\n')

@@ -55,7 +55,8 @@ from .pake import \
     TaskException, \
     TaskExitException, \
     InputNotFoundException, \
-    MissingOutputsException
+    MissingOutputsException, \
+    AggregateException
 
 from .program import \
     run, \

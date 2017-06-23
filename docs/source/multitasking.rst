@@ -305,11 +305,26 @@ Sub task exceptions
 -------------------
 
 If an exception occurs inside one of the sub tasks submitted to :py:meth:`pake.MultitaskContext.submit`
-or :py:meth:`pake.MultitaskContext.map`, it will be propagated out of the context manager at the end
-of your **with** statement.
+or :py:meth:`pake.MultitaskContext.map`, it will be re-raised in the foreground thread of your pake task
+at the end of your **with** statement.
 
-If more than one task completes with an exception, the one that was submitted
-first will be the one to have its exception propagated out of the multitasking context.
+The pake task *(your registered task)* will then take over handling of the exception if you do not catch it.
+It will be wrapped in a :py:exc:`pake.TaskException` which is raised from :py:meth:`pake.Pake.run` and
+handled by :py:meth:`pake.run`.
+
+By default, if more than one task completes with an exception, the one that was submitted first
+will be the one to have its exception re-raised.
+
+You can set the **aggregate_exceptions** parameter of :py:meth:`pake.TaskContext.multitask`
+to **True**, and it will return an executor context that will collect any raised exceptions
+and add them all to a :py:exc:`pake.AggregateException`.  The aggregate exception will then
+be raised at the end of your **with** statement.
+
+Aggregate exceptions will be wrapped in a :py:exc:`pake.TaskException` and thrown from
+:py:meth:`pake.Pake.run` just like any other exception.  :py:meth:`pake.run` intercepts
+the task exception and makes sure it gets printed in a way that is readable if it contains
+an instance of :py:exc:`pake.AggregateException`.
 
 If you are not using a **with** statement, the exception will propagate out of
-:py:meth:`pake.MultitaskContext.shutdown` when you call it manually.
+:py:meth:`pake.MultitaskContext.shutdown` when you call it manually, unless you
+pass **wait=False**, in which case no exceptions will be re-raised.
