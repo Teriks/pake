@@ -1148,8 +1148,9 @@ class Pake:
     .. py:attribute:: sync_output
 
         Whether or not the pake instance should queue task output and write it in
-        a synchronized fashion when running with more than 1 job.  This defaults
-        to **True** if the command line option **no-output-sync** is not used.
+        a synchronized fashion when running with more than one job.  This defaults
+        to **True** unless the environmental variable **PAKE_SYNC_OUTPUT** is set to **0**,
+        or the command line option **--output-sync False** is specified.
 
         If this is disabled (Set to **False**), task output may become interleaved
         and scrambled when running pake with more than one job.  Pake will run
