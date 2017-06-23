@@ -8,6 +8,7 @@ Module Contents
     :members:
     :show-inheritance:
     :inherited-members:
+    :exclude-members: with_traceback
 
 
 Submodules
