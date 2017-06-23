@@ -352,11 +352,7 @@ class TaskContext:
         :param aggregate_exceptions: Whether or not the returned executor should collect
                                      exceptions from all tasks that ended due to an exception,
                                      and then raise a :py:class:`pake.AggregateException` containing
-                                     them on :py:pake:`pake.MultitaskContext.shutdown`.  If you are
-                                     using a **with** statement, this means the aggregate exception
-                                     will be raised at the end of the statement.  The default behavior
-                                     is to re-raise the first exception found among the submitted task,
-                                     the tasks will be searched in the order you submitted them.
+                                     them upon shutdown.
 
         :returns: :py:class:`pake.MultitaskContext`
         """
