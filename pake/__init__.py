@@ -104,4 +104,5 @@ __all__ = [
     'PakeUninitializedException',
     'SubpakeException',
     'TerminateException',
+    'AggregateException',
 ]
