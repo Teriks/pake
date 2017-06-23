@@ -66,6 +66,7 @@ def _validate_sync_output(value):
         _ARG_PARSER.print_usage(pake.conf.stderr)
         _print_err('{prog}: error: --sync-output only accepts the values True, False, 1, and 0. (Case insensitive).'
                    .format(prog=_ARG_PARSER.prog))
+        exit(pake.returncodes.BAD_ARGUMENTS)
 
 
 _ARG_PARSER.add_argument('-v', '--version', action='version', version='pake ' + pake.__version__)

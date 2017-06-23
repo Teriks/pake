@@ -253,6 +253,13 @@ class ProgramTest(unittest.TestCase):
         assert_bad_args('--show-task-info', 'dummy')
         assert_bad_args('--show-tasks', 'dummy')
 
+        assert_bad_args('--sync-output', '2')
+
+        assert_bad_args('--sync-output', '-1')
+
+        assert_bad_args('--sync-output', 'None')
+
+
         def assert_exit_code(*args,
                              no_tasks=False,
                              all_up_to_date=False,
@@ -294,9 +301,11 @@ class ProgramTest(unittest.TestCase):
 
         assert_exit_code('dummy', '--sync-output', 'True')
         assert_exit_code('dummy', '--sync-output', 'true')
+        assert_exit_code('dummy', '--sync-output', 'trUe')
 
         assert_exit_code('dummy', '--sync-output', 'False')
         assert_exit_code('dummy', '--sync-output', 'false')
+        assert_exit_code('dummy', '--sync-output', 'fAlse')
 
         assert_exit_code('dummy', '--sync-output', '1')
         assert_exit_code('dummy', '--sync-output', '0')
