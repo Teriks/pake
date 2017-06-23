@@ -1068,6 +1068,13 @@ class AggregateException(Exception):
         Write information about all the encountered exceptions to a file like object.
         If you specify the file as **None**, the default is :py:attr:`pake.conf.stderr`
 
+        The information written is not guaranteed to be available for writing more than once.
+
+        Exceptions derived from :py:exc:`pake.process.StreamingSubprocessException`
+        have special handling in this function, as they can incrementally stream
+        information from a temp file and then dispose of it.  They must have **write_info**
+        called on them as well.
+
         :param file: A text mode file like object to write information to.
         """
 
