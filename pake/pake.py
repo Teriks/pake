@@ -1098,8 +1098,8 @@ class AggregateException(Exception):
                 file.write('\n')
             else:
 
-                print('Exception Number {}\n'
-                      '=================={}:\n'
+                print('Exception Number {}:\n'
+                      '=================={}\n'
                       .format(human_idx, section_sep_extra), file=file)
 
                 traceback.print_exception(

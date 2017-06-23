@@ -320,6 +320,86 @@ to **True**, and it will return an executor context that will collect any raised
 and add them all to a :py:exc:`pake.AggregateException`.  The aggregate exception will then
 be raised at the end of your **with** statement.
 
+Example:
+
+.. code-block:: python
+
+    import pake
+
+    pk = pake.init()
+
+    class MyException(Exception):
+        pass
+
+    def my_sub_task():
+        raise MyException('Hello World!')
+
+    @pk.task
+    def my_task(ctx):
+        with ctx.multitask(aggregate_exceptions=True) as mt:
+
+            # You can also do this, instead of using the parameter
+            mt.aggregate_exceptions = True
+
+            for i in range(0, 3):
+                mt.submit(my_sub_task)
+
+    pake.run(pk, tasks=my_tasks)
+
+
+Output:
+
+.. code-block:: bash
+
+    ===== Executing Task: "my_task"
+
+    Exception "pake.pake.AggregateException" was raised within task "my_task".
+
+    Traceback (most recent call last):
+      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1937, in func_wrapper
+        return func(*args, **kwargs)
+      File "{PAKEFILE_DIR}/pakefile.py", line 17, in my_task
+        mt.submit(my_sub_task)
+      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1228, in __exit__
+        self.shutdown()
+      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1225, in shutdown
+        raise AggregateException(exceptions)
+    pake.pake.AggregateException: [MyException('Hello World!',), MyException('Hello World!',), MyException('Hello World!',)]
+
+
+    All Aggregated Exceptions:
+
+    Exception Number 1:
+    ===================
+
+    Traceback (most recent call last):
+      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1155, in _submit_this_thread
+        result = fn(*args, **kwargs)
+      File "{PAKEFILE_DIR}/pakefile.py", line 6, in my_sub_task
+        raise MyException('Hello World!')
+    MyException: Hello World!
+
+    Exception Number 2:
+    ===================
+
+    Traceback (most recent call last):
+      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1155, in _submit_this_thread
+        result = fn(*args, **kwargs)
+      File "{PAKEFILE_DIR}/pakefile.py", line 6, in my_sub_task
+        raise MyException('Hello World!')
+    MyException: Hello World!
+
+    Exception Number 3:
+    ===================
+
+    Traceback (most recent call last):
+      File "{PAKE_INSTALL_PATH}/pake/pake.py", line 1155, in _submit_this_thread
+        result = fn(*args, **kwargs)
+      File "{PAKEFILE_DIR}/pakefile.py", line 6, in my_sub_task
+        raise MyException('Hello World!')
+    MyException: Hello World!
+
+
 Aggregate exceptions will be wrapped in a :py:exc:`pake.TaskException` and thrown from
 :py:meth:`pake.Pake.run` just like any other exception.  :py:meth:`pake.run` intercepts
 the task exception and makes sure it gets printed in a way that is readable if it contains
