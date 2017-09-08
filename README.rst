@@ -1,7 +1,7 @@
 About pake
 ==========
 
-|Master Documentation Status| |Develop Documentation Status| |codecov|
+|Master Documentation Status| |codecov|
 
 pake is a make-like python build utility where tasks, dependencies and
 build commands can be expressed entirely in python, similar to ruby
@@ -452,7 +452,5 @@ Command Line Options
 
 .. |Master Documentation Status| image:: https://readthedocs.org/projects/pake/badge/?version=latest
    :target: http://pake.readthedocs.io/en/latest/?badge=latest
-.. |Develop Documentation Status| image:: https://readthedocs.org/projects/pake/badge/?version=develop
-   :target: http://pake.readthedocs.io/en/develop/?badge=develop
 .. |codecov| image:: https://codecov.io/gh/Teriks/pake/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/Teriks/pake
