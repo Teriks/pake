@@ -42,7 +42,7 @@ build along side the makefiles in that project.
 https://github.com/Teriks/libasm\_io
 
 
-See the build with pake section of **libasm\_io/build-readme.md" here_.
+See the build with pake section of **libasm\_io/build-readme.md** here_.
 
 .. _here: https://github.com/Teriks/libasm_io/blob/develop/build-readme.md#build-with-pake
 
