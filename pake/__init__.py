@@ -36,7 +36,7 @@ Export values must be able to **repr()** into parsable python literals.
 __author__ = 'Teriks'
 __copyright__ = 'Copyright (c) 2016 Teriks'
 __license__ = 'Three Clause BSD'
-__version__ = '0.17.0.2a1'
+__version__ = '0.17.0.3a1'
 
 # __version__ and friends needs to be above the imports, the
 # metadata above may be used elsewhere by the modules that follow
